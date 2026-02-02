@@ -1,0 +1,19 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using BarberBooking.API.Models;
+
+namespace BarberBooking.API.Contracts
+{
+    public interface IMasterTimeSlotRepository
+    {
+        Task<MasterTimeSlot> CreateAsync(MasterTimeSlot timeSlot);
+        Task<MasterTimeSlot> DeleteAsync(Guid timeSlotId);
+        Task<List<MasterTimeSlot>> CreateRangeAsync(List<MasterTimeSlot> timeSlots);
+        Task<MasterTimeSlot?> GetByIdAsync(Guid id);
+        Task<List<MasterTimeSlot>> GetByMasterAsync(Guid masterId, DateTime date);
+        Task<List<MasterTimeSlot>> GetAvailableSlotsAsync(Guid masterId, DateTime date, TimeSpan serviceDuration);
+        Task<MasterTimeSlot?> FindSlotAsync(Guid masterId, DateTime date, TimeSpan startTime);
+    }
+}

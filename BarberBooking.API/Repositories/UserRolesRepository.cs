@@ -1,0 +1,31 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using BarberBooking.API;
+using BarberBooking.API.Contracts;
+using BarberBooking.API.Enums;
+using BarberBooking.API.Models;
+using Microsoft.EntityFrameworkCore;
+
+namespace BarberBooking.API.Repositories
+{
+    public class UserRolesRepository:IUserRolesRepository
+    {
+        private readonly BarberBookingDbContext _context;
+        public UserRolesRepository(BarberBookingDbContext context)
+        {
+            _context = context;
+        }
+
+        public async Task<List<UserRoles>> GetRolesIdByUserId(Guid userId)
+        {
+            return await _context.UserRoles.Where(x => x.UserId == userId).ToListAsync();
+        }
+
+        public async Task<List<Roles>> GetUserRolesAsync(int roleId)
+        {
+           return await _context.Roles.Where(x => x.Id == roleId).ToListAsync();
+        }
+    }
+}

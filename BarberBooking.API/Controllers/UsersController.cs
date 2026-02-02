@@ -1,0 +1,75 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using BarberBooking.API.Contracts;
+using BarberBooking.API.Contracts.EmailContracts;
+using BarberBooking.API.CQRS.Commands;
+using BarberBooking.API.CQRS.Queries;
+using BarberBooking.API.Dto.DtoAuthorization;
+using BarberBooking.API.Dto.DtoUsers;
+using MediatR;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Caching.Memory;
+using Serilog;
+
+namespace BarberBooking.API.Controllers
+{
+    [ApiController]
+    [Route("api/[controller]")]
+    public class UsersController : ControllerBase
+    {
+        private readonly IEmailVerficationService _verificationService;
+        private readonly IMemoryCache _cache;
+        private readonly IMediator _mediator;
+        private readonly IAuthCookieService _cookieService;
+        public UsersController(IMediator mediator, IEmailVerficationService verificationService, IMemoryCache cache, IAuthCookieService cookieService)
+        {
+            _mediator = mediator;
+            _verificationService = verificationService;
+            _cache = cache;
+            _cookieService = cookieService;
+        }
+        [HttpPost("send-verification")]
+        public async Task<IActionResult> SendVerificationCode([FromBody] SendVerificationRequest verificationRequest)
+        {
+            await _verificationService.SendVerificationAsync(verificationRequest.Email);
+            return Ok("Код подтверждения отправлен на почту");
+        }
+        [HttpPost("verify-email")]
+        public async Task<IActionResult> VerifyCode([FromBody] VerifyCodeRequest request)
+        {
+            var cacheKey = $"verification_{request.Code}";
+            if (!_cache.TryGetValue(cacheKey, out string email) || string.IsNullOrEmpty(email))
+                return BadRequest("Код ненайден или устарел");
+            
+            var isValid = await _verificationService.Verificate(request.Code, email);
+            if (!isValid)
+                return BadRequest("Неправильный код");
+            
+            _cache.Remove(cacheKey);
+            return Ok("Email подтвержден");
+        }
+        [HttpPost("RegisterUser")]
+        public async Task<IActionResult> Register([FromBody] DtoCreateUser dtoCreateUser)
+        {
+            var comamnd = new RegisterUserCommand(dtoCreateUser.Name, dtoCreateUser.Phone.Number, dtoCreateUser.Email, dtoCreateUser.PasswordHash, dtoCreateUser.City);
+            var result = await _mediator.Send(comamnd);
+            if (result.IsFailure)
+                return BadRequest(new { error = result.Error });
+            _cookieService.SetAuthCookie(Response, result.Value.Token);
+            await _verificationService.DeleteEmailVerificate(comamnd.Email);         
+            return Ok(result.Value);
+        }
+        [HttpPost("LoginUser")]
+        public async Task<IActionResult> Login([FromBody] DtoLoginUser login)
+        {
+            var query = new LoginUserQuery(login.DtoPhone.Number, login.PasswordHash);
+            var result = await _mediator.Send(query);
+            if (result.IsFailure)
+                return BadRequest(new { error = result.Error });
+            _cookieService.SetAuthCookie(Response, result.Value.Token);
+            return Ok(result.Value);
+        }
+    }
+}

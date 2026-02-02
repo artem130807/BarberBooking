@@ -1,0 +1,19 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using BarberBooking.API.Domain.ValueObjects;
+
+namespace BarberBooking.API.Models
+{
+    public class Users
+    {
+        public Guid Id { get; set; }
+        public string Name { get; set; }
+        public PhoneNumber Phone { get; set; }
+        public string Email {get ; set;}
+        public string PasswordHash { get; set; }
+        public string City { get; set; }
+        public ICollection<Roles> Roles { get; set; }
+    }
+}
