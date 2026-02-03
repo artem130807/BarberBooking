@@ -19,9 +19,13 @@ namespace BarberBooking.API.CQRS.Salon.Queries.Handlers
             _salonsRepository = salonsRepository;
             _mapper = mapper;
         }
-        public Task<Result<List<DtoSalonShortInfo>>> Handle(GetActiveSalonsQuery query, CancellationToken cancellationToken)
+        public async Task<Result<List<DtoSalonShortInfo>>> Handle(GetActiveSalonsQuery query, CancellationToken cancellationToken)
         {
-            throw new NotImplementedException();
+            var salons = await _salonsRepository.GetActiveSalons(query.city);
+            if(salons.Count == 0)
+                return Result.Failure<List<DtoSalonShortInfo>>("Активные салоны в вашем городе не найдены");
+            var dtoSalon =  _mapper.Map<List<DtoSalonShortInfo>>(salons);
+            return Result.Success(dtoSalon);
         }
     }
 }

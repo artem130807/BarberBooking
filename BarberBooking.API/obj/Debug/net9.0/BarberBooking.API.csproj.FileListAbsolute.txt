@@ -378,3 +378,4 @@ E:\AAAAA1111222C#\BarberBookingApp\BarberBooking.APi\obj\Debug\net9.0\BarberBook
 E:\AAAAA1111222C#\BarberBookingApp\BarberBooking.APi\obj\Debug\net9.0\ref\BarberBooking.API.dll
 E:\AAAAA1111222C#\BarberBookingApp\BarberBooking.API\bin\Debug\net9.0\BCrypt.Net-Next.dll
 E:\AAAAA1111222C#\BarberBookingApp\BarberBooking.API\bin\Debug\net9.0\Microsoft.AspNetCore.Authentication.JwtBearer.dll
+E:\AAAAA1111222C#\BarberBookingApp\BarberBooking.API\obj\Debug\net9.0\BarberBooking.API.sourcelink.json

@@ -8,5 +8,5 @@ using MediatR;
 
 namespace BarberBooking.API.CQRS.Salons.Commands
 {
-    public record UpdateSalonCommand(Guid Id ,DtoUpdateSalon dtoUpdateSalon):IRequest<Result<Unit>>;
+    public record UpdateSalonCommand(Guid Id ,DtoUpdateSalon dtoUpdateSalon):IRequest<Result<DtoSalonUpdateInfo>>;
 }

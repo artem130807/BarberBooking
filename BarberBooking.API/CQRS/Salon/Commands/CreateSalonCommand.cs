@@ -8,5 +8,5 @@ using MediatR;
 
 namespace BarberBooking.API.CQRS.Salons.Commands
 {
-    public record CreateSalonCommand(DtoCreateSalon dtoCreateSalon):IRequest<Result<DtoSalonShortInfo>>;
+    public record CreateSalonCommand(DtoCreateSalon dtoCreateSalon):IRequest<Result<DtoSalonCreateInfo>>;
 }

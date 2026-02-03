@@ -8,6 +8,7 @@ namespace BarberBooking.API.Dto.DtoSalons
 {
     public class DtoSalonInfo
     {
+        public Guid Id {get; private set;}
         public string Name {get; private set;}
         public string? Description { get; private set; }
         public DtoAddress Address{get; private set;}

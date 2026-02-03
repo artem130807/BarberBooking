@@ -43,9 +43,9 @@ namespace BarberBooking.API.Repositories
             return await _context.Salons.Where(x => x.Address.City == city).ToListAsync();
         }
 
-        public async Task<List<Salons>> GetSalonsNameStartWith(string name)
+        public async Task<List<Salons>> GetSalonsNameStartWith(string city ,string name)
         {
-            return await _context.Salons.Where(x => x.Name.StartsWith(name)).ToListAsync();
+            return await _context.Salons.Where(x => x.Address.City == city && x.Name.StartsWith(name)).ToListAsync();
         }
     }
 }

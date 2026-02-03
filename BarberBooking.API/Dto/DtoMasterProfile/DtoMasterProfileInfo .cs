@@ -7,6 +7,6 @@ namespace BarberBooking.API.Dto.DtoMasterProfile
 {
     public class DtoMasterProfileInfo 
     {
-        
+        public Guid Id {get; private set;}
     }
 }

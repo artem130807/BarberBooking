@@ -2,6 +2,7 @@ using BarberBooking.API;
 using BarberBooking.API.Authorization;
 using BarberBooking.API.Contracts;
 using BarberBooking.API.Contracts.EmailContracts;
+using BarberBooking.API.Contracts.SalonsContracts;
 using BarberBooking.API.Provider;
 using BarberBooking.API.Repositories;
 using BarberBooking.API.Service;
@@ -49,6 +50,7 @@ builder.Services.AddScoped<IEmailVerificationRepository, EmailVerificationReposi
 builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddScoped<IEmailVerficationService, EmailVerificationService>();
 builder.Services.AddScoped<IAuthCookieService, AuthCookieService>();
+builder.Services.AddScoped<ISalonsRepository, SalonsRepository>();
 builder.Services.AddMemoryCache();
 var app = builder.Build();
 

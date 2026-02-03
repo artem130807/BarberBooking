@@ -2,18 +2,18 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using BarberBooking.API.Dto.DtoVo;
 
 namespace BarberBooking.API.Dto.DtoSalons
 {
-    public class DtoCreateSalon
+    public class DtoSalonUpdateInfo
     {
+        public Guid Id {get; set;}
         public string Name {get; set;}
         public string Description { get; set; }
-        public DtoAddress DtoAddress {get; set;}
-        public DtoPhone Phone {get ; set;}
+        public DtoUpdateAddress Address {get; set;}
         public TimeSpan OpeningTime { get; set; }
         public TimeSpan ClosingTime { get; set; }
         public string MainPhotoUrl { get; set; }
+        public DtoUpdatePhone PhoneNumber {get; set;}
     }
 }

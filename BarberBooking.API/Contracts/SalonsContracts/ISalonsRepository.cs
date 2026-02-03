@@ -15,7 +15,7 @@ namespace BarberBooking.API.Contracts.SalonsContracts
         Task<List<Salons>> GetSalons(string city);
         Task<List<Salons>> GetActiveSalons(string city);
         Task<Salons> GetSalonById(Guid Id);
-        Task<List<Salons>> GetSalonsNameStartWith(string name);
+        Task<List<Salons>> GetSalonsNameStartWith(string city, string name);
         
     }
 }

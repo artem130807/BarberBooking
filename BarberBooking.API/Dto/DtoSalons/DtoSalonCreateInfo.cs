@@ -6,8 +6,9 @@ using BarberBooking.API.Dto.DtoVo;
 
 namespace BarberBooking.API.Dto.DtoSalons
 {
-    public class DtoCreateSalon
+    public class DtoSalonCreateInfo
     {
+        public Guid Id {get; set;}
         public string Name {get; set;}
         public string Description { get; set; }
         public DtoAddress DtoAddress {get; set;}

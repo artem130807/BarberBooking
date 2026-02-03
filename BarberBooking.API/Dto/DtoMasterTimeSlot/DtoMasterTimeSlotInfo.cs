@@ -7,6 +7,7 @@ namespace BarberBooking.API.Dto.DtoMasterTimeSlot
 {
     public class DtoMasterTimeSlotInfo
     {
+        public Guid Id {get; private set;}
         public DateTime ScheduleDate { get; set; }
         public TimeSpan StartTime { get; set; } 
         public TimeSpan EndTime { get; set; } 

@@ -28,7 +28,8 @@ namespace BarberBooking.API
             CreateMap<DtoUpdateSalon, Salons>();
             CreateMap<Salons, DtoSalonInfo>();
             CreateMap<Salons, DtoSalonShortInfo>();
-
+            CreateMap<Salons, DtoSalonUpdateInfo>();
+            CreateMap<Salons, DtoSalonCreateInfo>();
             ///ValueObject
             CreateMap<DtoUpdatePrice, Price>();
             CreateMap<Price, DtoPrice>();
