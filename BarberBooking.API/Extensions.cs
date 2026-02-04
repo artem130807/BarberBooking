@@ -74,5 +74,11 @@ namespace BarberBooking.API
                 query = query.Where(x => x.Rating == salonFilter.Rating);
             return query;
         }
+        public static IQueryable<Salons>  SearchFilter(this IQueryable<Salons> query, SearchFilterParams searchFilterParams)
+        {
+            if(!string.IsNullOrWhiteSpace(searchFilterParams.SalonName))
+                query = query.Where(x => x.Address.City == searchFilterParams.City && x.Name.StartsWith(searchFilterParams.SalonName));
+            return query;
+        }
     }
 }

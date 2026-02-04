@@ -38,6 +38,8 @@ namespace BarberBooking.API
             CreateMap<DtoAddress, Address>();
             CreateMap<Address, DtoAddress>();
             CreateMap<Address, DtoAddressShort>();
+            CreateMap<Address, DtoUpdateAddress>();
+            CreateMap<PhoneNumber, DtoUpdatePhone>();
         }
     }
 }

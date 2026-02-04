@@ -4,6 +4,7 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using BarberBooking.API.Dto.DtoSalons;
+using BarberBooking.API.Filters;
 using BarberBooking.API.Models;
 
 namespace BarberBooking.API.Contracts.SalonsContracts
@@ -15,7 +16,7 @@ namespace BarberBooking.API.Contracts.SalonsContracts
         Task<List<Salons>> GetSalons(string city);
         Task<List<Salons>> GetActiveSalons(string city);
         Task<Salons> GetSalonById(Guid Id);
-        Task<List<Salons>> GetSalonsNameStartWith(string city, string name);
+        Task<List<Salons>> GetSalonsNameStartWith(SearchFilterParams searchParams);
         
     }
 }

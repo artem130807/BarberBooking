@@ -21,9 +21,9 @@ namespace BarberBooking.API.CQRS.Salon.Queries.Handlers
         }
         public async Task<Result<List<DtoSalonShortInfo>>> Handle(GetSalonsNameStartWithQuery query, CancellationToken cancellationToken)
         {
-            var salons = await _salonsRepository.GetSalonsNameStartWith(query.city ,query.name);
+            var salons = await _salonsRepository.GetSalonsNameStartWith(query.searchFilterParams);
             if(salons.Count == 0)
-                return Result.Failure<List<DtoSalonShortInfo>>("");
+                return Result.Failure<List<DtoSalonShortInfo>>("Салоны не найдены");
             var dtoSalon =  _mapper.Map<List<DtoSalonShortInfo>>(salons);
             return Result.Success(dtoSalon);
         }

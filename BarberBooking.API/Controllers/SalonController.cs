@@ -6,6 +6,7 @@ using BarberBooking.API.CQRS.Salon.Queries;
 using BarberBooking.API.CQRS.Salon.Queries.Handlers;
 using BarberBooking.API.CQRS.Salons.Commands;
 using BarberBooking.API.Dto.DtoSalons;
+using BarberBooking.API.Filters;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
@@ -75,9 +76,9 @@ namespace BarberBooking.API.Controllers
             return Ok(result.Value);
         }
         [HttpGet("GetSalonsName")]
-        public async Task<IActionResult>  GetActiveSalons(string City, string Name)
+        public async Task<IActionResult>  GetNameSalons([FromQuery] SearchFilterParams searchFilterParams)
         {
-            var query = new GetSalonsNameStartWithQuery(City, Name);
+            var query = new GetSalonsNameStartWithQuery(searchFilterParams);
             var result = await _mediator.Send(query);
             if (result.IsFailure)
                 return BadRequest(new { error = result.Error });
