@@ -9,5 +9,5 @@ using MediatR;
 
 namespace BarberBooking.API.CQRS.Salon.Queries
 {
-    public record GetSalonsNameStartWithQuery(SearchFilterParams searchFilterParams):IRequest<Result<List<DtoSalonShortInfo>>>;
+    public record GetSalonsNameStartWithQuery(string name):IRequest<Result<List<DtoSalonShortInfo>>>;
 }

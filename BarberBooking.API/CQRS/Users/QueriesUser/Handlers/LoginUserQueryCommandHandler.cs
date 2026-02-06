@@ -17,17 +17,17 @@ namespace BarberBooking.API.CQRS.Queries.Handlers
         private readonly IUserRepository _usersRepository;
         private readonly IPasswordHasher _passwordHasher;
         private readonly IJwtProvider _jwtProvider;
-        private readonly IUserRolesRepository _rolesRepository;
+        
         public LoginUserQueryCommandHandler(
             IUserRepository usersRepository,
             IPasswordHasher passwordHasher,
-            IJwtProvider jwtProvider, IUserRolesRepository rolesRepository
+            IJwtProvider jwtProvider,
+            ICacheService cacheService
             )
         {
             _usersRepository = usersRepository;
             _passwordHasher = passwordHasher;
             _jwtProvider = jwtProvider;
-            _rolesRepository = rolesRepository;
         }
 
         public async Task<Result<AuthDto>> Handle(LoginUserQuery query, CancellationToken cancellationToken)

@@ -49,18 +49,18 @@ namespace BarberBooking.API.Controllers
             return Ok(result.Value);
         }
         [HttpGet("GetSalons")]
-        public async Task<IActionResult>  GetSalons(string City)
+        public async Task<IActionResult>  GetSalons()
         {
-            var query = new GetSalonsQuery(City);
+            var query = new GetSalonsQuery();
             var result = await _mediator.Send(query);
             if (result.IsFailure)
                 return BadRequest(new { error = result.Error });
             return Ok(result.Value);
         }
         [HttpGet("GetActiveSalons")]
-        public async Task<IActionResult>  GetActiveSalons(string City)
+        public async Task<IActionResult>  GetActiveSalons()
         {
-            var query = new GetActiveSalonsQuery(City);
+            var query = new GetActiveSalonsQuery();
             var result = await _mediator.Send(query);
             if (result.IsFailure)
                 return BadRequest(new { error = result.Error });

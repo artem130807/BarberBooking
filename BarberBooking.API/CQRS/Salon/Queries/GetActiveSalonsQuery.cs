@@ -8,5 +8,5 @@ using MediatR;
 
 namespace BarberBooking.API.CQRS.Salon.Queries.Handlers
 {
-    public record GetActiveSalonsQuery(string city):IRequest<Result<List<DtoSalonShortInfo>>>;
+    public record GetActiveSalonsQuery():IRequest<Result<List<DtoSalonShortInfo>>>;
 }

@@ -14,11 +14,13 @@ namespace BarberBooking.API.Service.EmailServices
         private readonly IEmailVerificationRepository _emailVerificationRepository;
         private readonly IMemoryCache _cache;
         private readonly IEmailService _emailService;
-        public EmailVerificationService(IEmailVerificationRepository emailVerificationRepository, IMemoryCache memoryCache, IEmailService emailService)
+        private readonly ICacheService _cacheService;
+        public EmailVerificationService(IEmailVerificationRepository emailVerificationRepository, IMemoryCache memoryCache, IEmailService emailService, ICacheService cacheService)
         {
             _emailVerificationRepository = emailVerificationRepository;
             _cache = memoryCache;
             _emailService = emailService;
+            _cacheService = cacheService;
         }
         private string GenerateCode() => new Random().Next(100000, 999999).ToString();
         public async Task DeleteEmailVerificate(string Email)

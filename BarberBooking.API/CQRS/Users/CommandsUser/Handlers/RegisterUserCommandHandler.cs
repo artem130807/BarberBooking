@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
+using Azure;
 using BarberBooking.API.Contracts;
 using BarberBooking.API.Domain.ValueObjects;
 using BarberBooking.API.Dto;
@@ -24,6 +25,7 @@ namespace BarberBooking.API.CQRS.Commands.Handlers
         private readonly IUserRolesRepository _rolesRepository;
         private readonly IPasswordValidatorService _passwordValidatorService;
         private readonly IMemoryCache _memoryCache;
+        private readonly ICacheService _cacheService;
         private readonly IAuthCookieService _cookieService;
         public RegisterUserCommandHandler(
             IUserRepository usersRepository,
@@ -32,7 +34,8 @@ namespace BarberBooking.API.CQRS.Commands.Handlers
             IUserRolesRepository rolesRepository, 
             IPasswordValidatorService passwordValidatorService,
             IUserRolesRepository roleRepository, IMemoryCache memoryCache,
-            IAuthCookieService cookieService
+            IAuthCookieService cookieService,
+            ICacheService cacheService
             )
         {
             _usersRepository = usersRepository;
@@ -43,19 +46,20 @@ namespace BarberBooking.API.CQRS.Commands.Handlers
             _rolesRepository = roleRepository;
             _memoryCache = memoryCache;
             _cookieService = cookieService;
+            _cacheService = cacheService;
         }
         public async Task<Result<AuthDto>> Handle(RegisterUserCommand command, CancellationToken cancellationToken)
         {
 
             var user = await _usersRepository.GetUserByPhone(command.PhoneNumber);
-            if (user != null)
+            if (user != null)       
                 return Result.Failure<AuthDto>("Пользователь с таким номером телефона уже существует");
                 
             var passwordValid = await _passwordValidatorService.ValidatePasswordAsync(command.PasswordHash);
             if (!passwordValid.IsValid)
                 return Result.Failure<AuthDto>(passwordValid.Message);
 
-             var cacheKey = $"email_verified_{command.Email}"; 
+            var cacheKey = $"email_verified_{command.Email}"; 
             if (!_memoryCache.TryGetValue(cacheKey, out bool isVerified) || !isVerified)
                 return Result.Failure<AuthDto>("Email не подтвержден. Сначала подтвердите email.");
 

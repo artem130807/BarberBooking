@@ -20,6 +20,7 @@ builder.Services.Configure<JwtOptions>(configuration.GetSection(nameof(JwtOption
 // Add services to the container.
 
 builder.Services.AddDb(configuration);
+builder.Services.AddHttpContextAccessor();
 builder.Services.AddControllers();
 builder.Services.AddAutoMapper(typeof (MapperProfile));
 builder.Services.AddApiAuthentication(configuration);
@@ -51,6 +52,8 @@ builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddScoped<IEmailVerficationService, EmailVerificationService>();
 builder.Services.AddScoped<IAuthCookieService, AuthCookieService>();
 builder.Services.AddScoped<ISalonsRepository, SalonsRepository>();
+builder.Services.AddScoped<ICacheService, CacheService>();
+builder.Services.AddScoped<IUserContext, UserContext>();
 builder.Services.AddMemoryCache();
 var app = builder.Build();
 

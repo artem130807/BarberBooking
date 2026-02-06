@@ -26,7 +26,8 @@ namespace BarberBooking.API.Provider
         {
             var claims = new List<Claim> 
             {
-                new Claim("userId", users.Id.ToString())
+                new Claim("userId", users.Id.ToString()),
+                new Claim("userCity", users.City.ToString())
             };
             
             var rolesId = await _userRolesRepository.GetRolesIdByUserId(users.Id);
