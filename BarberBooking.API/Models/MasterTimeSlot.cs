@@ -11,9 +11,9 @@ namespace BarberBooking.API.Models
     {
         public Guid Id { get; private set; } 
         public Guid MasterId { get; private set; }
-        public DateTime  ScheduleDate { get; private set; }
-        public TimeSpan StartTime { get; private set; } 
-        public TimeSpan EndTime { get; private set; } 
+        public DateOnly ScheduleDate { get; private set; }
+        public TimeOnly StartTime { get; private set; } 
+        public TimeOnly EndTime { get; private set; } 
         public MasterTimeSlotStatus Status {get; private set;}
         public MasterProfile Master {get; private set;}
         public ICollection<Appointments> Appointments { get; private set; }
@@ -21,7 +21,7 @@ namespace BarberBooking.API.Models
         {
             Appointments = new List<Appointments>();
         }
-        public static MasterTimeSlot Create(Guid masterId, DateTime scheduleDate, TimeSpan startTime, TimeSpan endTime)
+        public static MasterTimeSlot Create(Guid masterId, DateOnly scheduleDate, TimeOnly startTime, TimeOnly endTime)
         {
             var timeSlot = new MasterTimeSlot
             {
@@ -33,9 +33,9 @@ namespace BarberBooking.API.Models
             };
             return timeSlot;
         }
-        public void UpdateScheduleDate(DateTime scheduleDate) => ScheduleDate = scheduleDate;
-        public void UpdateStartTime(TimeSpan startTime) => StartTime = startTime;
-        public void UpdateEndTime(TimeSpan endTime) => EndTime = endTime;
+        public void UpdateScheduleDate(DateOnly scheduleDate) => ScheduleDate = scheduleDate;
+        public void UpdateStartTime(TimeOnly startTime) => StartTime = startTime;
+        public void UpdateEndTime(TimeOnly endTime) => EndTime = endTime;
         public void UpdateMasterTimeSlotStatus(MasterTimeSlotStatus status) => Status = status;
     }
 }

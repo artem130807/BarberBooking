@@ -8,14 +8,36 @@ namespace BarberBooking.API.Service.Background
 {
     public class SalonBackground : BackgroundService
     {
-        private readonly ISalonActiveHandler _salonActiveHandler;
-        public SalonBackground(ISalonActiveHandler salonActiveHandler)
+        private readonly ILogger<SalonBackground> _logger;
+        private readonly IServiceProvider _serviceProvider;
+        private readonly TimeSpan _interval = TimeSpan.FromMinutes(5);
+        public SalonBackground(ILogger<SalonBackground> logger, IServiceProvider serviceProvider)
         {
-            _salonActiveHandler = salonActiveHandler;
+            _logger = logger;
+            _serviceProvider = serviceProvider;
+            _logger.LogInformation("Background Salon включен");
         }
-        protected override Task ExecuteAsync(CancellationToken stoppingToken)
+        protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            throw new NotImplementedException();
+            try
+            {
+                while (!stoppingToken.IsCancellationRequested)
+                {
+                    using (var scope = _serviceProvider.CreateScope())
+                    {
+                        var handler = scope.ServiceProvider
+                        .GetRequiredService<ISalonActiveHandler>();
+                        await handler.Handle(stoppingToken);
+                    }
+                        _logger.LogInformation($"Жду {_interval.TotalMinutes} минут до следующей обработки");
+                        await Task.Delay(_interval, stoppingToken);
+                }
+            }catch(Exception ex)
+            {
+                _logger.LogError(ex.Message);
+            }
+           
         }
+        
     }
 }

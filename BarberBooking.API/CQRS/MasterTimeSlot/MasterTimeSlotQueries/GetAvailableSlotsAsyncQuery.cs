@@ -7,6 +7,6 @@ using MediatR;
 
 namespace BarberBooking.API.CQRS.MasterTimeSlotQueries
 {
-    public record GetAvailableSlotsAsyncQuery(Guid masterId, DateTime date, TimeSpan serviceDuration):IRequest<List<DtoMasterTimeSlotInfo>>;
+    public record GetAvailableSlotsAsyncQuery(Guid masterId, DateOnly date, TimeSpan serviceDuration):IRequest<List<DtoMasterTimeSlotInfo>>;
     
 }

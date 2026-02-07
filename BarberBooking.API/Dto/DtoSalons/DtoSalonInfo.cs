@@ -13,8 +13,8 @@ namespace BarberBooking.API.Dto.DtoSalons
         public string? Description { get; private set; }
         public DtoAddress Address{get; private set;}
         public DtoPhone Phone {get; private set;}
-        public TimeSpan OpeningTime { get; private set; }
-        public TimeSpan ClosingTime { get; private set; }
+        public TimeOnly OpeningTime { get; private set; }
+        public TimeOnly ClosingTime { get; private set; }
         public bool IsActive {get; private set;} 
         public string? MainPhotoUrl { get; private set; }
         public decimal Rating {get; private set;}

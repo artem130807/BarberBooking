@@ -17,8 +17,8 @@ namespace BarberBooking.API.Models
         public Guid TimeSlotId { get; private set; }
         public string? ClientNotes {get; private set;}
         public AppointmentStatusEnum Status {get; private set;} = AppointmentStatusEnum.Pending;
-        public TimeSpan StartTime { get; private set; }
-        public TimeSpan EndTime { get; private set; } 
+        public TimeOnly StartTime { get; private set; }
+        public TimeOnly EndTime { get; private set; } 
         public DateTime AppointmentDate {get; private set;} 
         public DateTime CreatedAt { get; private set; } = DateTime.UtcNow;
         public DateTime UpdatedAt { get; private set; } = DateTime.UtcNow;
@@ -29,7 +29,7 @@ namespace BarberBooking.API.Models
         public MasterTimeSlot TimeSlot { get; private set; }
         private Appointments(){}
 
-        public static Appointments Create(Guid salonId, Guid masterId, Guid clientId , Guid serviceId, Guid timeSlotId,  TimeSpan startTime, string clientNotes, TimeSpan endTime, DateTime appointmentDate)
+        public static Appointments Create(Guid salonId, Guid masterId, Guid clientId , Guid serviceId, Guid timeSlotId,  TimeOnly startTime, string clientNotes, TimeOnly endTime, DateTime appointmentDate)
         {
             var appointment = new Appointments
             {
@@ -73,13 +73,13 @@ namespace BarberBooking.API.Models
             ServiceId = serviceId;
             UpdatedAt = DateTime.UtcNow;
         }
-        public void UpdateStartTime(TimeSpan startTime)
+        public void UpdateStartTime(TimeOnly startTime)
         {
             StartTime = startTime;
             UpdatedAt = DateTime.UtcNow;
         }
             
-        public void UpdateEndTime(TimeSpan endTime)
+        public void UpdateEndTime(TimeOnly endTime)
         {
             EndTime = endTime;
             UpdatedAt = DateTime.UtcNow;

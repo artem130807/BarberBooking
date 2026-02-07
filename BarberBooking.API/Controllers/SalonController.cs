@@ -76,9 +76,9 @@ namespace BarberBooking.API.Controllers
             return Ok(result.Value);
         }
         [HttpGet("GetSalonsName")]
-        public async Task<IActionResult>  GetNameSalons([FromQuery] SearchFilterParams searchFilterParams)
+        public async Task<IActionResult>  GetNameSalons([FromQuery] string name)
         {
-            var query = new GetSalonsNameStartWithQuery(searchFilterParams);
+            var query = new GetSalonsNameStartWithQuery(name);
             var result = await _mediator.Send(query);
             if (result.IsFailure)
                 return BadRequest(new { error = result.Error });

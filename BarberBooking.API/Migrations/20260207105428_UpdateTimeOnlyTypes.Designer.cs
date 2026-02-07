@@ -5,6 +5,7 @@ using BarberBooking.API;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -12,9 +13,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace BarberBooking.API.Migrations
 {
     [DbContext(typeof(BarberBookingDbContext))]
-    partial class BarberBookingDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260207105428_UpdateTimeOnlyTypes")]
+    partial class UpdateTimeOnlyTypes
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -370,7 +373,7 @@ namespace BarberBooking.API.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<TimeOnly?>("ClosingTime")
+                    b.Property<TimeOnly>("ClosingTime")
                         .HasColumnType("time");
 
                     b.Property<DateTime>("CreatedAt")
@@ -392,7 +395,7 @@ namespace BarberBooking.API.Migrations
                         .HasMaxLength(200)
                         .HasColumnType("nvarchar(200)");
 
-                    b.Property<TimeOnly?>("OpeningTime")
+                    b.Property<TimeOnly>("OpeningTime")
                         .HasColumnType("time");
 
                     b.Property<decimal>("Rating")

@@ -7,6 +7,7 @@ using BarberBooking.API.Provider;
 using BarberBooking.API.Repositories;
 using BarberBooking.API.Service;
 using BarberBooking.API.Service.AuthHandler;
+using BarberBooking.API.Service.Background;
 using BarberBooking.API.Service.EmailServices;
 using BarberBooking.API.Service.UpdateService;
 using Microsoft.AspNetCore.Authentication;
@@ -54,6 +55,8 @@ builder.Services.AddScoped<IAuthCookieService, AuthCookieService>();
 builder.Services.AddScoped<ISalonsRepository, SalonsRepository>();
 builder.Services.AddScoped<ICacheService, CacheService>();
 builder.Services.AddScoped<IUserContext, UserContext>();
+builder.Services.AddScoped<ISalonActiveHandler, SalonActiveHandler>();
+builder.Services.AddHostedService<SalonBackground>();
 builder.Services.AddMemoryCache();
 var app = builder.Build();
 

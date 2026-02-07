@@ -42,14 +42,14 @@ namespace BarberBooking.API.Controllers
             return Ok(result);
         }
         [HttpGet("get-FindTimeSlot{masterId}")]
-        public async Task<IActionResult> GetFindSlot(Guid masterId, [FromQuery] DateTime date, [FromQuery] TimeSpan startTime)
+        public async Task<IActionResult> GetFindSlot(Guid masterId, [FromQuery] DateOnly date, [FromQuery] TimeOnly startTime)
         {
             var query = new FindSlotAsyncQuery(masterId,date, startTime);
             var result = await _mediator.Send(query);
             return Ok(result);
         }
         [HttpGet("get-availableSlots{masterId}")]
-        public async Task<IActionResult> GetAvailableSlots(Guid masterId, [FromQuery] DateTime date, [FromQuery] TimeSpan serviceDuration)
+        public async Task<IActionResult> GetAvailableSlots(Guid masterId, [FromQuery] DateOnly date, [FromQuery] TimeSpan serviceDuration)
         {
             var query = new GetAvailableSlotsAsyncQuery(masterId, date, serviceDuration);
             var result = await _mediator.Send(query);
@@ -63,7 +63,7 @@ namespace BarberBooking.API.Controllers
             return Ok(result);
         }
         [HttpGet("get-slotByMasterId{masterId}")]
-        public async Task<IActionResult> GetByMasterId(Guid masterId, [FromQuery] DateTime date)
+        public async Task<IActionResult> GetByMasterId(Guid masterId, [FromQuery] DateOnly date)
         {
             var query = new GetByMasterAsyncQuery(masterId, date);
             var result = await _mediator.Send(query);

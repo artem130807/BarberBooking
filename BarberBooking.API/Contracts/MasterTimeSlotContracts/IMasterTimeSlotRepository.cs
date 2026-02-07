@@ -12,8 +12,9 @@ namespace BarberBooking.API.Contracts
         Task<MasterTimeSlot> DeleteAsync(Guid timeSlotId);
         Task<List<MasterTimeSlot>> CreateRangeAsync(List<MasterTimeSlot> timeSlots);
         Task<MasterTimeSlot?> GetByIdAsync(Guid id);
-        Task<List<MasterTimeSlot>> GetByMasterAsync(Guid masterId, DateTime date);
-        Task<List<MasterTimeSlot>> GetAvailableSlotsAsync(Guid masterId, DateTime date, TimeSpan serviceDuration);
-        Task<MasterTimeSlot?> FindSlotAsync(Guid masterId, DateTime date, TimeSpan startTime);
+        Task<List<MasterTimeSlot>> GetByMasterAsync(Guid masterId, DateOnly date);
+        Task<List<MasterTimeSlot>> GetAvailableSlotsAsync(Guid masterId, DateOnly date, TimeSpan serviceDuration);
+        Task<MasterTimeSlot?> FindSlotAsync(Guid masterId, DateOnly date, TimeOnly startTime);
+        Task<List<MasterTimeSlot>> GetTimeSlotsInSalon(Guid salonId, DateOnly date);
     }
 }

@@ -15,8 +15,8 @@ namespace BarberBooking.API.Models
         public Address Address {get; private set;}
         public PhoneNumber? PhoneNumber {get; private set;}
         public DateTime CreatedAt {get; private set;} = DateTime.Now;
-        public TimeSpan OpeningTime { get; private set; }
-        public TimeSpan ClosingTime { get; private set; }
+        public TimeOnly? OpeningTime { get; private set; }
+        public TimeOnly? ClosingTime { get; private set; }
         public bool IsActive {get; private set;} = true;
         public string? MainPhotoUrl { get; private set; }
         public decimal Rating {get; private set;}
@@ -32,7 +32,7 @@ namespace BarberBooking.API.Models
             Services = new List<Services>();
             Reviews = new List<Review>();
         }
-        public static Salons Create(string name, string description, Address address, PhoneNumber? phoneNumber ,TimeSpan openingTime,  TimeSpan closingTime , string? mainPhotoUrl)
+        public static Salons Create(string name, string description, Address address, PhoneNumber? phoneNumber ,TimeOnly? openingTime,  TimeOnly? closingTime , string? mainPhotoUrl)
         {
             var salon = new Salons
             {
@@ -53,11 +53,12 @@ namespace BarberBooking.API.Models
         }
         public void UpdateName(string name) => Name = name;
         public void UpdateDescription(string description) => Description = description;
-        public void UpdateOpeningTime(TimeSpan openingTime) => OpeningTime = openingTime;
-        public void UpdateClosingTime(TimeSpan closingTime) => ClosingTime = closingTime;
+        public void UpdateOpeningTime(TimeOnly? openingTime) => OpeningTime = openingTime;
+        public void UpdateClosingTime(TimeOnly? closingTime) => ClosingTime = closingTime;
         public void UpdateAddress(Address address) => Address = address;
         public void UpdatePhoneNumber(PhoneNumber phoneNumber) => PhoneNumber = phoneNumber;
         public void UpdateMainPhotoUrl(string mainPhotoUrl) => MainPhotoUrl = mainPhotoUrl;
+        public void UpdateIsActive(bool isActive) => IsActive = isActive;
         public void AddRating(int rating)
         {
             Rating = rating;

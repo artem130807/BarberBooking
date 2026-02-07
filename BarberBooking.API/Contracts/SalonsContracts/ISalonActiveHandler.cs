@@ -7,6 +7,6 @@ namespace BarberBooking.API.Contracts.SalonsContracts
 {
     public interface ISalonActiveHandler
     {
-        
+        Task Handle(CancellationToken cancellationToken);
     }
 }

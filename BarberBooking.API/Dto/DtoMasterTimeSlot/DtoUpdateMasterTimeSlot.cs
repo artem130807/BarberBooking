@@ -8,9 +8,9 @@ namespace BarberBooking.API.Dto.DtoMasterTimeSlot
 {
     public class DtoUpdateMasterTimeSlot
     {
-        public DateTime? ScheduleDate { get;  set; }
-        public TimeSpan? StartTime { get; set; } 
-        public TimeSpan? EndTime { get; set; } 
+        public DateOnly? ScheduleDate { get;  set; }
+        public TimeOnly? StartTime { get; set; } 
+        public TimeOnly? EndTime { get; set; } 
         public MasterTimeSlotStatus? Status {get; set;}
     }
 }

@@ -39,7 +39,12 @@ namespace BarberBooking.API.Repositories
             return await _context.Salons.FindAsync(Id);
         }
 
-        public async Task<List<Salons>> GetSalons(string city)
+        public async Task<List<Salons>> GetSalons()
+        {
+            return await _context.Salons.ToListAsync();
+        }
+
+        public async Task<List<Salons>> GetSalonsByCity(string city)
         {
             return await _context.Salons.Where(x => x.Address.City == city).ToListAsync();
         }
@@ -47,6 +52,11 @@ namespace BarberBooking.API.Repositories
         public Task<List<Salons>> GetSalonsNameStartWith(SearchFilterParams searchParams)
         {
             return _context.Salons.SearchFilter(searchParams).ToListAsync();
+        }
+
+        public async Task SaveChangesAsync()
+        {
+            await _context.SaveChangesAsync();
         }
     }
 }

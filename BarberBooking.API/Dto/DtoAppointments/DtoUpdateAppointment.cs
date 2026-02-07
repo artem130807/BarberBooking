@@ -10,8 +10,8 @@ namespace BarberBooking.API.Dto.DtoAppointments
     public class DtoUpdateAppointment
     { 
         public Guid? ServiceId { get;  set; }
-        public TimeSpan? StartTime { get;  set; } 
-        public TimeSpan? EndTime { get;  set; } 
+        public TimeOnly? StartTime { get;  set; } 
+        public TimeOnly? EndTime { get;  set; } 
         public string? ClientNotes { get; set; }
         public AppointmentStatusEnum? Status {get; set;}
     }

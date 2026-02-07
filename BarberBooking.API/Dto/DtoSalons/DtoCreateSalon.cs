@@ -12,8 +12,8 @@ namespace BarberBooking.API.Dto.DtoSalons
         public string Description { get; set; }
         public DtoAddress DtoAddress {get; set;}
         public DtoPhone Phone {get ; set;}
-        public TimeSpan OpeningTime { get; set; }
-        public TimeSpan ClosingTime { get; set; }
+        public TimeOnly? OpeningTime { get; set; }
+        public TimeOnly? ClosingTime { get; set; }
         public string MainPhotoUrl { get; set; }
     }
 }

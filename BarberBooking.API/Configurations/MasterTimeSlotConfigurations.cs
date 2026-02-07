@@ -24,7 +24,7 @@ namespace BarberBooking.API.Configurations
                 .IsRequired();
 
             builder.Property(x => x.ScheduleDate)
-            .HasColumnType("date");
+                .IsRequired();
                 
             builder.HasOne(x => x.Master)
                 .WithMany(x => x.TimeSlots)

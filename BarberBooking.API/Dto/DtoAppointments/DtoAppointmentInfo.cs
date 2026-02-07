@@ -13,8 +13,8 @@ namespace BarberBooking.API.Dto.DtoAppointments
         public Guid MasterId { get; private set; }
         public Guid ServiceId { get; private set; }
         public Guid TimeSlotId { get; private set; }
-        public TimeSpan StartTime { get; private set; } 
-        public TimeSpan EndTime { get; private set; } 
+        public TimeOnly StartTime { get; private set; } 
+        public TimeOnly EndTime { get; private set; } 
         public string ClientName { get; private set; }
         public PhoneNumber ClientPhone { get; private set; }
         public DateTime AppointmentDateTime { get; private set; }
