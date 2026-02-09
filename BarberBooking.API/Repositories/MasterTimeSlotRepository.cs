@@ -30,13 +30,11 @@ namespace BarberBooking.API.Repositories
             return timeSlots;
         }
 
-        public async Task<MasterTimeSlot> DeleteAsync(Guid timeSlotId)
+        public async Task DeleteAsync(Guid timeSlotId)
         {
-            var timeSlot = await _context.MasterTimeSlots.FindAsync(timeSlotId);
             await _context.MasterTimeSlots
             .Where(x => x.Id == timeSlotId)
             .ExecuteDeleteAsync();
-            return timeSlot;
         }
 
         public async Task<MasterTimeSlot?> FindSlotAsync(Guid masterId, DateOnly date, TimeOnly startTime)
@@ -103,7 +101,24 @@ namespace BarberBooking.API.Repositories
             }
             return availableSlots;
         }
-        
+
+        public async Task<List<MasterTimeSlot>> GetAvailableSlotsInSalons(DateOnly date)
+        {
+            var slots = await _context.MasterTimeSlots
+            .Include(x => x.Appointments)
+            .Where (x => x.ScheduleDate == date)
+            .ToListAsync();
+            var availableSlots = new List<MasterTimeSlot>();
+            foreach(var slot in slots)
+            {
+                var appointments = await _context.Appointments.Where(x => x.TimeSlotId == slot.Id).ToListAsync();
+                if(appointments == null)
+                {
+                    availableSlots.Add(slot);
+                }
+            }
+            return availableSlots;
+        }
 
         public async Task<MasterTimeSlot?> GetByIdAsync(Guid id)
         {

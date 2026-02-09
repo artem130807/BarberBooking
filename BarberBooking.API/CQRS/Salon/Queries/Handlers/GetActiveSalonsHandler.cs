@@ -16,22 +16,28 @@ namespace BarberBooking.API.CQRS.Salon.Queries.Handlers
     {
         private readonly ISalonsRepository _salonsRepository;
         private readonly IMapper _mapper;
-        private readonly ICacheService _cacheService;
         private readonly IUserContext _userContext;
-        public GetActiveSalonsHandler(ISalonsRepository salonsRepository, IMapper mapper, ICacheService cacheService,IUserContext userContext)
+        private readonly IMasterTimeSlotRepository _masterTimeSlotRepository;
+        public GetActiveSalonsHandler(ISalonsRepository salonsRepository, IMapper mapper, IUserContext userContext, IMasterTimeSlotRepository masterTimeSlotRepository)
         {
             _salonsRepository = salonsRepository;
             _mapper = mapper;
-            _cacheService = cacheService;
             _userContext = userContext;
+            _masterTimeSlotRepository = masterTimeSlotRepository;
         }
         public async Task<Result<List<DtoSalonShortInfo>>> Handle(GetActiveSalonsQuery query, CancellationToken cancellationToken)
         {
             string userCity = _userContext.UserCity;
             var salons = await _salonsRepository.GetActiveSalons(userCity);
+            var countSlotsInSalon = await _masterTimeSlotRepository.GetAvailableSlotsInSalons(DateOnly.FromDateTime(DateTime.Now));
             if(salons.Count == 0)
                 return Result.Failure<List<DtoSalonShortInfo>>("Активные салоны в вашем городе не найдены");
-            var dtoSalon =  _mapper.Map<List<DtoSalonShortInfo>>(salons);
+            var dtoSalon = salons.Select(x =>
+            {
+                var dto =  _mapper.Map<DtoSalonShortInfo>(salons);
+                dto.AvailableSlots = countSlotsInSalon.Count();
+                return dto;
+            }).ToList();
             return Result.Success(dtoSalon);
         }
     }

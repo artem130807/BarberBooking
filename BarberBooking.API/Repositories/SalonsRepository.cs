@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using BarberBooking.API.Contracts.SalonsContracts;
 using BarberBooking.API.Dto.DtoSalons;
+using BarberBooking.API.ExtensionsProject;
 using BarberBooking.API.Filters;
 using BarberBooking.API.Models;
 using Microsoft.EntityFrameworkCore;
@@ -49,9 +50,14 @@ namespace BarberBooking.API.Repositories
             return await _context.Salons.Where(x => x.Address.City == city).ToListAsync();
         }
 
-        public Task<List<Salons>> GetSalonsNameStartWith(SearchFilterParams searchParams)
+        public async Task<List<Salons>> GetSalonsByFilter(string city, SalonFilter salonFilter)
         {
-            return _context.Salons.SearchFilter(searchParams).ToListAsync();
+            return await _context.Salons.Where(x => x.Address.City == city).SalonFilter(salonFilter).ToListAsync();
+        }
+
+        public async Task<List<Salons>> GetSalonsNameStartWith(SearchFilterParams searchParams)
+        {
+            return await _context.Salons.SearchFilter(searchParams).ToListAsync();
         }
 
         public async Task SaveChangesAsync()

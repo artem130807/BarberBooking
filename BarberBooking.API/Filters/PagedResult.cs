@@ -2,16 +2,17 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using BarberBooking.API.Models;
 
 namespace BarberBooking.API.Filters
 {
-    public class SearchFilterResult
+    public class PagedResult<T>
     {
-        public List<Salons> Data { get; }
-        public SearchFilterResult(List<Salons> data)
+        public List<T> Data { get; }
+        public int Count {get;}
+        public PagedResult(List<T> data, int count)
         {
             Data = data;
+            Count = count;
         }
     }
 }

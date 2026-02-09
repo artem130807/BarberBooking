@@ -1,0 +1,67 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using BarberBooking.API.CQRS.MasterProfile.Commands;
+using BarberBooking.API.CQRS.MasterProfile.Queries;
+using BarberBooking.API.Dto.DtoMasterProfile;
+using MediatR;
+using Microsoft.AspNetCore.Mvc;
+
+namespace BarberBooking.API.Controllers
+{
+    [ApiController]
+    [Route("api/[controller]")]
+    public class MasterProfileController : ControllerBase
+    {
+        private readonly IMediator _mediator;
+        public MasterProfileController(IMediator mediator)
+        {
+            _mediator = mediator;
+        }
+        [HttpPost("CreateMasterProfile")]
+        public async Task<IActionResult> CreateMasterProfile([FromBody] DtoCreateMasterProfile dtoCreateMasterProfile)
+        {
+            var command = new CreateMasterProfileCommand(dtoCreateMasterProfile);
+            var result = await _mediator.Send(command);
+            return Ok(result);
+        }
+        [HttpDelete("DeleteMasterProfile{Id}")]
+        public async Task<IActionResult> DeleteMasterProfile(Guid Id)
+        {
+            var command = new DeleteMasterProfileCommand(Id);
+            var result = await _mediator.Send(command);
+            if(result.IsFailure)
+                return BadRequest(new { error = result.Error });
+            return Ok(result);
+        }
+        [HttpPatch("UpdateMasterProfile{Id}")]
+        public async Task<IActionResult> UpdateMasterProfile(Guid Id, [FromBody] DtoUpdateMasterProfile dtoUpdateMasterProfile)
+        {
+            var command = new UpdateMasterProfileCommand(Id ,dtoUpdateMasterProfile);
+            var result = await _mediator.Send(command);
+            if(result.IsFailure)
+                return BadRequest(new { error = result.Error });
+            return Ok(result);
+        }
+        [HttpGet("GetMasterProfileById{Id}")]
+        public async Task<IActionResult> GetMasterProfileById(Guid Id)
+        {
+            var query = new GetMasterProfileByIdQuery(Id);
+            var result = await _mediator.Send(query);
+            if(result.IsFailure)
+                return BadRequest(new { error = result.Error });
+            return Ok(result);
+        }
+        [HttpGet("GetMastersBySalon")]
+        public async Task<IActionResult> GetMastersBySalon(Guid salonId)
+        {
+            var query = new GetMasterProfileByIdQuery(salonId);
+            var result = await _mediator.Send(query);
+            if(result.IsFailure)
+                return BadRequest(new { error = result.Error });
+            return Ok(result);
+        }
+
+    }
+}

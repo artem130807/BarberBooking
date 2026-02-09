@@ -66,19 +66,15 @@ namespace BarberBooking.API
         {
             return builder.RequireAuthorization(policy => policy.AddRequirements(new PermissionRequirement(permissions)));
         }
-        public static IQueryable<Salons> SalonFilter(this IQueryable<Salons> query, SalonFilter salonFilter)
+        public static async Task<PagedResult<T>> ToPagedAsync<T>(this IQueryable<T> query, PageParams pageParams)
         {
-            if(salonFilter.IsActive.HasValue)
-                query = query.Where(x => x.IsActive == salonFilter.IsActive);
-            if(salonFilter.Rating.HasValue)
-                query = query.Where(x => x.Rating == salonFilter.Rating);
-            return query;
-        }
-        public static IQueryable<Salons>  SearchFilter(this IQueryable<Salons> query, SearchFilterParams searchFilterParams)
-        {
-            if(!string.IsNullOrWhiteSpace(searchFilterParams.SalonName))
-                query = query.Where(x => x.Address.City == searchFilterParams.City && x.Name.StartsWith(searchFilterParams.SalonName));
-            return query;
+            var count = await query.CountAsync();
+            if (count == 0) return new PagedResult<T>([], 0);
+            var page = pageParams.Page ?? 1;
+            var PageSize = pageParams.PageSize ?? 10;
+            var skip = (page - 1) * PageSize;
+            var result = await query.Skip(skip).Take(PageSize).ToListAsync();
+            return new PagedResult<T>(result, count); 
         }
     }
 }

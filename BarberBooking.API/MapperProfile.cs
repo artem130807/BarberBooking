@@ -6,6 +6,7 @@ using AutoMapper;
 using BarberBooking.API.Domain.ValueObjects;
 using BarberBooking.API.Dto;
 using BarberBooking.API.Dto.DtoAppointments;
+using BarberBooking.API.Dto.DtoMasterProfile;
 using BarberBooking.API.Dto.DtoMasterTimeSlot;
 using BarberBooking.API.Dto.DtoSalons;
 using BarberBooking.API.Dto.DtoServices;
@@ -30,6 +31,28 @@ namespace BarberBooking.API
             CreateMap<Salons, DtoSalonShortInfo>();
             CreateMap<Salons, DtoSalonUpdateInfo>();
             CreateMap<Salons, DtoSalonCreateInfo>();
+            ///МастерПрофиль
+            CreateMap<DtoCreateMasterProfile, MasterProfile>()
+            .ForMember(dest => dest.Id, opt => opt.Ignore())
+            .ForMember(dest => dest.Rating, opt => opt.MapFrom(src => 0m))
+            .ForMember(dest => dest.RatingCount, opt => opt.MapFrom(src => 0))
+            .ForMember(dest => dest.CreatedAt, opt => opt.MapFrom(src => DateTime.UtcNow));
+        
+            CreateMap<DtoUpdateMasterProfile, MasterProfile>()
+                .ForMember(dest => dest.Id, opt => opt.Ignore())
+                .ForMember(dest => dest.UserId, opt => opt.Ignore())
+                .ForMember(dest => dest.SalonId, opt => opt.Ignore())
+                .ForMember(dest => dest.Rating, opt => opt.Ignore())
+                .ForMember(dest => dest.RatingCount, opt => opt.Ignore())
+                .ForMember(dest => dest.CreatedAt, opt => opt.Ignore());
+            
+            CreateMap<MasterProfile, DtoCreateProfileInfo>();
+            
+            CreateMap<MasterProfile, DtoMasterProfileInfo>()
+                .ForMember(dest => dest.UserName, opt => opt.MapFrom(src => src.User != null ? src.User.Name : string.Empty));
+            
+            CreateMap<MasterProfile, DtoMasterProfileShortInfo>()
+                .ForMember(dest => dest.UserName, opt => opt.MapFrom(src => src.User != null ? src.User.Name : string.Empty));
             ///ValueObject
             CreateMap<DtoUpdatePrice, Price>();
             CreateMap<Price, DtoPrice>();

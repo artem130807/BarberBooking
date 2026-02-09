@@ -10,6 +10,7 @@ namespace BarberBooking.API.Filters
     public class SalonFilter
     {
         public bool? IsActive {get; set;}
-        public decimal? Rating {get; set;}
+        public decimal? MinRating {get; set;}
+        public decimal? MaxRating {get; set;}
     }
 }

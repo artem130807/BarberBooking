@@ -84,5 +84,14 @@ namespace BarberBooking.API.Controllers
                 return BadRequest(new { error = result.Error });
             return Ok(result.Value);
         }
+        [HttpGet("GetSalonsByFilter")]
+        public async Task<IActionResult> GetSalonsByFilter([FromQuery] SalonFilter salonFilter)
+        {
+            var query = new GetSalonsByFilterQuery(salonFilter);
+            var result = await _mediator.Send(query);
+            if (result.IsFailure)
+                return BadRequest(new { error = result.Error });
+            return Ok(result.Value);
+        }
     }
 }
