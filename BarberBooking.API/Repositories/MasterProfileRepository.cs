@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using BarberBooking.API.Contracts.MasterProfileContracts;
+using BarberBooking.API.ExtensionsProject;
+using BarberBooking.API.Filters.MasterProfile;
 using BarberBooking.API.Models;
 using Microsoft.EntityFrameworkCore;
 
@@ -26,11 +28,16 @@ namespace BarberBooking.API.Repositories
         }
         public async Task<MasterProfile> GetMasterProfileById(Guid Id)
         {
-            return await _context.MasterProfiles.FindAsync(Id);
+            return await _context.MasterProfiles.Include(x => x.User).FirstOrDefaultAsync(x => x.Id == Id);
         }
         public async Task<List<MasterProfile>> GetMastersBySalon(Guid salondId)
         {
-            return await _context.MasterProfiles.Where(x => x.SalonId == salondId).ToListAsync();
+            return await _context.MasterProfiles.Include(x => x.User).Where(x => x.SalonId == salondId).ToListAsync();
+        }
+
+        public async Task<List<MasterProfile>> GetMastersBySalonFilter(Guid salonId, MasterProfileFilter filter)
+        {
+            return await _context.MasterProfiles.Where(x => x.SalonId == salonId).FilterMasterProfile(filter).ToListAsync();
         }
     }
 }

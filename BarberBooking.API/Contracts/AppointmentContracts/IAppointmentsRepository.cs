@@ -9,7 +9,7 @@ namespace BarberBooking.API.Contracts
     public interface IAppointmentsRepository
     {
         Task<Appointments> CreateAsync(Appointments appointments);
-        Task<Appointments> DeleteAsync(Guid Id);
+        Task DeleteAsync(Guid Id);
         Task<Appointments?> GetByIdAsync(Guid id);
         Task<List<Appointments>> GetAppointmentsAsync();
         Task<List<Appointments>> GetByMasterTodayAsync(Guid masterId);

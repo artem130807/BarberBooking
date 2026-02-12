@@ -5,11 +5,12 @@ using System.Threading.Tasks;
 using AutoMapper;
 using BarberBooking.API.Contracts;
 using BarberBooking.API.Dto.DtoMasterTimeSlot;
+using CSharpFunctionalExtensions;
 using MediatR;
 
 namespace BarberBooking.API.CQRS.MasterTimeSlotQueries.Handler
 {
-    public class GetByIdAsyncHandler : IRequestHandler<GetByIdAsyncQuery, DtoMasterTimeSlotInfo>
+    public class GetByIdAsyncHandler : IRequestHandler<GetByIdAsyncQuery, Result<DtoMasterTimeSlotInfo>>
     {
         
         private readonly IMasterTimeSlotRepository _masterTimeSlotRepository;
@@ -20,10 +21,13 @@ namespace BarberBooking.API.CQRS.MasterTimeSlotQueries.Handler
             _mapper = mapper;
         }
 
-        public async Task<DtoMasterTimeSlotInfo> Handle(GetByIdAsyncQuery query, CancellationToken cancellationToken)
+        public async Task<Result<DtoMasterTimeSlotInfo>> Handle(GetByIdAsyncQuery query, CancellationToken cancellationToken)
         {
             var timeslot = await _masterTimeSlotRepository.GetByIdAsync(query.Id);
-            return _mapper.Map<DtoMasterTimeSlotInfo>(timeslot);
+            if(timeslot == null)
+                Result.Failure<DtoMasterTimeSlotInfo>("Тайм слот не найден");
+            var dto = _mapper.Map<DtoMasterTimeSlotInfo>(timeslot);
+            return Result.Success(dto);
         }
     }
 }

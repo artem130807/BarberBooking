@@ -25,6 +25,7 @@ namespace BarberBooking.API.Controllers
         {
             var command = new MasterTimeSlotCreateAsyncCommand(dtoCreateMasterTimeSlot);
             var result = await _mediator.Send(command);
+           
             return Ok(result);
         }
         [HttpDelete("delete-timeSlot{Id}")]
@@ -46,28 +47,36 @@ namespace BarberBooking.API.Controllers
         {
             var query = new FindSlotAsyncQuery(masterId,date, startTime);
             var result = await _mediator.Send(query);
-            return Ok(result);
+             if(result.IsFailure)
+                return BadRequest(new { error = result.Error });
+            return Ok(result.Value);
         }
         [HttpGet("get-availableSlots{masterId}")]
         public async Task<IActionResult> GetAvailableSlots(Guid masterId, [FromQuery] DateOnly date, [FromQuery] TimeSpan serviceDuration)
         {
             var query = new GetAvailableSlotsAsyncQuery(masterId, date, serviceDuration);
             var result = await _mediator.Send(query);
-            return Ok(result);
+             if(result.IsFailure)
+                return BadRequest(new { error = result.Error });
+            return Ok(result.Value);
         }
         [HttpGet("get-slotById{Id}")]
         public async Task<IActionResult> GetSlotById(Guid Id)
         {
             var query = new GetByIdAsyncQuery(Id);
             var result = await _mediator.Send(query);
-            return Ok(result);
+             if(result.IsFailure)
+                return BadRequest(new { error = result.Error });
+            return Ok(result.Value);
         }
         [HttpGet("get-slotByMasterId{masterId}")]
         public async Task<IActionResult> GetByMasterId(Guid masterId, [FromQuery] DateOnly date)
         {
             var query = new GetByMasterAsyncQuery(masterId, date);
             var result = await _mediator.Send(query);
-            return Ok(result);   
+             if(result.IsFailure)
+                return BadRequest(new { error = result.Error });
+            return Ok(result.Value);   
         }
     }
 }

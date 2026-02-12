@@ -24,7 +24,8 @@ namespace BarberBooking.API.CQRS.MasterProfile.Queries
             var masterProfile = await _masterProfileRepository.GetMasterProfileById(query.Id);
             if(masterProfile == null)
                 return Result.Failure<DtoMasterProfileInfo>("Профиль мастера не найден");
-            return _mapper.Map<DtoMasterProfileInfo>(masterProfile);
+            var dto =  _mapper.Map<DtoMasterProfileInfo>(masterProfile);
+            return Result.Success(dto);
         }
     }
 }

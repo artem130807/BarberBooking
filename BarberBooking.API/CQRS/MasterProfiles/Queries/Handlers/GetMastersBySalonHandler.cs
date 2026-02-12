@@ -25,7 +25,8 @@ namespace BarberBooking.API.CQRS.MasterProfile.Queries
             var masterProfiles = await _masterProfileRepository.GetMastersBySalon(query.salonId);
             if(masterProfiles.Count == 0)
                 return Result.Failure<List<DtoMasterProfileShortInfo>>("Мастера в этом салоне не найдены");
-            return _mapper.Map<List<DtoMasterProfileShortInfo>>(masterProfiles);
+            var dto =  _mapper.Map<List<DtoMasterProfileShortInfo>>(masterProfiles);
+            return Result.Success(dto);
         }
     }
 }

@@ -12,6 +12,7 @@ namespace BarberBooking.API.Service
     public class UnitOfWork : IUnitOfWork
     {
         BarberBookingDbContext _dbContext;
+        ILogger<MasterTimeSlotRepository> _logger;
         private IAppointmentsRepository _appointmentsRepository;
         private IMasterTimeSlotRepository _masterTimeSlotRepository;
         private IServicesRepository _servicesRepository;
@@ -32,7 +33,7 @@ namespace BarberBooking.API.Service
         }
         public IMasterTimeSlotRepository masterTimeSlotRepository
         {
-             get {return _masterTimeSlotRepository ??= new MasterTimeSlotRepository(_dbContext);}
+             get {return _masterTimeSlotRepository ??= new MasterTimeSlotRepository(_dbContext, _logger);}
         }
 
         public IServicesRepository servicesRepository

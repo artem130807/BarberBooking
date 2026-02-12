@@ -25,14 +25,18 @@ namespace BarberBooking.API.Controllers
         {
             var command = new CreateAppointmentCommand(dtoCreateAppointment);
             var result = await _mediator.Send(command);
-            return Ok(result);
+            if(result.IsFailure)
+                return BadRequest(result.Error);
+            return Ok(result.Value);
         }
         [HttpDelete("delete-appointment{Id}")]
         public async Task<IActionResult> DeleteAppointment(Guid Id)
         {
             var command = new DeleteAppointmentCommand(Id);
             var result = await _mediator.Send(command);
-            return Ok(result);
+            if(result.IsFailure)
+                return BadRequest(result.Error);
+            return Ok(result.Value);
         }
         [HttpPatch("update-appointment{Id}")]
         public async Task<IActionResult> UpdateAppointment(Guid Id, [FromBody] DtoUpdateAppointment dtoUpdateAppointment)

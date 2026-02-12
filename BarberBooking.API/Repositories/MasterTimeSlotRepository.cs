@@ -13,9 +13,11 @@ namespace BarberBooking.API.Repositories
     public class MasterTimeSlotRepository:IMasterTimeSlotRepository
     {
         private readonly BarberBookingDbContext _context;
-        public MasterTimeSlotRepository(BarberBookingDbContext context)
+        private readonly ILogger<MasterTimeSlotRepository> _logger;
+        public MasterTimeSlotRepository(BarberBookingDbContext context, ILogger<MasterTimeSlotRepository> logger)
         {
-          _context = context;
+            _context = context;
+            _logger = logger;
         }
 
         public async Task<MasterTimeSlot> CreateAsync(MasterTimeSlot timeSlot)
@@ -46,59 +48,70 @@ namespace BarberBooking.API.Repositories
         public async Task<List<MasterTimeSlot>> GetAvailableSlotsAsync(Guid masterId, DateOnly date, TimeSpan serviceDuration)
         {
             var slots = await _context.MasterTimeSlots
-            .Include(x => x.Appointments)
-            .Where(x => x.MasterId == masterId && x.ScheduleDate == date)
-            .ToListAsync();
+                .Include(x => x.Appointments)
+                .Where(x => x.MasterId == masterId && x.ScheduleDate == date)
+                .ToListAsync();
+
+            if (!slots.Any())
+                return new List<MasterTimeSlot>();
 
             var availableSlots = new List<MasterTimeSlot>();
             var currentTime = TimeOnly.FromDateTime(DateTime.Now);
             var today = DateOnly.FromDateTime(DateTime.Now);
-            
+
             foreach (var slot in slots)
             {
-                if (date == today && slot.StartTime < currentTime)
-                    continue;
-                
-                if (slot.EndTime - slot.StartTime < serviceDuration)
-                    continue;
-                
+                TimeOnly slotStart = slot.StartTime;
+                TimeOnly slotEnd = slot.EndTime;
+
+                if (date == today && slotStart < currentTime)
+                {
+                    slotStart = currentTime;
+                    if (slotEnd - slotStart < serviceDuration)
+                        continue;
+                }
+
                 var appointments = slot.Appointments
                     .Where(a => DateOnly.FromDateTime(a.AppointmentDate) == date)
                     .OrderBy(a => a.StartTime)
                     .ToList();
-                
+
                 if (!appointments.Any())
                 {
-                    availableSlots.Add(slot);
+                    var endTime = slotStart.Add(serviceDuration);
+                    if (endTime <= slotEnd)
+                    {
+                        availableSlots.Add(MasterTimeSlot.Create(
+                            slot.MasterId, date, slotStart, endTime));
+                    }
                     continue;
                 }
-                
-                var previousEnd = slot.StartTime;
-                
+
+                var previousEnd = slotStart;
                 foreach (var appointment in appointments)
                 {
+                    if (appointment.StartTime < slotStart)
+                        continue;
+
                     var freeTime = appointment.StartTime - previousEnd;
                     if (freeTime >= serviceDuration)
                     {
                         var endTime = previousEnd.Add(serviceDuration);
                         availableSlots.Add(MasterTimeSlot.Create(
-                            slot.MasterId, 
-                            date, 
-                            previousEnd, 
-                            endTime));
+                            slot.MasterId, date, previousEnd, endTime));
                     }
-                    previousEnd = appointment.EndTime;
+                    previousEnd = appointment.EndTime > previousEnd ? 
+                        appointment.EndTime : previousEnd;
                 }
-                if (slot.EndTime - previousEnd >= serviceDuration)
+
+                if (slotEnd - previousEnd >= serviceDuration)
                 {
                     var endTime = previousEnd.Add(serviceDuration);
                     availableSlots.Add(MasterTimeSlot.Create(
-                    slot.MasterId, 
-                    date, 
-                    previousEnd, 
-                    endTime));
+                        slot.MasterId, date, previousEnd, endTime));
                 }
             }
+
             return availableSlots;
         }
 

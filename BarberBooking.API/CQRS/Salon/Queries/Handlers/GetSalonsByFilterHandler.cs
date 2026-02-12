@@ -16,19 +16,28 @@ namespace BarberBooking.API.CQRS.Salon.Queries.Handlers
         private readonly ISalonsRepository _salonsRepository;
         private readonly IUserContext _userContext;
         private readonly IMapper _mapper;
-        public GetSalonsByFilterHandler(ISalonsRepository salonsRepository, IUserContext userContext, IMapper mapper)
+        private readonly IMasterTimeSlotRepository _masterTimeSlotRepository;
+        public GetSalonsByFilterHandler(ISalonsRepository salonsRepository, IUserContext userContext, IMapper mapper, IMasterTimeSlotRepository masterTimeSlotRepository)
         {
             _salonsRepository = salonsRepository;
             _userContext = userContext;
             _mapper = mapper;
+            _masterTimeSlotRepository = masterTimeSlotRepository;
         }
         public async Task<Result<List<DtoSalonShortInfo>>> Handle(GetSalonsByFilterQuery query, CancellationToken cancellationToken)
         {
             var userCity = _userContext.UserCity;
             var salons = await _salonsRepository.GetSalonsByFilter(userCity, query.salonFilter);
+            var countSlotsInSalon = await _masterTimeSlotRepository.GetAvailableSlotsInSalons(DateOnly.FromDateTime(DateTime.Now));
             if(salons == null)
                 return Result.Failure<List<DtoSalonShortInfo>>("Списков салонов пуст");
-            return _mapper.Map<List<DtoSalonShortInfo>>(salons);
+            var dtoSalon = salons.Select(salon =>
+            {
+                var dto =  _mapper.Map<DtoSalonShortInfo>(salon);
+                dto.AvailableSlots = countSlotsInSalon.Count();
+                return dto;
+            }).ToList();
+            return Result.Success(dtoSalon);
         }
     }
 }

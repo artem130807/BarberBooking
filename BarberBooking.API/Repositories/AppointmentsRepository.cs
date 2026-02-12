@@ -22,13 +22,11 @@ namespace BarberBooking.API.Repositories
             return appointments;
         }
 
-        public async Task<Appointments> DeleteAsync(Guid Id)
+        public async Task DeleteAsync(Guid Id)
         {
-            var appointment = await _dbContext.Appointments.FindAsync(Id);
             await _dbContext.Appointments
             .Where(x => x.Id == Id)
             .ExecuteDeleteAsync();
-            return appointment;
         }
 
         public async Task<Appointments> GetByIdAndUserIdAsync(Guid Id, Guid ClientId)

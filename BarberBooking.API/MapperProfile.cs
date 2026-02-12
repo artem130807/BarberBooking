@@ -53,6 +53,11 @@ namespace BarberBooking.API
             
             CreateMap<MasterProfile, DtoMasterProfileShortInfo>()
                 .ForMember(dest => dest.UserName, opt => opt.MapFrom(src => src.User != null ? src.User.Name : string.Empty));
+            ///Тайм слоты
+            CreateMap<DtoCreateMasterTimeSlot, MasterTimeSlot>();
+            CreateMap<DtoUpdateMasterTimeSlot, MasterTimeSlot>();
+            CreateMap<MasterTimeSlot, DtoMasterTimeSlotInfo>();
+            CreateMap<MasterTimeSlot, DtoCreateTimeSlotInfo>();
             ///ValueObject
             CreateMap<DtoUpdatePrice, Price>();
             CreateMap<Price, DtoPrice>();

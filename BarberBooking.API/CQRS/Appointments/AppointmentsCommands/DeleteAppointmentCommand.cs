@@ -3,10 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using BarberBooking.API.Dto.DtoAppointments;
+using CSharpFunctionalExtensions;
 using MediatR;
 
 namespace BarberBooking.API.CQRS.AppointmentsCommands.Handlers
 {
-    public record DeleteAppointmentCommand(Guid Id):IRequest<DtoAppointmentInfo>;
+    public record DeleteAppointmentCommand(Guid Id):IRequest<Result<string>>;
    
 }
