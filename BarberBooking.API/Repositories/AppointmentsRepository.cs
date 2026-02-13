@@ -10,57 +10,70 @@ namespace BarberBooking.API.Repositories
 {
     public class AppointmentsRepository:IAppointmentsRepository
     {
-        private readonly BarberBookingDbContext _dbContext;
-        public AppointmentsRepository(BarberBookingDbContext dbContext)
+        private readonly BarberBookingDbContext _context;
+        public AppointmentsRepository(BarberBookingDbContext context)
         {
-            _dbContext = dbContext;
+            _context = context;
         }
 
         public async Task<Appointments> CreateAsync(Appointments appointments)
         {
-            _dbContext.Appointments.Add(appointments);
+            _context.Appointments.Add(appointments);
             return appointments;
         }
 
         public async Task DeleteAsync(Guid Id)
         {
-            await _dbContext.Appointments
+            await _context.Appointments
             .Where(x => x.Id == Id)
             .ExecuteDeleteAsync();
         }
-
-        public async Task<Appointments> GetByIdAndUserIdAsync(Guid Id, Guid ClientId)
+        public async Task<List<Appointments>> GetByClientIdAndDate(Guid clientId, DateTime appointmentDateTime)
         {
-            return await _dbContext.Appointments.FirstOrDefaultAsync(x => x.Id == Id && x.ClientId == ClientId);
+            return await _context.Appointments
+            .Include(x => x.Salon)
+            .Include(x => x.Master)
+            .Include(x => x.Service)
+            .Where(x =>  x.ClientId == clientId && x.AppointmentDate == appointmentDateTime)
+            .ToListAsync();
+        }
+        public async Task<List<Appointments>> GetByMasterIdAndDate(Guid masterId, DateTime appointmentDateTime)
+        {
+            return await _context.Appointments
+            .Include(x => x.Salon)
+            .Include(x => x.Client)
+            .Include(x => x.Service)
+            .Where(x =>  x.MasterId == masterId && x.AppointmentDate == appointmentDateTime)
+            .ToListAsync();
+        }
+        public async Task<Appointments> GetByIdAsync(Guid id)
+        {
+            return await _context.Appointments
+            .Include(x => x.Salon)
+            .Include(x => x.Client)
+            .Include(x => x.Service)
+            .Include(x => x.Master)
+            .FirstOrDefaultAsync(x => x.Id == id);
         }
 
-        public async Task<Appointments> GetByClientIdAndDateAsync(DateTime appointmentDateTime, Guid clientId)
+        public async Task<List<Appointments>> GetAppointmentsByClientId(Guid clientId)
         {
-            return await _dbContext.Appointments.FirstOrDefaultAsync(x => x.AppointmentDate == appointmentDateTime && x.ClientId == clientId);
+            return await _context.Appointments
+            .Include(x => x.Salon)
+            .Include(x => x.Master)
+            .Include(x => x.Service)
+            .Where(x =>  x.ClientId == clientId)
+            .ToListAsync();
         }
 
-        public async Task<List<Appointments>> GetAppointmentsAsync()
+        public async Task<List<Appointments>> GetAppointmentsByMasterId(Guid masterId)
         {
-            return await _dbContext.Appointments.ToListAsync();
+            return await _context.Appointments
+            .Include(x => x.Salon)
+            .Include(x => x.Master)
+            .Include(x => x.Service)
+            .Where(x =>  x.MasterId == masterId)
+            .ToListAsync();
         }
-        public async Task<Appointments?> GetByMasterAndDateTimeAsync(Guid masterId, DateTime appointmentDateTime)
-        {
-            return await _dbContext.Appointments.FirstOrDefaultAsync(x =>  x.MasterId == masterId && x.AppointmentDate == appointmentDateTime);
-        }
-
-        public async Task<Appointments?> GetByIdAsync(Guid id)
-        {
-            return await _dbContext.Appointments.FindAsync(id);
-        }
-
-        public async Task<List<Appointments>> GetByMasterTodayAsync(Guid masterId)
-        {
-            return await _dbContext.Appointments.Where(x => x.MasterId == masterId).ToListAsync();
-        }
-
-        public async Task<List<Appointments>> GetByMasterAndDateAsync(Guid masterId, DateTime date)
-        {
-            return await _dbContext.Appointments.Where(x => x.MasterId == masterId && x.AppointmentDate == date).ToListAsync();
-        }    
     }
 }

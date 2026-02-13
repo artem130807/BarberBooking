@@ -10,12 +10,10 @@ namespace BarberBooking.API.Contracts
     {
         Task<Appointments> CreateAsync(Appointments appointments);
         Task DeleteAsync(Guid Id);
-        Task<Appointments?> GetByIdAsync(Guid id);
-        Task<List<Appointments>> GetAppointmentsAsync();
-        Task<List<Appointments>> GetByMasterTodayAsync(Guid masterId);
-        Task<Appointments?> GetByMasterAndDateTimeAsync(Guid masterId ,DateTime appointmentDateTime);
-        Task<List<Appointments>> GetByMasterAndDateAsync(Guid masterId, DateTime date);
-        Task<Appointments> GetByClientIdAndDateAsync(DateTime appointmentDateTime, Guid clientId);
-        Task<Appointments> GetByIdAndUserIdAsync(Guid Id, Guid ClientId);
+        Task<Appointments> GetByIdAsync(Guid id);
+        Task<List<Appointments>> GetAppointmentsByClientId(Guid clientId);
+        Task<List<Appointments>> GetAppointmentsByMasterId(Guid masterId);
+        Task<List<Appointments>> GetByClientIdAndDate(Guid clientId, DateTime appointmentDateTime);
+        Task<List<Appointments>> GetByMasterIdAndDate(Guid masterId, DateTime appointmentDateTime);
     }
 }

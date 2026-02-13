@@ -3,10 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using BarberBooking.API.Dto.DtoAppointments;
+using CSharpFunctionalExtensions;
 using MediatR;
 
 namespace BarberBooking.API.CQRS.AppointmentsQueries
 {
-    public record GetAppointmentByTokenQuery(DateTime appointmentDateTime, Guid userId):IRequest<DtoAppointmentInfo>;
+    public record GetAppointmentClientByIdHandler(Guid Id):IRequest<Result<DtoClientAppointmentInfo>>;
     
 }

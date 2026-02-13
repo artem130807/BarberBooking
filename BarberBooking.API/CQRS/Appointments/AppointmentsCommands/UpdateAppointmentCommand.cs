@@ -7,6 +7,6 @@ using MediatR;
 
 namespace BarberBooking.API.CQRS.AppointmentsCommands
 {
-    public record UpdateAppointmentCommand(Guid Id, DtoUpdateAppointment dtoUpdateAppointment):IRequest<DtoAppointmentInfo>;
+    public record UpdateAppointmentCommand(Guid Id, DtoUpdateAppointment dtoUpdateAppointment):IRequest<DtoClientAppointmentInfo>;
     
 }

@@ -13,6 +13,7 @@ namespace BarberBooking.API.Contracts.MasterProfileContracts
         Task DeleteMasterProfile(Guid Id);
         Task<MasterProfile> GetMasterProfileById(Guid Id);
         Task<List<MasterProfile>> GetMastersBySalon(Guid salondId);
+        Task<MasterProfile> GetMasterProfileByUserId(Guid userId);
         Task<List<MasterProfile>> GetMastersBySalonFilter(Guid salonId, MasterProfileFilter filter);
     }
 }

@@ -9,7 +9,7 @@ using MediatR;
 
 namespace BarberBooking.API.CQRS.AppointmentsCommands.Handlers
 {
-    public class UpdateAppointmentHandler:IRequestHandler<UpdateAppointmentCommand, DtoAppointmentInfo>
+    public class UpdateAppointmentHandler:IRequestHandler<UpdateAppointmentCommand, DtoClientAppointmentInfo>
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IAppointmentsRepository _appointmentsRepository;
@@ -23,7 +23,7 @@ namespace BarberBooking.API.CQRS.AppointmentsCommands.Handlers
             _updateAppointmentService = updateAppointmentService;
         }
 
-        public async Task<DtoAppointmentInfo> Handle(UpdateAppointmentCommand command, CancellationToken cancellationToken)
+        public async Task<DtoClientAppointmentInfo> Handle(UpdateAppointmentCommand command, CancellationToken cancellationToken)
         {
             var appointment = await _appointmentsRepository.GetByIdAsync(command.Id);
             if(appointment == null)
@@ -38,7 +38,7 @@ namespace BarberBooking.API.CQRS.AppointmentsCommands.Handlers
                 _unitOfWork.RollBack();
                 throw new InvalidOperationException(ex.Message);
             }
-            return _mapper.Map<DtoAppointmentInfo>(appointment);
+            return _mapper.Map<DtoClientAppointmentInfo>(appointment);
         }
     }
 }

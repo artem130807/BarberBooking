@@ -30,6 +30,12 @@ namespace BarberBooking.API.Repositories
         {
             return await _context.MasterProfiles.Include(x => x.User).FirstOrDefaultAsync(x => x.Id == Id);
         }
+
+        public async Task<MasterProfile> GetMasterProfileByUserId(Guid userId)
+        {
+            return await _context.MasterProfiles.FirstOrDefaultAsync(x => x.UserId == userId);
+        }
+
         public async Task<List<MasterProfile>> GetMastersBySalon(Guid salondId)
         {
             return await _context.MasterProfiles.Include(x => x.User).Where(x => x.SalonId == salondId).ToListAsync();

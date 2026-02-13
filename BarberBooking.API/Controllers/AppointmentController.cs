@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using BarberBooking.API.CQRS.Appointments.AppointmentsQueries;
 using BarberBooking.API.CQRS.AppointmentsCommands;
 using BarberBooking.API.CQRS.AppointmentsCommands.Handlers;
 using BarberBooking.API.CQRS.AppointmentsQueries;
@@ -45,47 +46,48 @@ namespace BarberBooking.API.Controllers
             var result = await _mediator.Send(command);
             return Ok(result);
         }
-        [HttpGet("get-appointmentByIdAndToken{Id}")]
-        public async Task<IActionResult> GetAppointmentByIdAndToken(Guid Id, [FromQuery] long token)
+      
+        [HttpGet("get-appointmentClientById{Id}")]
+        public async Task<IActionResult> GetClientAppointmentById(Guid Id)
         {
-            var query = new GetAppointmentByIdAndTokenQuery(Id, token);
+            var query = new GetAppointmentClientByIdHandler(Id);
             var result = await _mediator.Send(query);
-            return Ok(result);
+            return Ok(result.Value);
         }
-        [HttpGet("get-appointmentByToken")]
-        public async Task<IActionResult> GetAppointmentByToken([FromQuery] DateTime dateTime, Guid userId)
+        [HttpGet("get-appointmentMasterById{Id}")]
+        public async Task<IActionResult> GetMasterAppointmentById(Guid Id)
         {
-            var query = new GetAppointmentByTokenQuery(dateTime , userId);
+            var query = new GetAppointmentMasterByIdQuery(Id);
             var result = await _mediator.Send(query);
-            return Ok(result);
+            return Ok(result.Value);
         }
-        [HttpGet("get-appointments")] 
-        public async Task<IActionResult> GetAppointments()
+        [HttpGet("get-appointmentsByClientId")]
+        public async Task<IActionResult> GetAppointmentsByClientId()
         {
-            var query = new GetAppointmentsAsyncQuery();
+            var query = new GetAppointmentsByClientIdQuery();
             var result = await _mediator.Send(query);
-            return Ok(result);
+            return Ok(result.Value);
         }
-        [HttpGet("get-appointmentsByDateTime{masterId}")]
-        public async Task<IActionResult> GetByAppointmentDateTime(Guid masterId, [FromQuery] DateTime dateTime)
+        [HttpGet("get-appointmentsByMasterId")]
+        public async Task<IActionResult> GetAppointmentsByMasterId()
         {
-            var query = new GetByAppointmentDateTimeAsyncQuery(masterId, dateTime);
+            var query = new GetAppointmentsByMasterIdQuery();
             var result = await _mediator.Send(query);
-            return Ok(result);
+            return Ok(result.Value);
         }
-        [HttpGet("get-appointmentById{Id}")]
-        public async Task<IActionResult> GetAppointmentById(Guid Id)
+         [HttpGet("get-appointmentsByClientIdAndDate")]
+        public async Task<IActionResult> GetAppointmentsByClientIdAndDate([FromQuery] DateTime date)
         {
-            var query = new GetByIdAsyncQuery(Id);
+            var query = new GetAppointmentsByClientIdAndDateQuery(date);
             var result = await _mediator.Send(query);
-            return Ok(result);
+            return Ok(result.Value);
         }
-        [HttpGet("get-appointmentByMasterToday{masterId}")]
-        public async Task<IActionResult> GetAppointmentByMasterToday(Guid Id)
+        [HttpGet("get-appointmentsByMasterIdAndDate")]
+        public async Task<IActionResult> GetAppointmentsByMasterIdAndDate([FromQuery] DateTime date)
         {
-            var query = new GetByMasterTodayAsyncQuery(Id);
+            var query = new GetAppointmentsByMasterIdAndDateQuery(date);
             var result = await _mediator.Send(query);
-            return Ok(result);
+            return Ok(result.Value);
         }
     }
 }
