@@ -39,9 +39,9 @@ namespace BarberBooking.API.Repositories
             .ToHashSet();
         }
 
-        public async Task UpdatePasswordHash(string phone, string password)
+        public async Task UpdatePasswordHash(string email, string password)
         {
-            await _context.Users.Where(x => x.Phone.Number == phone)
+            await _context.Users.Where(x => x.Email == email)
             .ExecuteUpdateAsync(x => x.SetProperty(x => x.PasswordHash, password));
             await _context.SaveChangesAsync();
         }
@@ -57,6 +57,11 @@ namespace BarberBooking.API.Repositories
         public async Task<Users> GetUserById(Guid Id)
         {
             return await _context.Users.FindAsync(Id);
+        }
+
+        public async Task<Users> GetUserByEmail(string email)
+        {
+            return await _context.Users.FirstOrDefaultAsync(x => x.Email == email);
         }
     }
 }

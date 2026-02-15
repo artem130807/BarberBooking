@@ -8,7 +8,7 @@ namespace BarberBooking.API.Dto.DtoUsers
 {
     public class DtoLoginUser
     {
-        public DtoPhone DtoPhone {get; set;}
+        public string Email {get; set;}
         public string  PasswordHash {get; set;}
     }
 }

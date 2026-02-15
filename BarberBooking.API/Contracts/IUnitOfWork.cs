@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using BarberBooking.API.Contracts.EmailContracts;
 using BarberBooking.API.Contracts.MasterProfileContracts;
 using BarberBooking.API.Contracts.SalonsContracts;
 
@@ -14,6 +15,8 @@ namespace BarberBooking.API.Contracts
         IServicesRepository servicesRepository {get;}
         ISalonsRepository salonsRepository {get;}
         IMasterProfileRepository masterProfileRepository {get;}
+        IEmailVerificationRepository emailVerificationRepository {get;}
+        IUserRepository userRepository {get;}
         void BeginTransaction();
         void Commit();
         void RollBack();

@@ -19,6 +19,7 @@ namespace BarberBooking.API.Configurations
             builder.Property(x => x.Code);
             builder.Property(x => x.CratedDate);
             builder.Property(x => x.ExpiresAt);
+            builder.Property(x => x.LastSentAt);
             builder.Property(x => x.IsUsed);
         }
     }

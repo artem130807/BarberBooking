@@ -12,6 +12,7 @@ namespace BarberBooking.API.Models
         public string Code { get; set; } = string.Empty;
         public DateTime CratedDate { get; set; } = DateTime.Now;
         public DateTime ExpiresAt { get; set; } 
+        public DateTime LastSentAt {get; set;}
         public bool IsUsed { get; set; } = false;
     }
 }

@@ -114,7 +114,6 @@ namespace BarberBooking.API
             CreateMap<Address, DtoAddressShort>();
             CreateMap<Address, DtoUpdateAddress>();
             CreateMap<PhoneNumber, DtoUpdatePhone>();
-           
         }
     }
 }

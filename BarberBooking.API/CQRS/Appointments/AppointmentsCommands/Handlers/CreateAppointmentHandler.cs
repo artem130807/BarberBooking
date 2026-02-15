@@ -27,17 +27,17 @@ namespace BarberBooking.API.CQRS.AppointmentsCommands.Handlers
         }
         public async Task<Result<DtoCreateAppointmentInfo>> Handle(CreateAppointmentCommand command, CancellationToken cancellationToken)
         {
-            var appointmentDate = await _appointmentsRepository.GetByMasterAndDateTimeAsync(command.DtoCreateAppointment.MasterId ,command.DtoCreateAppointment.AppointmentDate);
+            var appointmentDate = await _appointmentsRepository.GeAppointmentByMasterIdAndDate(command.DtoCreateAppointment.MasterId ,command.DtoCreateAppointment.AppointmentDate);
             if(appointmentDate != null)
                 return Result.Failure<DtoCreateAppointmentInfo>("На это время уже есть запись");
             var service = await _servicesRepository.GetByIdAsync(command.DtoCreateAppointment.ServiceId);
             if(service == null)
                 return Result.Failure<DtoCreateAppointmentInfo>("Услуги не существует");
-            var dtoAppointmet = _mapper.Map<Appointments>(command.DtoCreateAppointment);
+            var dtoAppointmet = _mapper.Map<Models.Appointments>(command.DtoCreateAppointment);
             var serviceDuration = TimeSpan.FromMinutes(service.DurationMinutes);
             var endTime = dtoAppointmet.StartTime.Add(serviceDuration);
 
-            var appointment = Appointments.Create(dtoAppointmet.SalonId,dtoAppointmet.MasterId, dtoAppointmet.ClientId,
+            var appointment = Models.Appointments.Create(dtoAppointmet.SalonId,dtoAppointmet.MasterId, dtoAppointmet.ClientId,
                 dtoAppointmet.ServiceId, dtoAppointmet.TimeSlotId, dtoAppointmet.StartTime,
                 dtoAppointmet.ClientNotes, endTime, dtoAppointmet.AppointmentDate);
             try
@@ -50,7 +50,6 @@ namespace BarberBooking.API.CQRS.AppointmentsCommands.Handlers
                 _unitOfWork.RollBack();
                 throw new InvalidOperationException(ex.Message);
             }
-          
             var result =  _mapper.Map<DtoCreateAppointmentInfo>(appointment);
             return Result.Success(result);
         }

@@ -33,8 +33,10 @@ namespace BarberBooking.API.Controllers
         [HttpPost("send-verification")]
         public async Task<IActionResult> SendVerificationCode([FromBody] SendVerificationRequest verificationRequest)
         {
-            await _verificationService.SendVerificationAsync(verificationRequest.Email);
-            return Ok("Код подтверждения отправлен на почту");
+            var result = await _verificationService.SendVerificationAsync(verificationRequest.Email);
+            if (result.IsFailure)
+                return BadRequest(result.Error);
+            return Ok(result.Value);
         }
         [HttpPost("verify-email")]
         public async Task<IActionResult> VerifyCode([FromBody] VerifyCodeRequest request)
@@ -64,11 +66,20 @@ namespace BarberBooking.API.Controllers
         [HttpPost("LoginUser")]
         public async Task<IActionResult> Login([FromBody] DtoLoginUser login)
         {
-            var query = new LoginUserQuery(login.DtoPhone.Number, login.PasswordHash);
+            var query = new LoginUserQuery(login.Email, login.PasswordHash);
             var result = await _mediator.Send(query);
             if (result.IsFailure)
                 return BadRequest(new { error = result.Error });
             _cookieService.SetAuthCookie(Response, result.Value.Token);
+            return Ok(result.Value);
+        }
+        [HttpPatch("updatePassword")]
+        public async Task<IActionResult> UpdatePassword(string email, string password)
+        {
+            var command = new UpdatePasswordHashCommand(email, password);     
+            var result = await _mediator.Send(command);
+            if (result.IsFailure)
+                return BadRequest(result.Error);
             return Ok(result.Value);
         }
     }

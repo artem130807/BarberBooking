@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using BarberBooking.API.Contracts;
+using BarberBooking.API.Contracts.EmailContracts;
 using BarberBooking.API.Contracts.MasterProfileContracts;
 using BarberBooking.API.Contracts.SalonsContracts;
 using BarberBooking.API.Repositories;
@@ -18,6 +19,8 @@ namespace BarberBooking.API.Service
         private IServicesRepository _servicesRepository;
         private ISalonsRepository _salonsRepository;
         private IMasterProfileRepository _masterProfileRepository;
+        private IEmailVerificationRepository _emailVerificationRepository;
+        private IUserRepository _userRepository;
         public UnitOfWork(BarberBookingDbContext dbContext)
         {
             _dbContext = dbContext;
@@ -44,7 +47,17 @@ namespace BarberBooking.API.Service
         public IMasterProfileRepository masterProfileRepository
         {
             get {return _masterProfileRepository ?? new MasterProfileRepository(_dbContext);}
-        } 
+        }
+
+        public IEmailVerificationRepository emailVerificationRepository
+        {
+            get {return _emailVerificationRepository ?? new EmailVerificationRepository(_dbContext);}
+        }
+
+        public IUserRepository userRepository
+        {
+            get{return _userRepository ?? new UsersRepository(_dbContext);}
+        }
 
         public void BeginTransaction()
         {

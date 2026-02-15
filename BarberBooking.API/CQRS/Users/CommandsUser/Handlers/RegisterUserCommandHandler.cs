@@ -25,18 +25,14 @@ namespace BarberBooking.API.CQRS.Commands.Handlers
         private readonly IUserRolesRepository _rolesRepository;
         private readonly IPasswordValidatorService _passwordValidatorService;
         private readonly IMemoryCache _memoryCache;
-        private readonly ICacheService _cacheService;
-        private readonly IAuthCookieService _cookieService;
         public RegisterUserCommandHandler(
             IUserRepository usersRepository,
             IPasswordHasher passwordHasher,
             IJwtProvider jwtProvider,
             IUserRolesRepository rolesRepository, 
             IPasswordValidatorService passwordValidatorService,
-            IUserRolesRepository roleRepository, IMemoryCache memoryCache,
-            IAuthCookieService cookieService,
-            ICacheService cacheService
-            )
+            IUserRolesRepository roleRepository, IMemoryCache memoryCache
+        )
         {
             _usersRepository = usersRepository;
             _passwordHasher = passwordHasher;
@@ -45,8 +41,6 @@ namespace BarberBooking.API.CQRS.Commands.Handlers
             _passwordValidatorService = passwordValidatorService;
             _rolesRepository = roleRepository;
             _memoryCache = memoryCache;
-            _cookieService = cookieService;
-            _cacheService = cacheService;
         }
         public async Task<Result<AuthDto>> Handle(RegisterUserCommand command, CancellationToken cancellationToken)
         {

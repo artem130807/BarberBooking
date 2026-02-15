@@ -12,7 +12,7 @@ using MediatR;
 
 namespace BarberBooking.API.CQRS.Appointments.AppointmentsQueries.Handlers
 {
-    public class GetAppointmentsByMasterIdHandler : IRequestHandler<GetAppointmentsByMasterIdQuery, Result<List<DtoClientAppointmentShortInfo>>>
+    public class GetAppointmentsByMasterIdHandler : IRequestHandler<GetAppointmentsByMasterIdQuery, Result<List<DtoMasterAppointmentShortInfo>>>
     {
         private readonly IMapper _mapper;
         private readonly IAppointmentsRepository _appointmentsRepository;
@@ -25,14 +25,14 @@ namespace BarberBooking.API.CQRS.Appointments.AppointmentsQueries.Handlers
             _userContext = userContext;
             _masterProfileRepository = masterProfileRepository;
         }
-        public async Task<Result<List<DtoClientAppointmentShortInfo>>> Handle(GetAppointmentsByMasterIdQuery query, CancellationToken cancellationToken)
+        public async Task<Result<List<DtoMasterAppointmentShortInfo>>> Handle(GetAppointmentsByMasterIdQuery query, CancellationToken cancellationToken)
         {
             var userId = _userContext.UserId;
             var master = await _masterProfileRepository.GetMasterProfileByUserId(userId);
             var appointments = await _appointmentsRepository.GetAppointmentsByMasterId(master.Id);
             if(appointments.Count == 0)
-                return Result.Failure<List<DtoClientAppointmentShortInfo>>("Список ваших записей пуст");
-            var result  = _mapper.Map<List<DtoClientAppointmentShortInfo>>(appointments);
+                return Result.Failure<List<DtoMasterAppointmentShortInfo>>("Список ваших записей пуст");
+            var result  = _mapper.Map<List<DtoMasterAppointmentShortInfo>>(appointments);
             return Result.Success(result);
         }
     }

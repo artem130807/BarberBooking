@@ -16,6 +16,7 @@ using Microsoft.AspNetCore.CookiePolicy;
 
 var builder = WebApplication.CreateBuilder(args);
 var configuration = builder.Configuration;
+builder.WebHost.UseUrls("http://0.0.0.0:5088");
 builder.Services.AddAuthentication("ApiKeys").AddScheme<AuthenticationSchemeOptions, ApiKeyAuthHandler>("ApiKeys", null);
 // Конфигурация JWT 
 builder.Services.Configure<JwtOptions>(configuration.GetSection(nameof(JwtOptions)));
@@ -58,7 +59,9 @@ builder.Services.AddScoped<IMasterProfileRepository, MasterProfileRepository>();
 builder.Services.AddScoped<ICacheService, CacheService>();
 builder.Services.AddScoped<IUserContext, UserContext>();
 builder.Services.AddScoped<ISalonActiveHandler, SalonActiveHandler>();
+builder.Services.AddScoped<IEmailVerficationHandler, EmailVerificateDeleteHandler>();
 builder.Services.AddHostedService<SalonBackground>();
+builder.Services.AddHostedService<EmailVerificateBackgroundDeleter>();
 builder.Services.AddMemoryCache();
 var app = builder.Build();
 

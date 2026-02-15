@@ -21,8 +21,7 @@ namespace BarberBooking.API.CQRS.Queries.Handlers
         public LoginUserQueryCommandHandler(
             IUserRepository usersRepository,
             IPasswordHasher passwordHasher,
-            IJwtProvider jwtProvider,
-            ICacheService cacheService
+            IJwtProvider jwtProvider
             )
         {
             _usersRepository = usersRepository;
@@ -32,7 +31,7 @@ namespace BarberBooking.API.CQRS.Queries.Handlers
 
         public async Task<Result<AuthDto>> Handle(LoginUserQuery query, CancellationToken cancellationToken)
         {
-            var user = await _usersRepository.GetUserByPhone(query.Phone);
+            var user = await _usersRepository.GetUserByEmail(query.Email);
             if(user == null)
                 return Result.Failure<AuthDto>("Пользователя не существует");
             var result = _passwordHasher.Verify(query.PasswordHash, user.PasswordHash);

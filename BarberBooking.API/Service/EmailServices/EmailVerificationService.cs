@@ -1,10 +1,12 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection.Metadata.Ecma335;
 using System.Threading.Tasks;
 using BarberBooking.API.Contracts;
 using BarberBooking.API.Contracts.EmailContracts;
 using BarberBooking.API.Models;
+using CSharpFunctionalExtensions;
 using Microsoft.Extensions.Caching.Memory;
 
 namespace BarberBooking.API.Service.EmailServices
@@ -14,35 +16,54 @@ namespace BarberBooking.API.Service.EmailServices
         private readonly IEmailVerificationRepository _emailVerificationRepository;
         private readonly IMemoryCache _cache;
         private readonly IEmailService _emailService;
-        private readonly ICacheService _cacheService;
-        public EmailVerificationService(IEmailVerificationRepository emailVerificationRepository, IMemoryCache memoryCache, IEmailService emailService, ICacheService cacheService)
+        public EmailVerificationService(IEmailVerificationRepository emailVerificationRepository, IMemoryCache memoryCache, IEmailService emailService)
         {
             _emailVerificationRepository = emailVerificationRepository;
             _cache = memoryCache;
             _emailService = emailService;
-            _cacheService = cacheService;
         }
+        
         private string GenerateCode() => new Random().Next(100000, 999999).ToString();
         public async Task DeleteEmailVerificate(string Email)
         {
             await _emailVerificationRepository.Delete(Email);
         }
 
-        public async Task SendVerificationAsync(string Email)
+        public async Task<Result<string>> SendVerificationAsync(string Email)
         {
-            var emailverif = new EmailVerification
+            var verif = await _emailVerificationRepository.GetEmailVerificationByEmail(Email);
+            if(verif != null)
             {
-                Id = Guid.NewGuid(),
-                Email = Email,
-                Code = GenerateCode(),
-                CratedDate = DateTime.Now,
-                ExpiresAt = DateTime.UtcNow.AddMinutes(15),
-            };
-            await _emailVerificationRepository.Add(emailverif);
-            var cacheKey = $"verification_{emailverif.Code}";
-            _cache.Set(cacheKey, Email, TimeSpan.FromMinutes(30));
-            await _emailService.SendVerificationService(emailverif.Email, emailverif.Code);
+                var timeSinceLastSend = DateTime.Now - verif.LastSentAt;
+                if(timeSinceLastSend.TotalSeconds < 60)
+                {
+                    var secondsLeft = 60 - (int)timeSinceLastSend.TotalSeconds;
+                    return Result.Failure<string>($"Повторная отправка кода через: {secondsLeft} секунд");
+                }
+            }
+            else
+            {
+                verif = new EmailVerification
+                {
+                    Id = Guid.NewGuid(),
+                    Email = Email,
+                    CratedDate = DateTime.Now,
+                };
+                await _emailVerificationRepository.Add(verif);
+            }
+            verif.Code = GenerateCode();
+            verif.LastSentAt = DateTime.Now;
+            verif.ExpiresAt = DateTime.Now.AddMinutes(15);
+           
             await _emailVerificationRepository.SaveChangesAsync();
+    
+            await _emailService.SendVerificationService(verif.Email, verif.Code);
+            
+
+            var cacheKey = $"verification_{verif.Code}";
+            _cache.Set(cacheKey, Email, TimeSpan.FromMinutes(30));
+            
+            return Result.Success("Код подтверждения отправлен на почту, действует 15 минут");
         }
 
         public async Task<bool> Verificate(string Code, string Email)

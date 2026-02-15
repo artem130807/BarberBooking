@@ -9,5 +9,5 @@ using MediatR;
 
 namespace BarberBooking.API.CQRS.Queries
 {
-    public record LoginUserQuery(string Phone, string PasswordHash):IRequest<Result<AuthDto>>;
+    public record LoginUserQuery(string Email, string PasswordHash):IRequest<Result<AuthDto>>;
 }

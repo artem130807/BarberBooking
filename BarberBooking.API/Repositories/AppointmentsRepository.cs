@@ -75,5 +75,10 @@ namespace BarberBooking.API.Repositories
             .Where(x =>  x.MasterId == masterId)
             .ToListAsync();
         }
+
+        public async Task<Appointments> GeAppointmentByMasterIdAndDate(Guid masterId, DateTime date)
+        {
+            return await _context.Appointments.FirstOrDefaultAsync(x => x.MasterId == masterId && x.AppointmentDate == date);
+        }
     }
 }

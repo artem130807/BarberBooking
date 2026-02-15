@@ -8,5 +8,5 @@ using MediatR;
 
 namespace BarberBooking.API.CQRS.Appointments.AppointmentsQueries
 {
-    public record GetAppointmentsByMasterIdAndDateQuery(DateTime appointmentDateTime):IRequest<Result<List<DtoClientAppointmentShortInfo>>>;
+    public record GetAppointmentsByMasterIdAndDateQuery(DateTime appointmentDateTime):IRequest<Result<List<DtoMasterAppointmentShortInfo>>>;
 }
