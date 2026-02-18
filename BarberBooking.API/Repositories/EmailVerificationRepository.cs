@@ -26,6 +26,16 @@ namespace BarberBooking.API.Repositories
             await _context.EmailVerifications.Where(x => x.Email == Email).ExecuteDeleteAsync();
         }
 
+        public async Task<EmailVerification?> GetActiveUnusedCodeByEmail(string email)
+        {
+            return await _context.EmailVerifications
+            .Where(x => x.Email == email 
+                && !x.IsUsed 
+                && x.ExpiresAt > DateTime.UtcNow)
+            .OrderByDescending(x => x.LastSentAt)
+            .FirstOrDefaultAsync();
+        }
+
         public async Task<EmailVerification?> GetEmailVerificationByEmail(string Email)
         {
             return await _context.EmailVerifications.FirstOrDefaultAsync(x => x.Email == Email);

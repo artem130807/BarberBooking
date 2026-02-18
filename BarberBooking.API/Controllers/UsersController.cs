@@ -45,22 +45,21 @@ namespace BarberBooking.API.Controllers
             if (!_cache.TryGetValue(cacheKey, out string email) || string.IsNullOrEmpty(email))
                 return BadRequest("Код ненайден или устарел");
             
-            var isValid = await _verificationService.Verificate(request.Code, email);
-            if (!isValid)
-                return BadRequest("Неправильный код");
-            
+            var result = await _verificationService.Verificate(request.Code, email);
+            if (result.IsFailure)
+                return BadRequest(new { error = result.Error });
             _cache.Remove(cacheKey);
-            return Ok("Email подтвержден");
+            return Ok(result.Value);
         }
         [HttpPost("RegisterUser")]
         public async Task<IActionResult> Register([FromBody] DtoCreateUser dtoCreateUser)
         {
-            var comamnd = new RegisterUserCommand(dtoCreateUser.Name, dtoCreateUser.Phone.Number, dtoCreateUser.Email, dtoCreateUser.PasswordHash, dtoCreateUser.City);
+            var comamnd = new RegisterUserCommand(dtoCreateUser);
             var result = await _mediator.Send(comamnd);
             if (result.IsFailure)
                 return BadRequest(new { error = result.Error });
             _cookieService.SetAuthCookie(Response, result.Value.Token);
-            await _verificationService.DeleteEmailVerificate(comamnd.Email);         
+            await _verificationService.DeleteEmailVerificate(comamnd.dtoCreateUser.Email);         
             return Ok(result.Value);
         }
         [HttpPost("LoginUser")]
@@ -74,9 +73,9 @@ namespace BarberBooking.API.Controllers
             return Ok(result.Value);
         }
         [HttpPatch("updatePassword")]
-        public async Task<IActionResult> UpdatePassword(string email, string password)
+        public async Task<IActionResult> UpdatePassword([FromBody] DtoUpdatePassword dtoUpdatePassword)
         {
-            var command = new UpdatePasswordHashCommand(email, password);     
+            var command = new UpdatePasswordHashCommand(dtoUpdatePassword);     
             var result = await _mediator.Send(command);
             if (result.IsFailure)
                 return BadRequest(result.Error);

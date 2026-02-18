@@ -4,6 +4,7 @@ using BarberBooking.API.Contracts;
 using BarberBooking.API.Contracts.EmailContracts;
 using BarberBooking.API.Contracts.MasterProfileContracts;
 using BarberBooking.API.Contracts.SalonsContracts;
+using BarberBooking.API.Contracts.UserContratcts;
 using BarberBooking.API.Provider;
 using BarberBooking.API.Repositories;
 using BarberBooking.API.Service;
@@ -11,6 +12,7 @@ using BarberBooking.API.Service.AuthHandler;
 using BarberBooking.API.Service.Background;
 using BarberBooking.API.Service.EmailServices;
 using BarberBooking.API.Service.UpdateService;
+using BarberBooking.API.Validator;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.CookiePolicy;
 
@@ -24,7 +26,10 @@ builder.Services.Configure<JwtOptions>(configuration.GetSection(nameof(JwtOption
 
 builder.Services.AddDb(configuration);
 builder.Services.AddHttpContextAccessor();
-builder.Services.AddControllers();
+builder.Services.AddControllers().ConfigureApiBehaviorOptions(options =>
+{
+    options.SuppressModelStateInvalidFilter = true; 
+});
 builder.Services.AddAutoMapper(typeof (MapperProfile));
 builder.Services.AddApiAuthentication(configuration);
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
@@ -60,6 +65,8 @@ builder.Services.AddScoped<ICacheService, CacheService>();
 builder.Services.AddScoped<IUserContext, UserContext>();
 builder.Services.AddScoped<ISalonActiveHandler, SalonActiveHandler>();
 builder.Services.AddScoped<IEmailVerficationHandler, EmailVerificateDeleteHandler>();
+builder.Services.AddScoped<IDnsEmailValidator, DnsEmailValidator>();
+builder.Services.AddScoped<IUserValidatorService, UserValidatorService>();
 builder.Services.AddHostedService<SalonBackground>();
 builder.Services.AddHostedService<EmailVerificateBackgroundDeleter>();
 builder.Services.AddMemoryCache();
@@ -84,6 +91,11 @@ app.UseCookiePolicy(new CookiePolicyOptions
      HttpOnly = HttpOnlyPolicy.Always,
      Secure = CookieSecurePolicy.Always
 });
+app.UseCors(builder => builder
+    .AllowAnyOrigin()
+    .AllowAnyMethod()
+    .AllowAnyHeader());
+
 app.UseAuthentication();
 
 app.UseAuthorization();

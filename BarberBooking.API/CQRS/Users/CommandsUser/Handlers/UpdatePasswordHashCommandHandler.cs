@@ -4,13 +4,14 @@ using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
 using BarberBooking.API.Contracts;
+using BarberBooking.API.Dto.DtoUsers;
 using CSharpFunctionalExtensions;
 using MediatR;
 using Microsoft.Extensions.Caching.Memory;
 
 namespace BarberBooking.API.CQRS.Commands.Handlers
 {
-    public class UpdatePasswordHashCommandHandler:IRequestHandler<UpdatePasswordHashCommand, Result<string>>
+    public class UpdatePasswordHashCommandHandler:IRequestHandler<UpdatePasswordHashCommand, Result<DtoUpdatePasswordResult>>
     {
         private readonly IUserRepository _usersRepository;
         private readonly IPasswordHasher _passwordHasher;
@@ -35,33 +36,33 @@ namespace BarberBooking.API.CQRS.Commands.Handlers
             _logger = logger;
         }
 
-        public async Task<Result<string>> Handle(UpdatePasswordHashCommand command, CancellationToken cancellationToken)
+        public async Task<Result<DtoUpdatePasswordResult>> Handle(UpdatePasswordHashCommand command, CancellationToken cancellationToken)
         {
-            var user = await _usersRepository.GetUserByEmail(command.Email);
+            var user = await _usersRepository.GetUserByEmail(command.dtoUpdatePassword.Email);
             if (user == null)
             {
-                return Result.Failure<string>("Пользователя с таким email не существует");
+                return Result.Failure<DtoUpdatePasswordResult>("Пользователя с таким email не существует");
             }
-            var passwordValid = await _passwordValidator.ValidatePasswordAsync(command.PasswordHash);
+            var passwordValid = await _passwordValidator.ValidatePasswordAsync(command.dtoUpdatePassword.PasswordHash);
             if (!passwordValid.IsValid)
-                return Result.Failure<string>(passwordValid.Message);
+                return Result.Failure<DtoUpdatePasswordResult>(passwordValid.Message);
             
-            var cacheKey = $"email_verified_{command.Email}";
+            var cacheKey = $"email_verified_{command.dtoUpdatePassword.Email}";
             if (!_cache.TryGetValue(cacheKey, out bool isVerified) || !isVerified)
-                return Result.Failure<string>("Email не подтвержден. Сначала подтвердите email для смены пароля.");
-            string passwordHash = _passwordHasher.Generate(command.PasswordHash);
+                return Result.Failure<DtoUpdatePasswordResult>("Email не подтвержден. Сначала подтвердите email для смены пароля.");
+            string passwordHash = _passwordHasher.Generate(command.dtoUpdatePassword.PasswordHash);
             try
             {
                 _unitOfWork.BeginTransaction();
-                await _unitOfWork.userRepository.UpdatePasswordHash(command.Email ,passwordHash);
+                await _unitOfWork.userRepository.UpdatePasswordHash(command.dtoUpdatePassword.Email ,passwordHash);
                 _unitOfWork.Commit();
             }catch(Exception ex)
             {
                 _unitOfWork.RollBack();
                 _logger.LogError(ex.Message);
             }
-            await _usersRepository.UpdatePasswordHash(command.Email, passwordHash);
-            return Result.Success("Успешно");
+            await _usersRepository.UpdatePasswordHash(command.dtoUpdatePassword.Email, passwordHash);
+            return Result.Success(new DtoUpdatePasswordResult{Message = "Успешно", IsSuccess = true});
         }
     }
 }
