@@ -13,11 +13,11 @@ namespace BarberBooking.API.Contracts.SalonsContracts
     {
         Task<Salons> Add(Salons salon);
         Task Delete(Guid Id);
-        Task<List<Salons>> GetSalonsByFilter(string city,SalonFilter salonFilter);
-        Task<List<Salons>> GetSalonsByCity(string city);
-        Task<List<Salons>> GetActiveSalons(string city);
+        Task<PagedResult<Salons>> GetSalonsByFilter(string city,SalonFilter salonFilter, PageParams pageParams);
+        Task<PagedResult<Salons>> GetSalonsByCity(string city, PageParams pageParams);
+        Task<PagedResult<Salons>> GetActiveSalons(string city, PageParams pageParams);
         Task<Salons> GetSalonById(Guid Id);
-        Task<List<Salons>> GetSalonsNameStartWith(SearchFilterParams searchParams);
+        Task<PagedResult<Salons>> GetSalonsNameStartWith(SearchFilterParams searchParams, PageParams pageParams);
         Task<List<Salons>> GetSalons();
         Task SaveChangesAsync();
     }

@@ -30,9 +30,9 @@ namespace BarberBooking.API.Repositories
             await _context.Salons.Where(x => x.Id == Id).ExecuteDeleteAsync();
         }
 
-        public async Task<List<Salons>> GetActiveSalons(string city)
+        public async Task<PagedResult<Salons>> GetActiveSalons(string city, PageParams pageParams)
         {
-            return await _context.Salons.Where(x => x.Address.City == city && x.IsActive == true).ToListAsync();
+            return await _context.Salons.Where(x => x.Address.City == city && x.IsActive == true).ToPagedAsync(pageParams);
         }
 
         public async Task<Salons> GetSalonById(Guid Id)
@@ -45,19 +45,19 @@ namespace BarberBooking.API.Repositories
             return await _context.Salons.ToListAsync();
         }
 
-        public async Task<List<Salons>> GetSalonsByCity(string city)
+        public async Task<PagedResult<Salons>> GetSalonsByCity(string city, PageParams pageParams)
         {
-            return await _context.Salons.Where(x => x.Address.City == city).ToListAsync();
+            return await _context.Salons.Where(x => x.Address.City == city).ToPagedAsync(pageParams);
         }
 
-        public async Task<List<Salons>> GetSalonsByFilter(string city, SalonFilter salonFilter)
+        public async Task<PagedResult<Salons>> GetSalonsByFilter(string city, SalonFilter salonFilter, PageParams pageParams)
         {
-            return await _context.Salons.Where(x => x.Address.City == city).SalonFilter(salonFilter).ToListAsync();
+            return await _context.Salons.Where(x => x.Address.City == city).SalonFilter(salonFilter).ToPagedAsync(pageParams);
         }
 
-        public async Task<List<Salons>> GetSalonsNameStartWith(SearchFilterParams searchParams)
+        public async Task<PagedResult<Salons>> GetSalonsNameStartWith(SearchFilterParams searchParams, PageParams pageParams)
         {
-            return await _context.Salons.SearchFilter(searchParams).ToListAsync();
+            return await _context.Salons.Where(x => x.Address.City == searchParams.City).SearchFilter(searchParams).ToPagedAsync(pageParams);
         }
 
         public async Task SaveChangesAsync()

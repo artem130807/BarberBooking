@@ -49,18 +49,18 @@ namespace BarberBooking.API.Controllers
             return Ok(result.Value);
         }
         [HttpGet("GetSalons")]
-        public async Task<IActionResult>  GetSalons()
+        public async Task<IActionResult>  GetSalons([FromQuery] PageParams pageParams)
         {
-            var query = new GetSalonsQuery();
+            var query = new GetSalonsQuery(pageParams);
             var result = await _mediator.Send(query);
             if (result.IsFailure)
                 return BadRequest(new { error = result.Error });
             return Ok(result.Value);
         }
         [HttpGet("GetActiveSalons")]
-        public async Task<IActionResult>  GetActiveSalons()
+        public async Task<IActionResult>  GetActiveSalons([FromQuery] PageParams pageParams)
         {
-            var query = new GetActiveSalonsQuery();
+            var query = new GetActiveSalonsQuery(pageParams);
             var result = await _mediator.Send(query);
             if (result.IsFailure)
                 return BadRequest(new { error = result.Error });
@@ -76,18 +76,18 @@ namespace BarberBooking.API.Controllers
             return Ok(result.Value);
         }
         [HttpGet("GetSalonsName")]
-        public async Task<IActionResult>  GetNameSalons([FromQuery] string name)
+        public async Task<IActionResult>  GetNameSalons([FromQuery] string name, [FromQuery] PageParams pageParams)
         {
-            var query = new GetSalonsNameStartWithQuery(name);
+            var query = new GetSalonsNameStartWithQuery(name, pageParams);
             var result = await _mediator.Send(query);
             if (result.IsFailure)
                 return BadRequest(new { error = result.Error });
             return Ok(result.Value);
         }
         [HttpGet("GetSalonsByFilter")]
-        public async Task<IActionResult> GetSalonsByFilter([FromQuery] SalonFilter salonFilter)
+        public async Task<IActionResult> GetSalonsByFilter([FromQuery] SalonFilter salonFilter, [FromQuery] PageParams pageParams)
         {
-            var query = new GetSalonsByFilterQuery(salonFilter);
+            var query = new GetSalonsByFilterQuery(salonFilter, pageParams);
             var result = await _mediator.Send(query);
             if (result.IsFailure)
                 return BadRequest(new { error = result.Error });

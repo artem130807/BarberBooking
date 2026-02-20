@@ -18,12 +18,14 @@ namespace BarberBooking.API.CQRS.Salon.Queries.Handlers
         private readonly IMapper _mapper;
         private readonly IUserContext _userContext;
         private readonly IMasterTimeSlotRepository _masterTimeSlotRepository;
-        public GetSalonsNameStartWithHandler(ISalonsRepository salonsRepository, IMapper mapper, IUserContext userContext, IMasterTimeSlotRepository masterTimeSlotRepository)
+        private readonly ILogger<GetSalonsNameStartWithHandler> _logger;
+        public GetSalonsNameStartWithHandler(ISalonsRepository salonsRepository, IMapper mapper, IUserContext userContext, IMasterTimeSlotRepository masterTimeSlotRepository, ILogger<GetSalonsNameStartWithHandler> logger)
         {
             _salonsRepository = salonsRepository;
             _mapper = mapper;
             _userContext = userContext;
             _masterTimeSlotRepository = masterTimeSlotRepository;
+            _logger = logger;
         }
         public async Task<Result<List<DtoSalonShortInfo>>> Handle(GetSalonsNameStartWithQuery query, CancellationToken cancellationToken)
         {
@@ -34,10 +36,11 @@ namespace BarberBooking.API.CQRS.Salon.Queries.Handlers
                 City = userCity,
             };
             var countSlotsInSalon = await _masterTimeSlotRepository.GetAvailableSlotsInSalons(DateOnly.FromDateTime(DateTime.Now));
-            var salons = await _salonsRepository.GetSalonsNameStartWith(paramsFilter);
+            _logger.LogInformation($"Фильтры {paramsFilter}");
+            var salons = await _salonsRepository.GetSalonsNameStartWith(paramsFilter, query.pageParams);
             if(salons.Count == 0)
                 return Result.Failure<List<DtoSalonShortInfo>>("Салоны не найдены");
-            var dtoSalon = salons.Select(salon =>
+            var dtoSalon = salons.Data.Select(salon =>
             {
                 var dto =  _mapper.Map<DtoSalonShortInfo>(salon);
                 dto.AvailableSlots = countSlotsInSalon.Count();

@@ -28,11 +28,11 @@ namespace BarberBooking.API.CQRS.Salon.Queries.Handlers
         public async Task<Result<List<DtoSalonShortInfo>>> Handle(GetActiveSalonsQuery query, CancellationToken cancellationToken)
         {
             string userCity = _userContext.UserCity;
-            var salons = await _salonsRepository.GetActiveSalons(userCity);
+            var salons = await _salonsRepository.GetActiveSalons(userCity, query.pageParams);
             var countSlotsInSalon = await _masterTimeSlotRepository.GetAvailableSlotsInSalons(DateOnly.FromDateTime(DateTime.Now));
             if(salons.Count == 0)
                 return Result.Failure<List<DtoSalonShortInfo>>("Активные салоны в вашем городе не найдены");
-            var dtoSalon = salons.Select(salon =>
+            var dtoSalon = salons.Data.Select(salon =>
             {
                 var dto =  _mapper.Map<DtoSalonShortInfo>(salon);
                 dto.AvailableSlots = countSlotsInSalon.Count();

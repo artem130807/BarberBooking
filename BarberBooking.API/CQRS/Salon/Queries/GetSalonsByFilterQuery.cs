@@ -9,5 +9,5 @@ using MediatR;
 
 namespace BarberBooking.API.CQRS.Salon.Queries
 {
-    public record GetSalonsByFilterQuery(SalonFilter salonFilter):IRequest<Result<List<DtoSalonShortInfo>>>;
+    public record GetSalonsByFilterQuery(SalonFilter salonFilter, PageParams pageParams):IRequest<Result<List<DtoSalonShortInfo>>>;
 }
