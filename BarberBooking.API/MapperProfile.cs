@@ -8,6 +8,7 @@ using BarberBooking.API.Dto;
 using BarberBooking.API.Dto.DtoAppointments;
 using BarberBooking.API.Dto.DtoMasterProfile;
 using BarberBooking.API.Dto.DtoMasterTimeSlot;
+using BarberBooking.API.Dto.DtoReview;
 using BarberBooking.API.Dto.DtoSalons;
 using BarberBooking.API.Dto.DtoServices;
 using BarberBooking.API.Dto.DtoUsers;
@@ -33,7 +34,9 @@ namespace BarberBooking.API
             CreateMap<Salons, DtoSalonInfo>();
             CreateMap<Salons, DtoSalonShortInfo>();
             CreateMap<Salons, DtoSalonUpdateInfo>();
-            CreateMap<Salons, DtoSalonCreateInfo>();
+            CreateMap<Salons, DtoSalonCreateInfo>()
+            .ForMember(dest => dest.DtoAddress, opt => opt.MapFrom(src => src.Address))
+            .ForMember(dest => dest.Phone, opt => opt.MapFrom(src => src.PhoneNumber));
             CreateMap<Salons, DtoSalonNavigation>();
             ///МастерПрофиль
             CreateMap<DtoCreateMasterProfile, MasterProfile>()
@@ -59,6 +62,7 @@ namespace BarberBooking.API
                 .ForMember(dest => dest.UserName, opt => opt.MapFrom(src => src.User != null ? src.User.Name : string.Empty));
             CreateMap<MasterProfile, DtoMasterProfileNavigation>();
             ///Записи
+            CreateMap<Appointments, DtoCreateAppointmentInfo>();
             CreateMap<Appointments, DtoClientAppointmentInfo>()
             .ForMember(dest => dest.dtoMasterProfileNavigation, opt => opt.MapFrom(src => src.Master))
             .ForMember(dest => dest.dtoServicesNavigation, opt => opt.MapFrom(src => src.Service))
@@ -95,7 +99,10 @@ namespace BarberBooking.API
             .ForMember(dest => dest.UpdatedAt, opt => opt.MapFrom(src => DateTime.UtcNow))
             .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
             CreateMap<Appointments, DtoAppointmentNavigation>();
-
+            ///Отзывы
+            CreateMap<DtoCreateReview, Review>();
+            CreateMap<Review, DtoReviewInfo>();
+            CreateMap<Review, DtoReviewShortInfo>();
             ///Тайм слоты
             CreateMap<DtoCreateMasterTimeSlot, MasterTimeSlot>();
             CreateMap<DtoUpdateMasterTimeSlot, MasterTimeSlot>();
@@ -114,6 +121,8 @@ namespace BarberBooking.API
             CreateMap<Address, DtoAddressShort>();
             CreateMap<Address, DtoUpdateAddress>();
             CreateMap<PhoneNumber, DtoUpdatePhone>();
+            CreateMap<PhoneNumber, DtoPhone>()
+            .ForMember(dest => dest.Number, opt => opt.MapFrom(src => src.Number)); 
         }
     }
 }

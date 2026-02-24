@@ -18,16 +18,21 @@ namespace BarberBooking.API.CQRS.AppointmentsCommands.Handlers
         private readonly IAppointmentsRepository _appointmentsRepository;
         private readonly IMapper _mapper;
         private readonly IServicesRepository _servicesRepository;
-        public CreateAppointmentHandler(IUnitOfWork unitOfWork, IAppointmentsRepository appointmentsRepository, IMapper mapper, IServicesRepository servicesRepository)
+        private readonly IUserContext _userContext;
+        public CreateAppointmentHandler(IUnitOfWork unitOfWork, IAppointmentsRepository appointmentsRepository, IMapper mapper, IServicesRepository servicesRepository, IUserContext userContext)
         {
             _unitOfWork = unitOfWork;
             _appointmentsRepository = appointmentsRepository;
             _mapper = mapper;
-            _servicesRepository = servicesRepository;          
+            _servicesRepository = servicesRepository;     
+            _userContext = userContext;     
         }
         public async Task<Result<DtoCreateAppointmentInfo>> Handle(CreateAppointmentCommand command, CancellationToken cancellationToken)
         {
-            var appointmentDate = await _appointmentsRepository.GeAppointmentByMasterIdAndDate(command.DtoCreateAppointment.MasterId ,command.DtoCreateAppointment.AppointmentDate);
+            var userId = _userContext.UserId;
+            if (userId == Guid.Empty)
+                return Result.Failure<DtoCreateAppointmentInfo>("Пользователь не авторизован");
+            var appointmentDate = await _appointmentsRepository.GetByMasterIdAndDate(command.DtoCreateAppointment.MasterId ,command.DtoCreateAppointment.AppointmentDate, command.DtoCreateAppointment.StartTime);
             if(appointmentDate != null)
                 return Result.Failure<DtoCreateAppointmentInfo>("На это время уже есть запись");
             var service = await _servicesRepository.GetByIdAsync(command.DtoCreateAppointment.ServiceId);
@@ -37,7 +42,7 @@ namespace BarberBooking.API.CQRS.AppointmentsCommands.Handlers
             var serviceDuration = TimeSpan.FromMinutes(service.DurationMinutes);
             var endTime = dtoAppointmet.StartTime.Add(serviceDuration);
 
-            var appointment = Models.Appointments.Create(dtoAppointmet.SalonId,dtoAppointmet.MasterId, dtoAppointmet.ClientId,
+            var appointment = Models.Appointments.Create(dtoAppointmet.SalonId,dtoAppointmet.MasterId, userId,
                 dtoAppointmet.ServiceId, dtoAppointmet.TimeSlotId, dtoAppointmet.StartTime,
                 dtoAppointmet.ClientNotes, endTime, dtoAppointmet.AppointmentDate);
             try

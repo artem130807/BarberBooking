@@ -9,5 +9,5 @@ using MediatR;
 
 namespace BarberBooking.API.CQRS.MasterProfile.Queries
 {
-    public record GetMasterProfileByIdQuery(Guid Id):IRequest<Result<DtoMasterSubscriptionInfo>>;
+    public record GetMasterProfileByIdQuery(Guid Id):IRequest<Result<DtoMasterProfileInfo>>;
 }

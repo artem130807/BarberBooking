@@ -37,14 +37,16 @@ namespace BarberBooking.API.Repositories
             .Where(x =>  x.ClientId == clientId && x.AppointmentDate == appointmentDateTime)
             .ToListAsync();
         }
-        public async Task<List<Appointments>> GetByMasterIdAndDate(Guid masterId, DateTime appointmentDateTime)
+        public async Task<Appointments> GetByMasterIdAndDate(Guid masterId, DateTime appointmentDateTime, TimeOnly startTime)
         {
             return await _context.Appointments
             .Include(x => x.Salon)
             .Include(x => x.Client)
             .Include(x => x.Service)
-            .Where(x =>  x.MasterId == masterId && x.AppointmentDate == appointmentDateTime)
-            .ToListAsync();
+            .Where(x => x.MasterId == masterId 
+                && x.AppointmentDate.Date == appointmentDateTime.Date
+                && x.StartTime == startTime)
+            .FirstOrDefaultAsync();
         }
         public async Task<Appointments> GetByIdAsync(Guid id)
         {

@@ -28,6 +28,7 @@ namespace BarberBooking.API
         public DbSet<WeeklyTemplate> WeeklyTemplates {get; set;}
         public DbSet<TemplateDay> TemplateDays {get; set;}
         public DbSet<EmailVerification> EmailVerifications {get; set;}
+        public DbSet<EventStore> EventStores {get; set;}
         
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

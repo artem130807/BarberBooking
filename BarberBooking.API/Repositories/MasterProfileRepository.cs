@@ -45,5 +45,11 @@ namespace BarberBooking.API.Repositories
         {
             return await _context.MasterProfiles.Where(x => x.SalonId == salonId).FilterMasterProfile(filter).ToListAsync();
         }
+
+        public async Task UpdateAsync(MasterProfile master)
+        {
+            _context.MasterProfiles.Update(master);
+            await _context.SaveChangesAsync();
+        }
     }
 }

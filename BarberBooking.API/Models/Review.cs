@@ -2,6 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using BarberBooking.API.Domain;
+using BarberBooking.API.Domain.ReviewDomain;
 
 namespace BarberBooking.API.Models
 {
@@ -21,21 +23,21 @@ namespace BarberBooking.API.Models
         public Salons Salon { get; private set; }
         public MasterProfile? MasterProfile { get; private set; }
         private Review(){}
-        public static Review Create(Guid appointmentId, Guid salonId, Guid? masterProfileId, int salonRating, int? masterRating, string? comment)
+        public static Review Create(Guid appointmentId, Guid clientId ,Guid salonId, Guid? masterProfileId, int salonRating, int? masterRating, string? comment)
         {
             var review = new Review
             {
                 Id = Guid.NewGuid(),
+                ClientId = clientId,
                 AppointmentId = appointmentId,
                 SalonId = salonId,
                 MasterProfileId = masterProfileId,
                 SalonRating = salonRating,
                 MasterRating = masterRating,
-                Comment = comment
+                Comment = comment,
             };
             return review;
         }
         public void UpdateComment(string comment) => Comment = comment;
-        
     }
 }

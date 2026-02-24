@@ -15,5 +15,6 @@ namespace BarberBooking.API.Contracts.MasterProfileContracts
         Task<List<MasterProfile>> GetMastersBySalon(Guid salondId);
         Task<MasterProfile> GetMasterProfileByUserId(Guid userId);
         Task<List<MasterProfile>> GetMastersBySalonFilter(Guid salonId, MasterProfileFilter filter);
+        Task UpdateAsync(MasterProfile master);
     }
 }

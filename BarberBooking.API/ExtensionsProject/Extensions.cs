@@ -4,11 +4,15 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using BarberBooking.API.Authorization;
+using BarberBooking.API.Contracts.SalonsContracts;
+using BarberBooking.API.Domain;
 using BarberBooking.API.Domain.ValueObjects;
 using BarberBooking.API.Enums;
 using BarberBooking.API.Filters;
+using BarberBooking.API.Messaging.Producer;
 using BarberBooking.API.Models;
 using BarberBooking.API.Provider;
+using BarberBooking.API.Service.Background;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
@@ -75,6 +79,13 @@ namespace BarberBooking.API
             var skip = (page - 1) * PageSize;
             var result = await query.Skip(skip).Take(PageSize).ToListAsync();
             return new PagedResult<T>(result, count); 
+        }
+       
+        public static IServiceCollection AddBackgroundServices(this IServiceCollection services)
+        {
+            services.AddHostedService<SalonBackground>();
+            services.AddHostedService<EmailVerificateBackgroundDeleter>();
+            return services;
         }
     }
 }

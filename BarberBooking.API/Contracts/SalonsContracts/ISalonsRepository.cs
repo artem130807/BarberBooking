@@ -20,5 +20,6 @@ namespace BarberBooking.API.Contracts.SalonsContracts
         Task<PagedResult<Salons>> GetSalonsNameStartWith(SearchFilterParams searchParams, PageParams pageParams);
         Task<List<Salons>> GetSalons();
         Task SaveChangesAsync();
+        Task UpdateAsync(Salons salon);
     }
 }

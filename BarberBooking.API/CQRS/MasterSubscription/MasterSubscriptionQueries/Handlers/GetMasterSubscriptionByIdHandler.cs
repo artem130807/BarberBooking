@@ -11,7 +11,7 @@ using MediatR;
 
 namespace BarberBooking.API.CQRS.MasterSubscription.MasterSubscriptionQueries.Handlers
 {
-    public class GetMasterSubscriptionByIdHandler : IRequestHandler<GetMasterProfileByIdQuery, Result<DtoMasterSubscriptionInfo>>
+    public class GetMasterSubscriptionByIdHandler : IRequestHandler<GetMasterSubscriptionByIdQuery, Result<DtoMasterSubscriptionInfo>>
     {
         private readonly IMapper _mapper;
         private readonly IMasterSubscriptionRepository _masterSubscriptionRepository;
@@ -20,7 +20,7 @@ namespace BarberBooking.API.CQRS.MasterSubscription.MasterSubscriptionQueries.Ha
             _mapper = mapper;
             _masterSubscriptionRepository = masterSubscriptionRepository;
         }
-        public async Task<Result<DtoMasterSubscriptionInfo>> Handle(GetMasterProfileByIdQuery query, CancellationToken cancellationToken)
+        public async Task<Result<DtoMasterSubscriptionInfo>> Handle(GetMasterSubscriptionByIdQuery query, CancellationToken cancellationToken)
         {
             var masterSubscription = await _masterSubscriptionRepository.GetMasterSubscriptionById(query.Id);
             if(masterSubscription == null)

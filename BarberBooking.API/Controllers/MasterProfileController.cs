@@ -26,7 +26,9 @@ namespace BarberBooking.API.Controllers
         {
             var command = new CreateMasterProfileCommand(dtoCreateMasterProfile);
             var result = await _mediator.Send(command);
-            return Ok(result);
+            if(result.IsFailure)
+                return BadRequest(new { error = result.Error });
+            return Ok(result.Value);
         }
         [HttpDelete("DeleteMasterProfile{Id}")]
         public async Task<IActionResult> DeleteMasterProfile(Guid Id)

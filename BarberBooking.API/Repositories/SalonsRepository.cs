@@ -64,5 +64,10 @@ namespace BarberBooking.API.Repositories
         {
             await _context.SaveChangesAsync();
         }
+        public async Task UpdateAsync(Salons salon)
+        {
+            _context.Salons.Update(salon);
+            await _context.SaveChangesAsync();
+        }
     }
 }

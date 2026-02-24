@@ -15,6 +15,6 @@ namespace BarberBooking.API.Contracts
         Task<List<Appointments>> GetAppointmentsByClientId(Guid clientId);
         Task<List<Appointments>> GetAppointmentsByMasterId(Guid masterId);
         Task<List<Appointments>> GetByClientIdAndDate(Guid clientId, DateTime appointmentDateTime);
-        Task<List<Appointments>> GetByMasterIdAndDate(Guid masterId, DateTime appointmentDateTime);
+        Task<Appointments> GetByMasterIdAndDate(Guid masterId, DateTime appointmentDateTime, TimeOnly startTime);
     }
 }

@@ -83,9 +83,9 @@ namespace BarberBooking.API.Controllers
             return Ok(result.Value);
         }
         [HttpGet("get-appointmentsByMasterIdAndDate")]
-        public async Task<IActionResult> GetAppointmentsByMasterIdAndDate([FromQuery] DateTime date)
+        public async Task<IActionResult> GetAppointmentsByMasterIdAndDate([FromQuery] DateTime date, TimeOnly startTime)
         {
-            var query = new GetAppointmentsByMasterIdAndDateQuery(date);
+            var query = new GetAppointmentsByMasterIdAndDateQuery(date, startTime);
             var result = await _mediator.Send(query);
             return Ok(result.Value);
         }

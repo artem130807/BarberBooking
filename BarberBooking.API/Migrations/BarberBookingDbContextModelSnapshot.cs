@@ -114,6 +114,34 @@ namespace BarberBooking.API.Migrations
                     b.ToTable("EmailVerifications");
                 });
 
+            modelBuilder.Entity("BarberBooking.API.Models.EventStore", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("AggregateId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("EventData")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("EventType")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("OccurredAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("Version")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("EventStores");
+                });
+
             modelBuilder.Entity("BarberBooking.API.Models.MasterProfile", b =>
                 {
                     b.Property<Guid>("Id")
@@ -147,6 +175,9 @@ namespace BarberBooking.API.Migrations
 
                     b.Property<Guid>("UserId")
                         .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("Version")
+                        .HasColumnType("int");
 
                     b.HasKey("Id");
 
@@ -403,6 +434,9 @@ namespace BarberBooking.API.Migrations
                         .HasColumnType("decimal(3,2)");
 
                     b.Property<int>("RatingCount")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Version")
                         .HasColumnType("int");
 
                     b.ComplexProperty<Dictionary<string, object>>("Address", "BarberBooking.API.Models.Salons.Address#Address", b1 =>

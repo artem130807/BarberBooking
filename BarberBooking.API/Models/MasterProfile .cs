@@ -2,12 +2,15 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
+using System.Net.Http.Headers;
 using System.Threading.Tasks;
+using BarberBooking.API.Domain;
+using BarberBooking.API.Domain.MasterDomain;
 using BarberBooking.API.Domain.ValueObjects;
 
 namespace BarberBooking.API.Models
 {
-    public class MasterProfile 
+    public class MasterProfile:AggregateRoot
     {
         public Guid Id {get; private set;}
         public Guid UserId { get; private set; }
@@ -36,27 +39,48 @@ namespace BarberBooking.API.Models
         }
         public static MasterProfile Create(Guid userId, Guid salonId, string? bio, string? specialization, string? avatarUrl)
         {
-            var master = new MasterProfile
-            {
-                Id = Guid.NewGuid(),
-                UserId = userId,
-                SalonId = salonId,
-                Bio = bio,
-                Specialization = specialization,
-                AvatarUrl = avatarUrl,
-                Rating = 0,
-                RatingCount = 0,
-                CreatedAt = DateTime.UtcNow
-            };
+            var master = new MasterProfile();
+            master.ApplyChange(new MasterCreatedEvent(Guid.NewGuid() ,userId, salonId, bio, specialization, avatarUrl));
             return master;
         }
         public void UpdateBio(string bio) => Bio = bio;
         public void UpdateSpecialization(string specialization) => Specialization = specialization;
         public void UpdateAvatarUrl(string avatarUrl) => AvatarUrl = avatarUrl;
-        public void AddRating(int rating)
+        public void AddRating(decimal rating, int ratingCount)
         {
-            Rating = rating;
-            RatingCount++;
+            ApplyChange(new MasterAddRatingEvent(Id, rating, ratingCount));
+        }
+        public void RollBackRating(decimal previousRating, int previousRatingCount)
+        {
+            ApplyChange(new MasterRollBackRatingEvent(Id, previousRating, previousRatingCount));
+        }
+        private void Apply(MasterCreatedEvent @event)
+        {
+            Id = @event.AggregateId;
+            UserId = @event.UserId;
+            SalonId = @event.SalonId;
+            Bio = @event.Bio;
+            Specialization = @event.Specialization;
+            AvatarUrl = @event.AvatarUrl;
+            Rating = 0;
+            RatingCount = 0;
+            CreatedAt = DateTime.UtcNow;
+
+            TimeSlots = new List<MasterTimeSlot>();
+            Appointments = new List<Appointments>();
+            Subscriptions = new List<MasterSubscription>();
+            Reviews = new List<Review>();
+            WeeklyTemplates = new List<WeeklyTemplate>();
+        }
+        private void Apply(MasterAddRatingEvent @event)
+        {
+            Rating = @event.Rating;
+            RatingCount = @event.RatingCount;
+        }
+        private void Apply(MasterRollBackRatingEvent @event)
+        {
+            Rating = @event.PreviousRating;
+            RatingCount = @event.PreviousRatingCount;
         }
     }
 }
