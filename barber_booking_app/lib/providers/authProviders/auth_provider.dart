@@ -1,11 +1,11 @@
 import 'package:barber_booking_app/models/Dto/DtoCreateUser.dart';
-import 'package:barber_booking_app/models/userModels/requests/update_password_request.dart';
-import 'package:barber_booking_app/models/userModels/responses/update_password_response.dart';
+import 'package:barber_booking_app/models/UserModels/requests/update_password_request.dart';
+import 'package:barber_booking_app/models/UserModels/responses/update_password_response.dart';
 import 'package:flutter/material.dart';
-import 'package:barber_booking_app/services/auth_service.dart';
-import 'package:barber_booking_app/models/userModels/requests/login_user_request.dart';
-import 'package:barber_booking_app/models/userModels/requests/register_user_request.dart';
-import 'package:barber_booking_app/models/userModels/responses/auth_response.dart';
+import 'package:barber_booking_app/services/auth_services/auth_service.dart';
+import 'package:barber_booking_app/models/UserModels/requests/login_user_request.dart';
+import 'package:barber_booking_app/models/UserModels/requests/register_user_request.dart';
+import 'package:barber_booking_app/models/UserModels/responses/auth_response.dart';
 import '../../models/base/base_provider.dart';
 class AuthProvider extends BaseProvider {
   final AuthService _authService = AuthService();
@@ -13,9 +13,10 @@ class AuthProvider extends BaseProvider {
   AuthResponse? _currentUser;
   bool _isAuthenticated = false;
   String? _verifiedEmail;
+
   UpdatePasswordResponse? _updatePassword;
   UpdatePasswordResponse? get updatePassword => _updatePassword;
-   String? get verifiedEmail => _verifiedEmail;
+  String? get verifiedEmail => _verifiedEmail;
   AuthResponse? get currentUser => _currentUser;
   bool get isAuthenticated => _isAuthenticated;
   String? get token => _currentUser?.token;

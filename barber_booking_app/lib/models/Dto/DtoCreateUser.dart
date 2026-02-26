@@ -1,5 +1,5 @@
 import 'package:barber_booking_app/models/base/json_serializable.dart';
-import 'package:barber_booking_app/models/userModels/VoRequest/dto_phone.dart';
+import 'package:barber_booking_app/models/VoModels/dto_phone.dart';
 
 class DtoCreateuser extends JsonSerializable {
     String? name;

@@ -2,8 +2,8 @@ import 'package:barber_booking_app/models/Dto/DtoCreateUser.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:barber_booking_app/providers/authProviders/auth_provider.dart';
-import 'package:barber_booking_app/models/userModels/requests/register_user_request.dart';
-import 'package:barber_booking_app/models/userModels/VoRequest/dto_phone.dart';
+import 'package:barber_booking_app/models/UserModels/requests/register_user_request.dart';
+import 'package:barber_booking_app/models/VoModels/dto_phone.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});

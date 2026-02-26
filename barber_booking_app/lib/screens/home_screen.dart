@@ -1,320 +1,271 @@
+import 'package:barber_booking_app/models/Params/page_params.dart';
+import 'package:barber_booking_app/providers/authProviders/auth_provider.dart';
+import 'package:barber_booking_app/providers/salonProviders/get_salons_provider.dart';
+import 'package:barber_booking_app/widgets/categors_widgets/category_item.dart';
+import 'package:barber_booking_app/widgets/master_widgets/master_card.dart';
+import 'package:barber_booking_app/widgets/salon_widgets/salon_card.dart';
+import 'package:barber_booking_app/screens/salon_screens/search_results_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:barber_booking_app/widgets/loading_indicator.dart';
+import 'package:barber_booking_app/widgets/error_widget.dart';
+import 'package:barber_booking_app/widgets/section_header.dart';
 
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text(
-          'BarberBooking',
-          style: TextStyle(fontWeight: FontWeight.bold),
-        ),
-        centerTitle: false,
-        actions: const [
-          Icon(Icons.search),
-          SizedBox(width: 16),
-          Icon(Icons.notifications_outlined),
-          SizedBox(width: 16),
-        ],
-      ),
-      body: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Padding(
-              padding: EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Привет, Гость!',
-                    style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-                  ),
-                  SizedBox(height: 4),
-                  Text(
-                    'Найди свой идеальный стиль',
-                    style: TextStyle(fontSize: 16, color: Colors.grey),
-                  ),
-                ],
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: Container(
-                decoration: BoxDecoration(
-                  color: Colors.grey[200],
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: const TextField(
-                  decoration: InputDecoration(
-                    hintText: 'Поиск салона или услуги...',
-                    prefixIcon: Icon(Icons.search),
-                    border: InputBorder.none,
-                    contentPadding: EdgeInsets.symmetric(vertical: 12),
-                  ),
-                ),
-              ),
-            ),
-            const SizedBox(height: 24),
-            const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 16),
-              child: Text(
-                'Категории услуг',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-              ),
-            ),
-            const SizedBox(height: 16),
-            SizedBox(
-              height: 90,
-              child: ListView(
-                scrollDirection: Axis.horizontal,
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                children: const [
-                  CategoryItem(icon: Icons.content_cut, label: 'Стрижка'),
-                  CategoryItem(icon: Icons.face, label: 'Бритье'),
-                  CategoryItem(icon: Icons.style, label: 'Усы/борода'),
-                  CategoryItem(icon: Icons.spa, label: 'Массаж'),
-                  CategoryItem(icon: Icons.child_care, label: 'Детская'),
-                  CategoryItem(icon: Icons.star, label: 'Премиум'),
-                ],
-              ),
-            ),
-            const SizedBox(height: 24),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: const [
-                  Text(
-                    'Салоны рядом',
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                  ),
-                  Text(
-                    'Все',
-                    style: TextStyle(color: Colors.blue),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 16),
-            ListView.builder(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              itemCount: 3,
-              itemBuilder: (context, index) {
-                return const SalonCard();
-              },
-            ),
-            const SizedBox(height: 24),
-            const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 16),
-              child: Text(
-                'Лучшие мастера',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-              ),
-            ),
-            const SizedBox(height: 16),
-            SizedBox(
-              height: 180,
-              child: ListView(
-                scrollDirection: Axis.horizontal,
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                children: const [
-                  MasterCard(),
-                  MasterCard(),
-                  MasterCard(),
-                  MasterCard(),
-                ],
-              ),
-            ),
-            const SizedBox(height: 24),
-          ],
-        ),
-      ),
-      bottomNavigationBar: BottomNavigationBar(
-        type: BottomNavigationBarType.fixed,
-        selectedItemColor: Colors.black,
-        unselectedItemColor: Colors.grey,
-        items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Главная'),
-          BottomNavigationBarItem(icon: Icon(Icons.search), label: 'Поиск'),
-          BottomNavigationBarItem(icon: Icon(Icons.calendar_today), label: 'Записи'),
-          BottomNavigationBarItem(icon: Icon(Icons.favorite), label: 'Избранное'),
-          BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Профиль'),
-        ],
-      ),
-    );
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  final TextEditingController _searchController = TextEditingController();
+  final FocusNode _searchFocusNode = FocusNode();
+  bool _isSearchFocused = false;
+  final PageParams _pageParams = PageParams(Page: 1, PageSize: 3);
+  @override
+  void initState() {
+    super.initState();
+    _searchFocusNode.addListener(_onFocusChange);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final token = Provider.of<AuthProvider>(context, listen: false).token;
+      Provider.of<GetSalonsProvider>(context, listen: false).getSalons(_pageParams, token);
+    });
   }
-}
 
-class CategoryItem extends StatelessWidget {
-  final IconData icon;
-  final String label;
+  void _onFocusChange() {
+    setState(() {
+      _isSearchFocused = _searchFocusNode.hasFocus;
+    });
+  }
 
-  const CategoryItem({super.key, required this.icon, required this.label});
+  @override
+  void dispose() {
+    _searchFocusNode.removeListener(_onFocusChange);
+    _searchFocusNode.dispose();
+    _searchController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
-     return Container(
-    width: 70,
-    margin: const EdgeInsets.only(right: 16),
-    child: Column(
-      mainAxisSize: MainAxisSize.min,  // ← Добавить чтобы не растягивалась
-      children: [
-        Container(
-          width: 50,
-          height: 50,
-          decoration: BoxDecoration(
-            color: Colors.grey[200],
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: Icon(icon, color: Colors.black),
-        ),
-        const SizedBox(height: 8),
-        Text(
-          label,
-          style: const TextStyle(fontSize: 12),
-          textAlign: TextAlign.center,
-        ),
-      ],
-    ),
-  );
-}
-}
-class SalonCard extends StatelessWidget {
-  const SalonCard({super.key});
+    return Consumer<GetSalonsProvider>(
+      builder: (context, salonProvider, child) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (salonProvider.errorMessage != null && mounted) {
+            salonProvider.showApiError(context, salonProvider.errorMessage);
+          }
+        });
 
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.withOpacity(0.1),
-            spreadRadius: 1,
-            blurRadius: 4,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Column(
-        children: [
-          ClipRRect(
-            borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
-            child: Container(
-              height: 120,
-              color: Colors.grey[300],
-              child: const Center(
-                child: Icon(Icons.image, size: 40, color: Colors.grey),
-              ),
+        return Scaffold(
+          appBar: AppBar(
+            title: const Text(
+              'BarberBooking',
+              style: TextStyle(fontWeight: FontWeight.bold),
             ),
+            centerTitle: false,
+            actions: const [
+              Icon(Icons.notifications_outlined),
+              SizedBox(width: 16),
+            ],
           ),
-          Padding(
-            padding: const EdgeInsets.all(12),
+          body: SingleChildScrollView(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: const [
-                    Text(
-                      'Barber King',
-                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                    ),
-                    Row(
-                      children: [
-                        Icon(Icons.star, color: Colors.amber, size: 16),
-                        SizedBox(width: 4),
-                        Text('4.8'),
-                      ],
-                    ),
-                  ],
+                const Padding(
+                  padding: EdgeInsets.all(16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Привет, Гость!',
+                        style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                      ),
+                      SizedBox(height: 4),
+                      Text(
+                        'Найди свой идеальный стиль',
+                        style: TextStyle(fontSize: 16, color: Colors.grey),
+                      ),
+                    ],
+                  ),
                 ),
-                const SizedBox(height: 4),
-                Row(
-                  children: const [
-                    Icon(Icons.location_on, size: 14, color: Colors.grey),
-                    SizedBox(width: 4),
-                    Text('ул. Пушкина, 10', style: TextStyle(color: Colors.grey, fontSize: 14)),
-                    SizedBox(width: 12),
-                    Icon(Icons.directions_walk, size: 14, color: Colors.grey),
-                    SizedBox(width: 4),
-                    Text('1.2 км', style: TextStyle(color: Colors.grey, fontSize: 14)),
-                  ],
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: Colors.grey[200],
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: TextField(
+                      controller: _searchController,
+                      focusNode: _searchFocusNode,
+                      textInputAction: TextInputAction.search,
+                      decoration: const InputDecoration(
+                        hintText: 'Поиск салона....',
+                        prefixIcon: Icon(Icons.search),
+                        border: InputBorder.none,
+                        contentPadding: EdgeInsets.symmetric(vertical: 12),
+                      ),
+                      onSubmitted: (value) {
+                        final query = value.trim();
+                        if (query.isEmpty) return;
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => SearchResultsScreen(query: query),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
                 ),
-                const SizedBox(height: 12),
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    onPressed: () {},
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.black,
-                      foregroundColor: Colors.white,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
+                const SizedBox(height: 24),
+                // Затемняем и блокируем только контент ниже поля поиска
+                Stack(
+                  children: [
+                    Opacity(
+                      opacity: _isSearchFocused ? 0.3 : 1.0,
+                      child: AbsorbPointer(
+                        absorbing: _isSearchFocused,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const SectionHeader(title: 'Категории услуг'),
+                            const SizedBox(height: 16),
+                            SizedBox(
+                              height: 90,
+                              child: ListView(
+                                scrollDirection: Axis.horizontal,
+                                padding: const EdgeInsets.symmetric(horizontal: 16),
+                                children: const [
+                                  CategoryItem(icon: Icons.content_cut, label: 'Стрижка'),
+                                  CategoryItem(icon: Icons.face, label: 'Бритье'),
+                                  CategoryItem(icon: Icons.style, label: 'Усы/борода'),
+                                  CategoryItem(icon: Icons.spa, label: 'Массаж'),
+                                  CategoryItem(icon: Icons.child_care, label: 'Детская'),
+                                  CategoryItem(icon: Icons.star, label: 'Премиум'),
+                                ],
+                              ),
+                            ),
+                            const SizedBox(height: 24),
+                            SectionHeader(
+                              title: 'Салоны в вашем городе',
+                              actionText: 'Все',
+                              onActionTap: () async {
+                                Navigator.pushReplacementNamed(context, '/salons_screen');
+                              },
+                            ),
+                            const SizedBox(height: 16),
+                            Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 16),
+                              child: _buildSalonsList(salonProvider),
+                            ),
+                            const SizedBox(height: 24),
+                            const SectionHeader(title: 'Лучшие мастера'),
+                            const SizedBox(height: 16),
+                            SizedBox(
+                              height: 180,
+                              child: ListView(
+                                scrollDirection: Axis.horizontal,
+                                padding: const EdgeInsets.symmetric(horizontal: 16),
+                                children: const [
+                                  MasterCard(
+                                    name: 'Иван Петров',
+                                    specialty: 'Барбер',
+                                    rating: 4.9,
+                                  ),
+                                  MasterCard(
+                                    name: 'Алексей Смирнов',
+                                    specialty: 'Колорист',
+                                    rating: 4.8,
+                                  ),
+                                  MasterCard(
+                                    name: 'Дмитрий Козлов',
+                                    specialty: 'Парикмахер',
+                                    rating: 4.7,
+                                  ),
+                                  MasterCard(
+                                    name: 'Сергей Иванов',
+                                    specialty: 'Барбер',
+                                    rating: 4.9,
+                                  ),
+                                ],
+                              ),
+                            ),
+                            const SizedBox(height: 24),
+                          ],
+                        ),
                       ),
                     ),
-                    child: const Text('Записаться'),
-                  ),
+                    if (_isSearchFocused)
+                      Positioned.fill(
+                        child: GestureDetector(
+                          behavior: HitTestBehavior.opaque,
+                          onTap: () {
+                            _searchFocusNode.unfocus();
+                          },
+                          child: Container(
+                            color: Colors.transparent,
+                          ),
+                        ),
+                      ),
+                  ],
                 ),
               ],
             ),
           ),
-        ],
-      ),
-    );
-  }
-}
-
-class MasterCard extends StatelessWidget {
-  const MasterCard({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: 120,
-      margin: const EdgeInsets.only(right: 16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Container(
-            width: 120,
-            height: 120,
-            decoration: BoxDecoration(
-              color: Colors.grey[300],
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: const Center(
-              child: Icon(Icons.person, size: 40, color: Colors.grey),
-            ),
-          ),
-          const SizedBox(height: 8),
-          const Text(
-            'Иван Петров',
-            style: TextStyle(fontWeight: FontWeight.bold),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-          ),
-          const Text(
-            'Барбер',
-            style: TextStyle(color: Colors.grey, fontSize: 12),
-          ),
-          const Row(
-            children: [
-              Icon(Icons.star, color: Colors.amber, size: 14),
-              SizedBox(width: 4),
-              Text('4.9', style: TextStyle(fontSize: 12)),
+          bottomNavigationBar: BottomNavigationBar(
+            type: BottomNavigationBarType.fixed,
+            selectedItemColor: Colors.black,
+            unselectedItemColor: Colors.grey,
+            items: const [
+              BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Главная'),
+              BottomNavigationBarItem(icon: Icon(Icons.search), label: 'Поиск'),
+              BottomNavigationBarItem(icon: Icon(Icons.calendar_today), label: 'Записи'),
+              BottomNavigationBarItem(icon: Icon(Icons.favorite), label: 'Избранное'),
+              BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Профиль'),
             ],
           ),
-        ],
-      ),
+        );
+      },
+    );
+  }
+
+  Widget _buildSalonsList(GetSalonsProvider provider) {
+    final token = Provider.of<AuthProvider>(context, listen: false).token;
+    if (provider.isLoading && provider.getSalonsResponse == null) {
+      return const LoadingIndicator(message: 'Загрузка салонов...');
+    }
+
+    if (provider.errorMessage != null) {
+      return ErrorWidgetCustom(
+        message: provider.errorMessage!,
+        onRetry: () => provider.getSalons(_pageParams, token),
+      );
+    }
+
+    if (provider.getSalonsResponse == null || provider.getSalonsResponse!.isEmpty) {
+      return const ErrorWidgetCustom(
+        message: 'Салоны в вашем городе не найдены',
+      );
+    }
+
+    return ListView.builder(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      itemCount: provider.getSalonsResponse!.length,
+      itemBuilder: (context, index) {
+        final salon = provider.getSalonsResponse![index];
+        return Padding(
+          padding: const EdgeInsets.only(bottom: 16),
+          child: SalonCard(
+            salon: salon,
+            onTap: () {},
+            onBooking: () {},
+          ),
+        );
+      },
     );
   }
 }
-

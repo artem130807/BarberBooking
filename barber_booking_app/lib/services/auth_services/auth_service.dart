@@ -1,10 +1,10 @@
-import 'package:barber_booking_app/models/userModels/requests/update_password_request.dart';
-import 'package:barber_booking_app/models/userModels/responses/update_password_response.dart';
+import 'package:barber_booking_app/models/UserModels/requests/update_password_request.dart';
+import 'package:barber_booking_app/models/UserModels/responses/update_password_response.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-import 'package:barber_booking_app/models/userModels/requests/login_user_request.dart';
-import 'package:barber_booking_app/models/userModels/requests/register_user_request.dart';
-import 'package:barber_booking_app/models/userModels/responses/auth_response.dart';
+import 'package:barber_booking_app/models/UserModels/requests/login_user_request.dart';
+import 'package:barber_booking_app/models/UserModels/requests/register_user_request.dart';
+import 'package:barber_booking_app/models/UserModels/responses/auth_response.dart';
 
 class AuthService {
     final String baseUrl = 'http://192.168.0.100:5088';
