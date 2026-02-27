@@ -121,7 +121,6 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                 ),
                 const SizedBox(height: 24),
-                // Затемняем и блокируем только контент ниже поля поиска
                 Stack(
                   children: [
                     Opacity(
@@ -261,7 +260,13 @@ class _HomeScreenState extends State<HomeScreen> {
           padding: const EdgeInsets.only(bottom: 16),
           child: SalonCard(
             salon: salon,
-            onTap: () {},
+            onTap: () {
+              Navigator.pushNamed(
+              context,
+              '/salon_screen',
+              arguments: salon.Id, 
+            );
+            },
             onBooking: () {},
           ),
         );

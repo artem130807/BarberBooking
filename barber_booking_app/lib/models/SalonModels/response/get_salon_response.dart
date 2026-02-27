@@ -9,27 +9,28 @@ class GetSalonResponse {
   DtoPhone? Phone;
   String? OpeningTime;
   String? ClosingTime;
-  bool?   IsActive;
+  bool?  IsActive;
   String? MainPhotoUrl;
   double? Rating;
   int? RatingCount;
-  int? AvailableSlots;
 
   GetSalonResponse({this.Id, this.Name, this.Description, this.Address, this.Phone, this.OpeningTime, 
   this.ClosingTime, this.IsActive, this.MainPhotoUrl, this.Rating, 
-  this.RatingCount, this.AvailableSlots});
+  this.RatingCount});
 
   factory GetSalonResponse.fromJson(Map<String, dynamic> json){
       return  GetSalonResponse(
           Id: json['id'],
           Name: json['name'],
+          Description: json['description'],
+          Address: json['address'] != null ? DtoAddress.fromJson(json['address']): null,
+          Phone: json['phone'] != null ? DtoPhone.fromJson(json['phone']) : null,
+          OpeningTime: json['openingTime'],
+          ClosingTime: json['closingTime'],
+          IsActive: json['isActive'],
           MainPhotoUrl: json['mainPhotoUrl'],
           Rating: json['rating'],
-          RatingCount: json['ratingCount'],
-          AvailableSlots: json['availableSlots'],
-          Address: json['address'] != null
-          ? DtoAddress.fromJson(json['address'])
-          : null,
+          RatingCount: json['ratingCount']
       );
     }
 

@@ -88,7 +88,10 @@ class _SearchResultsScreenState extends State<SearchResultsScreen> {
           child: SalonCard(
             salon: salon,
             onTap: () {
-              // Переход на детали салона
+              Navigator.pushNamed(
+              context,
+              '/salon_screen',
+              arguments: salon.Id);
             },
             onBooking: () {
               // Переход на запись

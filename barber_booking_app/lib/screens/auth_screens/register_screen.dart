@@ -57,7 +57,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
     }
 
     // Создаем DTO для телефона
-    final dtoPhone = DtoPhone(number: _phoneController.text.trim());
+    final dtoPhone = DtoPhone(Number: _phoneController.text.trim());
     
     // Создаем запрос с оберткой
     final request = RegisterUserRequest(

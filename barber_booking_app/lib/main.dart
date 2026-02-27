@@ -1,5 +1,7 @@
+import 'package:barber_booking_app/providers/salonProviders/get_salon_provider.dart';
 import 'package:barber_booking_app/providers/salonProviders/get_salons_provider.dart';
 import 'package:barber_booking_app/providers/salonProviders/get_salons_search_provider.dart';
+import 'package:barber_booking_app/screens/salon_screens/salon_screen.dart';
 import 'package:barber_booking_app/screens/salon_screens/salons_screen.dart';
 import 'package:barber_booking_app/screens/salon_screens/search_results_screen.dart';
 import 'package:flutter/material.dart';
@@ -32,7 +34,9 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => 
         GetSalonsProvider()),
         ChangeNotifierProvider(create: (_) => 
-        GetSalonsSearchProvider())
+        GetSalonsSearchProvider()),
+        ChangeNotifierProvider(create: (_) => 
+        GetSalonProvider())
       ],
       child: MaterialApp(
         title: 'BarberBooking',
@@ -56,7 +60,11 @@ class MyApp extends StatelessWidget {
           '/verify-codeUpdatePass': (context) => const VerifyCodeUpdatePassScreen(),
           '/update-password': (context) => const UpdatePasswordScreen(),
           '/search-results': (context) => const SearchResultsScreen(query: ''),
-          '/salons_screen':(context) => const SalonsScreen()
+          '/salons_screen':(context) => const SalonsScreen(),
+          '/salon_screen': (context) {
+          final args = ModalRoute.of(context)!.settings.arguments as String;
+          return SalonScreen(salonId: args);
+        }
         },
       ),
     );
