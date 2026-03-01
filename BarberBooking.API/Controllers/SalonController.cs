@@ -66,7 +66,7 @@ namespace BarberBooking.API.Controllers
                 return BadRequest(new { error = result.Error });
             return Ok(result.Value);
         }
-        [HttpGet("GetSalonById{Id}")]
+        [HttpGet("GetSalonById/{Id}")]
         public async Task<IActionResult>  GetsalonById(Guid Id)
         {
             var query = new GetSalonByIdQuery(Id);
@@ -88,6 +88,15 @@ namespace BarberBooking.API.Controllers
         public async Task<IActionResult> GetSalonsByFilter([FromQuery] SalonFilter salonFilter, [FromQuery] PageParams pageParams)
         {
             var query = new GetSalonsByFilterQuery(salonFilter, pageParams);
+            var result = await _mediator.Send(query);
+            if (result.IsFailure)
+                return BadRequest(new { error = result.Error });
+            return Ok(result.Value);
+        }
+        [HttpGet("GetSalonsByServiceName")]
+        public async Task<IActionResult> GetSalonsByServiceName([FromQuery] string serviceName ,[FromQuery] PageParams pageParams)
+        {
+            var query = new GetSalonsByServiceNameQuery(serviceName, pageParams);
             var result = await _mediator.Send(query);
             if (result.IsFailure)
                 return BadRequest(new { error = result.Error });

@@ -14,6 +14,7 @@ using BarberBooking.API.Dto.DtoServices;
 using BarberBooking.API.Dto.DtoUsers;
 using BarberBooking.API.Dto.DtoVo;
 using BarberBooking.API.Enums;
+using BarberBooking.API.Filters;
 using BarberBooking.API.Models;
 
 namespace BarberBooking.API
@@ -38,6 +39,9 @@ namespace BarberBooking.API
             .ForMember(dest => dest.DtoAddress, opt => opt.MapFrom(src => src.Address))
             .ForMember(dest => dest.Phone, opt => opt.MapFrom(src => src.PhoneNumber));
             CreateMap<Salons, DtoSalonNavigation>();
+            CreateMap<PagedResult<Salons>, PagedResult<DtoSalonShortInfo>>()
+            .ForMember(dest => dest.Data, opt => opt.MapFrom(src => src.Data))
+            .ForMember(dest => dest.Count, opt => opt.MapFrom(src => src.Count));
             ///МастерПрофиль
             CreateMap<DtoCreateMasterProfile, MasterProfile>()
             .ForMember(dest => dest.Id, opt => opt.Ignore())

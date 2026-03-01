@@ -18,6 +18,7 @@ namespace BarberBooking.API.Contracts.SalonsContracts
         Task<PagedResult<Salons>> GetActiveSalons(string city, PageParams pageParams);
         Task<Salons> GetSalonById(Guid Id);
         Task<PagedResult<Salons>> GetSalonsNameStartWith(SearchFilterParams searchParams, PageParams pageParams);
+        Task<PagedResult<Salons>> GetSalonsByServiceName(string serviceName, string city, PageParams pageParams);
         Task<List<Salons>> GetSalons();
         Task SaveChangesAsync();
         Task UpdateAsync(Salons salon);

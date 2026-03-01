@@ -9,6 +9,7 @@ namespace BarberBooking.API.Dto.DtoServices
     {
         public Guid Id {get; private set;}
         public string Name { get; private set; }
+        public string? PhotoUrl { get; private set; }
         public int DurationMinutes { get; private set; }
         public DtoPrice Price { get; private set; }
     }

@@ -48,7 +48,7 @@ namespace BarberBooking.API.Controllers
                 return BadRequest(new { error = result.Error });
             return Ok(result.Value);
         }
-        [HttpGet("GetMasterProfileById{Id}")]
+        [HttpGet("GetMasterProfileById/{Id}")]
         public async Task<IActionResult> GetMasterProfileById(Guid Id)
         {
             var query = new GetMasterProfileByIdQuery(Id);
@@ -57,7 +57,7 @@ namespace BarberBooking.API.Controllers
                 return BadRequest(new { error = result.Error });
             return Ok(result.Value);
         }
-        [HttpGet("GetMastersBySalon{salonId}")]
+        [HttpGet("GetMastersBySalon/{salonId}")]
         public async Task<IActionResult> GetMastersBySalon(Guid salonId)
         {
             var query = new GetMasterProfileByIdQuery(salonId);

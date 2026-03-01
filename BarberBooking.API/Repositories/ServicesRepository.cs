@@ -47,5 +47,7 @@ namespace BarberBooking.API.Repositories
             .Where(x => x.SalonId == salonId)
             .ToListAsync();
         }
+
+      
     }
 }
