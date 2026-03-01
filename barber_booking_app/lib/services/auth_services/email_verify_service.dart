@@ -1,10 +1,10 @@
 import 'dart:convert';
-import 'package:barber_booking_app/models/UserModels/requests/email_verify_request.dart';
-import 'package:barber_booking_app/models/UserModels/responses/auth_response.dart';
-import 'package:barber_booking_app/models/UserModels/responses/email_verify_response.dart';
+import 'package:barber_booking_app/models/user_models/requests/email_verify_request.dart';
+import 'package:barber_booking_app/models/user_models/responses/auth_response.dart';
+import 'package:barber_booking_app/models/user_models/responses/email_verify_response.dart';
 import 'package:http/http.dart' as http;
-import 'package:barber_booking_app/models/UserModels/requests/send_verification_request.dart';
-import 'package:barber_booking_app/models/UserModels/responses/send_verification_response.dart';
+import 'package:barber_booking_app/models/user_models/requests/send_verification_request.dart';
+import 'package:barber_booking_app/models/user_models/responses/send_verification_response.dart';
 
 class EmailVerifyService {
   final String baseUrl = 'http://192.168.0.100:5088';

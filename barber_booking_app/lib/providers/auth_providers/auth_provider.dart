@@ -1,11 +1,11 @@
-import 'package:barber_booking_app/models/Dto/DtoCreateUser.dart';
-import 'package:barber_booking_app/models/UserModels/requests/update_password_request.dart';
-import 'package:barber_booking_app/models/UserModels/responses/update_password_response.dart';
+import 'package:barber_booking_app/models/dto/DtoCreateUser.dart';
+import 'package:barber_booking_app/models/user_models/requests/update_password_request.dart';
+import 'package:barber_booking_app/models/user_models/responses/update_password_response.dart';
 import 'package:flutter/material.dart';
 import 'package:barber_booking_app/services/auth_services/auth_service.dart';
-import 'package:barber_booking_app/models/UserModels/requests/login_user_request.dart';
-import 'package:barber_booking_app/models/UserModels/requests/register_user_request.dart';
-import 'package:barber_booking_app/models/UserModels/responses/auth_response.dart';
+import 'package:barber_booking_app/models/user_models/requests/login_user_request.dart';
+import 'package:barber_booking_app/models/user_models/requests/register_user_request.dart';
+import 'package:barber_booking_app/models/user_models/responses/auth_response.dart';
 import '../../models/base/base_provider.dart';
 class AuthProvider extends BaseProvider {
   final AuthService _authService = AuthService();

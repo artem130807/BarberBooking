@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:barber_booking_app/models/VoModels/dto_address_short.dart';
+import 'package:barber_booking_app/models/vo_models/dto_address_short.dart';
 
 class SalonAddress extends StatelessWidget {
   final DtoAddressShort? address;

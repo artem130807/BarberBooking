@@ -1,5 +1,5 @@
-import 'package:barber_booking_app/models/SalonModels/response/get_salon_response.dart';
-import 'package:barber_booking_app/models/SalonModels/response/salon.dart';
+import 'package:barber_booking_app/models/salon_models/response/get_salon_response.dart';
+import 'package:barber_booking_app/models/salon_models/response/salon.dart';
 import 'package:barber_booking_app/models/base/base_provider.dart';
 import 'package:barber_booking_app/services/salon_services/get_salon_service.dart';
 import 'package:flutter/rendering.dart';

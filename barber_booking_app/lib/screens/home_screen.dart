@@ -1,6 +1,6 @@
-import 'package:barber_booking_app/models/Params/page_params.dart';
-import 'package:barber_booking_app/providers/authProviders/auth_provider.dart';
-import 'package:barber_booking_app/providers/salonProviders/get_salons_provider.dart';
+import 'package:barber_booking_app/models/params/page_params.dart';
+import 'package:barber_booking_app/providers/auth_providers/auth_provider.dart';
+import 'package:barber_booking_app/providers/salon_providers/get_salons_provider.dart';
 import 'package:barber_booking_app/widgets/categors_widgets/category_item.dart';
 import 'package:barber_booking_app/widgets/master_widgets/master_card.dart';
 import 'package:barber_booking_app/widgets/salon_widgets/salon_card.dart';
@@ -37,6 +37,14 @@ class _HomeScreenState extends State<HomeScreen> {
     setState(() {
       _isSearchFocused = _searchFocusNode.hasFocus;
     });
+  }
+
+  void _navigateToSalonsByService(BuildContext context, String serviceName) {
+    Navigator.pushNamed(
+      context,
+      '/salons_by_service',
+      arguments: serviceName,
+    );
   }
 
   @override
@@ -137,13 +145,37 @@ class _HomeScreenState extends State<HomeScreen> {
                               child: ListView(
                                 scrollDirection: Axis.horizontal,
                                 padding: const EdgeInsets.symmetric(horizontal: 16),
-                                children: const [
-                                  CategoryItem(icon: Icons.content_cut, label: 'Стрижка'),
-                                  CategoryItem(icon: Icons.face, label: 'Бритье'),
-                                  CategoryItem(icon: Icons.style, label: 'Усы/борода'),
-                                  CategoryItem(icon: Icons.spa, label: 'Массаж'),
-                                  CategoryItem(icon: Icons.child_care, label: 'Детская'),
-                                  CategoryItem(icon: Icons.star, label: 'Премиум'),
+                                children: [
+                                  CategoryItem(
+                                    icon: Icons.content_cut,
+                                    label: 'Стрижка',
+                                    onTap: () => _navigateToSalonsByService(context, 'Стрижка'),
+                                  ),
+                                  CategoryItem(
+                                    icon: Icons.face,
+                                    label: 'Бритье',
+                                    onTap: () => _navigateToSalonsByService(context, 'Бритье'),
+                                  ),
+                                  CategoryItem(
+                                    icon: Icons.style,
+                                    label: 'Усы/борода',
+                                    onTap: () => _navigateToSalonsByService(context, 'Усы/борода'),
+                                  ),
+                                  CategoryItem(
+                                    icon: Icons.spa,
+                                    label: 'Массаж',
+                                    onTap: () => _navigateToSalonsByService(context, 'Массаж'),
+                                  ),
+                                  CategoryItem(
+                                    icon: Icons.child_care,
+                                    label: 'Детская',
+                                    onTap: () => _navigateToSalonsByService(context, 'Детская'),
+                                  ),
+                                  CategoryItem(
+                                    icon: Icons.star,
+                                    label: 'Премиум',
+                                    onTap: () => _navigateToSalonsByService(context, 'Премиум'),
+                                  ),
                                 ],
                               ),
                             ),

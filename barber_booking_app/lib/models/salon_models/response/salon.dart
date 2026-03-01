@@ -1,6 +1,6 @@
-import 'package:barber_booking_app/models/SalonModels/response/get_salon_response.dart';
-import 'package:barber_booking_app/models/VoModels/dto_address.dart';
-import 'package:barber_booking_app/models/VoModels/dto_phone.dart';
+import 'package:barber_booking_app/models/salon_models/response/get_salon_response.dart';
+import 'package:barber_booking_app/models/vo_models/dto_address.dart';
+import 'package:barber_booking_app/models/vo_models/dto_phone.dart';
 
 class Salon {
   String? id;

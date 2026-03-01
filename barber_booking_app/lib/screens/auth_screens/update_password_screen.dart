@@ -2,8 +2,8 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:barber_booking_app/providers/authProviders/auth_provider.dart';
-import 'package:barber_booking_app/models/UserModels/requests/update_password_request.dart';
+import 'package:barber_booking_app/providers/auth_providers/auth_provider.dart';
+import 'package:barber_booking_app/models/user_models/requests/update_password_request.dart';
 
 class UpdatePasswordScreen extends StatefulWidget {
   const UpdatePasswordScreen({super.key});

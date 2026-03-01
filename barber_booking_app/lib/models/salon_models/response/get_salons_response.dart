@@ -1,6 +1,6 @@
 
 
-import 'package:barber_booking_app/models/VoModels/dto_address_short.dart';
+import 'package:barber_booking_app/models/vo_models/dto_address_short.dart';
 
 class GetSalonsResponse {
 

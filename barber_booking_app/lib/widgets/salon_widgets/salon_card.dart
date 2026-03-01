@@ -3,7 +3,7 @@ import 'package:barber_booking_app/widgets/salon_widgets/salon_address.dart';
 import 'package:barber_booking_app/widgets/salon_widgets/salon_image.dart';
 import 'package:barber_booking_app/widgets/salon_widgets/salon_rating.dart';
 import 'package:flutter/material.dart';
-import 'package:barber_booking_app/models/SalonModels/response/get_salons_response.dart';
+import 'package:barber_booking_app/models/salon_models/response/get_salons_response.dart';
 
 
 class SalonCard extends StatelessWidget {

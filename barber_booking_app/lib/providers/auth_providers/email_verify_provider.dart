@@ -1,8 +1,8 @@
 import 'package:barber_booking_app/models/base/base_provider.dart';
-import 'package:barber_booking_app/models/UserModels/requests/email_verify_request.dart';
-import 'package:barber_booking_app/models/UserModels/requests/send_verification_request.dart';
-import 'package:barber_booking_app/models/UserModels/responses/email_verify_response.dart';
-import 'package:barber_booking_app/models/UserModels/responses/send_verification_response.dart';
+import 'package:barber_booking_app/models/user_models/requests/email_verify_request.dart';
+import 'package:barber_booking_app/models/user_models/requests/send_verification_request.dart';
+import 'package:barber_booking_app/models/user_models/responses/email_verify_response.dart';
+import 'package:barber_booking_app/models/user_models/responses/send_verification_response.dart';
 import 'package:barber_booking_app/services/auth_services/email_verify_service.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart';

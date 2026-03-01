@@ -1,19 +1,18 @@
 import 'dart:convert';
+
 import 'package:barber_booking_app/models/params/page_params.dart';
 import 'package:barber_booking_app/models/salon_models/response/get_salons_response.dart';
-import 'package:barber_booking_app/providers/auth_providers/auth_provider.dart';
 import 'package:http/http.dart' as http;
-import 'package:provider/provider.dart';
-class GetSalonsSearchService{
-final String baseUrl = 'http://192.168.0.100:5088';
+class GetSalonsByServiceService {
+  final String baseUrl = 'http://192.168.0.100:5088';
 
-Future<List<GetSalonsResponse>?> GetSalons(String? name, PageParams params, String? token) async{
+     Future<List<GetSalonsResponse>?> GetSalons(String? serviceName ,PageParams params, String? token) async{
       try {
-        print('📦 Получен запрос: параметры ${name},${params.Page}, ${params.PageSize}');
+        print('📦 Получен запрос: параметры ${params.Page}, ${params.PageSize}');
 
-        final url = Uri.parse('$baseUrl/api/Salon/GetSalonsName').replace(
+        final url = Uri.parse('$baseUrl/api/Salon/GetSalonsByServiceName').replace(
           queryParameters: {
-            'name':name.toString(),
+            'serviceName':serviceName.toString(),
             'page':params.Page.toString(),
             'pageSize':params.PageSize.toString()
           }
@@ -35,7 +34,8 @@ Future<List<GetSalonsResponse>?> GetSalons(String? name, PageParams params, Stri
         print('📥 Ответ: ${response.body}');
         
         if (response.statusCode == 200) {
-        final List<dynamic> jsonList = json.decode(response.body);
+        final Map<String, dynamic> jsonResponse = json.decode(response.body);
+        final List<dynamic> jsonList = jsonResponse['data'];
         print('📊 Количество салонов: ${jsonList.length}');
         if (jsonList.isEmpty) {
           print('⚠️ Сервер вернул пустой список');

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:barber_booking_app/providers/authProviders/email_verify_provider.dart';
+import 'package:barber_booking_app/providers/auth_providers/email_verify_provider.dart';
 
 class ForgotPasswordScreen extends StatefulWidget {
   const ForgotPasswordScreen({super.key});

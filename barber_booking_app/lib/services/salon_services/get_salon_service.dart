@@ -1,5 +1,5 @@
-import 'package:barber_booking_app/models/SalonModels/request/get_salon_request.dart';
-import 'package:barber_booking_app/models/SalonModels/response/get_salon_response.dart';
+import 'package:barber_booking_app/models/salon_models/request/get_salon_request.dart';
+import 'package:barber_booking_app/models/salon_models/response/get_salon_response.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 class GetSalonService {

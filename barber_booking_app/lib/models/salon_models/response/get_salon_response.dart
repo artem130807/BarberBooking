@@ -1,5 +1,5 @@
-import 'package:barber_booking_app/models/VoModels/dto_address.dart';
-import 'package:barber_booking_app/models/VoModels/dto_phone.dart';
+import 'package:barber_booking_app/models/vo_models/dto_address.dart';
+import 'package:barber_booking_app/models/vo_models/dto_phone.dart';
 
 class GetSalonResponse {
   String? Id;

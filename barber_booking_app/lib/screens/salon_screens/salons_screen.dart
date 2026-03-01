@@ -1,11 +1,11 @@
-import 'package:barber_booking_app/providers/authProviders/auth_provider.dart';
-import 'package:barber_booking_app/providers/salonProviders/get_salons_provider.dart';
+import 'package:barber_booking_app/providers/auth_providers/auth_provider.dart';
+import 'package:barber_booking_app/providers/salon_providers/get_salons_provider.dart';
 import 'package:barber_booking_app/widgets/salon_widgets/salon_card.dart';
 import 'package:barber_booking_app/widgets/loading_indicator.dart';
 import 'package:barber_booking_app/widgets/error_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:barber_booking_app/models/Params/page_params.dart';
+import 'package:barber_booking_app/models/params/page_params.dart';
 
 class SalonsScreen extends StatefulWidget {
   
