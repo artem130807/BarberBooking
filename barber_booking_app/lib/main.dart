@@ -1,3 +1,4 @@
+import 'package:barber_booking_app/providers/master_providers/get_the_best_masters_provider.dart';
 import 'package:barber_booking_app/providers/salon_providers/get_salon_provider.dart';
 import 'package:barber_booking_app/providers/salon_providers/get_salons_provider.dart';
 import 'package:barber_booking_app/providers/salon_providers/get_salons_by_service_provider.dart';
@@ -40,7 +41,9 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => 
         GetSalonsByServiceProvider()),
         ChangeNotifierProvider(create: (_) => 
-        GetSalonProvider())
+        GetSalonProvider()),
+        ChangeNotifierProvider(create: (_) => 
+        GetTheBestMastersProvider()),
       ],
       child: MaterialApp(
         title: 'BarberBooking',

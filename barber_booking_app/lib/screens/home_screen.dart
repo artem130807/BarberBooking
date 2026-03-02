@@ -1,5 +1,6 @@
 import 'package:barber_booking_app/models/params/page_params.dart';
 import 'package:barber_booking_app/providers/auth_providers/auth_provider.dart';
+import 'package:barber_booking_app/providers/master_providers/get_the_best_masters_provider.dart';
 import 'package:barber_booking_app/providers/salon_providers/get_salons_provider.dart';
 import 'package:barber_booking_app/widgets/categors_widgets/category_item.dart';
 import 'package:barber_booking_app/widgets/master_widgets/master_card.dart';
@@ -30,6 +31,7 @@ class _HomeScreenState extends State<HomeScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final token = Provider.of<AuthProvider>(context, listen: false).token;
       Provider.of<GetSalonsProvider>(context, listen: false).getSalons(_pageParams, token);
+      Provider.of<GetTheBestMastersProvider>(context, listen: false).getMasters(4, token);
     });
   }
 
@@ -57,6 +59,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final bestMastersProvider = Provider.of<GetTheBestMastersProvider>(context);
     return Consumer<GetSalonsProvider>(
       builder: (context, salonProvider, child) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -197,32 +200,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             const SizedBox(height: 16),
                             SizedBox(
                               height: 180,
-                              child: ListView(
-                                scrollDirection: Axis.horizontal,
-                                padding: const EdgeInsets.symmetric(horizontal: 16),
-                                children: const [
-                                  MasterCard(
-                                    name: 'Иван Петров',
-                                    specialty: 'Барбер',
-                                    rating: 4.9,
-                                  ),
-                                  MasterCard(
-                                    name: 'Алексей Смирнов',
-                                    specialty: 'Колорист',
-                                    rating: 4.8,
-                                  ),
-                                  MasterCard(
-                                    name: 'Дмитрий Козлов',
-                                    specialty: 'Парикмахер',
-                                    rating: 4.7,
-                                  ),
-                                  MasterCard(
-                                    name: 'Сергей Иванов',
-                                    specialty: 'Барбер',
-                                    rating: 4.9,
-                                  ),
-                                ],
-                              ),
+                              child: _buildBestMastersList(bestMastersProvider),
                             ),
                             const SizedBox(height: 24),
                           ],
@@ -301,6 +279,44 @@ class _HomeScreenState extends State<HomeScreen> {
             },
             onBooking: () {},
           ),
+        );
+      },
+    );
+  }
+
+  Widget _buildBestMastersList(GetTheBestMastersProvider provider) {
+    final token = Provider.of<AuthProvider>(context, listen: false).token;
+    if (provider.isLoading && provider.getMasterResponse == null) {
+      return const LoadingIndicator(message: 'Загрузка мастеров...');
+    }
+
+    if (provider.errorMessage != null) {
+      return ErrorWidgetCustom(
+        message: provider.errorMessage!,
+        onRetry: () => provider.getMasters(4, token),
+      );
+    }
+
+    if (provider.getMasterResponse == null || provider.getMasterResponse!.isEmpty) {
+      return const ErrorWidgetCustom(
+        message: 'Лучшие мастера не найдены',
+      );
+    }
+
+    final masters = provider.getMasterResponse!;
+    final itemCount = masters.length > 4 ? 4 : masters.length;
+
+    return ListView.builder(
+      scrollDirection: Axis.horizontal,
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      itemCount: itemCount,
+      itemBuilder: (context, index) {
+        final master = masters[index];
+        return MasterCard(
+          name: master.UserName ?? 'Без имени',
+          specialty: 'Барбер',
+          rating: 5.0,
+          imageUrl: master.AvatarUrl,
         );
       },
     );
