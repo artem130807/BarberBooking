@@ -75,6 +75,15 @@ namespace BarberBooking.API.Controllers
                 return BadRequest(new { error = result.Error });
             return Ok(result.Value);
         }
+        [HttpGet("GetTheBestMasters")]
+        public async Task<IActionResult> GetTheBestMasters([FromQuery] int take)
+        {
+            var query = new GetTheBestMastersQuery(take);
+            var result = await _mediator.Send(query);
+            if(result.IsFailure)
+                return BadRequest(new { error = result.Error });
+            return Ok(result.Value);
+        }
 
     }
 }

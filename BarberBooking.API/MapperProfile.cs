@@ -64,6 +64,8 @@ namespace BarberBooking.API
             
             CreateMap<MasterProfile, DtoMasterProfileShortInfo>()
                 .ForMember(dest => dest.UserName, opt => opt.MapFrom(src => src.User != null ? src.User.Name : string.Empty));
+            CreateMap<MasterProfile, DtoMasterPhotoAndName>()
+                .ForMember(dest => dest.UserName, opt => opt.MapFrom(src => src.User != null ? src.User.Name : string.Empty));
             CreateMap<MasterProfile, DtoMasterProfileNavigation>();
             ///Записи
             CreateMap<Appointments, DtoCreateAppointmentInfo>();

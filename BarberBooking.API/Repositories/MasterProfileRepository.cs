@@ -46,6 +46,18 @@ namespace BarberBooking.API.Repositories
             return await _context.MasterProfiles.Where(x => x.SalonId == salonId).FilterMasterProfile(filter).ToListAsync();
         }
 
+        public async Task<List<MasterProfile>> GetTheBestMasters(string city, int? take)
+        {
+            return await _context.MasterProfiles
+            .Include(x => x.User)
+            .Include(x => x.Salon)
+            .Where(x => x.Salon.Address.City == city)
+            .OrderByDescending(x => x.RatingCount)
+            .OrderByDescending(x => x.Rating)
+            .Take(take ?? 10)
+            .ToListAsync();
+        }
+
         public async Task UpdateAsync(MasterProfile master)
         {
             _context.MasterProfiles.Update(master);
