@@ -28,7 +28,7 @@ namespace BarberBooking.API.Repositories
         }
         public async Task<MasterProfile> GetMasterProfileById(Guid Id)
         {
-            return await _context.MasterProfiles.Include(x => x.User).FirstOrDefaultAsync(x => x.Id == Id);
+            return await _context.MasterProfiles.Include(x => x.Salon).Include(x => x.User).FirstOrDefaultAsync(x => x.Id == Id);
         }
 
         public async Task<MasterProfile> GetMasterProfileByUserId(Guid userId)

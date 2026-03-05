@@ -60,7 +60,7 @@ namespace BarberBooking.API.Controllers
         [HttpGet("GetMastersBySalon/{salonId}")]
         public async Task<IActionResult> GetMastersBySalon(Guid salonId)
         {
-            var query = new GetMasterProfileByIdQuery(salonId);
+            var query = new GetMastersBySalonQuery(salonId);
             var result = await _mediator.Send(query);
             if(result.IsFailure)
                 return BadRequest(new { error = result.Error });

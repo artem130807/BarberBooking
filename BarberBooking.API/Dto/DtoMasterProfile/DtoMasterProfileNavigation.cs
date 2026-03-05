@@ -8,7 +8,6 @@ namespace BarberBooking.API.Dto.DtoMasterProfile
     public class DtoMasterProfileNavigation
     {
         public Guid Id {get; private set;}
-        public DtoPhone MasterPhone {get; private set;}
         public string MasterName {get; private set;}
     }
 }

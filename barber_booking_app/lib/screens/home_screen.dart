@@ -2,6 +2,7 @@ import 'package:barber_booking_app/models/params/page_params.dart';
 import 'package:barber_booking_app/providers/auth_providers/auth_provider.dart';
 import 'package:barber_booking_app/providers/master_providers/get_the_best_masters_provider.dart';
 import 'package:barber_booking_app/providers/salon_providers/get_salons_provider.dart';
+import 'package:barber_booking_app/screens/master_screens/master_detail_screen.dart';
 import 'package:barber_booking_app/widgets/categors_widgets/category_item.dart';
 import 'package:barber_booking_app/widgets/master_widgets/master_card.dart';
 import 'package:barber_booking_app/widgets/salon_widgets/salon_card.dart';
@@ -277,7 +278,13 @@ class _HomeScreenState extends State<HomeScreen> {
               arguments: salon.Id, 
             );
             },
-            onBooking: () {},
+            onBooking: () {
+              Navigator.pushNamed(
+              context,
+              '/salon_masters',
+              arguments: salon.Id,
+              );
+            },
           ),
         );
       },
@@ -317,6 +324,13 @@ class _HomeScreenState extends State<HomeScreen> {
           specialty: 'Барбер',
           rating: 5.0,
           imageUrl: master.AvatarUrl,
+          onTap: () {
+          Navigator.pushNamed(
+            context,
+            '/master_detail',
+            arguments: master.Id, 
+          );
+          },
         );
       },
     );

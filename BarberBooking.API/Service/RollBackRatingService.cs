@@ -36,7 +36,7 @@ namespace BarberBooking.API.Service
 
         public async Task<Result> RollBackMasterRating(Guid AggregateId, Guid reviewId, CancellationToken cancellationToken)
         {
-            var reviews = await _reviewRepository.GetReviewsBySalonId(AggregateId);
+            var reviews = await _reviewRepository.GetListReviewsBySalonId(AggregateId);
             var reviewsExcept = reviews.Where(x => x.Id != reviewId);
             decimal rating = 0;
             int ratingCount = reviewsExcept.Count();
@@ -56,7 +56,7 @@ namespace BarberBooking.API.Service
 
         public async Task<Result> RollBackSalonRating(Guid AggregateId,  Guid reviewId, CancellationToken cancellationToken)
         {
-            var reviews = await _reviewRepository.GetReviewsBySalonId(AggregateId);
+            var reviews = await _reviewRepository.GetListReviewsBySalonId(AggregateId);
             var reviewsExcept = reviews.Where(x => x.Id != reviewId);
             decimal rating = 0;
             int ratingCount = reviewsExcept.Count();

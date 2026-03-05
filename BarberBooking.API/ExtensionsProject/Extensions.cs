@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using BarberBooking.API.Authorization;
+using BarberBooking.API.Contracts;
 using BarberBooking.API.Contracts.SalonsContracts;
 using BarberBooking.API.Domain;
 using BarberBooking.API.Domain.ValueObjects;
@@ -86,6 +87,15 @@ namespace BarberBooking.API
             services.AddHostedService<SalonBackground>();
             services.AddHostedService<EmailVerificateBackgroundDeleter>();
             return services;
+        }
+        public static void InitializingCache(this IApplicationBuilder app)
+        {
+            using (var scope = app.ApplicationServices.CreateScope())
+            {
+                var env = scope.ServiceProvider.GetRequiredService<IWebHostEnvironment>();
+                var loader = scope.ServiceProvider.GetRequiredService<ILoadingCityService>();
+                loader.CreateCityNames(env);
+            }
         }
     }
 }

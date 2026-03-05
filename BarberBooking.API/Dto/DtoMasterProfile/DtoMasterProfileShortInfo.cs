@@ -12,5 +12,6 @@ namespace BarberBooking.API.Dto.DtoMasterProfile
         public string? Specialization { get; private set; }
         public string? AvatarUrl { get; private set; }
         public decimal Rating {get; private set;}
+        public int RatingCount {get; private set;}
     }
 }

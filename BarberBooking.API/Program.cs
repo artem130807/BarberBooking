@@ -15,6 +15,7 @@ using BarberBooking.API.Repositories;
 using BarberBooking.API.Service;
 using BarberBooking.API.Service.AuthHandler;
 using BarberBooking.API.Service.Background;
+using BarberBooking.API.Service.DataService;
 using BarberBooking.API.Service.EmailServices;
 using BarberBooking.API.Service.UpdateService;
 using BarberBooking.API.Validator;
@@ -43,7 +44,9 @@ builder.Services.AddMediatR(cfg =>
 {
     cfg.RegisterServicesFromAssembly(typeof(Program).Assembly);
 });
-
+builder.Services.AddMemoryCache();
+builder.Services.AddSingleton<ILoadingCityService, LoadingCityService>();
+builder.Services.AddSingleton<ILoadingBadWordService, LoadingBadWordService>();
 
 builder.Services.AddBackgroundServices();
 builder.Services.AddScoped<IPasswordValidatorService, PasswordValidatorService>();
@@ -91,9 +94,10 @@ builder.Services.AddScoped<IEventStoreRepository, EventStoreRepository>();
 builder.Services.AddScoped<IRollBackRatingService, RollBackRatingService>();
 builder.Services.AddScoped<IRatingCreateSalonService, RatingCreateSalonService>();
 builder.Services.AddScoped<IRatingCreateMasterService, RatingCreateMasterService>();
-builder.Services.AddMemoryCache();
+builder.Services.AddScoped<ICityService, CityService>();
+builder.Services.AddScoped<IBadWordService, BadWordService>();
 var app = builder.Build();
-
+app.InitializingCache();
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
@@ -105,7 +109,6 @@ if (app.Environment.IsDevelopment())
         options.RoutePrefix = "swagger"; 
     });
 }
-
 app.UseHttpsRedirection();
 app.UseCookiePolicy(new CookiePolicyOptions
 {

@@ -1,9 +1,19 @@
+import 'package:barber_booking_app/models/master_models/response/get_master_response.dart';
+import 'package:barber_booking_app/models/master_models/response/get_masters_response.dart';
+import 'package:barber_booking_app/providers/master_providers/get_master_provider.dart';
 import 'package:barber_booking_app/providers/master_providers/get_the_best_masters_provider.dart';
+import 'package:barber_booking_app/providers/master_providers/get_masters_provider.dart';
+import 'package:barber_booking_app/providers/review_providers/get_reviews_master_provider.dart';
+import 'package:barber_booking_app/providers/review_providers/get_reviews_salon_provider.dart';
 import 'package:barber_booking_app/providers/salon_providers/get_salon_provider.dart';
 import 'package:barber_booking_app/providers/salon_providers/get_salons_provider.dart';
 import 'package:barber_booking_app/providers/salon_providers/get_salons_by_service_provider.dart';
 import 'package:barber_booking_app/providers/salon_providers/get_salons_search_provider.dart';
+import 'package:barber_booking_app/screens/review_screens/reviews_by_master_screen.dart';
+import 'package:barber_booking_app/screens/review_screens/reviews_by_salon_screen.dart';
 import 'package:barber_booking_app/screens/salon_screens/salon_screen.dart';
+import 'package:barber_booking_app/screens/master_screens/master_detail_screen.dart';
+import 'package:barber_booking_app/screens/salon_screens/salon_masters_screen.dart';
 import 'package:barber_booking_app/screens/salon_screens/salons_by_service_screen.dart';
 import 'package:barber_booking_app/screens/salon_screens/salons_screen.dart';
 import 'package:barber_booking_app/screens/salon_screens/search_results_screen.dart';
@@ -30,20 +40,17 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
-        ChangeNotifierProvider(create: (_) => 
-        AuthProvider()),
-        ChangeNotifierProvider(create: (_) => 
-        EmailVerifyProvider()),
-        ChangeNotifierProvider(create: (_) => 
-        GetSalonsProvider()),
-        ChangeNotifierProvider(create: (_) => 
-        GetSalonsSearchProvider()),
-        ChangeNotifierProvider(create: (_) => 
-        GetSalonsByServiceProvider()),
-        ChangeNotifierProvider(create: (_) => 
-        GetSalonProvider()),
-        ChangeNotifierProvider(create: (_) => 
-        GetTheBestMastersProvider()),
+        ChangeNotifierProvider(create: (_) => AuthProvider()),
+        ChangeNotifierProvider(create: (_) => EmailVerifyProvider()),
+        ChangeNotifierProvider(create: (_) => GetSalonsProvider()),
+        ChangeNotifierProvider(create: (_) => GetSalonsSearchProvider()),
+        ChangeNotifierProvider(create: (_) => GetSalonsByServiceProvider()),
+        ChangeNotifierProvider(create: (_) => GetSalonProvider()),
+        ChangeNotifierProvider(create: (_) => GetTheBestMastersProvider()),
+        ChangeNotifierProvider(create: (_) => GetMastersProvider()),
+        ChangeNotifierProvider(create: (_) => GetMasterProvider()),
+        ChangeNotifierProvider(create: (_) => GetReviewsMasterProvider()),
+        ChangeNotifierProvider(create: (_) => GetReviewsSalonProvider())
       ],
       child: MaterialApp(
         title: 'BarberBooking',
@@ -68,14 +75,32 @@ class MyApp extends StatelessWidget {
           '/update-password': (context) => const UpdatePasswordScreen(),
           '/search-results': (context) => const SearchResultsScreen(query: ''),
           '/salons_screen': (context) => const SalonsScreen(),
+
+          '/master_reviews': (context) {
+            final masterId = ModalRoute.of(context)!.settings.arguments as String;
+            return ReviewsByMasterScreen(masterId: masterId);
+          },
+          '/salon_reviews': (context) {
+            final salonId = ModalRoute.of(context)!.settings.arguments as String;
+            return ReviewsBySalonScreen(salonId: salonId);
+          },
           '/salons_by_service': (context) {
             final serviceName = ModalRoute.of(context)!.settings.arguments as String;
             return SalonsByServiceScreen(serviceName: serviceName);
           },
           '/salon_screen': (context) {
-          final args = ModalRoute.of(context)!.settings.arguments as String;
-          return SalonScreen(salonId: args);
-        }
+            final args = ModalRoute.of(context)!.settings.arguments as String;
+            return SalonScreen(salonId: args);
+          },
+            '/master_detail': (context) {
+            final masterId = ModalRoute.of(context)!.settings.arguments as String;
+            return MasterDetailScreen(masterId: masterId);
+          },
+          '/salon_masters': (context) {
+            final args = ModalRoute.of(context)!.settings.arguments as String;
+            return SalonMastersScreen(salonId: args);
+          },
+
         },
       ),
     );

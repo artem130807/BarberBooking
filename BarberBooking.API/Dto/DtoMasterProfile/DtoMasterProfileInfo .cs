@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using BarberBooking.API.Dto.DtoSalons;
 
 namespace BarberBooking.API.Dto.DtoMasterProfile
 {
@@ -9,6 +10,7 @@ namespace BarberBooking.API.Dto.DtoMasterProfile
     {
         public Guid Id {get; private set;}
         public string UserName {get; private set;}
+        public DtoSalonNavigation SalonNavigation {get; private set;}
         public string? Bio { get; private set; }
         public string? Specialization { get; private set; }
         public string? AvatarUrl { get; private set; }

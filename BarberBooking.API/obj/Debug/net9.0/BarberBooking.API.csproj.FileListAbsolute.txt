@@ -405,3 +405,5 @@ E:\AAAAA1111222C#\BarberBookingApp\BarberBooking.API\bin\Debug\net9.0\runtimes\w
 E:\AAAAA1111222C#\BarberBookingApp\BarberBooking.API\bin\Debug\net9.0\runtimes\win-x86\native\vcruntime140.dll
 E:\AAAAA1111222C#\BarberBookingApp\BarberBooking.API\bin\Debug\net9.0\runtimes\win-x86\native\zlib1.dll
 E:\AAAAA1111222C#\BarberBookingApp\BarberBooking.API\bin\Debug\net9.0\runtimes\win-x86\native\zstd.dll
+E:\AAAAA1111222C#\BarberBookingApp\BarberBooking.API\bin\Debug\net9.0\Data\bad_word.json
+E:\AAAAA1111222C#\BarberBookingApp\BarberBooking.API\bin\Debug\net9.0\Data\cities.json

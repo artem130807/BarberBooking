@@ -1,13 +1,16 @@
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:barber_booking_app/models/params/page_params.dart';
 import 'package:barber_booking_app/models/salon_models/response/salon.dart';
 import 'package:barber_booking_app/providers/salon_providers/get_salon_provider.dart';
+import 'package:barber_booking_app/providers/review_providers/get_reviews_salon_provider.dart';
 import 'package:barber_booking_app/widgets/booking_button.dart';
 import 'package:barber_booking_app/widgets/salon_widgets/salon_full_address.dart';
 import 'package:barber_booking_app/widgets/salon_widgets/salon_image.dart';
 import 'package:barber_booking_app/widgets/salon_widgets/salon_rating.dart';
+import 'package:barber_booking_app/widgets/review_widgets/salon_review_tile.dart';
 import 'package:barber_booking_app/widgets/loading_indicator.dart';
 import 'package:barber_booking_app/widgets/error_widget.dart';
-import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 
 class SalonScreen extends StatefulWidget {
   final String salonId;
@@ -19,22 +22,30 @@ class SalonScreen extends StatefulWidget {
 }
 
 class _SalonScreenState extends State<SalonScreen> {
+  final PageParams _reviewsPageParams =  PageParams(Page: 1, PageSize: 5);
+
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      Provider.of<GetSalonProvider>(context, listen: false)
-          .getSalon(widget.salonId);
+      final salonProvider = Provider.of<GetSalonProvider>(context, listen: false);
+      salonProvider.getSalon(widget.salonId);
+
+      final reviewsProvider = Provider.of<GetReviewsSalonProvider>(context, listen: false);
+      reviewsProvider.getReviewsSalon(widget.salonId, _reviewsPageParams);
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<GetSalonProvider>(
-      builder: (context, salonProvider, child) {
+    return Consumer2<GetSalonProvider, GetReviewsSalonProvider>(
+      builder: (context, salonProvider, reviewsProvider, child) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
           if (salonProvider.errorMessage != null && mounted) {
             salonProvider.showApiError(context, salonProvider.errorMessage);
+          }
+          if (reviewsProvider.errorMessage != null && mounted) {
+            reviewsProvider.showApiError(context, reviewsProvider.errorMessage);
           }
         });
 
@@ -53,23 +64,25 @@ class _SalonScreenState extends State<SalonScreen> {
             ),
             centerTitle: false,
           ),
-          body: _buildBody(salonProvider, salon),
+          body: _buildBody(salonProvider, reviewsProvider, salon),
         );
       },
     );
   }
 
-  Widget _buildBody(GetSalonProvider provider, Salon? salon) {
-    if (provider.isLoading && salon == null) {
+  Widget _buildBody(
+    GetSalonProvider salonProvider,
+    GetReviewsSalonProvider reviewsProvider,
+    Salon? salon,
+  ) {
+    if (salonProvider.isLoading && salon == null) {
       return const LoadingIndicator(message: 'Загрузка салона...');
     }
 
-    if (provider.errorMessage != null && salon == null) {
+    if (salonProvider.errorMessage != null && salon == null) {
       return ErrorWidgetCustom(
-        message: provider.errorMessage!,
-        onRetry: () =>
-            Provider.of<GetSalonProvider>(context, listen: false)
-                .getSalon(widget.salonId),
+        message: salonProvider.errorMessage!,
+        onRetry: () => salonProvider.getSalon(widget.salonId),
       );
     }
 
@@ -124,8 +137,8 @@ class _SalonScreenState extends State<SalonScreen> {
                 if (salon.address != null)
                   SalonFullAddress(
                     address: salon.address,
-                    distance: 2.5, 
-                    showDistance: true
+                    distance: 2.5,
+                    showDistance: true,
                   ),
                 const SizedBox(height: 8),
                 if (salon.phone != null)
@@ -146,7 +159,11 @@ class _SalonScreenState extends State<SalonScreen> {
                     const SizedBox(width: 6),
                     const Text(
                       'По записи',
-                      style: TextStyle(fontSize: 14, color: Colors.grey, fontStyle: FontStyle.italic),
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: Colors.grey,
+                        fontStyle: FontStyle.italic,
+                      ),
                     ),
                   ],
                 ),
@@ -188,53 +205,95 @@ class _SalonScreenState extends State<SalonScreen> {
                 BookingButton(
                   onPressed: isActive
                       ? () {
-                          
+                          Navigator.pushNamed(
+                            context,
+                            '/salon_masters',
+                            arguments: salon.id,
+                          );
                         }
                       : null,
                   text: 'Записаться в салон',
                 ),
-                const SizedBox(height: 16),
-                Row(
-                  children: [
-                    Expanded(
-                      child: OutlinedButton.icon(
-                        onPressed: () {
-                          
-                        },
-                        icon: const Icon(Icons.map_outlined),
-                        label: const Text('На карте'),
-                        style: OutlinedButton.styleFrom(
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: OutlinedButton.icon(
-                        onPressed: salon.phone?.Number != null
-                            ? () {
-                                
-                              }
-                            : null,
-                        icon: const Icon(Icons.phone_outlined),
-                        label: const Text('Позвонить'),
-                        style: OutlinedButton.styleFrom(
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
+                const SizedBox(height: 24),
+                _buildReviewsSection(reviewsProvider),
                 const SizedBox(height: 32),
               ],
             ),
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildReviewsSection(GetReviewsSalonProvider provider) {
+    if (provider.isLoading && provider.reviewsList == null) {
+      return const LoadingIndicator(message: 'Загрузка отзывов...');
+    }
+
+    if (provider.errorMessage != null && provider.reviewsList == null) {
+      return ErrorWidgetCustom(
+        message: provider.errorMessage!,
+        onRetry: () => provider.getReviewsSalon(widget.salonId, _reviewsPageParams),
+      );
+    }
+
+    if (provider.reviewsList == null || provider.reviewsList!.isEmpty) {
+      return const Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Отзывы о салоне',
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          SizedBox(height: 8),
+          Text(
+            'У салона пока нет отзывов',
+            style: TextStyle(color: Colors.grey),
+          ),
+        ],
+      );
+    }
+
+    final reviews = provider.reviewsList!;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          'Отзывы о салоне',
+          style: TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        const SizedBox(height: 8),
+        ListView.separated(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          itemCount: reviews.length,
+          separatorBuilder: (_, __) => const Divider(),
+          itemBuilder: (context, index) {
+            final review = reviews[index];
+            return SalonReviewTile(review: review);
+          },
+        ),
+        const SizedBox(height: 12),
+        Align(
+          alignment: Alignment.centerRight,
+          child: TextButton(
+            onPressed: () {
+              Navigator.pushNamed(
+                context,
+                '/salon_reviews',
+                arguments: widget.salonId,
+              );
+            },
+            child: const Text('Все отзывы'),
+          ),
+        ),
+      ],
     );
   }
 }

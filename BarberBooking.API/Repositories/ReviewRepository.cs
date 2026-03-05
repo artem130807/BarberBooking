@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using BarberBooking.API.Contracts.ReviewContracts;
+using BarberBooking.API.Filters;
 using BarberBooking.API.Models;
 using Microsoft.EntityFrameworkCore;
 
@@ -36,9 +37,29 @@ namespace BarberBooking.API.Repositories
             return await _context.Reviews.FirstOrDefaultAsync(x => x.Id == Id);
         }
 
-        public async Task<List<Review>> GetReviewsBySalonId(Guid salonId)
+        public async Task<PagedResult<Review>> GetReviewsBySalonId(Guid salonId, PageParams pageParams)
         {
-            return await _context.Reviews.Where(x => x.SalonId == salonId).ToListAsync();
+            return await _context.Reviews
+            .Include(x => x.Client)
+            .Include(x => x.MasterProfile)
+            .Where(x => x.SalonId == salonId)
+            .ToPagedAsync(pageParams);
+        }
+        public async Task<PagedResult<Review>> GetReviewsByMasterId(Guid masterId, PageParams pageParams)
+        {
+            return await _context.Reviews
+            .Include(x => x.Client)
+            .Where(x => x.MasterProfileId == masterId)
+            .ToPagedAsync(pageParams);
+        }
+
+        public async Task<List<Review>> GetListReviewsBySalonId(Guid salonId)
+        {
+            return await _context.Reviews
+            .Include(x => x.Client)
+            .Include(x => x.MasterProfile)
+            .Where(x => x.SalonId == salonId)
+            .ToListAsync();
         }
     }
 }

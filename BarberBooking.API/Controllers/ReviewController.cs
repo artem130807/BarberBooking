@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using BarberBooking.API.CQRS.Reviews.Command;
+using BarberBooking.API.CQRS.Reviews.Queries;
 using BarberBooking.API.Dto.DtoReview;
+using BarberBooking.API.Filters;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
@@ -36,6 +38,23 @@ namespace BarberBooking.API.Controllers
                 return BadRequest(result.Error);
             return Ok(result.Value);
         }
-
+        [HttpGet("GetReviewsBySalonId/{salonId}")]
+        public async Task<IActionResult> GetReviewsBySalonId(Guid salonId, [FromQuery] PageParams pageParams)
+        {
+            var command = new GetReviewsBySalonIdQuery(salonId, pageParams);
+            var result = await _mediator.Send(command);
+            if(result.IsFailure)
+                return BadRequest(result.Error);
+            return Ok(result.Value);
+        }
+        [HttpGet("GetReviewsByMasterId/{masterId}")]
+        public async Task<IActionResult> GetReviewsByMasterId(Guid masterId, [FromQuery] PageParams pageParams)
+        {
+            var command = new GetReviewsByMasterIdQuery(masterId, pageParams);
+            var result = await _mediator.Send(command);
+            if(result.IsFailure)
+                return BadRequest(result.Error);
+            return Ok(result.Value);
+        }
     }
 }
