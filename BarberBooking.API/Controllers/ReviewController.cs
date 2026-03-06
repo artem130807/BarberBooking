@@ -6,6 +6,7 @@ using BarberBooking.API.CQRS.Reviews.Command;
 using BarberBooking.API.CQRS.Reviews.Queries;
 using BarberBooking.API.Dto.DtoReview;
 using BarberBooking.API.Filters;
+using BarberBooking.API.Filters.ReviewFilters;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
@@ -51,6 +52,24 @@ namespace BarberBooking.API.Controllers
         public async Task<IActionResult> GetReviewsByMasterId(Guid masterId, [FromQuery] PageParams pageParams)
         {
             var command = new GetReviewsByMasterIdQuery(masterId, pageParams);
+            var result = await _mediator.Send(command);
+            if(result.IsFailure)
+                return BadRequest(result.Error);
+            return Ok(result.Value);
+        }
+        [HttpGet("GetReviewsBySalonIdSort/{salonId}")]
+        public async Task<IActionResult> GetReviewsBySalonIdSort(Guid salonId, [FromQuery] PageParams pageParams, [FromQuery] ReviewSort sort)
+        {
+            var command = new GetReviewsSortBySalonIdQuery(salonId, pageParams, sort);
+            var result = await _mediator.Send(command);
+            if(result.IsFailure)
+                return BadRequest(result.Error);
+            return Ok(result.Value);
+        }
+        [HttpGet("GetReviewsByMasterIdSort/{masterId}")]
+        public async Task<IActionResult> GetReviewsByMasterIdSort(Guid masterId, [FromQuery] PageParams pageParams, [FromQuery] ReviewSort sort)
+        {
+            var command = new GetReviewsSortByMasterIdQuery(masterId, pageParams, sort);
             var result = await _mediator.Send(command);
             if(result.IsFailure)
                 return BadRequest(result.Error);

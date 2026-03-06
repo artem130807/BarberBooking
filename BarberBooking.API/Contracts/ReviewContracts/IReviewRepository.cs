@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using BarberBooking.API.Filters;
+using BarberBooking.API.Filters.ReviewFilters;
 using BarberBooking.API.Models;
 
 namespace BarberBooking.API.Contracts.ReviewContracts
@@ -15,6 +16,8 @@ namespace BarberBooking.API.Contracts.ReviewContracts
         Task<List<Review>> GetListReviewsBySalonId(Guid salonId);
         Task<PagedResult<Review>> GetReviewsBySalonId(Guid salonId, PageParams pageParams);
         Task<PagedResult<Review>> GetReviewsByMasterId(Guid masterId, PageParams pageParams);
+        Task<PagedResult<Review>> GetReviewsBySalonIdSort(Guid salonId, PageParams pageParams, ReviewSort sort);
+        Task<PagedResult<Review>> GetReviewsByMasterIdSort(Guid masterId, PageParams pageParams, ReviewSort sort);
         Task<Review> GetReviewByAppointmentId(Guid appointmentId);
     }
 }
