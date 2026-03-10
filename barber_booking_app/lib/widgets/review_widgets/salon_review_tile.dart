@@ -2,10 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:barber_booking_app/models/review_models/response/get_reviews_salon_response.dart';
 import 'package:barber_booking_app/utils/date_formatter.dart';
 
-class SalonReviewTile extends StatelessWidget {
+class  SalonReviewTile extends StatelessWidget {
   final GetReviewsSalonResponse review;
+  final VoidCallback? onMasterTap;
 
-  const SalonReviewTile({super.key, required this.review});
+  const SalonReviewTile({
+    super.key,
+    required this.review,
+    this.onMasterTap,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -30,44 +35,57 @@ class SalonReviewTile extends StatelessWidget {
                     Expanded(
                       child: Text(
                         review.UserName ?? 'Аноним',
-                        style: const TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 14,
-                        ),
+                        style: const TextStyle(fontWeight: FontWeight.bold),
                       ),
                     ),
-                    Row(
-                      children: [
-                        const Icon(Icons.star, color: Colors.amber, size: 14),
-                        const SizedBox(width: 2),
-                        Text(
-                          review.SalonRating?.toString() ?? '0',
-                          style: const TextStyle(fontSize: 12),
-                        ),
-                      ],
-                    ),
+                    if (review.SalonRating != null)
+                      Row(
+                        children: [
+                          const Icon(Icons.star, color: Colors.amber, size: 14),
+                          const SizedBox(width: 2),
+                          Text(review.SalonRating.toString()),
+                        ],
+                      ),
                   ],
                 ),
-                if (review.NavigationResponse?.MasterName != null) ...[
+                if (review.NavigationResponse != null || review.MasterRating != null) ...[
                   const SizedBox(height: 4),
-                  Text(
-                    'Мастер: ${review.NavigationResponse!.MasterName}',
-                    style: const TextStyle(
-                      fontSize: 12,
-                      color: Colors.grey,
-                      fontStyle: FontStyle.italic,
-                    ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Expanded(
+                        child: GestureDetector(
+                          onTap: onMasterTap,
+                          child: Text(
+                            'Мастер: ${review.NavigationResponse?.MasterName ?? 'Неизвестный мастер'}',
+                            style: TextStyle(
+                              fontSize: 13,
+                              color: onMasterTap != null ? Colors.blue : Colors.grey,
+                              decoration: onMasterTap != null ? TextDecoration.underline : null,
+                            ),
+                          ),
+                        ),
+                      ),
+                      if (review.MasterRating != null)
+                        Row(
+                          children: [
+                            const Icon(Icons.star, color: Colors.amber, size: 12),
+                            const SizedBox(width: 2),
+                            Text(
+                              review.MasterRating.toString(),
+                              style: const TextStyle(fontSize: 12, color: Colors.grey),
+                            ),
+                          ],
+                        ),
+                    ],
                   ),
                 ],
                 const SizedBox(height: 4),
-                Text(
-                  review.Comment ?? '',
-                  style: const TextStyle(fontSize: 13, color: Colors.black87),
-                ),
+                Text(review.Comment ?? ''),
                 const SizedBox(height: 4),
                 Text(
                   DateFormatter.formatDateOnly(review.CreatedAt ?? ''),
-                  style: const TextStyle(fontSize: 11, color: Colors.grey),
+                  style: const TextStyle(fontSize: 12, color: Colors.grey),
                 ),
               ],
             ),

@@ -1,10 +1,14 @@
+import 'package:barber_booking_app/models/params/master_params/master_filter.dart';
 import 'package:barber_booking_app/providers/master_providers/get_masters_provider.dart';
+import 'package:barber_booking_app/screens/service_screens/service_selection_screen.dart';
 import 'package:barber_booking_app/widgets/booking_button.dart';
 import 'package:barber_booking_app/widgets/error_widget.dart';
 import 'package:barber_booking_app/widgets/loading_indicator.dart';
 import 'package:barber_booking_app/widgets/master_widgets/master_card.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+
+enum MasterSort { none, rating, popular }
 
 class SalonMastersScreen extends StatefulWidget {
   final String salonId;
@@ -16,13 +20,37 @@ class SalonMastersScreen extends StatefulWidget {
 }
 
 class _SalonMastersScreenState extends State<SalonMastersScreen> {
+  MasterSort _selectedSort = MasterSort.none;
+
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      Provider.of<GetMastersProvider>(context, listen: false)
-          .loadMasters(widget.salonId);
+    _loadMasters();
+  }
+
+  void _loadMasters() {
+    final filter = MasterFilter(
+      MaxRating: _selectedSort == MasterSort.rating,
+      Popular: _selectedSort == MasterSort.popular,
+    );
+    Provider.of<GetMastersProvider>(context, listen: false)
+        .loadMasters(widget.salonId, filter);
+  }
+
+  void _applySort(MasterSort sort) {
+    if (_selectedSort == sort) {
+      _selectedSort = MasterSort.none;
+    } else {
+      _selectedSort = sort;
+    }
+    _loadMasters();
+  }
+
+  void _clearFilters() {
+    setState(() {
+      _selectedSort = MasterSort.none;
     });
+    _loadMasters();
   }
 
   @override
@@ -32,8 +60,45 @@ class _SalonMastersScreenState extends State<SalonMastersScreen> {
         return Scaffold(
           appBar: AppBar(
             title: const Text('Выбор мастера'),
+            actions: [
+              if (_selectedSort != MasterSort.none)
+                IconButton(
+                  icon: const Icon(Icons.clear_all),
+                  onPressed: _clearFilters,
+                ),
+            ],
           ),
-          body: _buildBody(provider),
+          body: Column(
+            children: [
+              // Панель фильтров
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                child: Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  children: [
+                    FilterChip(
+                      label: const Text('С высокой оценкой'),
+                      selected: _selectedSort == MasterSort.rating,
+                      onSelected: (_) => setState(() {
+                        _applySort(MasterSort.rating);
+                      }),
+                    ),
+                    FilterChip(
+                      label: const Text('Популярные'),
+                      selected: _selectedSort == MasterSort.popular,
+                      onSelected: (_) => setState(() {
+                        _applySort(MasterSort.popular);
+                      }),
+                    ),
+                  ],
+                ),
+              ),
+              Expanded(
+                child: _buildBody(provider),
+              ),
+            ],
+          ),
         );
       },
     );
@@ -41,18 +106,14 @@ class _SalonMastersScreenState extends State<SalonMastersScreen> {
 
   Widget _buildBody(GetMastersProvider provider) {
     if (provider.isLoading && provider.masters == null) {
-      return const Center(
-        child: LoadingIndicator(message: 'Загрузка мастеров...'),
-      );
+      return const Center(child: LoadingIndicator(message: 'Загрузка мастеров...'));
     }
 
     if (provider.errorMessage != null) {
       return Center(
         child: ErrorWidgetCustom(
           message: provider.errorMessage!,
-          onRetry: () =>
-              Provider.of<GetMastersProvider>(context, listen: false)
-                  .loadMasters(widget.salonId),
+          onRetry: () => _loadMasters(),
         ),
       );
     }
@@ -106,7 +167,16 @@ class _SalonMastersScreenState extends State<SalonMastersScreen> {
               Expanded(
                 child: BookingButton(
                   onPressed: () {
-                    // TODO: переход к выбору услуги и времени для этого мастера
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => ServiceSelectionScreen(
+                          masterName: master.UserName ?? 'Мастер',
+                          masterId: master.Id ?? '',
+                          salonId: master.SalonId ?? '',
+                        ),
+                      ),
+                    );
                   },
                   text: 'Записаться',
                 ),
@@ -118,4 +188,3 @@ class _SalonMastersScreenState extends State<SalonMastersScreen> {
     );
   }
 }
-

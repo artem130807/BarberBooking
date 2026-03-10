@@ -1,5 +1,6 @@
 import 'package:barber_booking_app/models/master_models/response/get_master_response.dart';
 import 'package:barber_booking_app/models/params/page_params.dart';
+import 'package:barber_booking_app/models/params/review_params/review_sort_params.dart';
 import 'package:barber_booking_app/models/review_models/response/get_reviews_master_response.dart';
 import 'package:barber_booking_app/providers/master_providers/get_master_provider.dart';
 import 'package:barber_booking_app/providers/review_providers/get_reviews_master_provider.dart';
@@ -20,6 +21,7 @@ class MasterDetailScreen extends StatefulWidget {
 
 class _MasterDetailScreenState extends State<MasterDetailScreen> {
   final PageParams _reviewsPageParams = PageParams(Page: 1, PageSize: 5);
+  final ReviewSortParams _reviewSortParams = ReviewSortParams();
 
   @override
   void initState() {
@@ -28,7 +30,7 @@ class _MasterDetailScreenState extends State<MasterDetailScreen> {
       final masterProvider = Provider.of<GetMasterProvider>(context, listen: false);
       masterProvider.getMaster(widget.masterId);
       final reviewsProvider = Provider.of<GetReviewsMasterProvider>(context, listen: false);
-      reviewsProvider.getReviewsMaster(widget.masterId, _reviewsPageParams);
+      reviewsProvider.getReviewsMaster(widget.masterId, _reviewsPageParams, _reviewSortParams);
     });
   }
 
@@ -319,7 +321,7 @@ class _MasterDetailScreenState extends State<MasterDetailScreen> {
     if (provider.errorMessage != null && provider.reviewsList == null) {
       return ErrorWidgetCustom(
         message: provider.errorMessage!,
-        onRetry: () => provider.getReviewsMaster(widget.masterId, _reviewsPageParams),
+        onRetry: () => provider.getReviewsMaster(widget.masterId, _reviewsPageParams, _reviewSortParams),
       );
     }
 

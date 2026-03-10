@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:barber_booking_app/models/params/page_params.dart';
+import 'package:barber_booking_app/models/params/review_params/review_sort_params.dart';
 import 'package:barber_booking_app/providers/review_providers/get_reviews_salon_provider.dart';
 import 'package:barber_booking_app/widgets/review_widgets/review_salon_title.dart';
 import 'package:barber_booking_app/widgets/error_widget.dart';
 import 'package:barber_booking_app/widgets/loading_indicator.dart';
+
+enum ReviewSortType { newest, highest, lowest }
 
 class ReviewsBySalonScreen extends StatefulWidget {
   final String salonId;
@@ -17,9 +20,10 @@ class ReviewsBySalonScreen extends StatefulWidget {
 
 class _ReviewsBySalonScreenState extends State<ReviewsBySalonScreen> {
   final ScrollController _scrollController = ScrollController();
-  final PageParams _initialParams = PageParams(Page: 1, PageSize: 10);
+  final PageParams _initialParams =  PageParams(Page: 1, PageSize: 10);
   bool _isLoadingMore = false;
   bool _hasMore = true;
+  ReviewSortType _currentSort = ReviewSortType.newest;
 
   @override
   void initState() {
@@ -28,12 +32,35 @@ class _ReviewsBySalonScreenState extends State<ReviewsBySalonScreen> {
     _scrollController.addListener(_onScroll);
   }
 
-  void _loadInitial() {
+  ReviewSortParams _getSortParams(ReviewSortType sort) {
+    switch (sort) {
+      case ReviewSortType.newest:
+        return  ReviewSortParams(OrderBy: null, OrderbyDescending: null);
+      case ReviewSortType.highest:
+        return  ReviewSortParams(OrderBy: null, OrderbyDescending: true);
+      case ReviewSortType.lowest:
+        return  ReviewSortParams(OrderBy: true, OrderbyDescending: null);
+    }
+  }
+
+  Future<void> _loadInitial() async {
     final provider = Provider.of<GetReviewsSalonProvider>(context, listen: false);
-    provider.getReviewsSalon(widget.salonId, _initialParams).then((_) {
-      setState(() {
-        _hasMore = provider.reviewsList?.length == _initialParams.PageSize;
-      });
+    final sortParams = _getSortParams(_currentSort);
+    await provider.getReviewsSalon(widget.salonId, _initialParams, sortParams);
+    setState(() {
+      _hasMore = provider.reviewsList?.length == _initialParams.PageSize;
+    });
+  }
+
+  Future<void> _loadWithSort(ReviewSortType newSort) async {
+    if (newSort == _currentSort) return;
+    setState(() => _currentSort = newSort);
+    final provider = Provider.of<GetReviewsSalonProvider>(context, listen: false);
+    provider.clearList();
+    final sortParams = _getSortParams(newSort);
+    await provider.getReviewsSalon(widget.salonId, _initialParams, sortParams);
+    setState(() {
+      _hasMore = provider.reviewsList?.length == _initialParams.PageSize;
     });
   }
 
@@ -49,16 +76,17 @@ class _ReviewsBySalonScreenState extends State<ReviewsBySalonScreen> {
     setState(() => _isLoadingMore = true);
 
     final provider = Provider.of<GetReviewsSalonProvider>(context, listen: false);
-    final currentCount = provider.reviewsList?.length ?? 0;
     final pageSize = _initialParams.PageSize ?? 10;
+    final currentCount = provider.reviewsList?.length ?? 0;
     final nextPage = (currentCount ~/ pageSize) + 1;
     final params = PageParams(Page: nextPage, PageSize: _initialParams.PageSize);
+    final sortParams = _getSortParams(_currentSort);
 
-    final result = await provider.getReviewsSalon(widget.salonId, params);
+    final result = await provider.getReviewsSalon(widget.salonId, params, sortParams);
     if (result == true) {
       final newCount = provider.reviewsList?.length ?? 0;
       setState(() {
-        _hasMore = newCount > currentCount; 
+        _hasMore = newCount > currentCount;
       });
     }
     setState(() => _isLoadingMore = false);
@@ -66,10 +94,11 @@ class _ReviewsBySalonScreenState extends State<ReviewsBySalonScreen> {
 
   Future<void> _refresh() async {
     final provider = Provider.of<GetReviewsSalonProvider>(context, listen: false);
-    final pageSize = _initialParams.PageSize ?? 10;
-    await provider.getReviewsSalon(widget.salonId, _initialParams);
+    provider.clearList();
+    final sortParams = _getSortParams(_currentSort);
+    await provider.getReviewsSalon(widget.salonId, _initialParams, sortParams);
     setState(() {
-      _hasMore = (provider.reviewsList?.length ?? 0) >= pageSize;
+      _hasMore = provider.reviewsList?.length == _initialParams.PageSize;
     });
   }
 
@@ -87,6 +116,26 @@ class _ReviewsBySalonScreenState extends State<ReviewsBySalonScreen> {
         return Scaffold(
           appBar: AppBar(
             title: const Text('Все отзывы'),
+            actions: [
+              PopupMenuButton<ReviewSortType>(
+                icon: const Icon(Icons.sort),
+                onSelected: _loadWithSort,
+                itemBuilder: (context) => [
+                  const PopupMenuItem(
+                    value: ReviewSortType.newest,
+                    child: Text('Сначала новые'),
+                  ),
+                  const PopupMenuItem(
+                    value: ReviewSortType.highest,
+                    child: Text('С высокой оценкой'),
+                  ),
+                  const PopupMenuItem(
+                    value: ReviewSortType.lowest,
+                    child: Text('С низкой оценкой'),
+                  ),
+                ],
+              ),
+            ],
           ),
           body: _buildBody(provider),
         );
@@ -103,7 +152,7 @@ class _ReviewsBySalonScreenState extends State<ReviewsBySalonScreen> {
       return Center(
         child: ErrorWidgetCustom(
           message: provider.errorMessage!,
-          onRetry: () => provider.getReviewsSalon(widget.salonId, _initialParams),
+          onRetry: () => _loadInitial(),
         ),
       );
     }
@@ -135,7 +184,18 @@ class _ReviewsBySalonScreenState extends State<ReviewsBySalonScreen> {
             );
           }
           final review = reviews[index];
-          return ReviewSalonTitle(review: review);
+          return ReviewSalonTitle(
+            review: review,
+            onMasterTap: review.NavigationResponse?.Id != null
+                ? () {
+                    Navigator.pushNamed(
+                      context,
+                      '/master_detail',
+                      arguments: review.NavigationResponse!.Id,
+                    );
+                  }
+                : null,
+          );
         },
       ),
     );

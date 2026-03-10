@@ -94,7 +94,10 @@ class _SearchResultsScreenState extends State<SearchResultsScreen> {
               arguments: salon.Id);
             },
             onBooking: () {
-              // Переход на запись
+              Navigator.pushNamed(
+              context,
+              '/salon_masters',
+              arguments: salon.Id);
             },
           ),
         );

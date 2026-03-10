@@ -25,13 +25,11 @@ class GetSalonsSearchProvider extends BaseProvider{
     return true;
   }else{
     _getSalonsResponse = [];
-    setError('Список салонов в вашем городе пуст');  
     finishLoading();
     return false;
   }
   }catch(e){
     print(e);
-    setError(e.toString());
     return false;
   }
   }

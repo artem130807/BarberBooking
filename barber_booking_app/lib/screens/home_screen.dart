@@ -1,4 +1,5 @@
 import 'package:barber_booking_app/models/params/page_params.dart';
+import 'package:barber_booking_app/models/params/salon_params/salon_filter.dart';
 import 'package:barber_booking_app/providers/auth_providers/auth_provider.dart';
 import 'package:barber_booking_app/providers/master_providers/get_the_best_masters_provider.dart';
 import 'package:barber_booking_app/providers/salon_providers/get_salons_provider.dart';
@@ -25,13 +26,16 @@ class _HomeScreenState extends State<HomeScreen> {
   final FocusNode _searchFocusNode = FocusNode();
   bool _isSearchFocused = false;
   final PageParams _pageParams = PageParams(Page: 1, PageSize: 3);
+  final SalonFilter filter = SalonFilter();
+  int _selectedNavIndex = 0; 
+
   @override
   void initState() {
     super.initState();
     _searchFocusNode.addListener(_onFocusChange);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final token = Provider.of<AuthProvider>(context, listen: false).token;
-      Provider.of<GetSalonsProvider>(context, listen: false).getSalons(_pageParams, token);
+      Provider.of<GetSalonsProvider>(context, listen: false).getSalons(_pageParams, filter, token);
       Provider.of<GetTheBestMastersProvider>(context, listen: false).getMasters(4, token);
     });
   }
@@ -48,6 +52,28 @@ class _HomeScreenState extends State<HomeScreen> {
       '/salons_by_service',
       arguments: serviceName,
     );
+  }
+
+  void _onNavItemTapped(int index) {
+    setState(() {
+      _selectedNavIndex = index;
+    });
+    switch (index) {
+      case 0:
+        break;
+      case 1:
+        Navigator.pushNamed(context, '/search');
+        break;
+      case 2:
+        Navigator.pushNamed(context, '/appointments_screen');
+        break;
+      case 3:
+        Navigator.pushNamed(context, '/favorites');
+        break;
+      case 4:
+        Navigator.pushNamed(context, '/profile');
+        break;
+    }
   }
 
   @override
@@ -227,6 +253,8 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
           bottomNavigationBar: BottomNavigationBar(
             type: BottomNavigationBarType.fixed,
+            currentIndex: _selectedNavIndex,
+            onTap: _onNavItemTapped,
             selectedItemColor: Colors.black,
             unselectedItemColor: Colors.grey,
             items: const [
@@ -251,7 +279,7 @@ class _HomeScreenState extends State<HomeScreen> {
     if (provider.errorMessage != null) {
       return ErrorWidgetCustom(
         message: provider.errorMessage!,
-        onRetry: () => provider.getSalons(_pageParams, token),
+        onRetry: () => provider.getSalons(_pageParams, filter, token),
       );
     }
 

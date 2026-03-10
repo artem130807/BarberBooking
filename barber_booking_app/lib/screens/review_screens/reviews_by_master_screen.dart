@@ -1,3 +1,4 @@
+import 'package:barber_booking_app/models/params/review_params/review_sort_params.dart';
 import 'package:barber_booking_app/screens/master_screens/master_detail_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -5,6 +6,9 @@ import 'package:barber_booking_app/models/params/page_params.dart';
 import 'package:barber_booking_app/providers/review_providers/get_reviews_master_provider.dart';
 import 'package:barber_booking_app/widgets/loading_indicator.dart';
 import 'package:barber_booking_app/widgets/error_widget.dart';
+
+
+enum ReviewSortType { newest, highest, lowest }
 
 class ReviewsByMasterScreen extends StatefulWidget {
   final String masterId;
@@ -20,6 +24,7 @@ class _ReviewsByMasterScreenState extends State<ReviewsByMasterScreen> {
   final PageParams _initialParams = PageParams(Page: 1, PageSize: 10);
   bool _isLoadingMore = false;
   bool _hasMore = true;
+  ReviewSortType _currentSort = ReviewSortType.newest;
 
   @override
   void initState() {
@@ -28,12 +33,35 @@ class _ReviewsByMasterScreenState extends State<ReviewsByMasterScreen> {
     _scrollController.addListener(_onScroll);
   }
 
-  void _loadInitial() {
+  ReviewSortParams _getSortParams(ReviewSortType sort) {
+    switch (sort) {
+      case ReviewSortType.newest:
+        return ReviewSortParams(OrderBy: null, OrderbyDescending: null);
+      case ReviewSortType.highest:
+        return ReviewSortParams(OrderBy: null, OrderbyDescending: true);
+      case ReviewSortType.lowest:
+        return ReviewSortParams(OrderBy: true, OrderbyDescending: null);
+    }
+  }
+
+  Future<void> _loadInitial() async {
     final provider = Provider.of<GetReviewsMasterProvider>(context, listen: false);
-    provider.getReviewsMaster(widget.masterId, _initialParams).then((_) {
-      setState(() {
-        _hasMore = provider.reviewsList?.length == _initialParams.PageSize;
-      });
+    final sortParams = _getSortParams(_currentSort);
+    await provider.getReviewsMaster(widget.masterId, _initialParams, sortParams);
+    setState(() {
+      _hasMore = provider.reviewsList?.length == _initialParams.PageSize;
+    });
+  }
+
+  Future<void> _loadWithSort(ReviewSortType newSort) async {
+    if (newSort == _currentSort) return;
+    setState(() => _currentSort = newSort);
+    final provider = Provider.of<GetReviewsMasterProvider>(context, listen: false);
+    provider.clearList(); // ← исправлено: теперь вызываем метод, а не присваиваем
+    final sortParams = _getSortParams(newSort);
+    await provider.getReviewsMaster(widget.masterId, _initialParams, sortParams);
+    setState(() {
+      _hasMore = provider.reviewsList?.length == _initialParams.PageSize;
     });
   }
 
@@ -49,14 +77,17 @@ class _ReviewsByMasterScreenState extends State<ReviewsByMasterScreen> {
     setState(() => _isLoadingMore = true);
 
     final provider = Provider.of<GetReviewsMasterProvider>(context, listen: false);
-    final resultPageSize = _initialParams.PageSize ?? 10;
-    final nextPage = (provider.reviewsList?.length ?? 0) ~/ resultPageSize + 1;
+    final pageSize = _initialParams.PageSize ?? 10;
+    final currentCount = provider.reviewsList?.length ?? 0;
+    final nextPage = (currentCount ~/ pageSize) + 1;
     final params = PageParams(Page: nextPage, PageSize: _initialParams.PageSize);
+    final sortParams = _getSortParams(_currentSort);
 
-    final result = await provider.getReviewsMaster(widget.masterId, params);
+    final result = await provider.getReviewsMaster(widget.masterId, params, sortParams);
     if (result == true) {
+      final newCount = provider.reviewsList?.length ?? 0;
       setState(() {
-        _hasMore = provider.reviewsList?.length == nextPage * resultPageSize;
+        _hasMore = newCount > currentCount;
       });
     }
     setState(() => _isLoadingMore = false);
@@ -64,7 +95,9 @@ class _ReviewsByMasterScreenState extends State<ReviewsByMasterScreen> {
 
   Future<void> _refresh() async {
     final provider = Provider.of<GetReviewsMasterProvider>(context, listen: false);
-    await provider.getReviewsMaster(widget.masterId, _initialParams);
+    provider.clearList(); // ← исправлено
+    final sortParams = _getSortParams(_currentSort);
+    await provider.getReviewsMaster(widget.masterId, _initialParams, sortParams);
     setState(() {
       _hasMore = provider.reviewsList?.length == _initialParams.PageSize;
     });
@@ -84,6 +117,26 @@ class _ReviewsByMasterScreenState extends State<ReviewsByMasterScreen> {
         return Scaffold(
           appBar: AppBar(
             title: const Text('Все отзывы'),
+            actions: [
+              PopupMenuButton<ReviewSortType>(
+                icon: const Icon(Icons.sort),
+                onSelected: _loadWithSort,
+                itemBuilder: (context) => [
+                  const PopupMenuItem(
+                    value: ReviewSortType.newest,
+                    child: Text('Сначала новые'),
+                  ),
+                  const PopupMenuItem(
+                    value: ReviewSortType.highest,
+                    child: Text('С высокой оценкой'),
+                  ),
+                  const PopupMenuItem(
+                    value: ReviewSortType.lowest,
+                    child: Text('С низкой оценкой'),
+                  ),
+                ],
+              ),
+            ],
           ),
           body: _buildBody(provider),
         );
@@ -100,7 +153,7 @@ class _ReviewsByMasterScreenState extends State<ReviewsByMasterScreen> {
       return Center(
         child: ErrorWidgetCustom(
           message: provider.errorMessage!,
-          onRetry: () => provider.getReviewsMaster(widget.masterId, _initialParams),
+          onRetry: () => _loadInitial(),
         ),
       );
     }
@@ -138,4 +191,3 @@ class _ReviewsByMasterScreenState extends State<ReviewsByMasterScreen> {
     );
   }
 }
-

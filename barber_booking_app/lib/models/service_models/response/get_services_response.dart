@@ -4,7 +4,7 @@ class GetServicesResponse {
   String? Id;
   String? Name;
   String? PhotoUrl;
-  String? DurationMinutes;
+  int? DurationMinutes;
   DtoPrice? Price;
 
   GetServicesResponse({this.Id, this.Name, this.PhotoUrl,this.DurationMinutes, this.Price});
@@ -15,7 +15,7 @@ class GetServicesResponse {
           Name: json['name'],
           PhotoUrl: json['photoUrl'],
           DurationMinutes: json['durationMinutes'],
-          Price: json['price'] != null ? DtoPrice.fromJson(json['value']): null
+          Price: json['price'] != null ? DtoPrice.fromJson(json['price']): null
       );
     }
 }

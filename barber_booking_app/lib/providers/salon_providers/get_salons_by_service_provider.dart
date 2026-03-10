@@ -25,13 +25,11 @@ class GetSalonsByServiceProvider extends BaseProvider{
     return true;
   }else{
     _getSalonsResponse = [];
-    setError('Список салонов с такой услугой пуст');  
     finishLoading();
     return false;
   }
   }catch(e){
     print(e);
-    setError(e.toString());
     finishLoading();
     return false;
   }

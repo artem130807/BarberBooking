@@ -4,8 +4,13 @@ import 'package:barber_booking_app/utils/date_formatter.dart';
 
 class ReviewSalonTitle extends StatelessWidget {
   final GetReviewsSalonResponse review;
+  final VoidCallback? onMasterTap;
 
-  const ReviewSalonTitle({super.key, required this.review});
+  const ReviewSalonTitle({
+    super.key,
+    required this.review,
+    this.onMasterTap,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -49,9 +54,16 @@ class ReviewSalonTitle extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Expanded(
-                        child: Text(
-                          'Мастер: ${review.NavigationResponse?.MasterName ?? 'Неизвестный мастер'}',
-                          style: const TextStyle(fontSize: 13, color: Colors.grey),
+                        child: GestureDetector(
+                          onTap: onMasterTap,
+                          child: Text(
+                            'Мастер: ${review.NavigationResponse?.MasterName ?? 'Неизвестный мастер'}',
+                            style: TextStyle(
+                              fontSize: 13,
+                              color: onMasterTap != null ? Colors.blue : Colors.grey,
+                              decoration: onMasterTap != null ? TextDecoration.underline : null,
+                            ),
+                          ),
                         ),
                       ),
                       if (review.MasterRating != null)

@@ -5,17 +5,19 @@ class GetMastersResponse {
   String? AvatarUrl;
   double? Rating;
   int? RatingCount;
+  String? SalonId;
 
-  GetMastersResponse({this.Id, this.UserName, this.Specialization, this.AvatarUrl, this.Rating, this.RatingCount});
+  GetMastersResponse({this.Id, this.UserName, this.Specialization, this.AvatarUrl, this.Rating, this.RatingCount, this.SalonId});
 
     factory GetMastersResponse.fromJson(Map<String, dynamic> json){
     return  GetMastersResponse(
-       Id: json['id'],
+        Id: json['id'],
         UserName: json['userName'],
         Specialization: json['specialization'],
         AvatarUrl: json['avatarUrl'],
         Rating: json['rating'],
-        RatingCount: json['ratingCount']
+        RatingCount: json['ratingCount'],
+        SalonId: json['salonId']
     );
   }
 }

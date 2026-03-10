@@ -22,7 +22,6 @@ class GetSalonProvider extends BaseProvider{
       return true;
     }else{
       print("салон не найден");
-      setError("Салон не найден");
       finishLoading();
       return false;
     }

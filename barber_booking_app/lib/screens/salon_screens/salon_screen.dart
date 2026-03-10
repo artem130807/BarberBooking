@@ -1,3 +1,4 @@
+import 'package:barber_booking_app/models/params/review_params/review_sort_params.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:barber_booking_app/models/params/page_params.dart';
@@ -23,6 +24,7 @@ class SalonScreen extends StatefulWidget {
 
 class _SalonScreenState extends State<SalonScreen> {
   final PageParams _reviewsPageParams =  PageParams(Page: 1, PageSize: 5);
+  final ReviewSortParams _reviewSortParams = ReviewSortParams();
 
   @override
   void initState() {
@@ -32,7 +34,7 @@ class _SalonScreenState extends State<SalonScreen> {
       salonProvider.getSalon(widget.salonId);
 
       final reviewsProvider = Provider.of<GetReviewsSalonProvider>(context, listen: false);
-      reviewsProvider.getReviewsSalon(widget.salonId, _reviewsPageParams);
+      reviewsProvider.getReviewsSalon(widget.salonId, _reviewsPageParams, _reviewSortParams);
     });
   }
 
@@ -233,7 +235,7 @@ class _SalonScreenState extends State<SalonScreen> {
     if (provider.errorMessage != null && provider.reviewsList == null) {
       return ErrorWidgetCustom(
         message: provider.errorMessage!,
-        onRetry: () => provider.getReviewsSalon(widget.salonId, _reviewsPageParams),
+        onRetry: () => provider.getReviewsSalon(widget.salonId, _reviewsPageParams, _reviewSortParams),
       );
     }
 
@@ -276,7 +278,15 @@ class _SalonScreenState extends State<SalonScreen> {
           separatorBuilder: (_, __) => const Divider(),
           itemBuilder: (context, index) {
             final review = reviews[index];
-            return SalonReviewTile(review: review);
+            return SalonReviewTile(review: review, onMasterTap: review.NavigationResponse?.Id != null
+              ? () {
+                  Navigator.pushNamed(
+                    context,
+                    '/master_detail',
+                    arguments: review.NavigationResponse!.Id,
+                  );
+                }
+              : null,);
           },
         ),
         const SizedBox(height: 12),

@@ -1,23 +1,26 @@
 import 'dart:convert';
-
 import 'package:barber_booking_app/models/params/page_params.dart';
+import 'package:barber_booking_app/models/params/salon_params/salon_filter.dart';
 import 'package:barber_booking_app/models/salon_models/response/get_salons_response.dart';
-import 'package:barber_booking_app/providers/auth_providers/auth_provider.dart';
 import 'package:http/http.dart' as http;
-import 'package:provider/provider.dart';
 class GetSalonsService {
   final String baseUrl = 'http://192.168.0.100:5088';
 
-  Future<List<GetSalonsResponse>?> GetSalons(PageParams params, String? token) async{
+  Future<List<GetSalonsResponse>?> getSalons(PageParams params, SalonFilter filter ,String? token) async{
       try {
         print('📦 Получен запрос: параметры ${params.Page}, ${params.PageSize}');
 
-        final url = Uri.parse('$baseUrl/api/Salon/GetSalons').replace(
+        final url = Uri.parse('$baseUrl/api/Salon/GetSalonsByFilter').replace(
           queryParameters: {
             'page':params.Page.toString(),
             'pageSize':params.PageSize.toString()
           }
-        );
+        ).replace(queryParameters: {
+          'isActive':filter.IsActive.toString(),
+          'maxRating':filter.MaxRating.toString(),
+          'popular':filter.Popular.toString(),
+          'minPrice':filter.MinPrice.toString()
+        });
         print('🌐 URL: $url');
         
         final requestBody = json.encode(params.toJson());
