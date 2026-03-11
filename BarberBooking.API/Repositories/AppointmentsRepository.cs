@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using BarberBooking.API.Contracts;
+using BarberBooking.API.Enums;
 using BarberBooking.API.Models;
 using Microsoft.EntityFrameworkCore;
 
@@ -61,10 +62,11 @@ namespace BarberBooking.API.Repositories
         public async Task<List<Appointments>> GetAppointmentsByClientId(Guid clientId)
         {
             return await _context.Appointments
+            .Include(x => x.Client)
             .Include(x => x.Salon)
             .Include(x => x.Master)
             .Include(x => x.Service)
-            .Where(x =>  x.ClientId == clientId)
+            .Where(x =>  x.ClientId == clientId && x.Status == AppointmentStatusEnum.Pending)
             .ToListAsync();
         }
 

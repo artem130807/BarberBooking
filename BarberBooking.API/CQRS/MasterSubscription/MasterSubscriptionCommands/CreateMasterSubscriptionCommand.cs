@@ -8,5 +8,5 @@ using MediatR;
 
 namespace BarberBooking.API.CQRS.MasterSubscription.MasterSubscriptionCommands
 {
-    public record CreateMasterSubscriptionCommand(DtoCreateMasterSubscription dtoCreateMasterSubscription):IRequest<Result<DtoMasterSubscriptionInfo>>;
+    public record CreateMasterSubscriptionCommand(DtoCreateMasterSubscription dtoCreateMasterSubscription):IRequest<Result<Guid>>;
 }

@@ -13,7 +13,7 @@ using MediatR;
 
 namespace BarberBooking.API.CQRS.MasterSubscription.MasterSubscriptionCommands.Handlers
 {
-    public class CreateMasterSubscriptionHandler : IRequestHandler<CreateMasterSubscriptionCommand, Result<DtoMasterSubscriptionInfo>>
+    public class CreateMasterSubscriptionHandler : IRequestHandler<CreateMasterSubscriptionCommand, Result<Guid>>
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMasterSubscriptionRepository _masterSubscriptionRepository;
@@ -26,12 +26,12 @@ namespace BarberBooking.API.CQRS.MasterSubscription.MasterSubscriptionCommands.H
             _userContext = userContext;
             _mapper = mapper;
         }
-        public async Task<Result<DtoMasterSubscriptionInfo>> Handle(CreateMasterSubscriptionCommand command, CancellationToken cancellationToken)
+        public async Task<Result<Guid>> Handle(CreateMasterSubscriptionCommand command, CancellationToken cancellationToken)
         {
             var userId = _userContext.UserId;
             var masterSubscription = await _masterSubscriptionRepository.GetMasterSubscriptionByMasterIdAndClientId(command.dtoCreateMasterSubscription.MasterId, userId);
             if(masterSubscription != null)
-                return Result.Failure<DtoMasterSubscriptionInfo>("Такая подписка уже существует");
+                return Result.Failure<Guid>("Такая подписка уже существует");
             var CreateMasterSubscription = Models.MasterSubscription.Create(userId, command.dtoCreateMasterSubscription.MasterId);
             try
             {
@@ -41,10 +41,9 @@ namespace BarberBooking.API.CQRS.MasterSubscription.MasterSubscriptionCommands.H
             }catch(Exception e)
             {
                 _unitOfWork.RollBack();
-                return Result.Failure<DtoMasterSubscriptionInfo>(e.Message);
+                return Result.Failure<Guid>(e.Message);
             }
-            var result = _mapper.Map<DtoMasterSubscriptionInfo>(CreateMasterSubscription);
-            return Result.Success(result);
+            return Result.Success(CreateMasterSubscription.Id);
         }
     }
 }

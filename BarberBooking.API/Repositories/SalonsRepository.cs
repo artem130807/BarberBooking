@@ -70,6 +70,21 @@ namespace BarberBooking.API.Repositories
             return pagedResult;
         }
 
+        public async Task<PagedResult<Salons>> GetSalonsMinPrice(string city, PageParams pageParams)
+        {
+            return await _context.Salons
+            .Include(x => x.Services)
+            .Where(s => s.Address.City == city)
+            .Select(s => new
+            {
+                Salon = s,
+                MinPrice = s.Services.Min(service => service.Price.Value)
+            })
+            .OrderBy(x => x.MinPrice)
+            .Select(x => x.Salon)
+            .ToPagedAsync(pageParams);
+        }
+
         public async Task<PagedResult<Salons>> GetSalonsNameStartWith(SearchFilterParams searchParams, PageParams pageParams)
         {
             return await _context.Salons.Where(x => x.Address.City == searchParams.City).SearchFilter(searchParams).ToPagedAsync(pageParams);

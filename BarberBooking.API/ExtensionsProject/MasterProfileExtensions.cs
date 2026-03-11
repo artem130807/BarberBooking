@@ -11,10 +11,10 @@ namespace BarberBooking.API.ExtensionsProject
     {
         public static IQueryable<MasterProfile> FilterMasterProfile(this IQueryable<MasterProfile> query, MasterProfileFilter masterProfile)
         {
-            if(masterProfile.MinRating.HasValue)
-                query = query.Where(x => x.Rating >= masterProfile.MinRating);
             if(masterProfile.MaxRating.HasValue)
-                query = query.Where(x => x.Rating >= masterProfile.MaxRating);
+                query = query.OrderByDescending(x => x.Rating);
+            if(masterProfile.Popular.HasValue)
+                query = query.OrderByDescending(x => x.RatingCount);
             return query;
         }
     }

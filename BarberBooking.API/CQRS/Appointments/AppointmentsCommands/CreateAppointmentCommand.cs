@@ -8,5 +8,5 @@ using MediatR;
 
 namespace BarberBooking.API.CQRS.AppointmentsCommands
 {
-    public record CreateAppointmentCommand(DtoCreateAppointment DtoCreateAppointment):IRequest<Result<DtoCreateAppointmentInfo>>;
+    public record CreateAppointmentCommand(DtoCreateAppointment DtoCreateAppointment):IRequest<Result<string>>;
 }

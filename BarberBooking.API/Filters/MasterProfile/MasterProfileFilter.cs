@@ -7,7 +7,7 @@ namespace BarberBooking.API.Filters.MasterProfile
 {
     public class MasterProfileFilter
     {
-        public decimal? MinRating {get; set;}
-        public decimal? MaxRating {get; set;}
+        public bool? MaxRating {get; set;}
+        public bool? Popular {get; set;}
     }
 }

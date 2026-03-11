@@ -29,7 +29,7 @@ namespace BarberBooking.API.Controllers
                 return BadRequest(result.Error);
             return Ok(result.Value);
         }
-        [HttpDelete("Delete-MasterSubscription{Id}")]
+        [HttpDelete("Delete-MasterSubscription/{Id}")]
         public async Task<IActionResult> DeleteMasterSubscription(Guid Id)
         {
             var command = new DeleteMasterSubscriptionCommand(Id);

@@ -51,7 +51,7 @@ namespace BarberBooking.API.Controllers
                 return BadRequest(new { error = result.Error });
             return Ok(result.Value);
         }
-        [HttpGet("get-availableSlots{masterId}")]
+        [HttpGet("get-availableSlots/{masterId}")]
         public async Task<IActionResult> GetAvailableSlots(Guid masterId, [FromQuery] DateOnly date, [FromQuery] TimeSpan serviceDuration)
         {
             var query = new GetAvailableSlotsAsyncQuery(masterId, date, serviceDuration);

@@ -5,14 +5,11 @@ using System.Threading.Tasks;
 
 namespace BarberBooking.API.Dto.DtoMasterProfile
 {
-    public class DtoMasterProfileShortInfo
+    public class DtoMasterProfileSubscriptionInfo
     {
         public Guid Id {get; private set;}
-        public string UserName { get; private set; }
-        public string? Specialization { get; private set; }
+        public string MasterName {get; private set;}
         public string? AvatarUrl { get; private set; }
         public decimal Rating {get; private set;}
-        public int RatingCount {get; private set;}
-        public Guid SalonId {get; private set;}
     }
 }

@@ -21,20 +21,24 @@ namespace BarberBooking.API.CQRS.Reviews.Command.Handlers
         private readonly IRatingService _ratingService;
         private readonly IUserContext _userContext;
         private readonly IReviewRepository _reviewRepository;
-        private readonly IEventStoreRepository _eventStoreRepository;
-        public CreateReviewHandler(IMapper mapper, IUnitOfWork unitOfWork, IRatingService ratingService, IUserContext userContext, IReviewRepository reviewRepository, IEventStoreRepository eventStoreRepository)
+        private readonly IValidateReviewRepository _validateReviewRepository;
+        public CreateReviewHandler(IMapper mapper, IUnitOfWork unitOfWork, IRatingService ratingService, IUserContext userContext, IReviewRepository reviewRepository, IValidateReviewRepository validateReviewRepository)
         {
             _mapper = mapper;
             _unitOfWork = unitOfWork;
             _ratingService = ratingService;
             _userContext = userContext;
             _reviewRepository = reviewRepository;
-            _eventStoreRepository = eventStoreRepository;
+            _validateReviewRepository = validateReviewRepository;
         }
 
         public async Task<Result<DtoReviewInfo>> Handle(CreateReviewCommand command, CancellationToken cancellationToken)
         {
             var userId = _userContext.UserId;
+            var valid = await _validateReviewRepository.Validate(command.dtoCreateReview);
+            if(valid.IsFailure)
+                return Result.Failure<DtoReviewInfo>(valid.Error);
+                
             var review = await _reviewRepository.GetReviewByAppointmentId(command.dtoCreateReview.AppointmentId);
             if(review != null)
                 return Result.Failure<DtoReviewInfo>("Вы уже оставляли отзыв на эту запись");

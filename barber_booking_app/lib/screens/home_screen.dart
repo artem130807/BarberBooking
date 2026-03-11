@@ -68,7 +68,7 @@ class _HomeScreenState extends State<HomeScreen> {
         Navigator.pushNamed(context, '/appointments_screen');
         break;
       case 3:
-        Navigator.pushNamed(context, '/favorites');
+        Navigator.pushNamed(context, '/favorites_screen');
         break;
       case 4:
         Navigator.pushNamed(context, '/profile');

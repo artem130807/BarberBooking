@@ -12,7 +12,7 @@ using MediatR;
 
 namespace BarberBooking.API.CQRS.AppointmentsCommands.Handlers
 {
-    public class CreateAppointmentHandler : IRequestHandler<CreateAppointmentCommand, Result<DtoCreateAppointmentInfo>>
+    public class CreateAppointmentHandler : IRequestHandler<CreateAppointmentCommand, Result<string>>
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IAppointmentsRepository _appointmentsRepository;
@@ -27,17 +27,17 @@ namespace BarberBooking.API.CQRS.AppointmentsCommands.Handlers
             _servicesRepository = servicesRepository;     
             _userContext = userContext;     
         }
-        public async Task<Result<DtoCreateAppointmentInfo>> Handle(CreateAppointmentCommand command, CancellationToken cancellationToken)
+        public async Task<Result<string>> Handle(CreateAppointmentCommand command, CancellationToken cancellationToken)
         {
             var userId = _userContext.UserId;
             if (userId == Guid.Empty)
-                return Result.Failure<DtoCreateAppointmentInfo>("Пользователь не авторизован");
+                return Result.Failure<string>("Пользователь не авторизован");
             var appointmentDate = await _appointmentsRepository.GetByMasterIdAndDate(command.DtoCreateAppointment.MasterId ,command.DtoCreateAppointment.AppointmentDate, command.DtoCreateAppointment.StartTime);
             if(appointmentDate != null)
-                return Result.Failure<DtoCreateAppointmentInfo>("На это время уже есть запись");
+                return Result.Failure<string>("На это время уже есть запись");
             var service = await _servicesRepository.GetByIdAsync(command.DtoCreateAppointment.ServiceId);
             if(service == null)
-                return Result.Failure<DtoCreateAppointmentInfo>("Услуги не существует");
+                return Result.Failure<string>("Услуги не существует");
             var dtoAppointmet = _mapper.Map<Models.Appointments>(command.DtoCreateAppointment);
             var serviceDuration = TimeSpan.FromMinutes(service.DurationMinutes);
             var endTime = dtoAppointmet.StartTime.Add(serviceDuration);
@@ -55,8 +55,8 @@ namespace BarberBooking.API.CQRS.AppointmentsCommands.Handlers
                 _unitOfWork.RollBack();
                 throw new InvalidOperationException(ex.Message);
             }
-            var result =  _mapper.Map<DtoCreateAppointmentInfo>(appointment);
-            return Result.Success(result);
+            // var result =  _mapper.Map<DtoCreateAppointmentInfo>(appointment);
+            return Result.Success("Успешно");
         }
     }
 }

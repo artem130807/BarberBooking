@@ -1,8 +1,12 @@
 import 'package:barber_booking_app/models/master_models/response/get_master_response.dart';
+import 'package:barber_booking_app/models/master_subscription_models/request/create_subscription_request.dart';
 import 'package:barber_booking_app/models/params/page_params.dart';
 import 'package:barber_booking_app/models/params/review_params/review_sort_params.dart';
 import 'package:barber_booking_app/models/review_models/response/get_reviews_master_response.dart';
+import 'package:barber_booking_app/providers/auth_providers/auth_provider.dart';
 import 'package:barber_booking_app/providers/master_providers/get_master_provider.dart';
+import 'package:barber_booking_app/providers/master_subscription_providers/create_subscription_provider.dart';
+import 'package:barber_booking_app/providers/master_subscription_providers/delete_subscription_provider.dart';
 import 'package:barber_booking_app/providers/review_providers/get_reviews_master_provider.dart';
 import 'package:barber_booking_app/utils/date_formatter.dart';
 import 'package:barber_booking_app/widgets/loading_indicator.dart';
@@ -22,6 +26,8 @@ class MasterDetailScreen extends StatefulWidget {
 class _MasterDetailScreenState extends State<MasterDetailScreen> {
   final PageParams _reviewsPageParams = PageParams(Page: 1, PageSize: 5);
   final ReviewSortParams _reviewSortParams = ReviewSortParams();
+  bool _isSubscribed = false;
+  String? _subscriptionId;
 
   @override
   void initState() {
@@ -34,8 +40,54 @@ class _MasterDetailScreenState extends State<MasterDetailScreen> {
     });
   }
 
+  Future<void> _toggleSubscription(
+    BuildContext context,
+    bool currentState,
+    String masterId,
+    String token,
+  ) async {
+    if (currentState) {
+      if (_subscriptionId == null) return;
+      final deleteProvider = Provider.of<DeleteSubscriptionProvider>(context, listen: false);
+      final success = await deleteProvider.deleteSubscription(_subscriptionId!);
+      if (success && mounted) {
+        setState(() {
+          _isSubscribed = false;
+          _subscriptionId = null;
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Мастер удалён из избранного'), duration: Duration(seconds: 1)),
+        );
+      } else if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(deleteProvider.errorMessage ?? 'Ошибка при удалении')),
+        );
+      }
+    } else {
+      final createProvider = Provider.of<CreateSubscriptionProvider>(context, listen: false);
+      final request = CreateSubscriptionRequest(MasterId: masterId);
+      final success = await createProvider.createSubscription(request, token);
+      if (success && mounted) {
+        setState(() {
+          _isSubscribed = true;
+          _subscriptionId = createProvider.id;
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Мастер добавлен в избранное'), duration: Duration(seconds: 1)),
+        );
+      } else if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(createProvider.errorMessage ?? 'Ошибка при добавлении')),
+        );
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    final authProvider = Provider.of<AuthProvider>(context);
+    final token = authProvider.token;
+
     return Consumer2<GetMasterProvider, GetReviewsMasterProvider>(
       builder: (context, masterProvider, reviewsProvider, child) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -75,6 +127,17 @@ class _MasterDetailScreenState extends State<MasterDetailScreen> {
         return Scaffold(
           appBar: AppBar(
             title: Text(master.UserName ?? 'Мастер'),
+            actions: [
+              IconButton(
+                icon: Icon(
+                  _isSubscribed ? Icons.favorite : Icons.favorite_border,
+                  color: _isSubscribed ? Colors.red : null,
+                ),
+                onPressed: token == null
+                    ? null
+                    : () => _toggleSubscription(context, _isSubscribed, widget.masterId, token),
+              ),
+            ],
           ),
           body: SingleChildScrollView(
             child: Column(
@@ -353,7 +416,6 @@ class _MasterDetailScreenState extends State<MasterDetailScreen> {
           alignment: Alignment.centerRight,
           child: TextButton(
             onPressed: () {
-              // Переход на экран со всеми отзывами
               Navigator.pushNamed(
                 context,
                 '/master_reviews',
@@ -466,10 +528,5 @@ class ReviewTitle extends StatelessWidget {
         ],
       ),
     );
-  }
-
-  String _formatDate(DateTime? date) {
-    if (date == null) return '';
-    return '${date.day}.${date.month}.${date.year}';
   }
 }

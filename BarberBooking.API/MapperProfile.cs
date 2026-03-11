@@ -7,6 +7,7 @@ using BarberBooking.API.Domain.ValueObjects;
 using BarberBooking.API.Dto;
 using BarberBooking.API.Dto.DtoAppointments;
 using BarberBooking.API.Dto.DtoMasterProfile;
+using BarberBooking.API.Dto.DtoMasterSubscription;
 using BarberBooking.API.Dto.DtoMasterTimeSlot;
 using BarberBooking.API.Dto.DtoReview;
 using BarberBooking.API.Dto.DtoSalons;
@@ -67,7 +68,9 @@ namespace BarberBooking.API
             .ForMember(dest => dest.CreatedAt, opt => opt.Ignore());
 
             CreateMap<MasterProfile, DtoCreateProfileInfo>();
-            
+            CreateMap<MasterProfile, DtoMasterProfileSubscriptionInfo>()
+            .ForMember(dest => dest.MasterName, opt => opt.MapFrom(src => src.User.Name));
+           
             CreateMap<MasterProfile, DtoMasterProfileInfo>()
             .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
             .ForMember(dest => dest.UserName, opt => opt.MapFrom(src => src.User != null ? src.User.Name : string.Empty))
@@ -94,7 +97,8 @@ namespace BarberBooking.API
             .ForMember(dest => dest.SalonName, opt => opt.MapFrom(src => src.Salon.Name));
 
             CreateMap<Appointments, DtoClientAppointmentShortInfo>()
-            .ForMember(dest => dest.MasterName, opt => opt.MapFrom(src => src.Master.User.Name))
+            .ForMember(dest => dest.MasterProfileNavigation, opt => opt.MapFrom(src => src.Master))
+            .ForMember(dest => dest.SalonNavigation, opt => opt.MapFrom(src => src.Salon))
             .ForMember(dest => dest.ServiceName, opt => opt.MapFrom(src => src.Service.Name))
             .ForMember(dest => dest.Price, opt => opt.MapFrom(src => src.Service.Price));
 
@@ -147,6 +151,11 @@ namespace BarberBooking.API
             CreateMap<MasterTimeSlot, DtoMasterTimeSlotInfo>();
             CreateMap<MasterTimeSlot, DtoCreateTimeSlotInfo>();
             CreateMap<MasterTimeSlot, DtoMasterProfileNavigation>();
+
+            ///Избранное
+            CreateMap<DtoCreateMasterSubscription, MasterSubscription>();
+            CreateMap<MasterSubscription, DtoMasterSubscriptionShortInfo>()
+            .ForMember(dest => dest.masterProfileNavigation, opt => opt.MapFrom(src => src.MasterProfile));
             ///Пользователи
             CreateMap<Users, DtoUsersNavigation>();
             ///ValueObject

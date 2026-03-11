@@ -51,7 +51,7 @@ class _AppointmentsScreenState extends State<AppointmentsScreen>
         // уже на этом экране
         break;
       case 3:
-        Navigator.pushReplacementNamed(context, '/favorites');
+        Navigator.pushReplacementNamed(context, '/favorites_screen');
         break;
       case 4:
         Navigator.pushReplacementNamed(context, '/profile');
