@@ -80,7 +80,6 @@ class _DateTimeSelectionScreenState extends State<DateTimeSelectionScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Запись создана!')),
       );
-      // Возвращаемся на главный экран (или на экран записей)
       Navigator.popUntil(context, (route) => route.isFirst);
     } else if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(

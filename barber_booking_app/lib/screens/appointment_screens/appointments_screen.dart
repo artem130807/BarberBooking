@@ -45,7 +45,7 @@ class _AppointmentsScreenState extends State<AppointmentsScreen>
         Navigator.pushReplacementNamed(context, '/home');
         break;
       case 1:
-        Navigator.pushReplacementNamed(context, '/search');
+        Navigator.pushReplacementNamed(context, '/search_screen');
         break;
       case 2:
         // уже на этом экране

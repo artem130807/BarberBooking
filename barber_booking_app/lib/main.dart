@@ -14,8 +14,10 @@ import 'package:barber_booking_app/providers/salon_providers/get_salon_provider.
 import 'package:barber_booking_app/providers/salon_providers/get_salons_provider.dart';
 import 'package:barber_booking_app/providers/salon_providers/get_salons_by_service_provider.dart';
 import 'package:barber_booking_app/providers/salon_providers/get_salons_search_provider.dart';
+import 'package:barber_booking_app/providers/service_providers/get_service_search_provider.dart';
 import 'package:barber_booking_app/providers/service_providers/get_services_provider.dart';
 import 'package:barber_booking_app/providers/time_slot_providers/get_slots_provider.dart';
+import 'package:barber_booking_app/providers/user_providers/get_user_provider.dart';
 import 'package:barber_booking_app/screens/appointment_screens/appointments_screen.dart';
 import 'package:barber_booking_app/screens/review_screens/reviews_by_master_screen.dart';
 import 'package:barber_booking_app/screens/review_screens/reviews_by_salon_screen.dart';
@@ -25,7 +27,9 @@ import 'package:barber_booking_app/screens/salon_screens/salon_masters_screen.da
 import 'package:barber_booking_app/screens/salon_screens/salons_by_service_screen.dart';
 import 'package:barber_booking_app/screens/salon_screens/salons_screen.dart';
 import 'package:barber_booking_app/screens/salon_screens/search_results_screen.dart';
+import 'package:barber_booking_app/screens/service_screens/search_services_screen.dart';
 import 'package:barber_booking_app/screens/subscribtions_screens/favorites_screen.dart';
+import 'package:barber_booking_app/screens/user_screens/profile_screen.dart';
 import 'package:flutter/material.dart';
 import 'screens/auth_screens/login_screen.dart';
 import 'screens/auth_screens/register_screen.dart';
@@ -66,7 +70,9 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => CreateAppointmentProvider()),
         ChangeNotifierProvider(create: (_) => CreateSubscriptionProvider()),
         ChangeNotifierProvider(create: (_) => DeleteSubscriptionProvider()),
-        ChangeNotifierProvider(create: (_) => GetSubscriptionsProvider())
+        ChangeNotifierProvider(create: (_) => GetSubscriptionsProvider()),
+        ChangeNotifierProvider(create: (_) => GetServiceSearchProvider()),
+        ChangeNotifierProvider(create: (_) => GetUserProvider()),
       ],
       child: MaterialApp(
         title: 'BarberBooking',
@@ -93,6 +99,8 @@ class MyApp extends StatelessWidget {
           '/salons_screen': (context) => const SalonsScreen(),
           '/appointments_screen': (context) => const AppointmentsScreen(),
           '/favorites_screen':(context) => const FavoritesScreen(),
+          '/search_screen':(context) => const SearchServicesScreen(),
+          '/profile':(context) => const ProfileScreen(),
           '/master_reviews': (context) {
             final masterId = ModalRoute.of(context)!.settings.arguments as String;
             return ReviewsByMasterScreen(masterId: masterId);
