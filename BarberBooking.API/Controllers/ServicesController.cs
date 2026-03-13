@@ -2,9 +2,11 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using BarberBooking.API.CQRS.Services.ServicesQueries;
 using BarberBooking.API.CQRS.ServicesCommands;
 using BarberBooking.API.CQRS.ServicesQueries;
 using BarberBooking.API.Dto.DtoServices;
+using BarberBooking.API.Filters;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
@@ -60,6 +62,15 @@ namespace BarberBooking.API.Controllers
             var query = new GetBySalonAsyncQuery(salonId);
             var result = await _mediator.Send(query);
             return Ok(result);
+        }
+        [HttpGet("get-services-by-startWith")]
+         public async Task<IActionResult> GetServicesByStartWith([FromQuery] string name, [FromQuery] PageParams pageParams)
+        {
+            var query = new GetServicesNameStartWithQuery(name, pageParams);
+            var result = await _mediator.Send(query);
+            if(result.IsFailure)
+                return BadRequest(new { error = result.Error });
+            return Ok(result.Value);
         }
     }
 }

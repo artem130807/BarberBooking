@@ -21,8 +21,8 @@ namespace BarberBooking.API.CQRS.ServicesCommands.Handlers
         }
         public async Task<DtoServicesShortInfo> Handle(ServicesCreateAsyncCommand command, CancellationToken cancellationToken)
         {
-            var dtoService = _mapper.Map<Services>(command.dtoCreateServices);
-            var service = Services.Create(dtoService);
+            var dtoService = _mapper.Map<Models.Services>(command.dtoCreateServices);
+            var service = Models.Services.Create(dtoService);
             try
             {
                 _unitOfWork.BeginTransaction();

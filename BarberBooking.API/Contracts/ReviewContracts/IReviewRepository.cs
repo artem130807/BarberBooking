@@ -19,5 +19,6 @@ namespace BarberBooking.API.Contracts.ReviewContracts
         Task<PagedResult<Review>> GetReviewsBySalonIdSort(Guid salonId, PageParams pageParams, ReviewSort sort);
         Task<PagedResult<Review>> GetReviewsByMasterIdSort(Guid masterId, PageParams pageParams, ReviewSort sort);
         Task<Review> GetReviewByAppointmentId(Guid appointmentId);
+        Task<PagedResult<Review>> GetReviewsByClientId(Guid clientId, PageParams pageParams);
     }
 }

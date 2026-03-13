@@ -84,5 +84,16 @@ namespace BarberBooking.API.Repositories
             .FilterReviewMaster(sort)
             .ToPagedAsync(pageParams);
         }
+        public async Task<PagedResult<Review>> GetReviewsByClientId(Guid clientId, PageParams pageParams)
+        {
+            return await _context.Reviews
+            .Include(x => x.Salon)
+            .Include(x => x.Appointment)
+            .ThenInclude(x => x.Service)
+            .Include(x => x.MasterProfile)
+            .Include(x => x.Client)
+            .Where(x => x.ClientId == clientId)
+            .ToPagedAsync(pageParams);
+        }
     }
 }

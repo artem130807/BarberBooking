@@ -48,6 +48,15 @@ namespace BarberBooking.API.Controllers
                 return BadRequest(result.Error);
             return Ok(result.Value);
         }
+        [HttpGet("GetReviewsByClientId")]
+        public async Task<IActionResult> GetReviewsByClientId([FromQuery] PageParams pageParams)
+        {
+            var command = new GetReviewsByClientIdQuery(pageParams);
+            var result = await _mediator.Send(command);
+            if(result.IsFailure)
+                return BadRequest(result.Error);
+            return Ok(result.Value);
+        }
         [HttpGet("GetReviewsByMasterId/{masterId}")]
         public async Task<IActionResult> GetReviewsByMasterId(Guid masterId, [FromQuery] PageParams pageParams)
         {

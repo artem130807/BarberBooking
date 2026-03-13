@@ -80,7 +80,7 @@ namespace BarberBooking.API.CQRS.Commands.Handlers
             
             var PhoneValueObject = PhoneNumber.Create(command.dtoCreateUser.Phone.Number).Value;
             
-            var newuser = new Users
+            var newuser = new Models.Users
             {
                 Id = Guid.NewGuid(),
                 Name = command.dtoCreateUser.Name,

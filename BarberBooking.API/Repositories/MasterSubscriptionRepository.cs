@@ -38,7 +38,13 @@ namespace BarberBooking.API.Repositories
 
         public async Task<List<MasterSubscription>> GetMasterSubscriptions(Guid userId)
         {
-            return await _context.MasterSubscriptions.Include(x => x.MasterProfile).ThenInclude(x => x.User).Where(x => x.ClientId == userId).ToListAsync();
+            return await _context.MasterSubscriptions
+            .Include(x => x.MasterProfile)
+            .ThenInclude(x => x.Salon)
+            .Include(x => x.MasterProfile)
+            .ThenInclude(x => x.User)
+            .Where(x => x.ClientId == userId)
+            .ToListAsync();
         }
     }
 }

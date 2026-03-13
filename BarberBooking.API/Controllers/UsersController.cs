@@ -6,6 +6,7 @@ using BarberBooking.API.Contracts;
 using BarberBooking.API.Contracts.EmailContracts;
 using BarberBooking.API.CQRS.Commands;
 using BarberBooking.API.CQRS.Queries;
+using BarberBooking.API.CQRS.Users.QueriesUser;
 using BarberBooking.API.Dto.DtoAuthorization;
 using BarberBooking.API.Dto.DtoUsers;
 using MediatR;
@@ -76,6 +77,15 @@ namespace BarberBooking.API.Controllers
         public async Task<IActionResult> UpdatePassword([FromBody] DtoUpdatePassword dtoUpdatePassword)
         {
             var command = new UpdatePasswordHashCommand(dtoUpdatePassword);     
+            var result = await _mediator.Send(command);
+            if (result.IsFailure)
+                return BadRequest(result.Error);
+            return Ok(result.Value);
+        }
+        [HttpGet("get-user-by-token-id")]
+        public async Task<IActionResult> GetUserByTokenId()
+        {
+            var command = new GetUserByTokenIdQuery();     
             var result = await _mediator.Send(command);
             if (result.IsFailure)
                 return BadRequest(result.Error);

@@ -2,6 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using BarberBooking.API.Filters;
+using BarberBooking.API.Filters.Services;
 using BarberBooking.API.Models;
 
 namespace BarberBooking.API.Contracts
@@ -13,5 +15,6 @@ namespace BarberBooking.API.Contracts
         Task<List<Services>> GetBySalonAsync(Guid salonId);
         Task<List<Services>> GetActiveBySalonAsync(Guid salonId);
         Task<Services> DeleteAsync(Guid id);
+        Task<PagedResult<Services>> GetServicesNameStartWith(SearchServicesParams searchParams, PageParams pageParams);
     }
 }
