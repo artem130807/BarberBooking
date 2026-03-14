@@ -102,6 +102,16 @@ namespace BarberBooking.API
             .ForMember(dest => dest.MasterName, opt => opt.MapFrom(src => src.User.Name));
 
             ///Записи
+            CreateMap<Appointments, DtoAppointmentAwaitingReview>()
+            .ForMember(dest => dest.dtoMasterProfileNavigation, opt => opt.MapFrom(src => src.Master))
+            .ForMember(dest => dest.dtoServicesNavigation, opt => opt.MapFrom(src => src.Service))
+            .ForMember(dest => dest.dtoSalonNavigation, opt => opt.MapFrom(src => src.Salon));
+
+
+            CreateMap<PagedResult<Appointments>, PagedResult<DtoAppointmentAwaitingReview>>()
+            .ForMember(dest => dest.Data, opt => opt.MapFrom(src => src.Data))
+            .ForMember(dest => dest.Count, opt => opt.MapFrom(src => src.Count));
+
             CreateMap<Appointments, DtoCreateAppointmentInfo>();
             CreateMap<Appointments, DtoClientAppointmentInfo>()
             .ForMember(dest => dest.dtoMasterProfileNavigation, opt => opt.MapFrom(src => src.Master))
@@ -116,7 +126,7 @@ namespace BarberBooking.API
 
             CreateMap<DtoCreateAppointment, Appointments>()
             .ForMember(dest => dest.Id, opt => opt.Ignore())
-            .ForMember(dest => dest.Status, opt => opt.MapFrom(src => AppointmentStatusEnum.Pending))
+            .ForMember(dest => dest.Status, opt => opt.MapFrom(src => AppointmentStatusEnum.Confirmed))
             .ForMember(dest => dest.CreatedAt, opt => opt.MapFrom(src => DateTime.UtcNow))
             .ForMember(dest => dest.UpdatedAt, opt => opt.MapFrom(src => DateTime.UtcNow))
             .ForMember(dest => dest.EndTime, opt => opt.MapFrom(src => src.StartTime)); 
@@ -145,6 +155,7 @@ namespace BarberBooking.API
             .ForMember(dest => dest.PhotoUrl, opt => opt.MapFrom(src => src.Service.PhotoUrl));
             ///Отзывы
             CreateMap<DtoCreateReview, Review>();
+            CreateMap<DtoUpdateReview, Review>();
             CreateMap<Review, DtoReviewInfo>();
 
             CreateMap<Review, DtoReviewMasterShortInfo>()

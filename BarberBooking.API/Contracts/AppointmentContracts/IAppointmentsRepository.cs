@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using BarberBooking.API.Filters;
 using BarberBooking.API.Models;
 
 namespace BarberBooking.API.Contracts
@@ -15,6 +16,7 @@ namespace BarberBooking.API.Contracts
         Task<List<Appointments>> GetAppointmentsByClientId(Guid clientId);
         Task<List<Appointments>> GetAppointmentsByMasterId(Guid masterId);
         Task<List<Appointments>> GetByClientIdAndDate(Guid clientId, DateTime appointmentDateTime);
+        Task<PagedResult<Appointments>> GetCompletedAppointmentsByClientId(Guid clientId, PageParams pageParams);
         Task<Appointments> GetByMasterIdAndDate(Guid masterId, DateTime appointmentDateTime, TimeOnly startTime);
     }
 }

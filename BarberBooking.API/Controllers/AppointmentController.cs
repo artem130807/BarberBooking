@@ -7,6 +7,7 @@ using BarberBooking.API.CQRS.AppointmentsCommands;
 using BarberBooking.API.CQRS.AppointmentsCommands.Handlers;
 using BarberBooking.API.CQRS.AppointmentsQueries;
 using BarberBooking.API.Dto.DtoAppointments;
+using BarberBooking.API.Filters;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
@@ -87,6 +88,15 @@ namespace BarberBooking.API.Controllers
         {
             var query = new GetAppointmentsByMasterIdAndDateQuery(date, startTime);
             var result = await _mediator.Send(query);
+            return Ok(result.Value);
+        }
+        [HttpGet("GetAppointmentsAwaitingReview")]
+        public async Task<IActionResult> GetAppointmentsAwaitingReview([FromQuery] PageParams pageParams)
+        {
+            var query = new GetAwaitingReviewQuery(pageParams);
+            var result = await _mediator.Send(query);
+            if (result.IsFailure)
+                return BadRequest(result.Error);
             return Ok(result.Value);
         }
     }

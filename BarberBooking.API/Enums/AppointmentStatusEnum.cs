@@ -2,8 +2,7 @@ namespace BarberBooking.API.Enums
 {
     public enum AppointmentStatusEnum
     {
-        Pending, 
-        Confirmed, 
+        Confirmed,
         Completed, 
         Cancelled
     }

@@ -39,5 +39,7 @@ namespace BarberBooking.API.Models
             return review;
         }
         public void UpdateComment(string comment) => Comment = comment;
+        public void UpdateSalonRating(int salonRating) => SalonRating = salonRating;
+        public void UpdateMasterRating(int masterRating) => MasterRating = masterRating;
     }
 }

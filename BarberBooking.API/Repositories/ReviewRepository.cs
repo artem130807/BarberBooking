@@ -65,7 +65,15 @@ namespace BarberBooking.API.Repositories
             .Where(x => x.SalonId == salonId)
             .ToListAsync();
         }
-
+        public async Task<List<Review>> GetListReviewsByMasterId(Guid masterId)
+        {
+            return await _context.Reviews
+            .Include(x => x.Client)
+            .Include(x => x.MasterProfile)
+            .Include(x => x.Salon)
+            .Where(x => x.MasterProfileId == masterId)
+            .ToListAsync();
+        }
         public async Task<PagedResult<Review>> GetReviewsBySalonIdSort(Guid salonId, PageParams pageParams, ReviewSort sort)
         {
             return await _context.Reviews

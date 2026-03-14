@@ -84,5 +84,14 @@ namespace BarberBooking.API.Controllers
                 return BadRequest(result.Error);
             return Ok(result.Value);
         }
+        [HttpPatch("UpdateReview/{Id}")]
+        public async Task<IActionResult> UpdateReview(Guid Id, [FromBody] DtoUpdateReview dtoUpdateReview)
+        {
+            var command = new UpdateReviewCommand(Id, dtoUpdateReview);
+            var result = await _mediator.Send(command);
+            if(result.IsFailure)
+                return BadRequest(result.Error);
+            return Ok(result.Value);
+        }
     }
 }

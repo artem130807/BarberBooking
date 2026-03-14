@@ -16,7 +16,7 @@ namespace BarberBooking.API.Dto.DtoAppointments
         public string SalonName { get; private set;}
         public DtoUsersNavigation dtoUsersNavigation {get; private set;}
         public DtoServicesNavigation dtoServicesNavigation {get; private set;}
-        public AppointmentStatusEnum Status {get; private set;} = AppointmentStatusEnum.Pending;
+        public AppointmentStatusEnum Status {get; private set;} = AppointmentStatusEnum.Confirmed;
         public TimeOnly StartTime { get; private set; }
         public TimeOnly EndTime { get; private set; } 
         public DateTime AppointmentDate {get; private set;} 

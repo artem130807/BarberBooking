@@ -98,6 +98,7 @@ builder.Services.AddScoped<ICityService, CityService>();
 builder.Services.AddScoped<IBadWordService, BadWordService>();
 builder.Services.AddScoped<IValidateReviewRepository, ValidateReviewRepository>();
 builder.Services.AddScoped<IUpdateReviewService, UpdateReviewService>();
+builder.Services.AddScoped<IUpdateRatingService, UpdateRatingService>();
 var app = builder.Build();
 app.InitializingCache();
 // Configure the HTTP request pipeline.

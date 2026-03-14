@@ -2,8 +2,11 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Azure;
 using BarberBooking.API.Contracts;
 using BarberBooking.API.Enums;
+using BarberBooking.API.Filters;
+using BarberBooking.API.Filters.ReviewFilters;
 using BarberBooking.API.Models;
 using Microsoft.EntityFrameworkCore;
 
@@ -66,7 +69,7 @@ namespace BarberBooking.API.Repositories
             .Include(x => x.Salon)
             .Include(x => x.Master)
             .Include(x => x.Service)
-            .Where(x =>  x.ClientId == clientId && x.Status == AppointmentStatusEnum.Pending)
+            .Where(x =>  x.ClientId == clientId && x.Status == AppointmentStatusEnum.Confirmed)
             .ToListAsync();
         }
 
@@ -83,6 +86,13 @@ namespace BarberBooking.API.Repositories
         public async Task<Appointments> GeAppointmentByMasterIdAndDate(Guid masterId, DateTime date)
         {
             return await _context.Appointments.FirstOrDefaultAsync(x => x.MasterId == masterId && x.AppointmentDate == date);
+        }
+
+        public async Task<PagedResult<Appointments>> GetCompletedAppointmentsByClientId(Guid clientId, PageParams pageParams)
+        {        
+            return await _context.Appointments
+            .Where(a => a.ClientId == clientId && a.Status == AppointmentStatusEnum.Completed)
+            .Where(a => !_context.Reviews.Any(r => r.AppointmentId == a.Id)).ToPagedAsync(pageParams);
         }
     }
 }

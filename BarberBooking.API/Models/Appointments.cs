@@ -16,7 +16,7 @@ namespace BarberBooking.API.Models
         public Guid ServiceId { get; private set; }
         public Guid TimeSlotId { get; private set; }
         public string? ClientNotes {get; private set;}
-        public AppointmentStatusEnum Status {get; private set;} = AppointmentStatusEnum.Pending;
+        public AppointmentStatusEnum Status {get; private set;} = AppointmentStatusEnum.Confirmed;
         public TimeOnly StartTime { get; private set; }
         public TimeOnly EndTime { get; private set; } 
         public DateTime AppointmentDate {get; private set;} 
@@ -40,7 +40,7 @@ namespace BarberBooking.API.Models
                 ServiceId = serviceId,
                 TimeSlotId = timeSlotId,
                 ClientNotes = clientNotes,
-                Status = AppointmentStatusEnum.Pending,
+                Status = AppointmentStatusEnum.Confirmed,
                 StartTime = startTime,
                 EndTime = endTime,
                 AppointmentDate = appointmentDate,
