@@ -91,5 +91,23 @@ namespace BarberBooking.API.Controllers
                 return BadRequest(result.Error);
             return Ok(result.Value);
         }
+        [HttpPatch("updateCity")]
+        public async Task<IActionResult> UpdateCity([FromQuery] string city)
+        {
+            var command = new UpdateCityCommand(city);     
+            var result = await _mediator.Send(command);
+            if (result.IsFailure)
+                return BadRequest(result.Error);
+            return Ok(result.Value);
+        }
+        [HttpGet("get_cities")]
+        public async Task<IActionResult> GetCities([FromQuery] string city)
+        {
+            var command = new GetUserCitiesQuery(city);     
+            var result = await _mediator.Send(command);
+            if (result.IsFailure)
+                return BadRequest(result.Error);
+            return Ok(result.Value);
+        }
     }
 }

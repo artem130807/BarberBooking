@@ -77,6 +77,7 @@ namespace BarberBooking.API.Repositories
         {
             return await _context.Appointments
             .Include(x => x.Salon)
+            .Include(x => x.Client)
             .Include(x => x.Master)
             .Include(x => x.Service)
             .Where(x =>  x.MasterId == masterId)
@@ -90,7 +91,7 @@ namespace BarberBooking.API.Repositories
 
         public async Task<PagedResult<Appointments>> GetCompletedAppointmentsByClientId(Guid clientId, PageParams pageParams)
         {        
-            return await _context.Appointments
+            return await _context.Appointments.Include(x => x.Salon).Include(x => x.Master).Include(x => x.Service)
             .Where(a => a.ClientId == clientId && a.Status == AppointmentStatusEnum.Completed)
             .Where(a => !_context.Reviews.Any(r => r.AppointmentId == a.Id)).ToPagedAsync(pageParams);
         }

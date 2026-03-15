@@ -30,7 +30,7 @@ namespace BarberBooking.API.Controllers
                 return BadRequest(result.Error);
             return Ok(result.Value);
         }
-        [HttpDelete("Delete-Review{Id}")]
+        [HttpDelete("Delete-Review/{Id}")]
         public async Task<IActionResult> DeleteReview(Guid Id)
         {
             var command = new DeleteReviewCommand(Id);

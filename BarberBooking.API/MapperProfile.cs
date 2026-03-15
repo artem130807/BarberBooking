@@ -29,7 +29,8 @@ namespace BarberBooking.API
             CreateMap<DtoUpdateServices, Services>();
             CreateMap<Services, DtoServicesShortInfo>();
             CreateMap<Services, DtoServicesInfo>();
-            CreateMap<Services, DtoServicesNavigation>();
+            CreateMap<Services, DtoServicesNavigation>()
+            .ForMember(dest => dest.Price, opt => opt.MapFrom(src => src.Price));
             CreateMap<Services, DtoServicesSearchResult>()
             .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
             .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
@@ -41,6 +42,7 @@ namespace BarberBooking.API
             CreateMap<PagedResult<Services>, PagedResult<DtoServicesSearchResult>>()
             .ForMember(dest => dest.Data, opt => opt.MapFrom(src => src.Data))
             .ForMember(dest => dest.Count, opt => opt.MapFrom(src => src.Count));
+
             ///Салоны
             CreateMap<DtoCreateSalon, Salons>();
             CreateMap<DtoUpdateSalon, Salons>();

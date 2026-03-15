@@ -22,7 +22,9 @@ namespace BarberBooking.API.CQRS.Reviews.Command.Handlers
         private readonly IUserContext _userContext;
         private readonly IReviewRepository _reviewRepository;
         private readonly IValidateReviewRepository _validateReviewRepository;
-        public CreateReviewHandler(IMapper mapper, IUnitOfWork unitOfWork, IRatingService ratingService, IUserContext userContext, IReviewRepository reviewRepository, IValidateReviewRepository validateReviewRepository)
+        private readonly IUserRepository _userRepository;
+
+        public CreateReviewHandler(IMapper mapper, IUnitOfWork unitOfWork, IRatingService ratingService, IUserContext userContext, IReviewRepository reviewRepository, IValidateReviewRepository validateReviewRepository, IUserRepository userRepository)
         {
             _mapper = mapper;
             _unitOfWork = unitOfWork;
@@ -30,11 +32,19 @@ namespace BarberBooking.API.CQRS.Reviews.Command.Handlers
             _userContext = userContext;
             _reviewRepository = reviewRepository;
             _validateReviewRepository = validateReviewRepository;
+            _userRepository = userRepository;
         }
 
         public async Task<Result<DtoReviewInfo>> Handle(CreateReviewCommand command, CancellationToken cancellationToken)
         {
+            if (!_userContext.IsAuthenticated || _userContext.UserId == Guid.Empty)
+                return Result.Failure<DtoReviewInfo>("Необходима авторизация");
+
             var userId = _userContext.UserId;
+            var user = await _userRepository.GetUserById(userId);
+            if (user == null)
+                return Result.Failure<DtoReviewInfo>("Пользователь не найден. Убедитесь, что вы зарегистрированы в приложении.");
+
             var valid = await _validateReviewRepository.Validate(command.dtoCreateReview);
             if(valid.IsFailure)
                 return Result.Failure<DtoReviewInfo>(valid.Error);

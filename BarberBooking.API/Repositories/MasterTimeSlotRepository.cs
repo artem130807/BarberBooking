@@ -1,17 +1,17 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using BarberBooking.API.Contracts;
 using BarberBooking.API.Models;
-using Microsoft.AspNetCore.Routing.Constraints;
 using Microsoft.EntityFrameworkCore;
 
 namespace BarberBooking.API.Repositories
 {
-    public class MasterTimeSlotRepository:IMasterTimeSlotRepository
+    public class MasterTimeSlotRepository : IMasterTimeSlotRepository
     {
+        private static readonly TimeSpan SlotStep = TimeSpan.FromMinutes(15);
+
         private readonly BarberBookingDbContext _context;
         private readonly ILogger<MasterTimeSlotRepository> _logger;
         public MasterTimeSlotRepository(BarberBookingDbContext context, ILogger<MasterTimeSlotRepository> logger)
@@ -50,69 +50,81 @@ namespace BarberBooking.API.Repositories
             var slots = await _context.MasterTimeSlots
                 .Include(x => x.Appointments)
                 .Where(x => x.MasterId == masterId && x.ScheduleDate == date)
+                .OrderBy(x => x.StartTime)
                 .ToListAsync();
 
-            if (!slots.Any())
+            if (slots.Count == 0)
                 return new List<MasterTimeSlot>();
 
-            var availableSlots = new List<MasterTimeSlot>();
-            var currentTime = TimeOnly.FromDateTime(DateTime.Now);
             var today = DateOnly.FromDateTime(DateTime.Now);
+            var currentTime = TimeOnly.FromDateTime(DateTime.Now);
+            var freeSegments = new List<(TimeOnly Start, TimeOnly End)>();
 
             foreach (var slot in slots)
             {
-                TimeOnly slotStart = slot.StartTime;
-                TimeOnly slotEnd = slot.EndTime;
+                TimeOnly segmentStart = slot.StartTime;
+                TimeOnly segmentEnd = slot.EndTime;
 
-                if (date == today && slotStart < currentTime)
+                if (date == today && segmentStart < currentTime)
                 {
-                    slotStart = currentTime;
-                    if (slotEnd - slotStart < serviceDuration)
+                    segmentStart = currentTime;
+                    if (segmentEnd <= segmentStart || (segmentEnd - segmentStart) < serviceDuration)
                         continue;
                 }
 
-                var appointments = slot.Appointments
+                var appointmentsOnDate = slot.Appointments
                     .Where(a => DateOnly.FromDateTime(a.AppointmentDate) == date)
                     .OrderBy(a => a.StartTime)
                     .ToList();
 
-                if (!appointments.Any())
+                if (appointmentsOnDate.Count == 0)
                 {
-                    var endTime = slotStart.Add(serviceDuration);
-                    if (endTime <= slotEnd)
-                    {
-                        availableSlots.Add(MasterTimeSlot.Create(
-                            slot.MasterId, date, slotStart, endTime));
-                    }
+                    freeSegments.Add((segmentStart, segmentEnd));
                     continue;
                 }
 
-                var previousEnd = slotStart;
-                foreach (var appointment in appointments)
+                var previousEnd = segmentStart;
+                foreach (var appointment in appointmentsOnDate)
                 {
-                    if (appointment.StartTime < slotStart)
-                        continue;
-
-                    var freeTime = appointment.StartTime - previousEnd;
-                    if (freeTime >= serviceDuration)
+                    if (appointment.StartTime <= segmentStart)
                     {
-                        var endTime = previousEnd.Add(serviceDuration);
-                        availableSlots.Add(MasterTimeSlot.Create(
-                            slot.MasterId, date, previousEnd, endTime));
+                        previousEnd = previousEnd > appointment.EndTime ? previousEnd : appointment.EndTime;
+                        continue;
                     }
-                    previousEnd = appointment.EndTime > previousEnd ? 
-                        appointment.EndTime : previousEnd;
+                    var freeEnd = appointment.StartTime;
+                    if ((freeEnd - previousEnd) >= serviceDuration)
+                        freeSegments.Add((previousEnd, freeEnd));
+                    previousEnd = previousEnd > appointment.EndTime ? previousEnd : appointment.EndTime;
                 }
 
-                if (slotEnd - previousEnd >= serviceDuration)
+                if ((segmentEnd - previousEnd) >= serviceDuration)
+                    freeSegments.Add((previousEnd, segmentEnd));
+            }
+
+            var availableSlots = new List<MasterTimeSlot>();
+            foreach (var (start, end) in freeSegments)
+            {
+                var effectiveStart = RoundUpToStep(start);
+                if (effectiveStart >= end)
+                    continue;
+                for (var t = effectiveStart; t.Add(serviceDuration) <= end; t = t.Add(SlotStep))
                 {
-                    var endTime = previousEnd.Add(serviceDuration);
-                    availableSlots.Add(MasterTimeSlot.Create(
-                        slot.MasterId, date, previousEnd, endTime));
+                    var slotEnd = t.Add(serviceDuration);
+                    availableSlots.Add(MasterTimeSlot.Create(masterId, date, t, slotEnd));
                 }
             }
 
-            return availableSlots;
+            return availableSlots.OrderBy(s => s.StartTime).ToList();
+        }
+
+        private static TimeOnly RoundUpToStep(TimeOnly time)
+        {
+            var stepMinutes = (int)SlotStep.TotalMinutes;
+            var totalMinutes = time.Hour * 60 + time.Minute;
+            var rounded = ((totalMinutes + stepMinutes - 1) / stepMinutes) * stepMinutes;
+            if (rounded >= 24 * 60)
+                rounded = 24 * 60 - stepMinutes;
+            return new TimeOnly(rounded / 60, rounded % 60);
         }
 
         public async Task<List<MasterTimeSlot>> GetAvailableSlotsInSalons(DateOnly date)

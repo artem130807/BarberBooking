@@ -37,14 +37,15 @@ namespace BarberBooking.API.Service
         public async Task<Result> RollBackMasterRating(Guid AggregateId, Guid reviewId, CancellationToken cancellationToken)
         {
             var reviews = await _reviewRepository.GetListReviewsByMasterId(AggregateId);
-            var reviewsExcept = reviews.Where(x => x.Id != reviewId);
+            var reviewsExcept = reviews.Where(x => x.Id != reviewId).ToList();
             decimal rating = 0;
-            int ratingCount = reviewsExcept.Count();
+            int ratingCount = reviewsExcept.Count;
             foreach(var review in reviewsExcept)
             {
                 rating += review.SalonRating;
             }
-            rating = rating / ratingCount;
+            if (ratingCount > 0)
+                rating = rating / ratingCount;
             var master = await _masterProfileRepository.GetMasterProfileById(AggregateId);
             master.RollBackRating(rating, ratingCount);
             await _masterProfileRepository.UpdateAsync(master);
@@ -57,14 +58,15 @@ namespace BarberBooking.API.Service
         public async Task<Result> RollBackSalonRating(Guid AggregateId,  Guid reviewId, CancellationToken cancellationToken)
         {
             var reviews = await _reviewRepository.GetListReviewsBySalonId(AggregateId);
-            var reviewsExcept = reviews.Where(x => x.Id != reviewId);
+            var reviewsExcept = reviews.Where(x => x.Id != reviewId).ToList();
             decimal rating = 0;
-            int ratingCount = reviewsExcept.Count();
+            int ratingCount = reviewsExcept.Count;
             foreach(var review in reviewsExcept)
             {
                 rating += review.SalonRating;
             }
-            rating = rating / ratingCount;
+            if (ratingCount > 0)
+                rating = rating / ratingCount;
             var salon = await _salonsRepository.GetSalonById(AggregateId);
             salon.RollBackRating(rating, ratingCount);
             await _salonsRepository.UpdateAsync(salon);
