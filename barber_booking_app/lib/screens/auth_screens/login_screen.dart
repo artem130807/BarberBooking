@@ -32,7 +32,6 @@ class _LoginScreenState extends State<LoginScreen> {
         });
 
         return Scaffold(
-          backgroundColor: Colors.white,
           body: SafeArea(
             child: SingleChildScrollView(
               padding: const EdgeInsets.all(24),
@@ -40,29 +39,38 @@ class _LoginScreenState extends State<LoginScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const SizedBox(height: 40),
-                  const Center(
-                    child: Icon(Icons.cut, size: 80, color: Colors.black),
+                  Center(
+                    child: Icon(
+                      Icons.cut,
+                      size: 80,
+                      color: Theme.of(context).colorScheme.primary,
+                    ),
                   ),
                   const SizedBox(height: 20),
-                  const Center(
+                  Center(
                     child: Text(
                       'BarberBooking',
-                      style: TextStyle(
-                        fontSize: 32,
+                      style: Theme.of(context).textTheme.headlineMedium?.copyWith(
                         fontWeight: FontWeight.bold,
                         letterSpacing: 1.5,
+                        color: Theme.of(context).colorScheme.onBackground,
                       ),
                     ),
                   ),
                   const SizedBox(height: 40),
-                  const Text(
+                  Text(
                     'Добро пожаловать!',
-                    style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                    style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                      fontWeight: FontWeight.bold,
+                      color: Theme.of(context).colorScheme.onBackground,
+                    ),
                   ),
                   const SizedBox(height: 8),
-                  const Text(
+                  Text(
                     'Войдите чтобы продолжить',
-                    style: TextStyle(fontSize: 16, color: Colors.grey),
+                    style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    ),
                   ),
                   const SizedBox(height: 32),
                   // Email поле
@@ -127,37 +135,34 @@ class _LoginScreenState extends State<LoginScreen> {
                                 Navigator.pushReplacementNamed(context, '/home');
                               }
                             },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.black,
-                        foregroundColor: Colors.white,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
+                      child: Text(
+                        authProvider.isLoading ? 'Вход...' : 'Войти',
+                        style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                       ),
-                      child: authProvider.isLoading
-                          ? const CircularProgressIndicator(color: Colors.white)
-                          : const Text(
-                              'Войти',
-                              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                            ),
                     ),
                   ),
                   const SizedBox(height: 16),
                   Row(
-                    children: const [
-                      Expanded(child: Divider()),
+                    children: [
+                      Expanded(child: Divider(color: Theme.of(context).colorScheme.outline)),
                       Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 16),
-                        child: Text('или'),
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        child: Text(
+                          'или',
+                          style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
+                        ),
                       ),
-                      Expanded(child: Divider()),
+                      Expanded(child: Divider(color: Theme.of(context).colorScheme.outline)),
                     ],
                   ),
                   const SizedBox(height: 24),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      const Text('Нет аккаунта?'),
+                      Text(
+                        'Нет аккаунта?',
+                        style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
+                      ),
                       TextButton(
                         onPressed: authProvider.isLoading
                             ? null

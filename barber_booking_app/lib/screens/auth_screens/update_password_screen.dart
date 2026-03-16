@@ -30,11 +30,12 @@ class _UpdatePasswordScreenState extends State<UpdatePasswordScreen> {
     String password = _passwordController.text;
     String confirmPassword = _confirmPasswordController.text;
 
+    final theme = Theme.of(context);
     if (password.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Введите новый пароль'),
-          backgroundColor: Colors.orange,
+        SnackBar(
+          content: const Text('Введите новый пароль'),
+          backgroundColor: theme.colorScheme.error,
         ),
       );
       return;
@@ -42,9 +43,9 @@ class _UpdatePasswordScreenState extends State<UpdatePasswordScreen> {
 
     if (password.length < 6) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Пароль должен содержать минимум 6 символов'),
-          backgroundColor: Colors.orange,
+        SnackBar(
+          content: const Text('Пароль должен содержать минимум 6 символов'),
+          backgroundColor: theme.colorScheme.error,
         ),
       );
       return;
@@ -52,21 +53,20 @@ class _UpdatePasswordScreenState extends State<UpdatePasswordScreen> {
 
     if (password != confirmPassword) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Пароли не совпадают'),
-          backgroundColor: Colors.red,
+        SnackBar(
+          content: const Text('Пароли не совпадают'),
+          backgroundColor: theme.colorScheme.error,
         ),
       );
       return;
     }
 
     String? email = authProvider.verifiedEmail; 
-    print(email);
     if (email == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Email не найден'),
-          backgroundColor: Colors.red,
+        SnackBar(
+          content: const Text('Email не найден'),
+          backgroundColor: theme.colorScheme.error,
         ),
       );
       return;
@@ -81,9 +81,9 @@ class _UpdatePasswordScreenState extends State<UpdatePasswordScreen> {
 
     if (success && mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Пароль успешно изменен'),
-          backgroundColor: Colors.green,
+        SnackBar(
+          content: const Text('Пароль успешно изменен'),
+          backgroundColor: theme.colorScheme.primary,
         ),
       );
       
@@ -104,12 +104,11 @@ class _UpdatePasswordScreenState extends State<UpdatePasswordScreen> {
         });
 
         return Scaffold(
-          backgroundColor: Colors.white,
           appBar: AppBar(
             backgroundColor: Colors.transparent,
             elevation: 0,
             leading: IconButton(
-              icon: const Icon(Icons.arrow_back, color: Colors.black),
+              icon: const Icon(Icons.arrow_back),
               onPressed: authProvider.isLoading
                   ? null
                   : () => Navigator.pop(context),
@@ -122,28 +121,30 @@ class _UpdatePasswordScreenState extends State<UpdatePasswordScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const SizedBox(height: 20),
-                  const Center(
+                  Center(
                     child: Icon(
                       Icons.lock_reset,
                       size: 80,
-                      color: Colors.black,
+                      color: Theme.of(context).colorScheme.primary,
                     ),
                   ),
                   const SizedBox(height: 20),
-                  const Center(
+                  Center(
                     child: Text(
                       'Смена пароля',
-                      style: TextStyle(
-                        fontSize: 28,
+                      style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                         fontWeight: FontWeight.bold,
+                        color: Theme.of(context).colorScheme.onBackground,
                       ),
                     ),
                   ),
                   const SizedBox(height: 8),
-                  const Center(
+                  Center(
                     child: Text(
                       'Введите новый пароль для вашего аккаунта',
-                      style: TextStyle(fontSize: 16, color: Colors.grey),
+                      style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      ),
                       textAlign: TextAlign.center,
                     ),
                   ),
@@ -178,9 +179,12 @@ class _UpdatePasswordScreenState extends State<UpdatePasswordScreen> {
                     ),
                   ),
                   const SizedBox(height: 8),
-                  const Text(
+                  Text(
                     'Минимум 6 символов',
-                    style: TextStyle(fontSize: 12, color: Colors.grey),
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    ),
                   ),
                   const SizedBox(height: 16),
                   const Text(
@@ -220,26 +224,10 @@ class _UpdatePasswordScreenState extends State<UpdatePasswordScreen> {
                       onPressed: authProvider.isLoading
                           ? null
                           : () => _handleUpdatePassword(authProvider),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.black,
-                        foregroundColor: Colors.white,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
+                      child: Text(
+                        authProvider.isLoading ? 'Сохранение...' : 'Сохранить пароль',
+                        style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                       ),
-                      child: authProvider.isLoading
-                          ? const SizedBox(
-                              height: 20,
-                              width: 20,
-                              child: CircularProgressIndicator(
-                                color: Colors.white,
-                                strokeWidth: 2,
-                              ),
-                            )
-                          : const Text(
-                              'Сохранить пароль',
-                              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                            ),
                     ),
                   ),
                 ],

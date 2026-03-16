@@ -21,11 +21,33 @@ class SalonMastersScreen extends StatefulWidget {
 
 class _SalonMastersScreenState extends State<SalonMastersScreen> {
   MasterSort _selectedSort = MasterSort.none;
+  int _selectedNavIndex = 0;
 
   @override
   void initState() {
     super.initState();
     _loadMasters();
+  }
+
+  void _onNavItemTapped(int index) {
+    setState(() => _selectedNavIndex = index);
+    switch (index) {
+      case 0:
+        Navigator.pushReplacementNamed(context, '/home');
+        break;
+      case 1:
+        Navigator.pushReplacementNamed(context, '/search_screen');
+        break;
+      case 2:
+        Navigator.pushReplacementNamed(context, '/appointments_screen');
+        break;
+      case 3:
+        Navigator.pushReplacementNamed(context, '/favorites_screen');
+        break;
+      case 4:
+        Navigator.pushReplacementNamed(context, '/profile');
+        break;
+    }
   }
 
   void _loadMasters() {
@@ -97,6 +119,19 @@ class _SalonMastersScreenState extends State<SalonMastersScreen> {
               Expanded(
                 child: _buildBody(provider),
               ),
+            ],
+          ),
+          bottomNavigationBar: BottomNavigationBar(
+            type: BottomNavigationBarType.fixed,
+            currentIndex: _selectedNavIndex,
+            onTap: _onNavItemTapped,
+            unselectedItemColor: Colors.grey,
+            items: const [
+              BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Главная'),
+              BottomNavigationBarItem(icon: Icon(Icons.search), label: 'Поиск'),
+              BottomNavigationBarItem(icon: Icon(Icons.calendar_today), label: 'Записи'),
+              BottomNavigationBarItem(icon: Icon(Icons.favorite), label: 'Избранное'),
+              BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Профиль'),
             ],
           ),
         );

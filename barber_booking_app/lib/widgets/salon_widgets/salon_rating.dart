@@ -19,17 +19,17 @@ class SalonRating extends StatelessWidget {
 
     return Row(
       children: [
-        Icon(Icons.star, color: Colors.amber, size: iconSize),
+        Icon(Icons.star, color: Theme.of(context).colorScheme.primary, size: iconSize),
         const SizedBox(width: 4),
         Text(
           rating.toStringAsFixed(1),
-          style: TextStyle(fontSize: fontSize, fontWeight: FontWeight.w500),
+          style: TextStyle(fontSize: fontSize, fontWeight: FontWeight.w500, color: Theme.of(context).colorScheme.onSurface),
         ),
         if (reviewCount > 0) ...[
           const SizedBox(width: 4),
           Text(
             '($reviewCount)',
-            style: TextStyle(fontSize: fontSize * 0.9, color: Colors.grey),
+            style: TextStyle(fontSize: fontSize * 0.9, color: Theme.of(context).colorScheme.onSurfaceVariant),
           ),
         ],
       ],

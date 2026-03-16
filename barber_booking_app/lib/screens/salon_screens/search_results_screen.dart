@@ -22,11 +22,33 @@ class SearchResultsScreen extends StatefulWidget {
 class _SearchResultsScreenState extends State<SearchResultsScreen> {
   final PageParams _pageParams = PageParams(Page: 1, PageSize: 20);
   final ScrollController _scrollController = ScrollController();
+  int _selectedNavIndex = 1;
 
   @override
   void initState() {
     super.initState();
     _performSearch();
+  }
+
+  void _onNavItemTapped(int index) {
+    setState(() => _selectedNavIndex = index);
+    switch (index) {
+      case 0:
+        Navigator.pushReplacementNamed(context, '/home');
+        break;
+      case 1:
+        Navigator.pushReplacementNamed(context, '/search_screen');
+        break;
+      case 2:
+        Navigator.pushReplacementNamed(context, '/appointments_screen');
+        break;
+      case 3:
+        Navigator.pushReplacementNamed(context, '/favorites_screen');
+        break;
+      case 4:
+        Navigator.pushReplacementNamed(context, '/profile');
+        break;
+    }
   }
 
   void _performSearch() {
@@ -50,9 +72,39 @@ class _SearchResultsScreenState extends State<SearchResultsScreen> {
             title: Text('Результаты поиска: "${widget.query}"'),
             centerTitle: false,
           ),
-          body: _buildBody(searchProvider),
+          body: RefreshIndicator(
+            onRefresh: () async => _performSearch(),
+            child: _buildScrollableBody(searchProvider),
+          ),
+          bottomNavigationBar: BottomNavigationBar(
+            type: BottomNavigationBarType.fixed,
+            currentIndex: _selectedNavIndex,
+            onTap: _onNavItemTapped,
+            unselectedItemColor: Colors.grey,
+            items: const [
+              BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Главная'),
+              BottomNavigationBarItem(icon: Icon(Icons.search), label: 'Поиск'),
+              BottomNavigationBarItem(icon: Icon(Icons.calendar_today), label: 'Записи'),
+              BottomNavigationBarItem(icon: Icon(Icons.favorite), label: 'Избранное'),
+              BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Профиль'),
+            ],
+          ),
         );
       },
+    );
+  }
+
+  Widget _buildScrollableBody(GetSalonsSearchProvider provider) {
+    final body = _buildBody(provider);
+    if (body is ListView) {
+      return body;
+    }
+    return SingleChildScrollView(
+      physics: const AlwaysScrollableScrollPhysics(),
+      child: SizedBox(
+        height: MediaQuery.of(context).size.height * 0.5,
+        child: body,
+      ),
     );
   }
 
@@ -79,6 +131,7 @@ class _SearchResultsScreenState extends State<SearchResultsScreen> {
 
     return ListView.builder(
       controller: _scrollController,
+      physics: const AlwaysScrollableScrollPhysics(),
       padding: const EdgeInsets.all(16),
       itemCount: provider.getSalonsResponse!.length,
       itemBuilder: (context, index) {

@@ -25,6 +25,28 @@ class SalonScreen extends StatefulWidget {
 class _SalonScreenState extends State<SalonScreen> {
   final PageParams _reviewsPageParams =  PageParams(Page: 1, PageSize: 5);
   final ReviewSortParams _reviewSortParams = ReviewSortParams();
+  int _selectedNavIndex = 0;
+
+  void _onNavItemTapped(int index) {
+    setState(() => _selectedNavIndex = index);
+    switch (index) {
+      case 0:
+        Navigator.pushReplacementNamed(context, '/home');
+        break;
+      case 1:
+        Navigator.pushReplacementNamed(context, '/search_screen');
+        break;
+      case 2:
+        Navigator.pushReplacementNamed(context, '/appointments_screen');
+        break;
+      case 3:
+        Navigator.pushReplacementNamed(context, '/favorites_screen');
+        break;
+      case 4:
+        Navigator.pushReplacementNamed(context, '/profile');
+        break;
+    }
+  }
 
   @override
   void initState() {
@@ -67,6 +89,18 @@ class _SalonScreenState extends State<SalonScreen> {
             centerTitle: false,
           ),
           body: _buildBody(salonProvider, reviewsProvider, salon),
+          bottomNavigationBar: BottomNavigationBar(
+            type: BottomNavigationBarType.fixed,
+            currentIndex: _selectedNavIndex,
+            onTap: _onNavItemTapped,
+            items: const [
+              BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Главная'),
+              BottomNavigationBarItem(icon: Icon(Icons.search), label: 'Поиск'),
+              BottomNavigationBarItem(icon: Icon(Icons.calendar_today), label: 'Записи'),
+              BottomNavigationBarItem(icon: Icon(Icons.favorite), label: 'Избранное'),
+              BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Профиль'),
+            ],
+          ),
         );
       },
     );
@@ -89,10 +123,10 @@ class _SalonScreenState extends State<SalonScreen> {
     }
 
     if (salon == null) {
-      return const Center(
+      return Center(
         child: Text(
           'Салон не найден',
-          style: TextStyle(fontSize: 16, color: Colors.grey),
+          style: TextStyle(fontSize: 16, color: Theme.of(context).colorScheme.onSurfaceVariant),
         ),
       );
     }
@@ -146,24 +180,24 @@ class _SalonScreenState extends State<SalonScreen> {
                 if (salon.phone != null)
                   Row(
                     children: [
-                      const Icon(Icons.phone, size: 16, color: Colors.grey),
+                      Icon(Icons.phone, size: 16, color: Theme.of(context).colorScheme.onSurfaceVariant),
                       const SizedBox(width: 6),
                       Text(
                         salon.phone!.Number ?? '',
-                        style: const TextStyle(fontSize: 14, color: Colors.grey),
+                        style: TextStyle(fontSize: 14, color: Theme.of(context).colorScheme.onSurfaceVariant),
                       ),
                     ],
                   ),
                 const SizedBox(height: 8),
                 Row(
                   children: [
-                    const Icon(Icons.access_time, size: 16, color: Colors.grey),
+                    Icon(Icons.access_time, size: 16, color: Theme.of(context).colorScheme.onSurfaceVariant),
                     const SizedBox(width: 6),
-                    const Text(
+                    Text(
                       'По записи',
                       style: TextStyle(
                         fontSize: 14,
-                        color: Colors.grey,
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
                         fontStyle: FontStyle.italic,
                       ),
                     ),
@@ -175,14 +209,14 @@ class _SalonScreenState extends State<SalonScreen> {
                     Icon(
                       Icons.circle,
                       size: 10,
-                      color: isActive ? Colors.green : Colors.red,
+                      color: isActive ? Theme.of(context).colorScheme.primary : Theme.of(context).colorScheme.error,
                     ),
                     const SizedBox(width: 6),
                     Text(
                       salon.active ?? (isActive ? 'Активен' : 'Неактивен'),
                       style: TextStyle(
                         fontSize: 14,
-                        color: isActive ? Colors.green : Colors.red,
+                        color: isActive ? Theme.of(context).colorScheme.primary : Theme.of(context).colorScheme.error,
                         fontWeight: isActive ? FontWeight.normal : FontWeight.w500,
                       ),
                     ),
@@ -201,7 +235,7 @@ class _SalonScreenState extends State<SalonScreen> {
                   salon.description?.isNotEmpty == true
                       ? salon.description!
                       : 'Описание отсутствует',
-                  style: const TextStyle(fontSize: 14, color: Colors.black87),
+                  style: TextStyle(fontSize: 14, color: Theme.of(context).colorScheme.onSurface),
                 ),
                 const SizedBox(height: 24),
                 BookingButton(
@@ -240,7 +274,7 @@ class _SalonScreenState extends State<SalonScreen> {
     }
 
     if (provider.reviewsList == null || provider.reviewsList!.isEmpty) {
-      return const Column(
+      return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
@@ -248,12 +282,13 @@ class _SalonScreenState extends State<SalonScreen> {
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
+              color: Theme.of(context).colorScheme.onSurface,
             ),
           ),
-          SizedBox(height: 8),
+          const SizedBox(height: 8),
           Text(
             'У салона пока нет отзывов',
-            style: TextStyle(color: Colors.grey),
+            style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
           ),
         ],
       );

@@ -54,6 +54,15 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
+  Future<void> _onRefreshHome() async {
+    final token = Provider.of<AuthProvider>(context, listen: false).token;
+    if (token == null) return;
+    await Future.wait([
+      Provider.of<GetSalonsProvider>(context, listen: false).getSalons(_pageParams, filter, token),
+      Provider.of<GetTheBestMastersProvider>(context, listen: false).getMasters(4, token),
+    ]);
+  }
+
   void _onNavItemTapped(int index) {
     setState(() {
       _selectedNavIndex = index;
@@ -107,8 +116,11 @@ class _HomeScreenState extends State<HomeScreen> {
               SizedBox(width: 16),
             ],
           ),
-          body: SingleChildScrollView(
-            child: Column(
+          body: RefreshIndicator(
+            onRefresh: _onRefreshHome,
+            child: SingleChildScrollView(
+              physics: const AlwaysScrollableScrollPhysics(),
+              child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const Padding(
@@ -250,12 +262,12 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ],
             ),
+            ),
           ),
           bottomNavigationBar: BottomNavigationBar(
             type: BottomNavigationBarType.fixed,
             currentIndex: _selectedNavIndex,
             onTap: _onNavItemTapped,
-            selectedItemColor: Colors.black,
             unselectedItemColor: Colors.grey,
             items: const [
               BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Главная'),

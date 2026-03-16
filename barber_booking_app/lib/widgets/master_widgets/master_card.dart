@@ -33,7 +33,7 @@ class MasterCard extends StatelessWidget {
               width: 120,
               height: 120,
               decoration: BoxDecoration(
-                color: Colors.grey[300],
+                color: Theme.of(context).colorScheme.surfaceContainerHighest,
                 borderRadius: BorderRadius.circular(12),
                 image: imageUrl != null
                     ? DecorationImage(
@@ -43,8 +43,8 @@ class MasterCard extends StatelessWidget {
                     : null,
               ),
               child: imageUrl == null
-                  ? const Center(
-                      child: Icon(Icons.person, size: 40, color: Colors.grey),
+                  ? Center(
+                      child: Icon(Icons.person, size: 40, color: Theme.of(context).colorScheme.onSurfaceVariant),
                     )
                   : null,
             ),
@@ -57,7 +57,7 @@ class MasterCard extends StatelessWidget {
             ),
             Text(
               specialty,
-              style: const TextStyle(color: Colors.grey, fontSize: 12),
+              style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 12),
             ),
             Row(
               children: [
@@ -68,7 +68,7 @@ class MasterCard extends StatelessWidget {
                   const SizedBox(width: 4),
                   Text(
                     '($ratingCount)',
-                    style: const TextStyle(fontSize: 12, color: Colors.grey),
+                    style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onSurfaceVariant),
                   ),
                 ],
               ],

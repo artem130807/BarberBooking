@@ -13,6 +13,17 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
   final TextEditingController _emailController = TextEditingController();
 
   @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final args = ModalRoute.of(context)?.settings.arguments;
+      if (args is String && args.isNotEmpty) {
+        _emailController.text = args;
+      }
+    });
+  }
+
+  @override
   void dispose() {
     _emailController.dispose();
     super.dispose();
@@ -29,17 +40,14 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
         });
 
         return Scaffold(
-          backgroundColor: Colors.white,
           appBar: AppBar(
             backgroundColor: Colors.transparent,
             elevation: 0,
             leading: IconButton(
-              icon: const Icon(Icons.arrow_back, color: Colors.black),
+              icon: const Icon(Icons.arrow_back),
               onPressed: emailProvider.isLoading
                   ? null
-                  : () {
-                      Navigator.pushReplacementNamed(context, '/login');
-                    },
+                  : () => Navigator.pop(context),
             ),
           ),
           body: SafeArea(
@@ -49,28 +57,30 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const SizedBox(height: 20),
-                  const Center(
+                  Center(
                     child: Icon(
                       Icons.lock_reset,
                       size: 80,
-                      color: Colors.black,
+                      color: Theme.of(context).colorScheme.primary,
                     ),
                   ),
                   const SizedBox(height: 20),
-                  const Center(
+                  Center(
                     child: Text(
                       'Восстановление пароля',
-                      style: TextStyle(
-                        fontSize: 28,
+                      style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                         fontWeight: FontWeight.bold,
+                        color: Theme.of(context).colorScheme.onBackground,
                       ),
                     ),
                   ),
                   const SizedBox(height: 8),
-                  const Center(
+                  Center(
                     child: Text(
                       'Введите email для получения кода',
-                      style: TextStyle(fontSize: 16, color: Colors.grey),
+                      style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      ),
                       textAlign: TextAlign.center,
                     ),
                   ),
@@ -103,9 +113,9 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                               String email = _emailController.text.trim();
                               if (email.isEmpty) {
                                 ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
-                                    content: Text('Введите email'),
-                                    backgroundColor: Colors.orange,
+                                  SnackBar(
+                                    content: const Text('Введите email'),
+                                    backgroundColor: Theme.of(context).colorScheme.error,
                                   ),
                                 );
                                 return;
@@ -116,26 +126,10 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                                 Navigator.pushNamed(context, '/verify-codeUpdatePass');
                               }
                             },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.black,
-                        foregroundColor: Colors.white,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
+                      child: Text(
+                        emailProvider.isLoading ? 'Отправка...' : 'Отправить',
+                        style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                       ),
-                      child: emailProvider.isLoading
-                          ? const SizedBox(
-                              height: 20,
-                              width: 20,
-                              child: CircularProgressIndicator(
-                                color: Colors.white,
-                                strokeWidth: 2,
-                              ),
-                            )
-                          : const Text(
-                              'Отправить',
-                              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                            ),
                     ),
                   ),
                   const SizedBox(height: 16),
@@ -146,9 +140,9 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                           : () {
                               Navigator.pushReplacementNamed(context, '/login');
                             },
-                      child: const Text(
+                      child: Text(
                         'Вернуться ко входу',
-                        style: TextStyle(color: Colors.grey),
+                        style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
                       ),
                     ),
                   ),

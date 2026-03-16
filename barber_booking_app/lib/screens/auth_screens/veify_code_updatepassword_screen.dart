@@ -49,12 +49,11 @@ class _VerifyCodeUpdatePassScreenState extends State<VerifyCodeUpdatePassScreen>
         });
 
         return Scaffold(
-          backgroundColor: Colors.white,
           appBar: AppBar(
             backgroundColor: Colors.transparent,
             elevation: 0,
             leading: IconButton(
-              icon: const Icon(Icons.arrow_back, color: Colors.black),
+              icon: const Icon(Icons.arrow_back),
               onPressed: emailProvider.isLoading
                   ? null
                   : () => Navigator.pushReplacementNamed(context, '/forgot'),
@@ -67,20 +66,20 @@ class _VerifyCodeUpdatePassScreenState extends State<VerifyCodeUpdatePassScreen>
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const SizedBox(height: 20),
-                  const Center(
+                  Center(
                     child: Icon(
                       Icons.mark_chat_read_outlined,
                       size: 80,
-                      color: Colors.black,
+                      color: Theme.of(context).colorScheme.primary,
                     ),
                   ),
                   const SizedBox(height: 20),
-                  const Center(
+                  Center(
                     child: Text(
                       'Подтверждение кода',
-                      style: TextStyle(
-                        fontSize: 28,
+                      style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                         fontWeight: FontWeight.bold,
+                        color: Theme.of(context).colorScheme.onBackground,
                       ),
                     ),
                   ),
@@ -88,7 +87,9 @@ class _VerifyCodeUpdatePassScreenState extends State<VerifyCodeUpdatePassScreen>
                   Center(
                     child: Text(
                       'Введите 6-значный код, отправленный на\n$verifiedEmail',
-                      style: const TextStyle(fontSize: 16, color: Colors.grey),
+                      style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      ),
                       textAlign: TextAlign.center,
                     ),
                   ),
@@ -139,9 +140,9 @@ class _VerifyCodeUpdatePassScreenState extends State<VerifyCodeUpdatePassScreen>
                               String code = _getFullCode();
                               if (code.length < 6) {
                                 ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
-                                    content: Text('Введите полный код'),
-                                    backgroundColor: Colors.orange,
+                                  SnackBar(
+                                    content: const Text('Введите полный код'),
+                                    backgroundColor: Theme.of(context).colorScheme.error,
                                   ),
                                 );
                                 return;
@@ -154,33 +155,20 @@ class _VerifyCodeUpdatePassScreenState extends State<VerifyCodeUpdatePassScreen>
                                 Navigator.pushReplacementNamed(context, '/update-password');
                               }
                             },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.black,
-                        foregroundColor: Colors.white,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
+                      child: Text(
+                        emailProvider.isLoading ? 'Проверка...' : 'Подтвердить',
+                        style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                       ),
-                      child: emailProvider.isLoading
-                          ? const SizedBox(
-                              height: 20,
-                              width: 20,
-                              child: CircularProgressIndicator(
-                                color: Colors.white,
-                                strokeWidth: 2,
-                              ),
-                            )
-                          : const Text(
-                              'Подтвердить',
-                              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                            ),
                     ),
                   ),
                   const SizedBox(height: 16),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      const Text('Не пришел код?'),
+                      Text(
+                        'Не пришел код?',
+                        style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
+                      ),
                       TextButton(
                         onPressed: emailProvider.isLoading
                             ? null
@@ -192,9 +180,9 @@ class _VerifyCodeUpdatePassScreenState extends State<VerifyCodeUpdatePassScreen>
                                   _clearCode();
                                 } else {
                                   ScaffoldMessenger.of(context).showSnackBar(
-                                    const SnackBar(
-                                      content: Text('Сначала введите email'),
-                                      backgroundColor: Colors.orange,
+                                    SnackBar(
+                                      content: const Text('Сначала введите email'),
+                                      backgroundColor: Theme.of(context).colorScheme.error,
                                     ),
                                   );
                                 }

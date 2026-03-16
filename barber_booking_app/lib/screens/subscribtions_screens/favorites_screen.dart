@@ -94,7 +94,6 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
             type: BottomNavigationBarType.fixed,
             currentIndex: _selectedNavIndex,
             onTap: _onNavItemTapped,
-            selectedItemColor: Colors.black,
             unselectedItemColor: Colors.grey,
             items: const [
               BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Главная'),
@@ -110,52 +109,63 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
   }
 
   Widget _buildBody(GetSubscriptionsProvider provider) {
+    Widget body;
     if (provider.isLoading && provider.list == null) {
-      return const Center(child: LoadingIndicator(message: 'Загрузка избранного...'));
-    }
-
-    if (provider.errorMessage != null && provider.list == null) {
-      return Center(
+      body = const Center(child: LoadingIndicator(message: 'Загрузка избранного...'));
+    } else if (provider.errorMessage != null && provider.list == null) {
+      body = Center(
         child: ErrorWidgetCustom(
           message: provider.errorMessage!,
           onRetry: _loadFavorites,
         ),
       );
-    }
-
-    if (provider.list == null || provider.list!.isEmpty) {
-      return const Center(
+    } else if (provider.list == null || provider.list!.isEmpty) {
+      body = const Center(
         child: Text(
           'У вас пока нет избранных мастеров',
           style: TextStyle(fontSize: 16, color: Colors.grey),
         ),
       );
+    } else {
+      final subscriptions = provider.list!;
+      body = ListView.builder(
+        physics: const AlwaysScrollableScrollPhysics(),
+        padding: const EdgeInsets.all(16),
+        itemCount: subscriptions.length,
+        itemBuilder: (context, index) {
+          final sub = subscriptions[index];
+          final masterNav = sub.masterNavigation;
+          if (masterNav == null) return const SizedBox.shrink();
+          return FavoriteMasterCard(
+            subscriptionId: sub.id!,
+            masterInfo: masterNav,
+            isMarkedForDeletion: _markedForDeletionIds.contains(sub.id),
+            onToggleMarked: (marked) {
+              setState(() {
+                if (marked) {
+                  _markedForDeletionIds.add(sub.id!);
+                } else {
+                  _markedForDeletionIds.remove(sub.id!);
+                }
+              });
+            },
+          );
+        },
+      );
     }
 
-    final subscriptions = provider.list!;
-
-    return ListView.builder(
-      padding: const EdgeInsets.all(16),
-      itemCount: subscriptions.length,
-      itemBuilder: (context, index) {
-        final sub = subscriptions[index];
-        final masterNav = sub.masterNavigation;
-        if (masterNav == null) return const SizedBox.shrink();
-        return FavoriteMasterCard(
-          subscriptionId: sub.id!,
-          masterInfo: masterNav,
-          isMarkedForDeletion: _markedForDeletionIds.contains(sub.id),
-          onToggleMarked: (marked) {
-            setState(() {
-              if (marked) {
-                _markedForDeletionIds.add(sub.id!);
-              } else {
-                _markedForDeletionIds.remove(sub.id!);
-              }
-            });
-          },
-        );
-      },
+    if (body is! ListView) {
+      body = SingleChildScrollView(
+        physics: const AlwaysScrollableScrollPhysics(),
+        child: SizedBox(
+          height: MediaQuery.of(context).size.height * 0.5,
+          child: body,
+        ),
+      );
+    }
+    return RefreshIndicator(
+      onRefresh: _loadFavorites,
+      child: body,
     );
   }
 }
@@ -211,10 +221,10 @@ class FavoriteMasterCard extends StatelessWidget {
                       padding: const EdgeInsets.symmetric(vertical: 2),
                       child: Text(
                         master.MasterName ?? 'Мастер',
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
-                          color: Colors.black87,
+                          color: Theme.of(context).colorScheme.onSurface,
                         ),
                       ),
                     ),

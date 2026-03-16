@@ -16,8 +16,8 @@ class ReviewMasterTitle extends StatelessWidget {
         children: [
           CircleAvatar(
             radius: 20,
-            backgroundColor: Colors.grey[300],
-            child: const Icon(Icons.person, size: 20, color: Colors.grey),
+            backgroundColor: Theme.of(context).colorScheme.surfaceContainerHighest,
+            child: Icon(Icons.person, size: 20, color: Theme.of(context).colorScheme.onSurfaceVariant),
           ),
           const SizedBox(width: 12),
           Expanded(
@@ -30,24 +30,24 @@ class ReviewMasterTitle extends StatelessWidget {
                     Expanded(
                       child: Text(
                         review.UserName ?? 'Аноним',
-                        style: const TextStyle(fontWeight: FontWeight.bold),
+                        style: TextStyle(fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.onSurface),
                       ),
                     ),
                     Row(
                       children: [
-                        const Icon(Icons.star, color: Colors.amber, size: 14),
+                        Icon(Icons.star, color: Theme.of(context).colorScheme.primary, size: 14),
                         const SizedBox(width: 2),
-                        Text(review.MasterRating?.toString() ?? '0'),
+                        Text(review.MasterRating?.toString() ?? '0', style: TextStyle(color: Theme.of(context).colorScheme.onSurface)),
                       ],
                     ),
                   ],
                 ),
                 const SizedBox(height: 4),
-                Text(review.Comment ?? ''),
+                Text(review.Comment ?? '', style: TextStyle(color: Theme.of(context).colorScheme.onSurface)),
                 const SizedBox(height: 4),
                 Text(
                   DateFormatter.formatDateOnly(review.CreatedAt ?? ''),
-                  style: const TextStyle(fontSize: 12, color: Colors.grey),
+                  style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onSurfaceVariant),
                 ),
               ],
             ),

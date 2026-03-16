@@ -22,11 +22,33 @@ class _SalonsScreenState extends State<SalonsScreen> {
   SortType _selectedSort = SortType.none;
   bool _isActiveOnly = false;
   final ScrollController _scrollController = ScrollController();
+  int _selectedNavIndex = 0;
 
   @override
   void initState() {
     super.initState();
     _performSearch();
+  }
+
+  void _onNavItemTapped(int index) {
+    setState(() => _selectedNavIndex = index);
+    switch (index) {
+      case 0:
+        Navigator.pushReplacementNamed(context, '/home');
+        break;
+      case 1:
+        Navigator.pushReplacementNamed(context, '/search_screen');
+        break;
+      case 2:
+        Navigator.pushReplacementNamed(context, '/appointments_screen');
+        break;
+      case 3:
+        Navigator.pushReplacementNamed(context, '/favorites_screen');
+        break;
+      case 4:
+        Navigator.pushReplacementNamed(context, '/profile');
+        break;
+    }
   }
 
   void _applyFilter() {
@@ -60,7 +82,7 @@ class _SalonsScreenState extends State<SalonsScreen> {
           appBar: AppBar(
             leading: IconButton(
               icon: const Icon(Icons.arrow_back),
-              onPressed: () => Navigator.pushReplacementNamed(context, '/home'),
+              onPressed: () => Navigator.pop(context),
             ),
             title: const Text('Список салонов'),
             centerTitle: false,
@@ -122,12 +144,42 @@ class _SalonsScreenState extends State<SalonsScreen> {
                 ),
               ),
               Expanded(
-                child: _buildBody(salonsProvider),
+                child: RefreshIndicator(
+                  onRefresh: () async => _performSearch(),
+                  child: _buildScrollableBody(salonsProvider),
+                ),
               ),
+            ],
+          ),
+          bottomNavigationBar: BottomNavigationBar(
+            type: BottomNavigationBarType.fixed,
+            currentIndex: _selectedNavIndex,
+            onTap: _onNavItemTapped,
+            unselectedItemColor: Colors.grey,
+            items: const [
+              BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Главная'),
+              BottomNavigationBarItem(icon: Icon(Icons.search), label: 'Поиск'),
+              BottomNavigationBarItem(icon: Icon(Icons.calendar_today), label: 'Записи'),
+              BottomNavigationBarItem(icon: Icon(Icons.favorite), label: 'Избранное'),
+              BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Профиль'),
             ],
           ),
         );
       },
+    );
+  }
+
+  Widget _buildScrollableBody(GetSalonsProvider provider) {
+    final body = _buildBody(provider);
+    if (body is ListView) {
+      return body;
+    }
+    return SingleChildScrollView(
+      physics: const AlwaysScrollableScrollPhysics(),
+      child: SizedBox(
+        height: MediaQuery.of(context).size.height * 0.5,
+        child: body,
+      ),
     );
   }
 
@@ -154,6 +206,7 @@ class _SalonsScreenState extends State<SalonsScreen> {
 
     return ListView.builder(
       controller: _scrollController,
+      physics: const AlwaysScrollableScrollPhysics(),
       padding: const EdgeInsets.all(16),
       itemCount: provider.getSalonsResponse!.length,
       itemBuilder: (context, index) {

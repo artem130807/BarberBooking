@@ -28,6 +28,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
     await Provider.of<GetUserProvider>(context, listen: false).getUser(token);
   }
 
+  Future<void> _onRefreshProfile() async {
+    await _loadUser();
+  }
+
   void _onNavItemTapped(int index) {
     setState(() {
       _selectedNavIndex = index;
@@ -64,14 +68,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
           appBar: AppBar(
             automaticallyImplyLeading: false,
             title: const Text('Профиль'),
+            elevation: 0,
           ),
           body: _buildBody(provider),
           bottomNavigationBar: BottomNavigationBar(
             type: BottomNavigationBarType.fixed,
             currentIndex: _selectedNavIndex,
             onTap: _onNavItemTapped,
-            selectedItemColor: Colors.black,
-            unselectedItemColor: Colors.grey,
             items: const [
               BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Главная'),
               BottomNavigationBarItem(icon: Icon(Icons.search), label: 'Поиск'),
@@ -101,24 +104,27 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
     final user = provider.userResponse;
     if (user == null) {
-      return const Center(
+      return Center(
         child: Text(
           'Не удалось загрузить профиль',
-          style: TextStyle(fontSize: 16, color: Colors.grey),
+          style: TextStyle(fontSize: 16, color: Theme.of(context).colorScheme.onSurfaceVariant),
         ),
       );
     }
 
-    return ListView(
-      padding: const EdgeInsets.all(16),
-      children: [
+    return RefreshIndicator(
+      onRefresh: _onRefreshProfile,
+      child: ListView(
+        physics: const AlwaysScrollableScrollPhysics(),
+        padding: const EdgeInsets.all(16),
+        children: [
         const SizedBox(height: 20),
         // Аватар
         Center(
           child: CircleAvatar(
             radius: 60,
-            backgroundColor: Colors.grey[300],
-            child: const Icon(Icons.person, size: 60, color: Colors.grey),
+            backgroundColor: Theme.of(context).colorScheme.surfaceContainerHighest,
+            child: Icon(Icons.person, size: 60, color: Theme.of(context).colorScheme.onSurfaceVariant),
           ),
         ),
         const SizedBox(height: 16),
@@ -134,7 +140,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         Center(
           child: Text(
             user.Email ?? 'email@example.com',
-            style: const TextStyle(fontSize: 16, color: Colors.grey),
+            style: TextStyle(fontSize: 16, color: Theme.of(context).colorScheme.onSurfaceVariant),
           ),
         ),
         const SizedBox(height: 4),
@@ -142,7 +148,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         Center(
           child: Text(
             user.City ?? 'Город не указан',
-            style: const TextStyle(fontSize: 14, color: Colors.grey),
+            style: TextStyle(fontSize: 14, color: Theme.of(context).colorScheme.onSurfaceVariant),
           ),
         ),
         const SizedBox(height: 40),
@@ -158,38 +164,49 @@ class _ProfileScreenState extends State<ProfileScreen> {
           icon: Icons.star,
           title: 'Ваши отзывы',
           onTap: () {
-            // TODO: переход на экран отзывов пользователя
+            Navigator.pushNamed(context, '/user_reviews');
           },
         ),
         _buildMenuItem(
           icon: Icons.settings,
           title: 'Настройки',
           onTap: () {
-            // TODO: переход на экран настроек
+            Navigator.pushNamed(context, '/profile_settings');
           },
         ),
         const SizedBox(height: 20),
         // Кнопка выхода
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16),
-          child: ElevatedButton(
-            onPressed: () {
-              // TODO: реализовать выход
-              Provider.of<AuthProvider>(context, listen: false).logout();
-              Navigator.pushReplacementNamed(context, '/login');
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.red,
-              foregroundColor: Colors.white,
-              padding: const EdgeInsets.symmetric(vertical: 14),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
+          child: Material(
+            color: Theme.of(context).colorScheme.error,
+            borderRadius: BorderRadius.circular(12),
+            child: InkWell(
+              onTap: () {
+                Provider.of<AuthProvider>(context, listen: false).logout();
+                Navigator.pushReplacementNamed(context, '/login');
+              },
+              borderRadius: BorderRadius.circular(12),
+              splashColor: Colors.white24,
+              highlightColor: Colors.white12,
+              child: Container(
+                width: double.infinity,
+                padding: const EdgeInsets.symmetric(vertical: 14),
+                alignment: Alignment.center,
+                child: Text(
+                  'Выйти',
+                  style: TextStyle(
+                    fontSize: 16,
+                    color: Theme.of(context).colorScheme.onError,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
               ),
             ),
-            child: const Text('Выйти', style: TextStyle(fontSize: 16)),
           ),
         ),
       ],
+      ),
     );
   }
 
@@ -202,7 +219,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       margin: const EdgeInsets.only(bottom: 8),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: ListTile(
-        leading: Icon(icon, color: Colors.black),
+        leading: Icon(icon, color: Theme.of(context).colorScheme.primary),
         title: Text(title, style: const TextStyle(fontSize: 16)),
         trailing: const Icon(Icons.chevron_right),
         onTap: onTap,

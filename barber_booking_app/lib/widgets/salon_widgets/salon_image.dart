@@ -21,17 +21,17 @@ class SalonImage extends StatelessWidget {
       child: Container(
         height: height,
         width: width ?? double.infinity,
-        color: Colors.grey[300],
+        color: Theme.of(context).colorScheme.surfaceContainerHighest,
         child: imageUrl != null && imageUrl!.isNotEmpty
             ? Image.network(
                 imageUrl!,
                 fit: fit,
-                errorBuilder: (_, __, ___) => const Center(
-                  child: Icon(Icons.image, size: 40, color: Colors.grey),
+                errorBuilder: (_, __, ___) => Center(
+                  child: Icon(Icons.image, size: 40, color: Theme.of(context).colorScheme.onSurfaceVariant),
                 ),
               )
-            : const Center(
-                child: Icon(Icons.image, size: 40, color: Colors.grey),
+            : Center(
+                child: Icon(Icons.image, size: 40, color: Theme.of(context).colorScheme.onSurfaceVariant),
               ),
       ),
     );

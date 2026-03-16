@@ -100,6 +100,13 @@ class AuthProvider extends BaseProvider {
     resetState();  
     notifyListeners();
   }
+
+  
+  void updateToken(String newToken) {
+    if (newToken.isEmpty) return;
+    _currentUser = AuthResponse(token: newToken, message: null);
+    notifyListeners();
+  }
   bool isTokenValid() {
     return token != null && token!.isNotEmpty;
   }

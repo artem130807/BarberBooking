@@ -205,7 +205,8 @@ class WeekCalendar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final startOfWeek = selectedDate.subtract(Duration(days: selectedDate.weekday - 1));
-    final today = DateTime.now();
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
 
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 12),
@@ -229,7 +230,12 @@ class WeekCalendar extends StatelessWidget {
                 onPressed: () {
                   final newStart = startOfWeek.subtract(const Duration(days: 7));
                   if (!_isPastWeek(newStart)) {
-                    onDateSelected(newStart.add(const Duration(days: 1)));
+                    final now = DateTime.now();
+                    final todayDate = DateTime(now.year, now.month, now.day);
+                    final endOfPrevWeek = newStart.add(const Duration(days: 6));
+                    final endOfPrevWeekDate = DateTime(endOfPrevWeek.year, endOfPrevWeek.month, endOfPrevWeek.day);
+                    final isTodayInPrevWeek = !todayDate.isBefore(newStart) && !todayDate.isAfter(endOfPrevWeekDate);
+                    onDateSelected(isTodayInPrevWeek ? todayDate : newStart);
                   }
                 },
               ),
@@ -251,10 +257,11 @@ class WeekCalendar extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: List.generate(7, (index) {
               final date = startOfWeek.add(Duration(days: index));
+              final dateOnly = DateTime(date.year, date.month, date.day);
               final isSelected = date.year == selectedDate.year &&
                   date.month == selectedDate.month &&
                   date.day == selectedDate.day;
-              final isPast = date.isBefore(today) && !_isSameDay(date, today);
+              final isPast = dateOnly.isBefore(today);
               return _buildDayCell(date, isSelected, isPast);
             }),
           ),
@@ -318,9 +325,11 @@ class WeekCalendar extends StatelessWidget {
   }
 
   bool _isPastWeek(DateTime startOfWeek) {
-    final today = DateTime.now();
+    final now = DateTime.now();
+    final todayDate = DateTime(now.year, now.month, now.day);
     final endOfWeek = startOfWeek.add(const Duration(days: 6));
-    return endOfWeek.isBefore(today);
+    final endOfWeekDate = DateTime(endOfWeek.year, endOfWeek.month, endOfWeek.day);
+    return endOfWeekDate.isBefore(todayDate);
   }
 
   bool _isSameDay(DateTime a, DateTime b) {

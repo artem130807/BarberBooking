@@ -29,12 +29,11 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
         });
 
         return Scaffold(
-          backgroundColor: Colors.white,
           appBar: AppBar(
             backgroundColor: Colors.transparent,
             elevation: 0,
             leading: IconButton(
-              icon: const Icon(Icons.arrow_back, color: Colors.black),
+              icon: const Icon(Icons.arrow_back),
               onPressed: emailProvider.isLoading 
                   ? null 
                   : () => Navigator.pop(context),
@@ -47,28 +46,30 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const SizedBox(height: 20),
-                  const Center(
+                  Center(
                     child: Icon(
                       Icons.mark_email_unread_outlined,
                       size: 80,
-                      color: Colors.black,
+                      color: Theme.of(context).colorScheme.primary,
                     ),
                   ),
                   const SizedBox(height: 20),
-                  const Center(
+                  Center(
                     child: Text(
                       'Подтверждение email',
-                      style: TextStyle(
-                        fontSize: 28,
+                      style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                         fontWeight: FontWeight.bold,
+                        color: Theme.of(context).colorScheme.onBackground,
                       ),
                     ),
                   ),
                   const SizedBox(height: 8),
-                  const Center(
+                  Center(
                     child: Text(
                       'Введите email для получения кода подтверждения',
-                      style: TextStyle(fontSize: 16, color: Colors.grey),
+                      style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      ),
                       textAlign: TextAlign.center,
                     ),
                   ),
@@ -101,9 +102,9 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
                               String email = _emailController.text.trim();
                               if (email.isEmpty) {
                                 ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
-                                    content: Text('Введите email'),
-                                    backgroundColor: Colors.orange,
+                                  SnackBar(
+                                    content: const Text('Введите email'),
+                                    backgroundColor: Theme.of(context).colorScheme.error,
                                   ),
                                 );
                                 return;
@@ -114,33 +115,20 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
                                 Navigator.pushNamed(context, '/verify-code');
                               }
                             },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.black,
-                        foregroundColor: Colors.white,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
+                      child: Text(
+                        emailProvider.isLoading ? 'Отправка...' : 'Отправить код',
+                        style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                       ),
-                      child: emailProvider.isLoading
-                          ? const SizedBox(
-                              height: 20,
-                              width: 20,
-                              child: CircularProgressIndicator(
-                                color: Colors.white,
-                                strokeWidth: 2,
-                              ),
-                            )
-                          : const Text(
-                              'Отправить код',
-                              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                            ),
                     ),
                   ),
                   const SizedBox(height: 16),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      const Text('Уже есть аккаунт?'),
+                      Text(
+                        'Уже есть аккаунт?',
+                        style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
+                      ),
                       TextButton(
                         onPressed: emailProvider.isLoading
                             ? null

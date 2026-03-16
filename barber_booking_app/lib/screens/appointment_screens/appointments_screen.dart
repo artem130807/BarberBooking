@@ -92,7 +92,6 @@ class _AppointmentsScreenState extends State<AppointmentsScreen>
             type: BottomNavigationBarType.fixed,
             currentIndex: _selectedNavIndex,
             onTap: _onNavItemTapped,
-            selectedItemColor: Colors.black,
             unselectedItemColor: Colors.grey,
             items: const [
               BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Главная'),
@@ -137,22 +136,31 @@ class _AppointmentsScreenState extends State<AppointmentsScreen>
   }
 
   Widget _buildList(List<GetAppointmentsByClientResponse> appointments, String emptyMessage) {
-    if (appointments.isEmpty) {
-      return Center(
-        child: Text(
-          emptyMessage,
-          style: const TextStyle(fontSize: 16, color: Colors.grey),
-        ),
-      );
-    }
-
-    return ListView.builder(
-      padding: const EdgeInsets.all(16),
-      itemCount: appointments.length,
-      itemBuilder: (context, index) {
-        final appointment = appointments[index];
-        return AppointmentCard(appointment: appointment);
-      },
+    final content = appointments.isEmpty
+        ? SingleChildScrollView(
+            physics: const AlwaysScrollableScrollPhysics(),
+            child: SizedBox(
+              height: MediaQuery.of(context).size.height * 0.5,
+              child: Center(
+                child: Text(
+                  emptyMessage,
+                  style: const TextStyle(fontSize: 16, color: Colors.grey),
+                ),
+              ),
+            ),
+          )
+        : ListView.builder(
+            physics: const AlwaysScrollableScrollPhysics(),
+            padding: const EdgeInsets.all(16),
+            itemCount: appointments.length,
+            itemBuilder: (context, index) {
+              final appointment = appointments[index];
+              return AppointmentCard(appointment: appointment);
+            },
+          );
+    return RefreshIndicator(
+      onRefresh: () async => _loadAppointments(),
+      child: content,
     );
   }
 }
@@ -164,113 +172,105 @@ class AppointmentCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final hasSalon = appointment.SalonNavigation?.Id != null;
+    final hasMaster = appointment.MasterProfileNavigation?.Id != null;
+
     return Card(
-      margin: const EdgeInsets.only(bottom: 12),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      margin: const EdgeInsets.only(bottom: 14),
+      elevation: 0,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+        side: BorderSide(color: Colors.grey.shade200),
+      ),
       child: Padding(
-        padding: const EdgeInsets.all(12),
+        padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Строка с салоном и мастером
-            Row(
+            // Салон и мастер — чипы-ссылки
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
               children: [
-                Expanded(
-                  child: GestureDetector(
-                    onTap: appointment.SalonNavigation?.Id != null
-                        ? () {
-                            Navigator.pushNamed(
-                              context,
-                              '/salon_screen',
-                              arguments: appointment.SalonNavigation!.Id,
-                            );
-                          }
-                        : null,
-                    child: Text(
-                      appointment.SalonNavigation?.SalonName ?? 'Салон',
-                      style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.blue,
-                        decoration: TextDecoration.underline,
-                      ),
-                    ),
-                  ),
+                _LinkChip(
+                  icon: Icons.store_outlined,
+                  label: appointment.SalonNavigation?.SalonName ?? 'Салон',
+                  onTap: hasSalon
+                      ? () => Navigator.pushNamed(
+                            context,
+                            '/salon_screen',
+                            arguments: appointment.SalonNavigation!.Id,
+                          )
+                      : null,
                 ),
-                const SizedBox(width: 8),
-                GestureDetector(
-                  onTap: appointment.MasterProfileNavigation?.Id != null
-                      ? () {
-                          Navigator.pushNamed(
+                _LinkChip(
+                  icon: Icons.person_outline,
+                  label: appointment.MasterProfileNavigation?.MasterName ?? 'Мастер',
+                  onTap: hasMaster
+                      ? () => Navigator.pushNamed(
                             context,
                             '/master_detail',
                             arguments: appointment.MasterProfileNavigation!.Id,
-                          );
-                        }
+                          )
                       : null,
-                  child: Text(
-                    appointment.MasterProfileNavigation?.MasterName ?? 'Мастер',
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: appointment.MasterProfileNavigation?.Id != null ? Colors.blue : Colors.grey,
-                      decoration: appointment.MasterProfileNavigation?.Id != null
-                          ? TextDecoration.underline
-                          : null,
-                    ),
-                  ),
                 ),
               ],
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: 14),
             // Услуга
             Text(
               appointment.ServiceName ?? 'Услуга',
-              style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w500),
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+                color: Theme.of(context).colorScheme.onSurface,
+              ),
             ),
-            const SizedBox(height: 4),
-            // Дата и время
+            const SizedBox(height: 12),
+            // Дата и время (без секунд)
             Row(
               children: [
-                const Icon(Icons.calendar_today, size: 14, color: Colors.grey),
-                const SizedBox(width: 4),
+                Icon(Icons.calendar_today_outlined, size: 18, color: Colors.grey.shade600),
+                const SizedBox(width: 6),
                 Text(
                   _formatDate(appointment.AppointmentDate),
-                  style: const TextStyle(fontSize: 13, color: Colors.grey),
+                  style: TextStyle(fontSize: 14, color: Colors.grey.shade700),
                 ),
-                const SizedBox(width: 12),
-                const Icon(Icons.access_time, size: 14, color: Colors.grey),
-                const SizedBox(width: 4),
+                const SizedBox(width: 16),
+                Icon(Icons.schedule, size: 18, color: Colors.grey.shade600),
+                const SizedBox(width: 6),
                 Text(
-                  '${appointment.StartTime} - ${appointment.EndTime}',
-                  style: const TextStyle(fontSize: 13, color: Colors.grey),
+                  '${_formatTime(appointment.StartTime)} – ${_formatTime(appointment.EndTime)}',
+                  style: TextStyle(fontSize: 14, color: Colors.grey.shade700),
                 ),
               ],
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: 14),
             // Цена и статус
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 Text(
                   '${appointment.Price?.Value ?? 0} ₽',
-                  style: const TextStyle(
-                    fontSize: 16,
+                  style: TextStyle(
+                    fontSize: 18,
                     fontWeight: FontWeight.bold,
-                    color: Colors.black,
+                    color: Theme.of(context).colorScheme.onSurface,
                   ),
                 ),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                   decoration: BoxDecoration(
-                    color: _statusColor(appointment.Status).withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(12),
+                    color: _statusColor(appointment.Status).withOpacity(0.12),
+                    borderRadius: BorderRadius.circular(20),
                   ),
                   child: Text(
                     _statusText(appointment.Status),
                     style: TextStyle(
                       fontSize: 12,
                       color: _statusColor(appointment.Status),
-                      fontWeight: FontWeight.w500,
+                      fontWeight: FontWeight.w600,
                     ),
                   ),
                 ),
@@ -280,6 +280,24 @@ class AppointmentCard extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  /// Форматирует время без секунд (12:00:00 → 12:00).
+  String _formatTime(String? timeStr) {
+    if (timeStr == null || timeStr.isEmpty) return '--:--';
+    try {
+      final parts = timeStr.split(':');
+      if (parts.length >= 2) {
+        return '${parts[0].padLeft(2, '0')}:${parts[1].padLeft(2, '0')}';
+      }
+      final date = DateTime.tryParse('1970-01-01 $timeStr');
+      if (date != null) {
+        return DateFormat('HH:mm').format(date);
+      }
+      return timeStr.length >= 5 ? timeStr.substring(0, 5) : timeStr;
+    } catch (_) {
+      return timeStr;
+    }
   }
 
   String _formatDate(String? dateStr) {
@@ -318,5 +336,55 @@ class AppointmentCard extends StatelessWidget {
       default:
         return Colors.grey;
     }
+  }
+}
+
+/// Чип-ссылка для перехода в салон или к мастеру.
+class _LinkChip extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final VoidCallback? onTap;
+
+  const _LinkChip({
+    required this.icon,
+    required this.label,
+    this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final enabled = onTap != null;
+    return Material(
+      color: enabled
+          ? Colors.blue.withOpacity(0.08)
+          : Colors.grey.withOpacity(0.08),
+      borderRadius: BorderRadius.circular(20),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(20),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                icon,
+                size: 18,
+                color: enabled ? Colors.blue.shade700 : Colors.grey,
+              ),
+              const SizedBox(width: 6),
+              Text(
+                label,
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
+                  color: enabled ? Colors.blue.shade700 : Colors.grey,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 }

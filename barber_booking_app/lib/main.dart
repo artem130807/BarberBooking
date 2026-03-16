@@ -1,6 +1,7 @@
 import 'package:barber_booking_app/models/master_models/response/get_master_response.dart';
 import 'package:barber_booking_app/models/master_models/response/get_masters_response.dart';
 import 'package:barber_booking_app/providers/appointment_providers/%D1%81reate_appointment_provider.dart';
+import 'package:barber_booking_app/providers/appointment_providers/get_appointment_awaiting_review_provider.dart';
 import 'package:barber_booking_app/providers/appointment_providers/get_appointments_by_client_provider.dart';
 import 'package:barber_booking_app/providers/master_providers/get_master_provider.dart';
 import 'package:barber_booking_app/providers/master_providers/get_the_best_masters_provider.dart';
@@ -8,8 +9,12 @@ import 'package:barber_booking_app/providers/master_providers/get_masters_provid
 import 'package:barber_booking_app/providers/master_subscription_providers/create_subscription_provider.dart';
 import 'package:barber_booking_app/providers/master_subscription_providers/delete_subscription_provider.dart';
 import 'package:barber_booking_app/providers/master_subscription_providers/get_subscriptions_provider.dart';
+import 'package:barber_booking_app/providers/review_providers/create_review_user_provider.dart';
+import 'package:barber_booking_app/providers/review_providers/delete_review_user_provider.dart';
 import 'package:barber_booking_app/providers/review_providers/get_reviews_master_provider.dart';
 import 'package:barber_booking_app/providers/review_providers/get_reviews_salon_provider.dart';
+import 'package:barber_booking_app/providers/review_providers/get_reviews_user_provider.dart';
+import 'package:barber_booking_app/providers/review_providers/update_review_user_provider.dart';
 import 'package:barber_booking_app/providers/salon_providers/get_salon_provider.dart';
 import 'package:barber_booking_app/providers/salon_providers/get_salons_provider.dart';
 import 'package:barber_booking_app/providers/salon_providers/get_salons_by_service_provider.dart';
@@ -17,7 +22,9 @@ import 'package:barber_booking_app/providers/salon_providers/get_salons_search_p
 import 'package:barber_booking_app/providers/service_providers/get_service_search_provider.dart';
 import 'package:barber_booking_app/providers/service_providers/get_services_provider.dart';
 import 'package:barber_booking_app/providers/time_slot_providers/get_slots_provider.dart';
+import 'package:barber_booking_app/providers/user_providers/get_user_cities_provider.dart';
 import 'package:barber_booking_app/providers/user_providers/get_user_provider.dart';
+import 'package:barber_booking_app/providers/user_providers/update_user_city_provider.dart';
 import 'package:barber_booking_app/screens/appointment_screens/appointments_screen.dart';
 import 'package:barber_booking_app/screens/review_screens/reviews_by_master_screen.dart';
 import 'package:barber_booking_app/screens/review_screens/reviews_by_salon_screen.dart';
@@ -30,7 +37,10 @@ import 'package:barber_booking_app/screens/salon_screens/search_results_screen.d
 import 'package:barber_booking_app/screens/service_screens/search_services_screen.dart';
 import 'package:barber_booking_app/screens/subscribtions_screens/favorites_screen.dart';
 import 'package:barber_booking_app/screens/user_screens/profile_screen.dart';
+import 'package:barber_booking_app/screens/user_screens/profile_settings_screen.dart';
+import 'package:barber_booking_app/screens/user_screens/user_reviews_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:barber_booking_app/theme/app_theme.dart';
 import 'screens/auth_screens/login_screen.dart';
 import 'screens/auth_screens/register_screen.dart';
 import 'screens/home_screen.dart';
@@ -66,6 +76,7 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => GetReviewsSalonProvider()),
         ChangeNotifierProvider(create: (_) => GetServicesProvider()),
         ChangeNotifierProvider(create: (_) => GetSlotsProvider()),
+        ChangeNotifierProvider(create: (_) => GetAppointmentAwaitingReviewProvider()),
         ChangeNotifierProvider(create: (_) => GetAppointmentsByClientProvider()),
         ChangeNotifierProvider(create: (_) => CreateAppointmentProvider()),
         ChangeNotifierProvider(create: (_) => CreateSubscriptionProvider()),
@@ -73,18 +84,16 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => GetSubscriptionsProvider()),
         ChangeNotifierProvider(create: (_) => GetServiceSearchProvider()),
         ChangeNotifierProvider(create: (_) => GetUserProvider()),
+        ChangeNotifierProvider(create: (_) => GetUserCitiesProvider()),
+        ChangeNotifierProvider(create: (_) => UpdateUserCityProvider()),
+        ChangeNotifierProvider(create: (_) => GetReviewsUserProvider()),
+        ChangeNotifierProvider(create: (_) => DeleteReviewUserProvider()),
+        ChangeNotifierProvider(create: (_) => UpdateReviewUserProvider()),
+        ChangeNotifierProvider(create: (_) => CreateReviewUserProvider()),
       ],
       child: MaterialApp(
         title: 'BarberBooking',
-        theme: ThemeData(        
-          primarySwatch: Colors.blue,
-          fontFamily: 'Roboto',
-          appBarTheme: const AppBarTheme(
-            backgroundColor: Colors.white,
-            foregroundColor: Colors.black,
-            elevation: 0,
-          ),
-        ),
+        theme: AppTheme.darkTheme,
         initialRoute: '/login',
         routes: {
           '/login': (context) => const LoginScreen(),
@@ -101,6 +110,8 @@ class MyApp extends StatelessWidget {
           '/favorites_screen':(context) => const FavoritesScreen(),
           '/search_screen':(context) => const SearchServicesScreen(),
           '/profile':(context) => const ProfileScreen(),
+          '/profile_settings':(context) => const ProfileSettingsScreen(),
+          '/user_reviews':(context) => const UserReviewsScreen(),
           '/master_reviews': (context) {
             final masterId = ModalRoute.of(context)!.settings.arguments as String;
             return ReviewsByMasterScreen(masterId: masterId);

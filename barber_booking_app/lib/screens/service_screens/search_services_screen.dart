@@ -177,7 +177,6 @@ class _SearchServicesScreenState extends State<SearchServicesScreen> {
         type: BottomNavigationBarType.fixed,
         currentIndex: _selectedNavIndex,
         onTap: _onNavItemTapped,
-        selectedItemColor: Colors.black,
         unselectedItemColor: Colors.grey,
         items: const [
           BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Главная'),
@@ -278,10 +277,10 @@ class ServiceSearchCard extends StatelessWidget {
                       },
                       child: Text(
                         salon.SalonName ?? 'Салон',
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.w500,
-                          color: Colors.black87,
+                          color: Theme.of(context).colorScheme.onSurface,
                         ),
                       ),
                     ),

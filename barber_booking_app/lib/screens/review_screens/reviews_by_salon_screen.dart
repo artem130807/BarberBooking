@@ -24,6 +24,28 @@ class _ReviewsBySalonScreenState extends State<ReviewsBySalonScreen> {
   bool _isLoadingMore = false;
   bool _hasMore = true;
   ReviewSortType _currentSort = ReviewSortType.newest;
+  int _selectedNavIndex = 0;
+
+  void _onNavItemTapped(int index) {
+    setState(() => _selectedNavIndex = index);
+    switch (index) {
+      case 0:
+        Navigator.pushReplacementNamed(context, '/home');
+        break;
+      case 1:
+        Navigator.pushReplacementNamed(context, '/search_screen');
+        break;
+      case 2:
+        Navigator.pushReplacementNamed(context, '/appointments_screen');
+        break;
+      case 3:
+        Navigator.pushReplacementNamed(context, '/favorites_screen');
+        break;
+      case 4:
+        Navigator.pushReplacementNamed(context, '/profile');
+        break;
+    }
+  }
 
   @override
   void initState() {
@@ -138,6 +160,19 @@ class _ReviewsBySalonScreenState extends State<ReviewsBySalonScreen> {
             ],
           ),
           body: _buildBody(provider),
+          bottomNavigationBar: BottomNavigationBar(
+            type: BottomNavigationBarType.fixed,
+            currentIndex: _selectedNavIndex,
+            onTap: _onNavItemTapped,
+            unselectedItemColor: Colors.grey,
+            items: const [
+              BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Главная'),
+              BottomNavigationBarItem(icon: Icon(Icons.search), label: 'Поиск'),
+              BottomNavigationBarItem(icon: Icon(Icons.calendar_today), label: 'Записи'),
+              BottomNavigationBarItem(icon: Icon(Icons.favorite), label: 'Избранное'),
+              BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Профиль'),
+            ],
+          ),
         );
       },
     );

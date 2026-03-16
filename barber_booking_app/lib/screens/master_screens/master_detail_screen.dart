@@ -28,6 +28,28 @@ class _MasterDetailScreenState extends State<MasterDetailScreen> {
   final ReviewSortParams _reviewSortParams = ReviewSortParams();
   bool _isSubscribed = false;
   String? _subscriptionId;
+  int _selectedNavIndex = 0;
+
+  void _onNavItemTapped(int index) {
+    setState(() => _selectedNavIndex = index);
+    switch (index) {
+      case 0:
+        Navigator.pushReplacementNamed(context, '/home');
+        break;
+      case 1:
+        Navigator.pushReplacementNamed(context, '/search_screen');
+        break;
+      case 2:
+        Navigator.pushReplacementNamed(context, '/appointments_screen');
+        break;
+      case 3:
+        Navigator.pushReplacementNamed(context, '/favorites_screen');
+        break;
+      case 4:
+        Navigator.pushReplacementNamed(context, '/profile');
+        break;
+    }
+  }
 
   @override
   void initState() {
@@ -151,6 +173,19 @@ class _MasterDetailScreenState extends State<MasterDetailScreen> {
               ],
             ),
           ),
+          bottomNavigationBar: BottomNavigationBar(
+            type: BottomNavigationBarType.fixed,
+            currentIndex: _selectedNavIndex,
+            onTap: _onNavItemTapped,
+            unselectedItemColor: Colors.grey,
+            items: const [
+              BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Главная'),
+              BottomNavigationBarItem(icon: Icon(Icons.search), label: 'Поиск'),
+              BottomNavigationBarItem(icon: Icon(Icons.calendar_today), label: 'Записи'),
+              BottomNavigationBarItem(icon: Icon(Icons.favorite), label: 'Избранное'),
+              BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Профиль'),
+            ],
+          ),
         );
       },
     );
@@ -261,9 +296,9 @@ class _MasterDetailScreenState extends State<MasterDetailScreen> {
           const SizedBox(height: 8),
           Text(
             master.Bio?.isNotEmpty == true ? master.Bio! : 'Описание мастера пока не добавлено.',
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 14,
-              color: Colors.black87,
+              color: Theme.of(context).colorScheme.onSurface,
             ),
           ),
           if (master.SalonNavigation != null) ...[
@@ -448,7 +483,7 @@ class _MasterDetailScreenState extends State<MasterDetailScreen> {
               // TODO: навигация к экрану записи
             },
             style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.black,
+              backgroundColor: Theme.of(context).colorScheme.primary,
               foregroundColor: Colors.white,
               padding: const EdgeInsets.symmetric(vertical: 14),
               shape: RoundedRectangleBorder(
@@ -515,7 +550,7 @@ class ReviewTitle extends StatelessWidget {
                 const SizedBox(height: 4),
                 Text(
                   review.Comment ?? '',
-                  style: const TextStyle(fontSize: 13, color: Colors.black87),
+                  style: TextStyle(fontSize: 13, color: Theme.of(context).colorScheme.onSurface),
                 ),
                 const SizedBox(height: 4),
                 Text(

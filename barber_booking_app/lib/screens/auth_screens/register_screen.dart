@@ -38,9 +38,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
   Future<void> _handleRegister(AuthProvider authProvider) async {
     if (!_isAgreed) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Необходимо согласиться с условиями'),
-          backgroundColor: Colors.orange,
+        SnackBar(
+          content: const Text('Необходимо согласиться с условиями'),
+          backgroundColor: Theme.of(context).colorScheme.error,
         ),
       );
       return;
@@ -48,9 +48,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
     if (_passwordController.text != _confirmPasswordController.text) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Пароли не совпадают'),
-          backgroundColor: Colors.red,
+        SnackBar(
+          content: const Text('Пароли не совпадают'),
+          backgroundColor: Theme.of(context).colorScheme.error,
         ),
       );
       return;
@@ -86,12 +86,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
         });
 
         return Scaffold(
-          backgroundColor: Colors.white,
           appBar: AppBar(
             backgroundColor: Colors.transparent,
             elevation: 0,
             leading: IconButton(
-              icon: const Icon(Icons.arrow_back, color: Colors.black),
+              icon: const Icon(Icons.arrow_back),
               onPressed: authProvider.isLoading
                   ? null
                   : () => Navigator.pop(context),
@@ -103,14 +102,19 @@ class _RegisterScreenState extends State<RegisterScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
+                  Text(
                     'Создать аккаунт',
-                    style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
+                    style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                      fontWeight: FontWeight.bold,
+                      color: Theme.of(context).colorScheme.onBackground,
+                    ),
                   ),
                   const SizedBox(height: 8),
-                  const Text(
+                  Text(
                     'Заполните данные для регистрации',
-                    style: TextStyle(fontSize: 16, color: Colors.grey),
+                    style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    ),
                   ),
                   const SizedBox(height: 32),
                   
@@ -248,17 +252,20 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       Expanded(
                         child: RichText(
                           text: TextSpan(
-                            style: const TextStyle(color: Colors.black, fontSize: 14),
+                            style: TextStyle(
+                              color: Theme.of(context).colorScheme.onSurface,
+                              fontSize: 14,
+                            ),
                             children: [
                               const TextSpan(text: 'Я согласен с '),
                               TextSpan(
                                 text: 'условиями использования',
-                                style: const TextStyle(color: Colors.blue),
+                                style: TextStyle(color: Theme.of(context).colorScheme.primary),
                               ),
                               const TextSpan(text: ' и '),
                               TextSpan(
                                 text: 'политикой конфиденциальности',
-                                style: const TextStyle(color: Colors.blue),
+                                style: TextStyle(color: Theme.of(context).colorScheme.primary),
                               ),
                             ],
                           ),
@@ -276,26 +283,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       onPressed: authProvider.isLoading
                           ? null
                           : () => _handleRegister(authProvider),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.black,
-                        foregroundColor: Colors.white,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
+                      child: Text(
+                        authProvider.isLoading
+                            ? 'Регистрация...'
+                            : 'Зарегистрироваться',
+                        style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                       ),
-                      child: authProvider.isLoading
-                          ? const SizedBox(
-                              height: 20,
-                              width: 20,
-                              child: CircularProgressIndicator(
-                                color: Colors.white,
-                                strokeWidth: 2,
-                              ),
-                            )
-                          : const Text(
-                              'Зарегистрироваться',
-                              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                            ),
                     ),
                   ),
                   const SizedBox(height: 16),
@@ -304,7 +297,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      const Text('Уже есть аккаунт?'),
+                      Text(
+                        'Уже есть аккаунт?',
+                        style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
+                      ),
                       TextButton(
                         onPressed: authProvider.isLoading
                             ? null
