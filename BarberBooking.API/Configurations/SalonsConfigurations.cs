@@ -60,6 +60,11 @@ namespace BarberBooking.API.Configurations
                 
             builder.Property(x => x.CreatedAt)
                 .IsRequired();
+
+              builder.HasMany(x => x.SalonStatistics)
+                .WithOne(x => x.Salon)
+                .HasForeignKey(x => x.SalonId)
+                .OnDelete(DeleteBehavior.Cascade);
         }
     }
 }

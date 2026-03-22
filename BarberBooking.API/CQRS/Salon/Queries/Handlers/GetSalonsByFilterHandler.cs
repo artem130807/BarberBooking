@@ -28,13 +28,17 @@ namespace BarberBooking.API.CQRS.Salon.Queries.Handlers
         {
             var userCity = _userContext.UserCity;
             var salons = await _salonsRepository.GetSalonsByFilter(userCity, query.salonFilter, query.pageParams);
-            var countSlotsInSalon = await _masterTimeSlotRepository.GetAvailableSlotsInSalons(DateOnly.FromDateTime(DateTime.Now));
+            var availableSlots = await _masterTimeSlotRepository.GetAvailableSlotsInSalons(DateOnly.FromDateTime(DateTime.Now));
+            var slotsBySalonId = availableSlots
+                .Where(x => x.Master != null)
+                .GroupBy(x => x.Master.SalonId)
+                .ToDictionary(g => g.Key, g => g.Count());
             if(salons == null)
                 return Result.Failure<List<DtoSalonShortInfo>>("Списков салонов пуст");
             var dtoSalon = salons.Data.Select(salon =>
             {
                 var dto =  _mapper.Map<DtoSalonShortInfo>(salon);
-                dto.AvailableSlots = countSlotsInSalon.Count();
+                dto.AvailableSlots = slotsBySalonId.TryGetValue(salon.Id, out var count) ? count : 0;
                 return dto;
             }).ToList();
             return Result.Success(dtoSalon);

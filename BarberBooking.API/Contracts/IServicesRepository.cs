@@ -16,5 +16,7 @@ namespace BarberBooking.API.Contracts
         Task<List<Services>> GetActiveBySalonAsync(Guid salonId);
         Task<Services> DeleteAsync(Guid id);
         Task<PagedResult<Services>> GetServicesNameStartWith(SearchServicesParams searchParams, PageParams pageParams);
+        Task<PagedResult<Services>> GetTopServices(Guid salonId ,PageParams pageParams);
+        Task<PagedResult<Services>> GetServicesBySalonPaged(Guid salonId, PageParams pageParams);
     }
 }

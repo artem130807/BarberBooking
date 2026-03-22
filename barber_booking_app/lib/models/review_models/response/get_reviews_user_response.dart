@@ -1,7 +1,7 @@
 import 'package:barber_booking_app/models/appointment_models/response/appointment_navigation_response.dart';
 import 'package:barber_booking_app/models/master_models/response/master_navigation_response.dart';
 import 'package:barber_booking_app/models/salon_models/response/salon_navigation_response.dart';
-import 'package:barber_booking_app/screens/appointment_screens/appointments_screen.dart';
+import 'package:barber_booking_app/screens/user_interfaces/appointment_screens/appointments_screen.dart';
 
 class GetReviewsUserResponse {
   String? Id;

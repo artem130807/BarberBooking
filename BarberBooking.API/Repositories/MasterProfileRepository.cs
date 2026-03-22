@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using BarberBooking.API.Contracts.MasterProfileContracts;
 using BarberBooking.API.ExtensionsProject;
+using BarberBooking.API.Filters;
 using BarberBooking.API.Filters.MasterProfile;
 using BarberBooking.API.Models;
 using Microsoft.EntityFrameworkCore;
@@ -41,6 +42,17 @@ namespace BarberBooking.API.Repositories
             return await _context.MasterProfiles.Include(x => x.Salon).Include(x => x.User).Where(x => x.SalonId == salondId).ToListAsync();
         }
 
+        public async Task<PagedResult<MasterProfile>> GetMastersBySalonPaged(Guid salonId, PageParams pageParams)
+        {
+            return await _context.MasterProfiles
+                .AsNoTracking()
+                .Include(x => x.User)
+                .Include(x => x.Salon)
+                .Where(x => x.SalonId == salonId)
+                .OrderBy(x => x.User.Name)
+                .ToPagedAsync(pageParams);
+        }
+
         public async Task<List<MasterProfile>> GetMastersBySalonFilter(Guid salonId, MasterProfileFilter filter)
         {
             return await _context.MasterProfiles.Where(x => x.SalonId == salonId).FilterMasterProfile(filter).ToListAsync();
@@ -53,9 +65,22 @@ namespace BarberBooking.API.Repositories
             .Include(x => x.Salon)
             .Where(x => x.Salon.Address.City == city)
             .OrderByDescending(x => x.RatingCount)
-            .OrderByDescending(x => x.Rating)
+            .ThenByDescending(x => x.Rating)
             .Take(take ?? 10)
             .ToListAsync();
+        }
+
+
+        public async Task<PagedResult<MasterProfile>> GetTopMastersInSalon(Guid salonId, PageParams pageParams)
+        {
+            return await _context.MasterProfiles
+                .AsNoTracking()
+                .Include(x => x.User)
+                .Include(x => x.Salon)
+                .Where(x => x.SalonId == salonId)
+                .OrderByDescending(x => x.RatingCount)
+                .ThenByDescending(x => x.Rating)
+                .ToPagedAsync(pageParams);
         }
 
         public async Task UpdateAsync(MasterProfile master)

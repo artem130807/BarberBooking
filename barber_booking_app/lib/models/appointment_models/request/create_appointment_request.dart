@@ -20,7 +20,7 @@ class CreateAppointmentRequest extends JsonSerializable {
       'timeSlotId':TimeSlotId,
       'clientNotes':ClientNotes,
       'startTime':StartTime,
-      'appointmentDate':AppointmentDate
+      'appointmentDate':AppointmentDate?.toIso8601String()
     };
   }
 

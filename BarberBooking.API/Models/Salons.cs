@@ -27,12 +27,14 @@ namespace BarberBooking.API.Models
         public ICollection<Appointments> Appointments {get; private set;}
         public ICollection<Services> Services {get; private set;}
         public ICollection<Review> Reviews { get; private set; }
+        public ICollection<SalonStatistic> SalonStatistics {get; private set;}
         private Salons()
         {
             SalonUsers = new List<MasterProfile>();
             Appointments = new List<Appointments>();
             Services = new List<Services>();
             Reviews = new List<Review>();
+            SalonStatistics = new List<SalonStatistic>();
         }
         public static Salons Create(string name, string description, Address address, PhoneNumber? phoneNumber ,TimeOnly? openingTime,  TimeOnly? closingTime , string? mainPhotoUrl)
         {

@@ -9,6 +9,7 @@ using BarberBooking.API.CQRS.AppointmentsQueries;
 using BarberBooking.API.Dto.DtoAppointments;
 using BarberBooking.API.Filters;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BarberBooking.API.Controllers
@@ -94,6 +95,16 @@ namespace BarberBooking.API.Controllers
         public async Task<IActionResult> GetAppointmentsAwaitingReview([FromQuery] PageParams pageParams)
         {
             var query = new GetAwaitingReviewQuery(pageParams);
+            var result = await _mediator.Send(query);
+            if (result.IsFailure)
+                return BadRequest(result.Error);
+            return Ok(result.Value);
+        }
+        [Authorize("Admin")]
+        [HttpGet("get-salon-appointments-paged/{salonId}")]
+        public async Task<IActionResult> GetSalonAppointmentsPaged(Guid salonId, [FromQuery] DateTime? from, [FromQuery] DateTime? to, [FromQuery] PageParams pageParams)
+        {
+            var query = new GetSalonAppointmentsPagedQuery(salonId, from, to, pageParams);
             var result = await _mediator.Send(query);
             if (result.IsFailure)
                 return BadRequest(result.Error);

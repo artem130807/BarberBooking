@@ -1,13 +1,14 @@
 import 'package:barber_booking_app/models/params/page_params.dart';
 import 'package:barber_booking_app/models/params/salon_params/salon_filter.dart';
 import 'package:barber_booking_app/providers/auth_providers/auth_provider.dart';
+import 'package:barber_booking_app/providers/message_providers/get_count_messages_provider.dart';
 import 'package:barber_booking_app/providers/master_providers/get_the_best_masters_provider.dart';
 import 'package:barber_booking_app/providers/salon_providers/get_salons_provider.dart';
-import 'package:barber_booking_app/screens/master_screens/master_detail_screen.dart';
+import 'package:barber_booking_app/screens/user_interfaces/master_screens/master_detail_screen.dart';
 import 'package:barber_booking_app/widgets/categors_widgets/category_item.dart';
 import 'package:barber_booking_app/widgets/master_widgets/master_card.dart';
 import 'package:barber_booking_app/widgets/salon_widgets/salon_card.dart';
-import 'package:barber_booking_app/screens/salon_screens/search_results_screen.dart';
+import 'package:barber_booking_app/screens/user_interfaces/salon_screens/search_results_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:barber_booking_app/widgets/loading_indicator.dart';
@@ -27,7 +28,7 @@ class _HomeScreenState extends State<HomeScreen> {
   bool _isSearchFocused = false;
   final PageParams _pageParams = PageParams(Page: 1, PageSize: 3);
   final SalonFilter filter = SalonFilter();
-  int _selectedNavIndex = 0; 
+  int _selectedNavIndex = 0;
 
   @override
   void initState() {
@@ -35,8 +36,12 @@ class _HomeScreenState extends State<HomeScreen> {
     _searchFocusNode.addListener(_onFocusChange);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final token = Provider.of<AuthProvider>(context, listen: false).token;
-      Provider.of<GetSalonsProvider>(context, listen: false).getSalons(_pageParams, filter, token);
-      Provider.of<GetTheBestMastersProvider>(context, listen: false).getMasters(4, token);
+      Provider.of<GetSalonsProvider>(context, listen: false)
+          .getSalons(_pageParams, filter, token);
+      Provider.of<GetTheBestMastersProvider>(context, listen: false)
+          .getMasters(4, token);
+      Provider.of<GetCountMessagesProvider>(context, listen: false)
+          .loadCount(token);
     });
   }
 
@@ -58,8 +63,12 @@ class _HomeScreenState extends State<HomeScreen> {
     final token = Provider.of<AuthProvider>(context, listen: false).token;
     if (token == null) return;
     await Future.wait([
-      Provider.of<GetSalonsProvider>(context, listen: false).getSalons(_pageParams, filter, token),
-      Provider.of<GetTheBestMastersProvider>(context, listen: false).getMasters(4, token),
+      Provider.of<GetSalonsProvider>(context, listen: false)
+          .getSalons(_pageParams, filter, token),
+      Provider.of<GetTheBestMastersProvider>(context, listen: false)
+          .getMasters(4, token),
+      Provider.of<GetCountMessagesProvider>(context, listen: false)
+          .loadCount(token),
     ]);
   }
 
@@ -106,14 +115,62 @@ class _HomeScreenState extends State<HomeScreen> {
 
         return Scaffold(
           appBar: AppBar(
+            automaticallyImplyLeading: false,
             title: const Text(
               'BarberBooking',
               style: TextStyle(fontWeight: FontWeight.bold),
             ),
             centerTitle: false,
-            actions: const [
-              Icon(Icons.notifications_outlined),
-              SizedBox(width: 16),
+            actions: [
+              Consumer<GetCountMessagesProvider>(
+                builder: (context, messageCountProvider, _) {
+                  return Stack(
+                    clipBehavior: Clip.none,
+                    children: [
+                      IconButton(
+                        icon: const Icon(Icons.notifications_outlined),
+                        onPressed: () async {
+                          await Navigator.pushNamed(context, '/messages');
+                          if (!mounted) return;
+                          final token =
+                              Provider.of<AuthProvider>(context, listen: false)
+                                  .token;
+                          Provider.of<GetCountMessagesProvider>(context,
+                                  listen: false)
+                              .loadCount(token);
+                        },
+                      ),
+                      if (messageCountProvider.count > 0)
+                        Positioned(
+                          right: 6,
+                          top: 6,
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 6, vertical: 2),
+                            decoration: BoxDecoration(
+                              color: Theme.of(context).colorScheme.primary,
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            constraints: const BoxConstraints(
+                                minWidth: 18, minHeight: 18),
+                            child: Text(
+                              messageCountProvider.count > 99
+                                  ? '99+'
+                                  : messageCountProvider.count.toString(),
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                fontSize: 11,
+                                fontWeight: FontWeight.w700,
+                                color: Theme.of(context).colorScheme.onPrimary,
+                              ),
+                            ),
+                          ),
+                        ),
+                    ],
+                  );
+                },
+              ),
+              const SizedBox(width: 8),
             ],
           ),
           body: RefreshIndicator(
@@ -121,160 +178,192 @@ class _HomeScreenState extends State<HomeScreen> {
             child: SingleChildScrollView(
               physics: const AlwaysScrollableScrollPhysics(),
               child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Padding(
-                  padding: EdgeInsets.all(16),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Привет, Гость!',
+                          style: Theme.of(context)
+                              .textTheme
+                              .headlineSmall
+                              ?.copyWith(
+                                fontWeight: FontWeight.bold,
+                                color:
+                                    Theme.of(context).colorScheme.onBackground,
+                              ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          'Найди свой идеальный стиль',
+                          style:
+                              Theme.of(context).textTheme.bodyLarge?.copyWith(
+                                    color: Theme.of(context)
+                                        .colorScheme
+                                        .onSurfaceVariant,
+                                  ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: Theme.of(context)
+                            .colorScheme
+                            .surfaceContainerHighest,
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(
+                          color: Theme.of(context)
+                              .colorScheme
+                              .outline
+                              .withOpacity(0.3),
+                        ),
+                      ),
+                      child: TextField(
+                        controller: _searchController,
+                        focusNode: _searchFocusNode,
+                        textInputAction: TextInputAction.search,
+                        decoration: const InputDecoration(
+                          hintText: 'Поиск салона....',
+                          prefixIcon: Icon(Icons.search),
+                          border: InputBorder.none,
+                          contentPadding: EdgeInsets.symmetric(vertical: 12),
+                        ),
+                        onSubmitted: (value) {
+                          final query = value.trim();
+                          if (query.isEmpty) return;
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => SearchResultsScreen(query: query),
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+                  Stack(
                     children: [
-                      Text(
-                        'Привет, Гость!',
-                        style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                      Opacity(
+                        opacity: _isSearchFocused ? 0.3 : 1.0,
+                        child: AbsorbPointer(
+                          absorbing: _isSearchFocused,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const SectionHeader(title: 'Категории услуг'),
+                              const SizedBox(height: 16),
+                              SizedBox(
+                                height: 90,
+                                child: ListView(
+                                  scrollDirection: Axis.horizontal,
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 16),
+                                  children: [
+                                    CategoryItem(
+                                      icon: Icons.content_cut,
+                                      label: 'Стрижка',
+                                      onTap: () => _navigateToSalonsByService(
+                                          context, 'Стрижка'),
+                                    ),
+                                    CategoryItem(
+                                      icon: Icons.face,
+                                      label: 'Бритье',
+                                      onTap: () => _navigateToSalonsByService(
+                                          context, 'Бритье'),
+                                    ),
+                                    CategoryItem(
+                                      icon: Icons.style,
+                                      label: 'Усы/борода',
+                                      onTap: () => _navigateToSalonsByService(
+                                          context, 'Усы/борода'),
+                                    ),
+                                    CategoryItem(
+                                      icon: Icons.spa,
+                                      label: 'Массаж',
+                                      onTap: () => _navigateToSalonsByService(
+                                          context, 'Массаж'),
+                                    ),
+                                    CategoryItem(
+                                      icon: Icons.child_care,
+                                      label: 'Детская',
+                                      onTap: () => _navigateToSalonsByService(
+                                          context, 'Детская'),
+                                    ),
+                                    CategoryItem(
+                                      icon: Icons.star,
+                                      label: 'Премиум',
+                                      onTap: () => _navigateToSalonsByService(
+                                          context, 'Премиум'),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              const SizedBox(height: 24),
+                              SectionHeader(
+                                title: 'Салоны в вашем городе',
+                                actionText: 'Все',
+                                onActionTap: () async {
+                                  Navigator.pushReplacementNamed(
+                                      context, '/salons_screen');
+                                },
+                              ),
+                              const SizedBox(height: 16),
+                              Padding(
+                                padding:
+                                    const EdgeInsets.symmetric(horizontal: 16),
+                                child: _buildSalonsList(salonProvider),
+                              ),
+                              const SizedBox(height: 24),
+                              const SectionHeader(title: 'Лучшие мастера'),
+                              const SizedBox(height: 16),
+                              SizedBox(
+                                height: 200,
+                                child:
+                                    _buildBestMastersList(bestMastersProvider),
+                              ),
+                              const SizedBox(height: 24),
+                            ],
+                          ),
+                        ),
                       ),
-                      SizedBox(height: 4),
-                      Text(
-                        'Найди свой идеальный стиль',
-                        style: TextStyle(fontSize: 16, color: Colors.grey),
-                      ),
+                      if (_isSearchFocused)
+                        Positioned.fill(
+                          child: GestureDetector(
+                            behavior: HitTestBehavior.opaque,
+                            onTap: () {
+                              _searchFocusNode.unfocus();
+                            },
+                            child: Container(
+                              color: Colors.transparent,
+                            ),
+                          ),
+                        ),
                     ],
                   ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: Colors.grey[200],
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: TextField(
-                      controller: _searchController,
-                      focusNode: _searchFocusNode,
-                      textInputAction: TextInputAction.search,
-                      decoration: const InputDecoration(
-                        hintText: 'Поиск салона....',
-                        prefixIcon: Icon(Icons.search),
-                        border: InputBorder.none,
-                        contentPadding: EdgeInsets.symmetric(vertical: 12),
-                      ),
-                      onSubmitted: (value) {
-                        final query = value.trim();
-                        if (query.isEmpty) return;
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) => SearchResultsScreen(query: query),
-                          ),
-                        );
-                      },
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 24),
-                Stack(
-                  children: [
-                    Opacity(
-                      opacity: _isSearchFocused ? 0.3 : 1.0,
-                      child: AbsorbPointer(
-                        absorbing: _isSearchFocused,
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const SectionHeader(title: 'Категории услуг'),
-                            const SizedBox(height: 16),
-                            SizedBox(
-                              height: 90,
-                              child: ListView(
-                                scrollDirection: Axis.horizontal,
-                                padding: const EdgeInsets.symmetric(horizontal: 16),
-                                children: [
-                                  CategoryItem(
-                                    icon: Icons.content_cut,
-                                    label: 'Стрижка',
-                                    onTap: () => _navigateToSalonsByService(context, 'Стрижка'),
-                                  ),
-                                  CategoryItem(
-                                    icon: Icons.face,
-                                    label: 'Бритье',
-                                    onTap: () => _navigateToSalonsByService(context, 'Бритье'),
-                                  ),
-                                  CategoryItem(
-                                    icon: Icons.style,
-                                    label: 'Усы/борода',
-                                    onTap: () => _navigateToSalonsByService(context, 'Усы/борода'),
-                                  ),
-                                  CategoryItem(
-                                    icon: Icons.spa,
-                                    label: 'Массаж',
-                                    onTap: () => _navigateToSalonsByService(context, 'Массаж'),
-                                  ),
-                                  CategoryItem(
-                                    icon: Icons.child_care,
-                                    label: 'Детская',
-                                    onTap: () => _navigateToSalonsByService(context, 'Детская'),
-                                  ),
-                                  CategoryItem(
-                                    icon: Icons.star,
-                                    label: 'Премиум',
-                                    onTap: () => _navigateToSalonsByService(context, 'Премиум'),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            const SizedBox(height: 24),
-                            SectionHeader(
-                              title: 'Салоны в вашем городе',
-                              actionText: 'Все',
-                              onActionTap: () async {
-                                Navigator.pushReplacementNamed(context, '/salons_screen');
-                              },
-                            ),
-                            const SizedBox(height: 16),
-                            Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 16),
-                              child: _buildSalonsList(salonProvider),
-                            ),
-                            const SizedBox(height: 24),
-                            const SectionHeader(title: 'Лучшие мастера'),
-                            const SizedBox(height: 16),
-                            SizedBox(
-                              height: 180,
-                              child: _buildBestMastersList(bestMastersProvider),
-                            ),
-                            const SizedBox(height: 24),
-                          ],
-                        ),
-                      ),
-                    ),
-                    if (_isSearchFocused)
-                      Positioned.fill(
-                        child: GestureDetector(
-                          behavior: HitTestBehavior.opaque,
-                          onTap: () {
-                            _searchFocusNode.unfocus();
-                          },
-                          child: Container(
-                            color: Colors.transparent,
-                          ),
-                        ),
-                      ),
-                  ],
-                ),
-              ],
-            ),
+                ],
+              ),
             ),
           ),
           bottomNavigationBar: BottomNavigationBar(
             type: BottomNavigationBarType.fixed,
             currentIndex: _selectedNavIndex,
             onTap: _onNavItemTapped,
-            unselectedItemColor: Colors.grey,
             items: const [
               BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Главная'),
               BottomNavigationBarItem(icon: Icon(Icons.search), label: 'Поиск'),
-              BottomNavigationBarItem(icon: Icon(Icons.calendar_today), label: 'Записи'),
-              BottomNavigationBarItem(icon: Icon(Icons.favorite), label: 'Избранное'),
-              BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Профиль'),
+              BottomNavigationBarItem(
+                  icon: Icon(Icons.calendar_today), label: 'Записи'),
+              BottomNavigationBarItem(
+                  icon: Icon(Icons.favorite), label: 'Избранное'),
+              BottomNavigationBarItem(
+                  icon: Icon(Icons.person), label: 'Профиль'),
             ],
           ),
         );
@@ -295,7 +384,8 @@ class _HomeScreenState extends State<HomeScreen> {
       );
     }
 
-    if (provider.getSalonsResponse == null || provider.getSalonsResponse!.isEmpty) {
+    if (provider.getSalonsResponse == null ||
+        provider.getSalonsResponse!.isEmpty) {
       return const ErrorWidgetCustom(
         message: 'Салоны в вашем городе не найдены',
       );
@@ -313,16 +403,16 @@ class _HomeScreenState extends State<HomeScreen> {
             salon: salon,
             onTap: () {
               Navigator.pushNamed(
-              context,
-              '/salon_screen',
-              arguments: salon.Id, 
-            );
+                context,
+                '/salon_screen',
+                arguments: salon.Id,
+              );
             },
             onBooking: () {
               Navigator.pushNamed(
-              context,
-              '/salon_masters',
-              arguments: salon.Id,
+                context,
+                '/salon_masters',
+                arguments: salon.Id,
               );
             },
           ),
@@ -344,7 +434,8 @@ class _HomeScreenState extends State<HomeScreen> {
       );
     }
 
-    if (provider.getMasterResponse == null || provider.getMasterResponse!.isEmpty) {
+    if (provider.getMasterResponse == null ||
+        provider.getMasterResponse!.isEmpty) {
       return const ErrorWidgetCustom(
         message: 'Лучшие мастера не найдены',
       );
@@ -365,11 +456,11 @@ class _HomeScreenState extends State<HomeScreen> {
           rating: 5.0,
           imageUrl: master.AvatarUrl,
           onTap: () {
-          Navigator.pushNamed(
-            context,
-            '/master_detail',
-            arguments: master.Id, 
-          );
+            Navigator.pushNamed(
+              context,
+              '/master_detail',
+              arguments: master.Id,
+            );
           },
         );
       },

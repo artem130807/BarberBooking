@@ -1,0 +1,18 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using BarberBooking.API.Models;
+
+namespace BarberBooking.API.Contracts.MessagesContracts
+{
+    public interface IMessagesRepository
+    {
+        Task Add(Messages message);
+        Task DeleteRange(List<Messages> messages);
+        Task UpdateRange(List<Messages> messages);
+        Task<List<Messages>> GetMessages(Guid userId);
+        Task<List<Messages>> GetUnreadMessages(Guid userId);
+        Task<List<Messages>> GetMessagesByAppointmentId(Guid appointmentId);
+    }
+}

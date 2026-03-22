@@ -8,6 +8,7 @@ using BarberBooking.API.Dto.DtoReview;
 using BarberBooking.API.Filters;
 using BarberBooking.API.Filters.ReviewFilters;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BarberBooking.API.Controllers
@@ -90,6 +91,26 @@ namespace BarberBooking.API.Controllers
             var command = new UpdateReviewCommand(Id, dtoUpdateReview);
             var result = await _mediator.Send(command);
             if(result.IsFailure)
+                return BadRequest(result.Error);
+            return Ok(result.Value);
+        }
+        [Authorize("Admin")]
+        [HttpGet("GetLowRatingReviewsPaged")]
+        public async Task<IActionResult> GetLowRatingReviewsPaged([FromQuery] Guid? salonId, [FromQuery] PageParams pageParams)
+        {
+            var query = new GetLowRatingReviewsPagedQuery(salonId, pageParams);
+            var result = await _mediator.Send(query);
+            if (result.IsFailure)
+                return BadRequest(result.Error);
+            return Ok(result.Value);
+        }
+        [Authorize("Admin")]
+        [HttpGet("GetAllReviewsAdmin")]
+        public async Task<IActionResult> GetAllReviewsAdmin([FromQuery] FilterReviews filter, [FromQuery] PageParams pageParams)
+        {
+            var query = new GetAllReviewsAdminQuery(filter ?? new FilterReviews(), pageParams);
+            var result = await _mediator.Send(query);
+            if (result.IsFailure)
                 return BadRequest(result.Error);
             return Ok(result.Value);
         }

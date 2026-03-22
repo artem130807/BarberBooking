@@ -17,16 +17,19 @@ namespace BarberBooking.API.CQRS.Queries.Handlers
         private readonly IUserRepository _usersRepository;
         private readonly IPasswordHasher _passwordHasher;
         private readonly IJwtProvider _jwtProvider;
+        private readonly IUserRolesRepository _userRolesRepository;
         
         public LoginUserQueryCommandHandler(
             IUserRepository usersRepository,
             IPasswordHasher passwordHasher,
-            IJwtProvider jwtProvider
+            IJwtProvider jwtProvider,
+            IUserRolesRepository userRolesRepository
             )
         {
             _usersRepository = usersRepository;
             _passwordHasher = passwordHasher;
             _jwtProvider = jwtProvider;
+            _userRolesRepository = userRolesRepository;
         }
 
         public async Task<Result<AuthDto>> Handle(LoginUserQuery query, CancellationToken cancellationToken)
@@ -40,7 +43,8 @@ namespace BarberBooking.API.CQRS.Queries.Handlers
                 return Result.Failure<AuthDto>("Неправильный пароль");
             }
             var token = await _jwtProvider.GenerateToken(user);
-            return Result.Success(new AuthDto { Token = token, Message = "Вы успешно зашли в аккаунт" });
+            var roleInterface = await _userRolesRepository.GetMaxRole(user.Id);
+            return Result.Success(new AuthDto { Token = token, Message = "Вы успешно зашли в аккаунт", RoleInterface = roleInterface});
         }
     }
 }

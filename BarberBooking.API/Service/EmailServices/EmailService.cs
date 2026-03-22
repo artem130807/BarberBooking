@@ -1,16 +1,16 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Net;
 using System.Net.Mail;
-using System.Threading.Tasks;
 using BarberBooking.API.Contracts.EmailContracts;
+using MailKit.Net.Smtp;
+using MailKit.Security;
+using MimeKit;
 
 namespace BarberBooking.API.Service.EmailServices
 {
-    public class EmailService:IEmailService
+    public class EmailService : IEmailService
     {
         private readonly IConfiguration _configuration;
+
         public EmailService(IConfiguration configuration)
         {
             _configuration = configuration;
@@ -18,33 +18,27 @@ namespace BarberBooking.API.Service.EmailServices
 
         public async Task SendVerificationService(string email, string code)
         {
-            await SendViaSmtp(email, code);
-        }
-        private async Task SendViaSmtp(string email, string code)
-        {
             var smtpHost = _configuration["Email:SmtpHost"];
-            var smtpPort = int.Parse(_configuration["Email:SmtpPort"]);
+            var smtpPort = int.Parse(_configuration["Email:SmtpPort"] ?? "465");
             var username = _configuration["Email:Username"];
-            var password = _configuration["Email:Password"];
+            var password = _configuration["Email:Password"] ?? "";
             var fromAddress = _configuration["Email:FromAddress"];
-            using var client = new SmtpClient(smtpHost, smtpPort)
-            {
-                EnableSsl = true,
-                Credentials = new NetworkCredential(username, password),
-                UseDefaultCredentials = false,
-                DeliveryMethod = SmtpDeliveryMethod.Network,
-                Timeout = 15000
+            var fromName = _configuration["Email:FromName"] ?? "BarberBooking";
 
-            };
-            var message = new MailMessage
+            var message = new MimeMessage();
+            message.From.Add(new MailboxAddress(fromName, fromAddress));
+            message.To.Add(MailboxAddress.Parse(email));
+            message.Subject = "Код подтверждения BarberBooking";
+            message.Body = new TextPart("plain")
             {
-                From = new MailAddress(fromAddress),
-                Subject = "Код подтверждения BarberBooking",
-                Body = $"Ваш код подтверждения: {code}. Действует 15 минут.",
-                IsBodyHtml = false
+                Text = $"Ваш код подтверждения: {code}. Действует 15 минут."
             };
-            message.To.Add(email);
-            await client.SendMailAsync(message);
+
+            using var client = new MailKit.Net.Smtp.SmtpClient();
+            await client.ConnectAsync(smtpHost, smtpPort, SecureSocketOptions.SslOnConnect);
+            await client.AuthenticateAsync(username, password);
+            await client.SendAsync(message);
+            await client.DisconnectAsync(true);
         }
     }
 }

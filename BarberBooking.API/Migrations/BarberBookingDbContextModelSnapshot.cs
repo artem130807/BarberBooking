@@ -243,6 +243,38 @@ namespace BarberBooking.API.Migrations
                     b.ToTable("MasterTimeSlots", (string)null);
                 });
 
+            modelBuilder.Entity("BarberBooking.API.Models.Messages", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("AppointmentId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Content")
+                        .IsRequired()
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsVisible")
+                        .HasColumnType("bit");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AppointmentId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("Messages", (string)null);
+                });
+
             modelBuilder.Entity("BarberBooking.API.Models.Permissions", b =>
                 {
                     b.Property<int>("Id")
@@ -366,6 +398,26 @@ namespace BarberBooking.API.Migrations
                         {
                             RoleId = 1,
                             PermissionId = 1
+                        },
+                        new
+                        {
+                            RoleId = 3,
+                            PermissionId = 1
+                        },
+                        new
+                        {
+                            RoleId = 3,
+                            PermissionId = 2
+                        },
+                        new
+                        {
+                            RoleId = 3,
+                            PermissionId = 3
+                        },
+                        new
+                        {
+                            RoleId = 3,
+                            PermissionId = 4
                         });
                 });
 
@@ -395,7 +447,40 @@ namespace BarberBooking.API.Migrations
                         {
                             Id = 2,
                             Name = "Admin"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Name = "Master"
                         });
+                });
+
+            modelBuilder.Entity("BarberBooking.API.Models.SalonStatistic", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("AppointmentsCount")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<decimal>("Rating")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<int>("RatingCount")
+                        .HasColumnType("int");
+
+                    b.Property<Guid>("SalonId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("SalonId");
+
+                    b.ToTable("SalonStatistic", (string)null);
                 });
 
             modelBuilder.Entity("BarberBooking.API.Models.Salons", b =>
@@ -735,6 +820,24 @@ namespace BarberBooking.API.Migrations
                     b.Navigation("Master");
                 });
 
+            modelBuilder.Entity("BarberBooking.API.Models.Messages", b =>
+                {
+                    b.HasOne("BarberBooking.API.Models.Appointments", "Appointment")
+                        .WithMany("Messages")
+                        .HasForeignKey("AppointmentId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.HasOne("BarberBooking.API.Models.Users", "User")
+                        .WithMany("Messages")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Appointment");
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("BarberBooking.API.Models.Review", b =>
                 {
                     b.HasOne("BarberBooking.API.Models.Appointments", "Appointment")
@@ -782,6 +885,17 @@ namespace BarberBooking.API.Migrations
                         .HasForeignKey("RoleId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("BarberBooking.API.Models.SalonStatistic", b =>
+                {
+                    b.HasOne("BarberBooking.API.Models.Salons", "Salon")
+                        .WithMany("SalonStatistics")
+                        .HasForeignKey("SalonId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Salon");
                 });
 
             modelBuilder.Entity("BarberBooking.API.Models.Services", b =>
@@ -836,6 +950,11 @@ namespace BarberBooking.API.Migrations
                     b.Navigation("MasterProfile");
                 });
 
+            modelBuilder.Entity("BarberBooking.API.Models.Appointments", b =>
+                {
+                    b.Navigation("Messages");
+                });
+
             modelBuilder.Entity("BarberBooking.API.Models.MasterProfile", b =>
                 {
                     b.Navigation("Appointments");
@@ -860,6 +979,8 @@ namespace BarberBooking.API.Migrations
 
                     b.Navigation("Reviews");
 
+                    b.Navigation("SalonStatistics");
+
                     b.Navigation("SalonUsers");
 
                     b.Navigation("Services");
@@ -868,6 +989,11 @@ namespace BarberBooking.API.Migrations
             modelBuilder.Entity("BarberBooking.API.Models.Services", b =>
                 {
                     b.Navigation("Appointments");
+                });
+
+            modelBuilder.Entity("BarberBooking.API.Models.Users", b =>
+                {
+                    b.Navigation("Messages");
                 });
 
             modelBuilder.Entity("BarberBooking.API.Models.WeeklyTemplate", b =>

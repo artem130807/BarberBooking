@@ -47,5 +47,33 @@ namespace BarberBooking.API.ExtensionsProject
             }
             return query;
         }
+
+        public static IQueryable<Review> ToFilterReview(this IQueryable<Review> query, FilterReviews filterReviews)
+        {
+            if (filterReviews == null)
+                return query.OrderByDescending(x => x.CreatedAt);
+
+            if (filterReviews.SalonId.HasValue)
+                query = query.Where(x => x.SalonId == filterReviews.SalonId);
+
+            if (filterReviews.MasterId.HasValue)
+                query = query.Where(x => x.MasterProfileId == filterReviews.MasterId);
+
+            if (filterReviews.From.HasValue)
+                query = query.Where(x => x.CreatedAt >= filterReviews.From);
+
+            if (filterReviews.To.HasValue)
+                query = query.Where(x => x.CreatedAt <= filterReviews.To);
+
+            if (filterReviews.LowRating == true)
+                query = query
+                    .OrderBy(x => x.SalonRating)
+                    .ThenBy(x => x.MasterRating)
+                    .ThenByDescending(x => x.CreatedAt);
+            else
+                query = query.OrderByDescending(x => x.CreatedAt);
+
+            return query;
+        }
     }
 }

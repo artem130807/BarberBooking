@@ -29,6 +29,8 @@ namespace BarberBooking.API
         public DbSet<TemplateDay> TemplateDays {get; set;}
         public DbSet<EmailVerification> EmailVerifications {get; set;}
         public DbSet<EventStore> EventStores {get; set;}
+        public DbSet<Messages> Messages {get; set;}
+        public DbSet<SalonStatistic> SalonStatistics {get; set;}
         
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -45,6 +47,8 @@ namespace BarberBooking.API
             modelBuilder.ApplyConfiguration(new TemplateDayConfigurations());
             modelBuilder.ApplyConfiguration(new WeeklyTemplateConfigurations());
             modelBuilder.ApplyConfiguration(new MasterSubscriptionConfigurations());
+            modelBuilder.ApplyConfiguration(new MessagesConfigurations());
+            modelBuilder.ApplyConfiguration(new SalonStatisticConfigurations());
             base.OnModelCreating(modelBuilder);
         }
         public void BeginTransaction()

@@ -64,7 +64,10 @@ namespace BarberBooking.API
             });
              services.AddScoped<IPermissionService, PermissionsService>();
              services.AddSingleton<IAuthorizationHandler, PermissionHandler>();
-             services.AddAuthorization();
+             services.AddAuthorization(options =>
+             {
+                 options.AddPolicy("Admin", policy => policy.RequireRole("Admin"));
+             });
         }
         public static IEndpointConventionBuilder RequirePermissions<TBuilder>
         (this TBuilder builder, params PermissionsEnum[] permissions) where TBuilder : IEndpointConventionBuilder
@@ -86,6 +89,7 @@ namespace BarberBooking.API
         {
             services.AddHostedService<SalonBackground>();
             services.AddHostedService<EmailVerificateBackgroundDeleter>();
+            services.AddHostedService<SalonStatiscticBackgroundService>();
             return services;
         }
         public static void InitializingCache(this IApplicationBuilder app)

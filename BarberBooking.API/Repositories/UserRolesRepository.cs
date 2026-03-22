@@ -27,5 +27,23 @@ namespace BarberBooking.API.Repositories
         {
            return await _context.Roles.Where(x => x.Id == roleId).ToListAsync();
         }
+
+        public async Task AddUserRoleAsync(Guid userId, int roleId)
+        {
+            await _context.UserRoles.AddAsync(new UserRoles { UserId = userId, RoleId = roleId });
+        }
+
+        public async Task RemoveUserRoleAsync(Guid userId, int roleId)
+        {
+            var userRole = await _context.UserRoles
+                .FirstOrDefaultAsync(x => x.UserId == userId && x.RoleId == roleId);
+            if (userRole != null)
+                _context.UserRoles.Remove(userRole);
+        }
+
+        public async Task<int> GetMaxRole(Guid userId)
+        {
+            return await _context.UserRoles.Where(x => x.UserId == userId).Select(x => x.RoleId).MaxAsync();
+        }
     }
 }

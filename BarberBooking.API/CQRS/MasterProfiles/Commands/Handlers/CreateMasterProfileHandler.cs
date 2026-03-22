@@ -10,6 +10,7 @@ using BarberBooking.API.Domain;
 using BarberBooking.API.Domain.MasterDomain;
 using BarberBooking.API.Domain.ValueObjects;
 using BarberBooking.API.Dto.DtoMasterProfile;
+using BarberBooking.API.Enums;
 using CSharpFunctionalExtensions;
 using MediatR;
 
@@ -24,7 +25,9 @@ namespace BarberBooking.API.CQRS.MasterProfile.Commands.Handlers
         private readonly IEventStoreRepository _eventStoreRepository;
         private readonly IKafkaProducerSalonEvent<MasterCreatedEvent> _kafkaProducerSalonEvent;
         private readonly IRatingCreateMasterService _ratingCreateMaster;
-        public CreateMasterProfileHandler(IUnitOfWork unitOfWork, IMapper mapper, ILogger<CreateMasterProfileHandler> logger, IEventStoreRepository eventStoreRepository, IMasterProfileRepository masterProfileRepository, IKafkaProducerSalonEvent<MasterCreatedEvent> kafkaProducerSalonEvent, IRatingCreateMasterService ratingCreateMaster)
+        private readonly IUserRolesRepository _userRolesRepository;
+        private readonly IUserRepository _userRepository;
+        public CreateMasterProfileHandler(IUnitOfWork unitOfWork, IMapper mapper, ILogger<CreateMasterProfileHandler> logger, IEventStoreRepository eventStoreRepository, IMasterProfileRepository masterProfileRepository, IKafkaProducerSalonEvent<MasterCreatedEvent> kafkaProducerSalonEvent, IRatingCreateMasterService ratingCreateMaster, IUserRolesRepository userRolesRepository, IUserRepository userRepository)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
@@ -33,14 +36,16 @@ namespace BarberBooking.API.CQRS.MasterProfile.Commands.Handlers
             _masterProfileRepository = masterProfileRepository;
             _kafkaProducerSalonEvent = kafkaProducerSalonEvent;
             _ratingCreateMaster = ratingCreateMaster;
+            _userRolesRepository = userRolesRepository;
+            _userRepository = userRepository;
         }
         public async Task<Result<DtoCreateProfileInfo>> Handle(CreateMasterProfileCommand command, CancellationToken cancellationToken)
         {
-
-            var masterProfileByUserId = await _masterProfileRepository.GetMasterProfileByUserId(command.dtoCreateMasterProfile.UserId);
+            var user = await _userRepository.GetUserByEmail(command.dtoCreateMasterProfile.EmailUser);
+            var masterProfileByUserId = await _masterProfileRepository.GetMasterProfileByUserId(user.Id);
             if(masterProfileByUserId != null)
                 return Result.Failure<DtoCreateProfileInfo>("Профиль мастера уже создан");
-            var masterProfile = Models.MasterProfile.Create(command.dtoCreateMasterProfile.UserId, command.dtoCreateMasterProfile.SalonId, 
+            var masterProfile = Models.MasterProfile.Create(user.Id, command.dtoCreateMasterProfile.SalonId, 
             command.dtoCreateMasterProfile.Bio, command.dtoCreateMasterProfile.Specialization, 
             command.dtoCreateMasterProfile.AvatarUrl);
             var domainCreatedEvent = new MasterCreatedEvent(masterProfile.Id, masterProfile.UserId, masterProfile.SalonId, masterProfile.Bio, masterProfile.Specialization, masterProfile.AvatarUrl);
@@ -48,9 +53,11 @@ namespace BarberBooking.API.CQRS.MasterProfile.Commands.Handlers
             {
                 _unitOfWork.BeginTransaction();
                 await _unitOfWork.masterProfileRepository.CreateMasterProfile(masterProfile);
+                await _userRolesRepository.AddUserRoleAsync(masterProfile.UserId, (int)RolesEnum.Master);
                 await _eventStoreRepository.SaveEventsAsync(domainCreatedEvent.AggregateId, new List<DomainEvent>{domainCreatedEvent});
                 _unitOfWork.Commit();
-            }catch(Exception ex)
+            }
+            catch (Exception ex)
             {
                 _unitOfWork.RollBack();
                 _logger.LogError(ex.Message);

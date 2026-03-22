@@ -66,6 +66,10 @@
               "target": "Package",
               "version": "[2.13.1, )"
             },
+            "MailKit": {
+              "target": "Package",
+              "version": "[4.15.1, )"
+            },
             "MediatR": {
               "target": "Package",
               "version": "[14.0.0, )"
@@ -105,6 +109,10 @@
             "Newtonsoft.Json": {
               "target": "Package",
               "version": "[13.0.4, )"
+            },
+            "SendGrid": {
+              "target": "Package",
+              "version": "[9.29.3, )"
             },
             "Serilog.AspNetCore": {
               "target": "Package",

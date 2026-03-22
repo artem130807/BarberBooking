@@ -4,6 +4,7 @@ using BarberBooking.API.Contracts;
 using BarberBooking.API.Contracts.EmailContracts;
 using BarberBooking.API.Contracts.MasterProfileContracts;
 using BarberBooking.API.Contracts.MasterSubscriptionContracts;
+using BarberBooking.API.Contracts.MessagesContracts;
 using BarberBooking.API.Contracts.ReviewContracts;
 using BarberBooking.API.Contracts.SalonsContracts;
 using BarberBooking.API.Contracts.UserContratcts;
@@ -99,6 +100,8 @@ builder.Services.AddScoped<IBadWordService, BadWordService>();
 builder.Services.AddScoped<IValidateReviewRepository, ValidateReviewRepository>();
 builder.Services.AddScoped<IUpdateReviewService, UpdateReviewService>();
 builder.Services.AddScoped<IUpdateRatingService, UpdateRatingService>();
+builder.Services.AddScoped<IMessagesRepository, MessagesRepository>();
+builder.Services.AddScoped<ISalonStatisticRepository, SalonStatisticRepository>();
 var app = builder.Build();
 app.InitializingCache();
 // Configure the HTTP request pipeline.

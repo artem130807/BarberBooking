@@ -9,6 +9,7 @@ using BarberBooking.API.Dto.DtoAppointments;
 using BarberBooking.API.Dto.DtoMasterProfile;
 using BarberBooking.API.Dto.DtoMasterSubscription;
 using BarberBooking.API.Dto.DtoMasterTimeSlot;
+using BarberBooking.API.Dto.DtoMessages;
 using BarberBooking.API.Dto.DtoReview;
 using BarberBooking.API.Dto.DtoSalons;
 using BarberBooking.API.Dto.DtoServices;
@@ -43,6 +44,13 @@ namespace BarberBooking.API
             .ForMember(dest => dest.Data, opt => opt.MapFrom(src => src.Data))
             .ForMember(dest => dest.Count, opt => opt.MapFrom(src => src.Count));
 
+            CreateMap<Services, DtoServicesAdminListItem>()
+            .ForMember(dest => dest.Price, opt => opt.MapFrom(src => src.Price));
+
+            CreateMap<PagedResult<Services>, PagedResult<DtoServicesAdminListItem>>()
+            .ForMember(dest => dest.Data, opt => opt.MapFrom(src => src.Data))
+            .ForMember(dest => dest.Count, opt => opt.MapFrom(src => src.Count));
+
             ///Салоны
             CreateMap<DtoCreateSalon, Salons>();
             CreateMap<DtoUpdateSalon, Salons>();
@@ -64,6 +72,12 @@ namespace BarberBooking.API
             CreateMap<PagedResult<Salons>, PagedResult<DtoSalonShortInfo>>()
             .ForMember(dest => dest.Data, opt => opt.MapFrom(src => src.Data))
             .ForMember(dest => dest.Count, opt => opt.MapFrom(src => src.Count));
+
+            CreateMap<Salons, DtoSalonAdminStats>()
+            .ForMember(dest => dest.MastersCount, opt => opt.MapFrom(src => src.SalonUsers.Count))
+            .ForMember(dest => dest.ServicesCount, opt => opt.MapFrom(src => src.Services.Count))
+            .ForMember(dest => dest.AppointmentsCount, opt => opt.MapFrom(src => src.Appointments.Count))
+            .ForMember(dest => dest.ReviewsCount, opt => opt.MapFrom(src => src.Reviews.Count));
             
             ///МастерПрофиль
             CreateMap<DtoCreateMasterProfile, MasterProfile>()
@@ -102,6 +116,10 @@ namespace BarberBooking.API
             CreateMap<MasterProfile, DtoMasterProfileNavigation>()
             .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
             .ForMember(dest => dest.MasterName, opt => opt.MapFrom(src => src.User.Name));
+
+            CreateMap<PagedResult<MasterProfile>, PagedResult<DtoMasterProfileInfo>>()
+            .ForMember(dest => dest.Data, opt => opt.MapFrom(src => src.Data))
+            .ForMember(dest => dest.Count, opt => opt.MapFrom(src => src.Count));
 
             ///Записи
             CreateMap<Appointments, DtoAppointmentAwaitingReview>()
@@ -155,6 +173,17 @@ namespace BarberBooking.API
             .ForMember(dest => dest.ServiceName, opt => opt.MapFrom(src => src.Service.Name))
             .ForMember(dest => dest.Price, opt => opt.MapFrom(src => src.Service.Price))
             .ForMember(dest => dest.PhotoUrl, opt => opt.MapFrom(src => src.Service.PhotoUrl));
+
+            CreateMap<Appointments, DtoSalonAppointmentAdmin>()
+            .ForMember(dest => dest.dtoUsersNavigation, opt => opt.MapFrom(src => src.Client))
+            .ForMember(dest => dest.dtoMasterProfileNavigation, opt => opt.MapFrom(src => src.Master))
+            .ForMember(dest => dest.dtoServicesNavigation, opt => opt.MapFrom(src => src.Service))
+            .ForMember(dest => dest.SalonName, opt => opt.MapFrom(src => src.Salon.Name))
+            .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status.ToString()));
+
+            CreateMap<PagedResult<Appointments>, PagedResult<DtoSalonAppointmentAdmin>>()
+            .ForMember(dest => dest.Data, opt => opt.MapFrom(src => src.Data))
+            .ForMember(dest => dest.Count, opt => opt.MapFrom(src => src.Count));
             ///Отзывы
             CreateMap<DtoCreateReview, Review>();
             CreateMap<DtoUpdateReview, Review>();
@@ -183,6 +212,16 @@ namespace BarberBooking.API
             .ForMember(dest => dest.Data, opt => opt.MapFrom(src => src.Data))
             .ForMember(dest => dest.Count, opt => opt.MapFrom(src => src.Count));
 
+            CreateMap<Review, DtoReviewAdminListItem>()
+            .ForMember(dest => dest.ClientName, opt => opt.MapFrom(src => src.Client != null ? src.Client.Name : string.Empty))
+            .ForMember(dest => dest.dtoSalonNavigation, opt => opt.MapFrom(src => src.Salon))
+            .ForMember(dest => dest.masterProfileNavigation, opt => opt.MapFrom(src => src.MasterProfile))
+            .ForMember(dest => dest.dtoAppointmentNavigation, opt => opt.MapFrom(src => src.Appointment));
+
+            CreateMap<PagedResult<Review>, PagedResult<DtoReviewAdminListItem>>()
+            .ForMember(dest => dest.Data, opt => opt.MapFrom(src => src.Data))
+            .ForMember(dest => dest.Count, opt => opt.MapFrom(src => src.Count));
+
             ///Слоты
             CreateMap<DtoCreateMasterTimeSlot, MasterTimeSlot>();
             CreateMap<DtoUpdateMasterTimeSlot, MasterTimeSlot>();
@@ -195,8 +234,12 @@ namespace BarberBooking.API
             CreateMap<MasterSubscription, DtoMasterSubscriptionShortInfo>()
             .ForMember(dest => dest.masterProfileNavigation, opt => opt.MapFrom(src => src.MasterProfile));
             ///Пользователи
-            CreateMap<Users, DtoUsersNavigation>();
+            CreateMap<Users, DtoUsersNavigation>()
+             .ForMember(dest => dest.dtoPhone, opt => opt.MapFrom(src => src.Phone)); 
             CreateMap<Users, UserInfoDto>();
+
+            ///Сообщения
+            CreateMap<Messages, DtoMessagesShortInfo>();
             ///ValueObject
             CreateMap<DtoUpdatePrice, Price>();
             CreateMap<Price, DtoPrice>();

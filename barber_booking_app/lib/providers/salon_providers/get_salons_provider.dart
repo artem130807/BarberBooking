@@ -23,8 +23,8 @@ class GetSalonsProvider extends BaseProvider {
     finishLoading();
     return false;
   }
-  }catch(e){
-    print(e);
+  } catch (e) {
+    handleError(e);
     return false;
   }
   }

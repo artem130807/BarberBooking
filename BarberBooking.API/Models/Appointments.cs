@@ -27,7 +27,11 @@ namespace BarberBooking.API.Models
         public MasterProfile Master { get; private set; } 
         public  Services Service { get; private set; }
         public MasterTimeSlot TimeSlot { get; private set; }
-        private Appointments(){}
+        public ICollection<Messages>? Messages {get; private set;}
+        private Appointments()
+        {
+            Messages = new List<Messages>();
+        }
 
         public static Appointments Create(Guid salonId, Guid masterId, Guid clientId , Guid serviceId, Guid timeSlotId,  TimeOnly startTime, string clientNotes, TimeOnly endTime, DateTime appointmentDate)
         {

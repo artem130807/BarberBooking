@@ -28,6 +28,7 @@ namespace BarberBooking.API.CQRS.Commands.Handlers
         private readonly IMemoryCache _memoryCache;
         private readonly IDnsEmailValidator _emailValidator;
         private readonly IUserValidatorService _userValidator;
+        private readonly IUserRolesRepository _userRolesRepository;
         public RegisterUserCommandHandler(
             IUserRepository usersRepository,
             IPasswordHasher passwordHasher,
@@ -36,7 +37,8 @@ namespace BarberBooking.API.CQRS.Commands.Handlers
             IPasswordValidatorService passwordValidatorService,
             IUserRolesRepository roleRepository, IMemoryCache memoryCache,
             IDnsEmailValidator emailValidator,
-            IUserValidatorService userValidator
+            IUserValidatorService userValidator,
+            IUserRolesRepository userRolesRepository
         )
         {
             _emailValidator = emailValidator;
@@ -48,6 +50,7 @@ namespace BarberBooking.API.CQRS.Commands.Handlers
             _rolesRepository = roleRepository;
             _memoryCache = memoryCache;
             _userValidator = userValidator;
+            _userRolesRepository = userRolesRepository;
         }
         public async Task<Result<AuthDto>> Handle(RegisterUserCommand command, CancellationToken cancellationToken)
         {
@@ -62,8 +65,6 @@ namespace BarberBooking.API.CQRS.Commands.Handlers
             var emailValid = await _emailValidator.ValidateEmailAsync(command.dtoCreateUser.Email);
             if(emailValid.IsFailure)
                     return Result.Failure<AuthDto>(emailValid.Error);
-            
-            
 
             var user = await _usersRepository.GetUserByPhone(command.dtoCreateUser.Phone.Number);
             if (user != null)       
@@ -92,8 +93,9 @@ namespace BarberBooking.API.CQRS.Commands.Handlers
             };
             await _usersRepository.Register(newuser);
             var token = await _jwtProvider.GenerateToken(newuser);
+            var roleInterface = await _userRolesRepository.GetMaxRole(newuser.Id);
             _memoryCache.Remove(cacheKey);
-            return Result.Success(new AuthDto { Token = token, Message = "Вы успешно зарегистрировались" });
+            return Result.Success(new AuthDto { Token = token, Message = "Вы успешно зарегистрировались", RoleInterface = roleInterface });
         }
         
     }

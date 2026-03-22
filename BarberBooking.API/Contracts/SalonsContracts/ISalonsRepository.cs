@@ -23,5 +23,7 @@ namespace BarberBooking.API.Contracts.SalonsContracts
         Task<List<Salons>> GetSalons();
         Task SaveChangesAsync();
         Task UpdateAsync(Salons salon);
+        Task<Salons?> GetSalonStats(Guid salonId);
+        Task<List<Salons>> GetSalonsMounthStats();
     }
 }

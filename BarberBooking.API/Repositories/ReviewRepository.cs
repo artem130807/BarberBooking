@@ -103,5 +103,38 @@ namespace BarberBooking.API.Repositories
             .Where(x => x.ClientId == clientId)
             .ToPagedAsync(pageParams);
         }
+
+        public async Task<PagedResult<Review>> GetAllReviews(FilterReviews filterReviews, PageParams pageParams)
+        {
+            return await _context.Reviews
+            .Include(x => x.Salon)
+            .Include(x => x.Appointment)
+            .ThenInclude(x => x.Service)
+            .Include(x => x.MasterProfile)
+            .Include(x => x.Client)
+            .ToFilterReview(filterReviews)
+            .ToPagedAsync(pageParams);
+        }
+
+        public async Task<PagedResult<Review>> GetLowRatingReviewsPaged(Guid? salonId, PageParams pageParams)
+        {
+            var query = _context.Reviews
+                .AsNoTracking()
+                .Include(x => x.Salon)
+                .Include(x => x.Appointment)
+                .ThenInclude(x => x.Service)
+                .Include(x => x.MasterProfile)
+                .Include(x => x.Client)
+                .AsQueryable();
+
+            if (salonId.HasValue)
+                query = query.Where(x => x.SalonId == salonId.Value);
+
+            query = query
+                .OrderBy(x => x.SalonRating)
+                .ThenBy(x => x.MasterRating ?? 6);
+
+            return await query.ToPagedAsync(pageParams);
+        }
     }
 }

@@ -23,14 +23,12 @@ namespace BarberBooking.API.Service
                 var userIdClaim = _httpContextAccessor.HttpContext?
                     .User?.FindFirstValue("userId");
                     
-                // 2. Если нет, пробуем стандартный
                 if (string.IsNullOrEmpty(userIdClaim))
                 {
                     userIdClaim = _httpContextAccessor.HttpContext?
                         .User?.FindFirstValue(ClaimTypes.NameIdentifier);
                 }
                 
-                // 3. Если все еще null, пробуем JWT registered claim
                 if (string.IsNullOrEmpty(userIdClaim))
                 {
                     userIdClaim = _httpContextAccessor.HttpContext?
@@ -48,6 +46,19 @@ namespace BarberBooking.API.Service
                return _httpContextAccessor.HttpContext?.User?
                 .FindFirstValue("userCity") ?? "";
             }
+        }
+        public IEnumerable<string> Roles
+        {
+            get
+            {
+                return _httpContextAccessor.HttpContext?.User?
+                .FindAll(ClaimTypes.Role)
+                .Select(c => c.Value) ?? Enumerable.Empty<string>();
+            }
+        }
+        public bool IsInRole(string role)
+        {
+            return Roles.Contains(role);
         }
 
         public bool IsAuthenticated => _httpContextAccessor.HttpContext?.User?.Identity?.IsAuthenticated ?? false;

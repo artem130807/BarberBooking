@@ -54,6 +54,8 @@ namespace BarberBooking.API.Configurations
                 
             builder.Property(x => x.UpdatedAt)
                 .IsRequired();
+
+            builder.HasMany(x => x.Messages).WithOne(x => x.Appointment).HasForeignKey(x => x.AppointmentId);
         }
     }
 }

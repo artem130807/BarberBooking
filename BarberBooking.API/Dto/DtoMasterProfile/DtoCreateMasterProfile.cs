@@ -7,7 +7,7 @@ namespace BarberBooking.API.Dto.DtoMasterProfile
 {
     public class DtoCreateMasterProfile
     {
-        public Guid UserId { get; set; }
+        public string EmailUser { get; set; }
         public Guid SalonId {get; set;}
         public string? Bio { get; set; }
         public string? Specialization { get; set; }

@@ -6,6 +6,7 @@ using BarberBooking.API.Contracts;
 using BarberBooking.API.Contracts.EmailContracts;
 using BarberBooking.API.Contracts.MasterProfileContracts;
 using BarberBooking.API.Contracts.MasterSubscriptionContracts;
+using BarberBooking.API.Contracts.MessagesContracts;
 using BarberBooking.API.Contracts.ReviewContracts;
 using BarberBooking.API.Contracts.SalonsContracts;
 using BarberBooking.API.Repositories;
@@ -26,6 +27,8 @@ namespace BarberBooking.API.Service
         private IMasterSubscriptionRepository _masterSubscriptionRepository;
         private IReviewRepository _reviewRepository;
         private IEventStoreRepository _eventStoreRepository;
+        private IMessagesRepository _messageRepository;
+        private IUserRolesRepository _userRolesRepository;
         public UnitOfWork(BarberBookingDbContext dbContext)
         {
             _dbContext = dbContext;
@@ -77,6 +80,15 @@ namespace BarberBooking.API.Service
         public IEventStoreRepository eventStoreRepository
         {
             get{return _eventStoreRepository ?? new EventStoreRepository(_dbContext);}
+        }
+        public IMessagesRepository messagesRepository
+        {
+            get{return _messageRepository ?? new MessagesRepository(_dbContext);}
+        }
+
+        public IUserRolesRepository userRolesRepository
+        {
+            get{return _userRolesRepository ?? new UserRolesRepository(_dbContext);}
         }
 
         public void BeginTransaction()

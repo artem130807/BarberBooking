@@ -6,8 +6,10 @@ using BarberBooking.API.CQRS.MasterProfile.Commands;
 using BarberBooking.API.CQRS.MasterProfile.Queries;
 using BarberBooking.API.CQRS.MasterProfiles.Queries;
 using BarberBooking.API.Dto.DtoMasterProfile;
+using BarberBooking.API.Filters;
 using BarberBooking.API.Filters.MasterProfile;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BarberBooking.API.Controllers
@@ -81,6 +83,16 @@ namespace BarberBooking.API.Controllers
             var query = new GetTheBestMastersQuery(take);
             var result = await _mediator.Send(query);
             if(result.IsFailure)
+                return BadRequest(new { error = result.Error });
+            return Ok(result.Value);
+        }
+        [Authorize("Admin")]
+        [HttpGet("GetMastersBySalonPaged/{salonId}")]
+        public async Task<IActionResult> GetMastersBySalonPaged(Guid salonId, [FromQuery] PageParams pageParams)
+        {
+            var query = new GetMastersBySalonPagedQuery(salonId, pageParams);
+            var result = await _mediator.Send(query);
+            if (result.IsFailure)
                 return BadRequest(new { error = result.Error });
             return Ok(result.Value);
         }

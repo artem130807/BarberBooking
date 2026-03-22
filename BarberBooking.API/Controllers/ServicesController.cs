@@ -8,6 +8,7 @@ using BarberBooking.API.CQRS.ServicesQueries;
 using BarberBooking.API.Dto.DtoServices;
 using BarberBooking.API.Filters;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BarberBooking.API.Controllers
@@ -69,6 +70,26 @@ namespace BarberBooking.API.Controllers
             var query = new GetServicesNameStartWithQuery(name, pageParams);
             var result = await _mediator.Send(query);
             if(result.IsFailure)
+                return BadRequest(new { error = result.Error });
+            return Ok(result.Value);
+        }
+        [Authorize("Admin")]
+        [HttpGet("get-top-services-by-salon/{salonId}")]
+        public async Task<IActionResult> GetTopServicesBySalon(Guid salonId, [FromQuery] PageParams pageParams)
+        {
+            var query = new GetTopServicesInSalonQuery(salonId, pageParams);
+            var result = await _mediator.Send(query);
+            if (result.IsFailure)
+                return BadRequest(new { error = result.Error });
+            return Ok(result.Value);
+        }
+        [Authorize("Admin")]
+        [HttpGet("get-services-by-salon-paged/{salonId}")]
+        public async Task<IActionResult> GetServicesBySalonPaged(Guid salonId, [FromQuery] PageParams pageParams)
+        {
+            var query = new GetServicesBySalonPagedQuery(salonId, pageParams);
+            var result = await _mediator.Send(query);
+            if (result.IsFailure)
                 return BadRequest(new { error = result.Error });
             return Ok(result.Value);
         }

@@ -54,6 +54,27 @@ namespace BarberBooking.API.Repositories
         {
             return await _context.Sevices.Include(x => x.Salon).SearchFilter(searchParams).ToPagedAsync(pageParams);
         }
-      
+
+        public async Task<PagedResult<Services>> GetTopServices(Guid salonId, PageParams pageParams)
+        {
+            var query = _context.Sevices
+                .AsNoTracking()
+                .Include(x => x.Salon)
+                .Where(s => s.SalonId == salonId)
+                .OrderByDescending(s => _context.Appointments.Count(a => a.SalonId == salonId && a.ServiceId == s.Id))
+                .ThenBy(s => s.Name);
+            return await query.ToPagedAsync(pageParams);
+        }
+
+        public async Task<PagedResult<Services>> GetServicesBySalonPaged(Guid salonId, PageParams pageParams)
+        {
+            var query = _context.Sevices
+                .AsNoTracking()
+                .Include(x => x.Salon)
+                .Where(s => s.SalonId == salonId)
+                .OrderBy(s => s.Name);
+
+            return await query.ToPagedAsync(pageParams);
+        }
     }
 }

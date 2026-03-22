@@ -15,5 +15,11 @@ namespace BarberBooking.API.Models
         public string PasswordHash { get; set; }
         public string City { get; set; }
         public ICollection<Roles> Roles { get; set; }
+        public ICollection<Messages> Messages {get; set;}
+
+        public Users()
+        {
+            Messages = new List<Messages>();
+        }
     }
 }

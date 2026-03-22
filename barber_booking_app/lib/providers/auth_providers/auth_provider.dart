@@ -20,6 +20,7 @@ class AuthProvider extends BaseProvider {
   AuthResponse? get currentUser => _currentUser;
   bool get isAuthenticated => _isAuthenticated;
   String? get token => _currentUser?.token;
+  int? get roleInterface => _currentUser?.roleInterface;
 
   Future<bool> login(String email, String passwordHash) async {
     startLoading();  
@@ -104,7 +105,11 @@ class AuthProvider extends BaseProvider {
   
   void updateToken(String newToken) {
     if (newToken.isEmpty) return;
-    _currentUser = AuthResponse(token: newToken, message: null);
+    _currentUser = AuthResponse(
+      token: newToken,
+      message: _currentUser?.message,
+      roleInterface: _currentUser?.roleInterface,
+    );
     notifyListeners();
   }
   bool isTokenValid() {

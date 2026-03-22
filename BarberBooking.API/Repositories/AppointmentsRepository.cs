@@ -2,12 +2,11 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Azure;
 using BarberBooking.API.Contracts;
 using BarberBooking.API.Enums;
 using BarberBooking.API.Filters;
-using BarberBooking.API.Filters.ReviewFilters;
 using BarberBooking.API.Models;
+using BarberBooking.API;
 using Microsoft.EntityFrameworkCore;
 
 namespace BarberBooking.API.Repositories
@@ -94,6 +93,50 @@ namespace BarberBooking.API.Repositories
             return await _context.Appointments.Include(x => x.Salon).Include(x => x.Master).Include(x => x.Service)
             .Where(a => a.ClientId == clientId && a.Status == AppointmentStatusEnum.Completed)
             .Where(a => !_context.Reviews.Any(r => r.AppointmentId == a.Id)).ToPagedAsync(pageParams);
+        }
+
+        public async Task<List<Appointments>> GetConfirmedAppointmentsInRange(DateTime from, DateTime to)
+        {
+            return await _context.Appointments
+                .Include(x => x.Client)
+                .Include(x => x.Salon)
+                .Include(x => x.Master)
+                .Include(x => x.Service)
+                .Where(x => x.Status == AppointmentStatusEnum.Confirmed
+                    && x.AppointmentDate > from
+                    && x.AppointmentDate <= to)
+                .ToListAsync();
+        }
+
+        public async Task<PagedResult<Appointments>> GetAllAppointments(Guid salonId, DateTime? from, DateTime? to, PageParams pageParams)
+        {
+            var query = _context.Appointments
+                .AsNoTracking()
+                .Include(x => x.Salon)
+                .Include(x => x.Client)
+                .Include(x => x.Master)
+                .Include(x => x.Service)
+                .Where(x => x.SalonId == salonId);
+
+            if (from.HasValue)
+                query = query.Where(x => x.CreatedAt >= from.Value);
+            if (to.HasValue)
+                query = query.Where(x => x.CreatedAt <= to.Value);
+
+            query = query
+                .OrderByDescending(x => x.AppointmentDate)
+                .ThenByDescending(x => x.StartTime);
+
+            return await query.ToPagedAsync(pageParams);
+        }
+
+        public async Task<List<Appointments>> GetAppointmentsBySalonId(Guid salonId)
+        {
+            return await _context.Appointments.Where(x => x.SalonId == salonId && x.Status == AppointmentStatusEnum.Completed).ToListAsync();
+        }
+        public async Task<int> GetCountAppointmentsBySalonId(Guid salonId)
+        {
+            return await _context.Appointments.Where(x => x.SalonId == salonId && x.Status == AppointmentStatusEnum.Completed).CountAsync();
         }
     }
 }

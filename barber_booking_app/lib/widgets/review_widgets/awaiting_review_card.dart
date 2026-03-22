@@ -14,6 +14,7 @@ class AwaitingReviewCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
     final salon = item.salonNavigationResponse;
     final master = item.masterNavigationResponse;
     final service = item.serviceNavigationResponse;
@@ -24,7 +25,7 @@ class AwaitingReviewCard extends StatelessWidget {
       elevation: 0,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16),
-        side: BorderSide(color: Colors.grey.shade200),
+        side: BorderSide(color: cs.outline.withOpacity(0.3)),
       ),
       child: Padding(
         padding: const EdgeInsets.all(16),
@@ -38,12 +39,12 @@ class AwaitingReviewCard extends StatelessWidget {
                   width: 48,
                   height: 48,
                   decoration: BoxDecoration(
-                    color: Colors.amber.shade50,
+                    color: cs.primary.withOpacity(0.15),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Icon(
                     Icons.event_available,
-                    color: Colors.amber.shade700,
+                    color: cs.primary,
                     size: 26,
                   ),
                 ),
@@ -86,27 +87,21 @@ class AwaitingReviewCard extends StatelessWidget {
                         const SizedBox(height: 4),
                         Row(
                           children: [
-                            Icon(
-                              Icons.content_cut,
-                              size: 16,
-                              color: Colors.grey.shade600,
-                            ),
+                            Icon(Icons.content_cut, size: 16, color: cs.onSurfaceVariant),
                             const SizedBox(width: 6),
                             Expanded(
                               child: Text(
                                 service!.Name!,
-                                style: TextStyle(
-                                  fontSize: 14,
-                                  color: Colors.grey.shade700,
-                                ),
+                                style: TextStyle(fontSize: 14, color: cs.onSurface),
                               ),
                             ),
                             if (service.Price?.Value != null)
                               Text(
                                 '${service.Price!.Value!.toStringAsFixed(0)} ₽',
-                                style: const TextStyle(
+                                style: TextStyle(
                                   fontSize: 14,
                                   fontWeight: FontWeight.w600,
+                                  color: cs.primary,
                                 ),
                               ),
                           ],
@@ -116,18 +111,11 @@ class AwaitingReviewCard extends StatelessWidget {
                         const SizedBox(height: 6),
                         Row(
                           children: [
-                            Icon(
-                              Icons.calendar_today,
-                              size: 14,
-                              color: Colors.grey.shade600,
-                            ),
+                            Icon(Icons.calendar_today, size: 14, color: cs.onSurfaceVariant),
                             const SizedBox(width: 6),
                             Text(
                               dateStr,
-                              style: TextStyle(
-                                fontSize: 13,
-                                color: Colors.grey.shade600,
-                              ),
+                              style: TextStyle(fontSize: 13, color: cs.onSurfaceVariant),
                             ),
                           ],
                         ),
@@ -145,8 +133,8 @@ class AwaitingReviewCard extends StatelessWidget {
                 icon: const Icon(Icons.rate_review_outlined, size: 20),
                 label: const Text('Оставить отзыв'),
                 style: FilledButton.styleFrom(
-                  backgroundColor: Theme.of(context).colorScheme.primary,
-                  foregroundColor: Colors.white,
+                  backgroundColor: cs.primary,
+                  foregroundColor: cs.onPrimary,
                   padding: const EdgeInsets.symmetric(vertical: 12),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
@@ -166,9 +154,10 @@ class AwaitingReviewCard extends StatelessWidget {
     required String label,
     VoidCallback? onTap,
   }) {
+    final cs = Theme.of(context).colorScheme;
     final isTappable = onTap != null;
     return Material(
-      color: isTappable ? Colors.grey.shade100 : Colors.grey.shade50,
+      color: isTappable ? cs.primary.withOpacity(0.15) : cs.surfaceContainerHighest,
       borderRadius: BorderRadius.circular(20),
       child: InkWell(
         onTap: onTap,
@@ -181,7 +170,7 @@ class AwaitingReviewCard extends StatelessWidget {
               Icon(
                 icon,
                 size: 18,
-                color: isTappable ? Theme.of(context).colorScheme.onSurface : Theme.of(context).colorScheme.onSurfaceVariant,
+                color: isTappable ? cs.primary : cs.onSurfaceVariant,
               ),
               const SizedBox(width: 8),
               Flexible(
@@ -190,14 +179,14 @@ class AwaitingReviewCard extends StatelessWidget {
                   style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w500,
-                    color: isTappable ? Theme.of(context).colorScheme.onSurface : Theme.of(context).colorScheme.onSurfaceVariant,
+                    color: isTappable ? cs.primary : cs.onSurfaceVariant,
                   ),
                   overflow: TextOverflow.ellipsis,
                 ),
               ),
               if (isTappable) ...[
                 const SizedBox(width: 4),
-                Icon(Icons.arrow_forward_ios, size: 12, color: Colors.grey.shade600),
+                Icon(Icons.arrow_forward_ios, size: 12, color: cs.primary),
               ],
             ],
           ),

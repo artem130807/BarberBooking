@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using AutoMapper;
 using BarberBooking.API.Contracts;
 using BarberBooking.API.Contracts.MasterProfileContracts;
+using BarberBooking.API.Enums;
 using CSharpFunctionalExtensions;
 using MediatR;
 using Serilog;
@@ -15,29 +16,43 @@ namespace BarberBooking.API.CQRS.MasterProfile.Commands.Handlers
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMasterProfileRepository _masterProfileRepository;
+        private readonly IUserRolesRepository _userRolesRepository;
         private readonly ILogger<CreateMasterProfileHandler> _logger;
-        public DeleteMasterProfileHandler(IUnitOfWork unitOfWork, IMasterProfileRepository masterProfileRepository, ILogger<CreateMasterProfileHandler> logger)
+
+        public DeleteMasterProfileHandler(
+            IUnitOfWork unitOfWork,
+            IMasterProfileRepository masterProfileRepository,
+            IUserRolesRepository userRolesRepository,
+            ILogger<CreateMasterProfileHandler> logger)
         {
             _unitOfWork = unitOfWork;
             _masterProfileRepository = masterProfileRepository;
-            _logger = logger;   
+            _userRolesRepository = userRolesRepository;
+            _logger = logger;
         }
+
         public async Task<Result<string>> Handle(DeleteMasterProfileCommand command, CancellationToken cancellationToken)
         {
             var masterProfile = await _masterProfileRepository.GetMasterProfileById(command.Id);
-            if(masterProfile == null)
+            if (masterProfile == null)
                 return Result.Failure<string>("Профиль мастера не найден");
+
+            var userId = masterProfile.UserId;
+
             try
             {
                 _unitOfWork.BeginTransaction();
                 await _unitOfWork.masterProfileRepository.DeleteMasterProfile(command.Id);
+                await _userRolesRepository.RemoveUserRoleAsync(userId, (int)RolesEnum.Master);
                 _unitOfWork.Commit();
-            }catch(Exception ex)
+            }
+            catch (Exception ex)
             {
                 _unitOfWork.RollBack();
                 _logger.LogError(ex.Message);
             }
-            return "Успешно";
+
+            return Result.Success("Успешно");
         }
     }
 }
