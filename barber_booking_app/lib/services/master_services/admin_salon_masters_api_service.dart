@@ -41,6 +41,35 @@ class AdminSalonMastersApiService {
     }
   }
 
+  Future<Map<String, dynamic>?> getTopMastersPaged(
+    String salonId,
+    PageParams pageParams,
+    String? token,
+  ) async {
+    try {
+      final qp = <String, String>{
+        'Page': '${pageParams.Page ?? 1}',
+        'PageSize': '${pageParams.PageSize ?? 30}',
+      };
+      final url = Uri.parse(
+        '$baseUrl/api/MasterProfile/GetTopMastersBySalon/$salonId',
+      ).replace(queryParameters: qp);
+      final response = await http.get(url, headers: _headers(token));
+      if (response.statusCode == 200) {
+        return json.decode(response.body) as Map<String, dynamic>;
+      }
+      if (response.statusCode == 400) {
+        final b = response.body.toLowerCase();
+        if (b.contains('пуст') || b.contains('empty')) {
+          return {'data': <dynamic>[], 'count': 0};
+        }
+      }
+      return null;
+    } catch (_) {
+      return null;
+    }
+  }
+
   List<MasterProfileInfoAdminResponse>? parseList(Map<String, dynamic> json) {
     final raw = json['data'];
     if (raw is! List) return null;

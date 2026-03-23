@@ -1,12 +1,12 @@
 class CreateMasterProfileAdminRequest {
-  final String userId;
+  final String emailUser;
   final String salonId;
   final String? bio;
   final String? specialization;
   final String? avatarUrl;
 
   CreateMasterProfileAdminRequest({
-    required this.userId,
+    required this.emailUser,
     required this.salonId,
     this.bio,
     this.specialization,
@@ -14,7 +14,7 @@ class CreateMasterProfileAdminRequest {
   });
 
   Map<String, dynamic> toJson() => {
-        'userId': userId,
+        'emailUser': emailUser,
         'salonId': salonId,
         if (bio != null && bio!.isNotEmpty) 'bio': bio,
         if (specialization != null && specialization!.isNotEmpty)

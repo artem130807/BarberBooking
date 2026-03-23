@@ -28,6 +28,8 @@ import 'package:barber_booking_app/providers/salon_providers/get_salons_search_p
 import 'package:barber_booking_app/providers/salon_providers/get_salon_admin_stats_provider.dart';
 import 'package:barber_booking_app/providers/service_providers/admin_salon_services_provider.dart';
 import 'package:barber_booking_app/providers/master_providers/admin_salon_masters_provider.dart';
+import 'package:barber_booking_app/providers/admin_top_masters_provider.dart';
+import 'package:barber_booking_app/providers/admin_top_services_provider.dart';
 import 'package:barber_booking_app/providers/service_providers/get_service_search_provider.dart';
 import 'package:barber_booking_app/providers/service_providers/get_services_provider.dart';
 import 'package:barber_booking_app/providers/time_slot_providers/get_slots_provider.dart';
@@ -66,6 +68,8 @@ import 'package:barber_booking_app/screens/admin/admin_revenue_screen.dart';
 import 'package:barber_booking_app/screens/admin/admin_salon_detail_screen.dart';
 import 'package:barber_booking_app/screens/admin/admin_salon_services_screen.dart';
 import 'package:barber_booking_app/screens/admin/admin_salon_masters_screen.dart';
+import 'package:barber_booking_app/screens/admin/admin_top_masters_screen.dart';
+import 'package:barber_booking_app/screens/admin/admin_top_services_screen.dart';
 import 'package:provider/provider.dart';
 import 'package:barber_booking_app/providers/auth_providers/auth_provider.dart';
 import 'package:barber_booking_app/providers/auth_providers/email_verify_provider.dart';
@@ -119,6 +123,8 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => GetSalonAdminStatsProvider()),
         ChangeNotifierProvider(create: (_) => AdminSalonServicesProvider()),
         ChangeNotifierProvider(create: (_) => AdminSalonMastersProvider()),
+        ChangeNotifierProvider(create: (_) => AdminTopMastersProvider()),
+        ChangeNotifierProvider(create: (_) => AdminTopServicesProvider()),
       ],
       child: MaterialApp(
         title: 'BarberBooking',
@@ -132,6 +138,8 @@ class MyApp extends StatelessWidget {
           '/admin_appointments_period': (context) =>
               const AdminAppointmentsPeriodScreen(),
           '/admin_revenue': (context) => const AdminRevenueScreen(),
+          '/admin_top_masters': (context) => const AdminTopMastersScreen(),
+          '/admin_top_services': (context) => const AdminTopServicesScreen(),
           '/admin_salon_detail': (context) {
             final id =
                 ModalRoute.of(context)!.settings.arguments as String;

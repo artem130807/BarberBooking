@@ -17,22 +17,9 @@ class AdminDashboardPlaceholderScreen extends StatelessWidget {
             'Сводная статистика',
             style: Theme.of(context).textTheme.titleLarge,
           ),
-          const SizedBox(height: 8),
-          Text(
-            'Здесь будут период (сегодня / неделя / месяц), карточки показателей, топ услуг и мастеров, таблица салонов.',
-            style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
-          ),
-          const SizedBox(height: 24),
-          Wrap(
-            spacing: 8,
-            runSpacing: 8,
-            children: ['Сегодня', 'Неделя', 'Месяц', 'Период']
-                .map((e) => Chip(label: Text(e)))
-                .toList(),
-          ),
-          const SizedBox(height: 24),
+          const SizedBox(height: 16),
           Card(
-            margin: const EdgeInsets.only(bottom: 20),
+            margin: const EdgeInsets.only(bottom: 12),
             clipBehavior: Clip.antiAlias,
             child: InkWell(
               onTap: () =>
@@ -47,9 +34,8 @@ class AdminDashboardPlaceholderScreen extends StatelessWidget {
               ),
             ),
           ),
-          const SizedBox(height: 8),
           Card(
-            margin: EdgeInsets.zero,
+            margin: const EdgeInsets.only(bottom: 12),
             clipBehavior: Clip.antiAlias,
             child: InkWell(
               onTap: () => Navigator.pushNamed(context, '/admin_revenue'),
@@ -60,6 +46,40 @@ class AdminDashboardPlaceholderScreen extends StatelessWidget {
                 subtitle: const Text('По завершённым записям и цене услуги'),
                 trailing: const Icon(Icons.chevron_right),
                 leading: const Icon(Icons.payments_outlined),
+              ),
+            ),
+          ),
+          Card(
+            margin: const EdgeInsets.only(bottom: 12),
+            clipBehavior: Clip.antiAlias,
+            child: InkWell(
+              onTap: () => Navigator.pushNamed(context, '/admin_top_masters'),
+              child: ListTile(
+                contentPadding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                title: const Text('Топ мастеров'),
+                subtitle: const Text(
+                  'Рейтинг мастеров выбранного салона',
+                ),
+                trailing: const Icon(Icons.chevron_right),
+                leading: const Icon(Icons.emoji_events_outlined),
+              ),
+            ),
+          ),
+          Card(
+            margin: EdgeInsets.zero,
+            clipBehavior: Clip.antiAlias,
+            child: InkWell(
+              onTap: () => Navigator.pushNamed(context, '/admin_top_services'),
+              child: ListTile(
+                contentPadding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                title: const Text('Топ услуг'),
+                subtitle: const Text(
+                  'Самые востребованные услуги в салоне',
+                ),
+                trailing: const Icon(Icons.chevron_right),
+                leading: const Icon(Icons.trending_up_rounded),
               ),
             ),
           ),

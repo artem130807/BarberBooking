@@ -23,8 +23,6 @@ namespace BarberBooking.API.CQRS.Services.ServicesQueries.Handller
         public async Task<Result<PagedResult<DtoServicesSearchResult>>> Handle(GetTopServicesInSalonQuery query, CancellationToken cancellationToken)
         {
             var services = await _servicesRepository.GetTopServices(query.salonId, query.pageParams);
-            if (services.Count == 0)
-                return Result.Failure<PagedResult<DtoServicesSearchResult>>("Список услуг пуст");
             var result = _mapper.Map<PagedResult<DtoServicesSearchResult>>(services);
             return Result.Success(result);
         }

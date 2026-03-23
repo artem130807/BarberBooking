@@ -16,7 +16,8 @@ namespace BarberBooking.API.Configurations
             builder.HasKey(x => x.Id);
             builder.Property(x => x.Rating);
             builder.Property(x => x.RatingCount);
-            builder.Property(x => x.AppointmentsCount);
+            builder.Property(x => x.CompletedAppointmentsCount);
+            builder.Property(x => x.CancelledAppointmentsCount);
             builder.Property(x => x.CreatedAt);
             builder.HasOne(x => x.Salon).WithMany(x => x.SalonStatistics)
             .HasForeignKey(x => x.SalonId);

@@ -102,6 +102,7 @@ builder.Services.AddScoped<IUpdateReviewService, UpdateReviewService>();
 builder.Services.AddScoped<IUpdateRatingService, UpdateRatingService>();
 builder.Services.AddScoped<IMessagesRepository, MessagesRepository>();
 builder.Services.AddScoped<ISalonStatisticRepository, SalonStatisticRepository>();
+builder.Services.AddScoped<ISalonStatiscticHandler, SalonStatiscticHandler>();
 var app = builder.Build();
 app.InitializingCache();
 // Configure the HTTP request pipeline.

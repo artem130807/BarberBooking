@@ -7,9 +7,7 @@ import 'package:barber_booking_app/widgets/loading_indicator.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-final _uuidRe = RegExp(
-  r'^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$',
-);
+final _emailRe = RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$');
 
 class AdminSalonMastersScreen extends StatefulWidget {
   const AdminSalonMastersScreen({super.key, required this.salonId});
@@ -240,14 +238,16 @@ class _CreateMasterDialog extends StatefulWidget {
 
 class _CreateMasterDialogState extends State<_CreateMasterDialog> {
   final _formKey = GlobalKey<FormState>();
-  final _userId = TextEditingController();
+  final _email = TextEditingController();
   final _bio = TextEditingController();
   final _spec = TextEditingController();
   final _avatar = TextEditingController();
 
+  static const double _fieldGap = 16;
+
   @override
   void dispose() {
-    _userId.dispose();
+    _email.dispose();
     _bio.dispose();
     _spec.dispose();
     _avatar.dispose();
@@ -263,7 +263,7 @@ class _CreateMasterDialogState extends State<_CreateMasterDialog> {
       listen: false,
     );
     final body = CreateMasterProfileAdminRequest(
-      userId: _userId.text.trim(),
+      emailUser: _email.text.trim(),
       salonId: widget.salonId,
       bio: _bio.text.trim().isEmpty ? null : _bio.text.trim(),
       specialization: _spec.text.trim().isEmpty ? null : _spec.text.trim(),
@@ -290,34 +290,40 @@ class _CreateMasterDialogState extends State<_CreateMasterDialog> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               Text(
-                'Нужен существующий пользователь без профиля мастера.',
+                'Укажите email зарегистрированного пользователя без профиля мастера.',
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
                       color: Theme.of(context).colorScheme.onSurfaceVariant,
                     ),
               ),
               const SizedBox(height: 12),
               TextFormField(
-                controller: _userId,
+                controller: _email,
+                keyboardType: TextInputType.emailAddress,
+                autocorrect: false,
                 decoration: const InputDecoration(
-                  labelText: 'User ID (GUID)',
+                  labelText: 'Email пользователя',
                 ),
                 validator: (v) {
                   final t = v?.trim() ?? '';
-                  if (!_uuidRe.hasMatch(t)) return 'Некорректный GUID';
+                  if (t.isEmpty) return 'Введите email';
+                  if (!_emailRe.hasMatch(t)) return 'Некорректный email';
                   return null;
                 },
               ),
+              const SizedBox(height: _fieldGap),
               TextFormField(
                 controller: _spec,
                 decoration: const InputDecoration(
                   labelText: 'Специализация',
                 ),
               ),
+              const SizedBox(height: _fieldGap),
               TextFormField(
                 controller: _bio,
                 decoration: const InputDecoration(labelText: 'О себе'),
                 maxLines: 2,
               ),
+              const SizedBox(height: _fieldGap),
               TextFormField(
                 controller: _avatar,
                 decoration: const InputDecoration(labelText: 'URL аватара'),

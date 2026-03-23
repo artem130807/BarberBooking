@@ -79,9 +79,9 @@ namespace BarberBooking.API
             .ForMember(dest => dest.AppointmentsCount, opt => opt.MapFrom(src => src.Appointments.Count))
             .ForMember(dest => dest.ReviewsCount, opt => opt.MapFrom(src => src.Reviews.Count));
             
-            ///МастерПрофиль
             CreateMap<DtoCreateMasterProfile, MasterProfile>()
             .ForMember(dest => dest.Id, opt => opt.Ignore())
+            .ForMember(dest => dest.UserId, opt => opt.Ignore())
             .ForMember(dest => dest.Rating, opt => opt.MapFrom(src => 0m))
             .ForMember(dest => dest.RatingCount, opt => opt.MapFrom(src => 0))
             .ForMember(dest => dest.CreatedAt, opt => opt.MapFrom(src => DateTime.UtcNow));
@@ -237,7 +237,10 @@ namespace BarberBooking.API
             CreateMap<Users, DtoUsersNavigation>()
              .ForMember(dest => dest.dtoPhone, opt => opt.MapFrom(src => src.Phone)); 
             CreateMap<Users, UserInfoDto>();
-
+            ///Стастика
+            CreateMap<SalonStatistic, Salons>();
+            CreateMap<SalonStatistic, SalonStatsDto>();
+            CreateMap<SalonStatsDto, SalonStatistic>();
             ///Сообщения
             CreateMap<Messages, DtoMessagesShortInfo>();
             ///ValueObject

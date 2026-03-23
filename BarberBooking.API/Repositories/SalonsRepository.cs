@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using BarberBooking.API.Contracts.SalonsContracts;
 using BarberBooking.API.Dto.DtoSalons;
@@ -85,10 +86,15 @@ namespace BarberBooking.API.Repositories
             .ToPagedAsync(pageParams);
         }
 
-        public async Task<List<Salons>> GetSalonsMounthStats()
+        public async Task<List<Salons>> GetSalonsMonthStats(int year, int month, CancellationToken cancellationToken = default)
         {
+            var start = new DateTime(year, month, 1, 0, 0, 0, DateTimeKind.Utc);
+            var end = start.AddMonths(1);
+
             return await _context.Salons
-            .AsNoTracking().Include(x => x.Appointments).ToListAsync();
+                .AsSplitQuery()
+                .Include(s => s.Appointments.Where(a => a.AppointmentDate >= start && a.AppointmentDate < end))
+                .ToListAsync(cancellationToken);
         }
 
         public async Task<PagedResult<Salons>> GetSalonsNameStartWith(SearchFilterParams searchParams, PageParams pageParams)

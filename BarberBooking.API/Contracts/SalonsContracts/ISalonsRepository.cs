@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Threading;
 using System.Threading.Tasks;
 using BarberBooking.API.Dto.DtoSalons;
 using BarberBooking.API.Filters;
@@ -24,6 +25,8 @@ namespace BarberBooking.API.Contracts.SalonsContracts
         Task SaveChangesAsync();
         Task UpdateAsync(Salons salon);
         Task<Salons?> GetSalonStats(Guid salonId);
-        Task<List<Salons>> GetSalonsMounthStats();
+
+        /// <summary>Salons with appointments in the given UTC calendar month (for monthly report).</summary>
+        Task<List<Salons>> GetSalonsMonthStats(int year, int month, CancellationToken cancellationToken = default);
     }
 }

@@ -461,7 +461,10 @@ namespace BarberBooking.API.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<int>("AppointmentsCount")
+                    b.Property<int>("CancelledAppointmentsCount")
+                        .HasColumnType("int");
+
+                    b.Property<int>("CompletedAppointmentsCount")
                         .HasColumnType("int");
 
                     b.Property<DateTime>("CreatedAt")

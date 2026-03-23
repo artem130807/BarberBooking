@@ -97,5 +97,16 @@ namespace BarberBooking.API.Controllers
             return Ok(result.Value);
         }
 
+        [Authorize("Admin")]
+        [HttpGet("GetTopMastersBySalon/{salonId}")]
+        public async Task<IActionResult> GetTopMastersBySalon(Guid salonId, [FromQuery] PageParams pageParams)
+        {
+            var query = new GetTopMastersInSalonQuery(salonId, pageParams);
+            var result = await _mediator.Send(query);
+            if (result.IsFailure)
+                return BadRequest(new { error = result.Error });
+            return Ok(result.Value);
+        }
+
     }
 }

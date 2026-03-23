@@ -1,14 +1,11 @@
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace BarberBooking.API.Dto.DtoMasterProfile
 {
     public class DtoCreateMasterProfile
     {
-        public string EmailUser { get; set; }
-        public Guid SalonId {get; set;}
+        public string EmailUser { get; set; } = string.Empty;
+        public Guid SalonId { get; set; }
         public string? Bio { get; set; }
         public string? Specialization { get; set; }
         public string? AvatarUrl { get; set; }

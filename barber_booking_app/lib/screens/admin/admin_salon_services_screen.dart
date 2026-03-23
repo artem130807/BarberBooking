@@ -294,6 +294,8 @@ class _ServiceFormDialog extends StatefulWidget {
 }
 
 class _ServiceFormDialogState extends State<_ServiceFormDialog> {
+  static const double _fieldGap = 16;
+
   final _formKey = GlobalKey<FormState>();
   late final TextEditingController _name;
   late final TextEditingController _desc;
@@ -383,6 +385,7 @@ class _ServiceFormDialogState extends State<_ServiceFormDialog> {
           key: _formKey,
           child: Column(
             mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               TextFormField(
                 controller: _name,
@@ -390,11 +393,13 @@ class _ServiceFormDialogState extends State<_ServiceFormDialog> {
                 validator: (v) =>
                     v == null || v.trim().isEmpty ? 'Укажите название' : null,
               ),
+              const SizedBox(height: _fieldGap),
               TextFormField(
                 controller: _desc,
                 decoration: const InputDecoration(labelText: 'Описание'),
                 maxLines: 2,
               ),
+              const SizedBox(height: _fieldGap),
               TextFormField(
                 controller: _duration,
                 decoration: const InputDecoration(labelText: 'Длительность (мин)'),
@@ -406,6 +411,7 @@ class _ServiceFormDialogState extends State<_ServiceFormDialog> {
                   return null;
                 },
               ),
+              const SizedBox(height: _fieldGap),
               TextFormField(
                 controller: _price,
                 decoration: const InputDecoration(labelText: 'Цена (₽)'),
@@ -417,19 +423,22 @@ class _ServiceFormDialogState extends State<_ServiceFormDialog> {
                   return null;
                 },
               ),
+              const SizedBox(height: _fieldGap),
               TextFormField(
                 controller: _photo,
                 decoration: const InputDecoration(
                   labelText: 'URL фото (необязательно)',
                 ),
               ),
-              if (isEdit)
+              if (isEdit) ...[
+                const SizedBox(height: _fieldGap),
                 SwitchListTile(
                   contentPadding: EdgeInsets.zero,
                   title: const Text('Активна'),
                   value: _isActive,
                   onChanged: (v) => setState(() => _isActive = v),
                 ),
+              ],
             ],
           ),
         ),
