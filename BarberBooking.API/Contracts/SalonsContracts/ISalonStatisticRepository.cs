@@ -2,7 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using BarberBooking.API.CQRS.Salon.Queries.Handlers;
 using BarberBooking.API.Filters;
+using BarberBooking.API.Filters.Salon;
 using BarberBooking.API.Models;
 
 namespace BarberBooking.API.Contracts.SalonsContracts
@@ -14,5 +16,6 @@ namespace BarberBooking.API.Contracts.SalonsContracts
         Task<SalonStatistic?> GetSalonStatistic(Guid id);
         Task AddRange(List<SalonStatistic> salonStatistics);
         Task<HashSet<Guid>> GetSalonIdsWithStatisticForMonthAsync(int year, int month, CancellationToken cancellationToken = default);
+        Task<List<Models.SalonStatistic>> GetSalonStatisticsByFilter(SalonStatisticsFilter filter, string city);
     }
 }

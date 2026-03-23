@@ -4,7 +4,10 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using BarberBooking.API.Contracts.SalonsContracts;
+using BarberBooking.API.ExtensionsProject;
 using BarberBooking.API.Filters;
+using BarberBooking.API.Filters.Salon;
+using BarberBooking.API.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace BarberBooking.API.Repositories
@@ -45,6 +48,11 @@ namespace BarberBooking.API.Repositories
                 .Select(x => x.SalonId)
                 .ToListAsync(cancellationToken);
             return ids.ToHashSet();
+        }
+
+        public async Task<List<SalonStatistic>> GetSalonStatisticsByFilter(SalonStatisticsFilter filter, string city)
+        {
+            return await _context.SalonStatistics.Where(x => x.Salon.Address.City == city).StatisticFilter(filter).ToListAsync();
         }
     }
 }
