@@ -2,13 +2,14 @@ import 'dart:convert';
 import 'package:barber_booking_app/models/params/page_params.dart';
 import 'package:http/http.dart' as http;
 import 'package:barber_booking_app/models/appointment_models/response/get_appointment_awaiting_review_response.dart';
+import 'package:barber_booking_app/config/api_config.dart';
 
 class GetAppointmentAwaitingReviewService {
-  final String baseUrl = 'http://192.168.0.100:5088';
+
   Future<List<GetAppointmentAwaitingReviewResponse>?> getAppointments(String? token, PageParams pageParams) async{
      try {
        
-        final url = Uri.parse('$baseUrl/api/Appointment/GetAppointmentsAwaitingReview').replace(
+        final url = Uri.parse('$kApiBaseUrl/api/Appointment/GetAppointmentsAwaitingReview').replace(
              queryParameters: {
             'page':pageParams.Page.toString(),
             'pageSize':pageParams.PageSize.toString()

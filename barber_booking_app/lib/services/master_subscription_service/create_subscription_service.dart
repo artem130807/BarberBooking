@@ -2,11 +2,12 @@ import 'dart:convert';
 
 import 'package:barber_booking_app/models/master_subscription_models/request/create_subscription_request.dart';
 import 'package:http/http.dart' as http;
+import 'package:barber_booking_app/config/api_config.dart';
 class CreateSubscriptionService {
-  final String baseUrl = 'http://192.168.0.100:5088';
+
   Future<String?> createSubscription(CreateSubscriptionRequest request, String? token) async{
     try{
-     final url = Uri.parse('$baseUrl/api/MasterSubscriptions/Create-MasterSubscription');
+     final url = Uri.parse('$kApiBaseUrl/api/MasterSubscriptions/Create-MasterSubscription');
      final response = await http.post(
         url,
         headers: 

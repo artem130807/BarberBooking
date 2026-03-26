@@ -1,9 +1,10 @@
 import 'package:http/http.dart' as http;
+import 'package:barber_booking_app/config/api_config.dart';
 class DeleteReviewUserService {
-  final String baseUrl = 'http://192.168.0.100:5088';
+
   Future<bool> deleteReview(String? id) async {
     try{
-      final url = Uri.parse('$baseUrl/api/Review/Delete-Review/$id');
+      final url = Uri.parse('$kApiBaseUrl/api/Review/Delete-Review/$id');
       final response = await http.delete(url, headers: {'Content-Type': 'application/json'},);
       print('📥 Статус: ${response.statusCode}');
       print('📥 Ответ: ${response.body}');

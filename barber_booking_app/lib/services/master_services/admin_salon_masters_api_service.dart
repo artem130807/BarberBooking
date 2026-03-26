@@ -3,9 +3,9 @@ import 'package:barber_booking_app/models/master_models/request/create_master_pr
 import 'package:barber_booking_app/models/master_models/response/master_profile_info_admin_response.dart';
 import 'package:barber_booking_app/models/params/page_params.dart';
 import 'package:http/http.dart' as http;
+import 'package:barber_booking_app/config/api_config.dart';
 
 class AdminSalonMastersApiService {
-  final String baseUrl = 'http://192.168.0.100:5088';
 
   Map<String, String> _headers(String? token) => {
         'Content-Type': 'application/json',
@@ -23,7 +23,7 @@ class AdminSalonMastersApiService {
         'PageSize': '${pageParams.PageSize ?? 30}',
       };
       final url = Uri.parse(
-        '$baseUrl/api/MasterProfile/GetMastersBySalonPaged/$salonId',
+        '$kApiBaseUrl/api/MasterProfile/GetMastersBySalonPaged/$salonId',
       ).replace(queryParameters: qp);
       final response = await http.get(url, headers: _headers(token));
       if (response.statusCode == 200) {
@@ -52,7 +52,7 @@ class AdminSalonMastersApiService {
         'PageSize': '${pageParams.PageSize ?? 30}',
       };
       final url = Uri.parse(
-        '$baseUrl/api/MasterProfile/GetTopMastersBySalon/$salonId',
+        '$kApiBaseUrl/api/MasterProfile/GetTopMastersBySalon/$salonId',
       ).replace(queryParameters: qp);
       final response = await http.get(url, headers: _headers(token));
       if (response.statusCode == 200) {
@@ -92,7 +92,7 @@ class AdminSalonMastersApiService {
     String? token,
   ) async {
     try {
-      final url = Uri.parse('$baseUrl/api/MasterProfile/CreateMasterProfile');
+      final url = Uri.parse('$kApiBaseUrl/api/MasterProfile/CreateMasterProfile');
       final response = await http.post(
         url,
         headers: _headers(token),
@@ -114,7 +114,7 @@ class AdminSalonMastersApiService {
   Future<String?> deleteMaster(String masterProfileId, String? token) async {
     try {
       final url = Uri.parse(
-        '$baseUrl/api/MasterProfile/DeleteMasterProfile$masterProfileId',
+        '$kApiBaseUrl/api/MasterProfile/DeleteMasterProfile$masterProfileId',
       );
       final response = await http.delete(url, headers: _headers(token));
       if (response.statusCode == 200) return null;

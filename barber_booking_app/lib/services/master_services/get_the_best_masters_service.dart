@@ -2,12 +2,12 @@ import 'dart:convert';
 
 import 'package:barber_booking_app/models/master_models/response/get_the_best_masters_response.dart';
 import 'package:http/http.dart' as http;
+import 'package:barber_booking_app/config/api_config.dart';
 class GetTheBestMastersService {
-    final String baseUrl = 'http://192.168.0.100:5088';
 
   Future<List<GetTheBestMastersResponse>?> getMasters(int? take, String? token) async {
     try{
-       final url = Uri.parse('$baseUrl/api/MasterProfile/GetTheBestMasters${take != null ? '?take=$take' : ''}');
+       final url = Uri.parse('$kApiBaseUrl/api/MasterProfile/GetTheBestMasters${take != null ? '?take=$take' : ''}');
        final response = await http.get(
         url,
         headers: {

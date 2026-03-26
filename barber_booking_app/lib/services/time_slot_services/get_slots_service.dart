@@ -2,8 +2,9 @@ import 'dart:convert';
 import 'package:barber_booking_app/models/time_slot_models/request/get_slots_request.dart';
 import 'package:barber_booking_app/models/time_slot_models/response/get_available_slots.dart';
 import 'package:http/http.dart' as http;
+import 'package:barber_booking_app/config/api_config.dart';
 class GetSlotsService {
-final String baseUrl = 'http://192.168.0.100:5088';
+
 Future<List<GetAvailableSlots>?> getSlots(String? masterId, GetSlotsRequest request) async{
  try {
         if (masterId == null || masterId.isEmpty) {
@@ -11,7 +12,7 @@ Future<List<GetAvailableSlots>?> getSlots(String? masterId, GetSlotsRequest requ
           return null;
         }
         print(masterId);
-        final url = Uri.parse('$baseUrl/api/MasterTimeSlot/get-availableSlots/$masterId').replace(queryParameters: {
+        final url = Uri.parse('$kApiBaseUrl/api/MasterTimeSlot/get-availableSlots/$masterId').replace(queryParameters: {
           'date': request.DateTime,
           'serviceDuration': request.ServiceDuration,
         });

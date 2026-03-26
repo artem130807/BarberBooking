@@ -2,12 +2,12 @@ import 'dart:convert';
 
 import 'package:barber_booking_app/models/user_models/responses/get_user_response.dart';
 import 'package:http/http.dart' as http;
+import 'package:barber_booking_app/config/api_config.dart';
 class GetUserService {
-   final String baseUrl = 'http://192.168.0.100:5088';
 
   Future<GetUserResponse?> getUser(String? token) async{
     try{
-      final url = Uri.parse('$baseUrl/api/Users/get-user-by-token-id');
+      final url = Uri.parse('$kApiBaseUrl/api/Users/get-user-by-token-id');
       
       final response = await http.get(
       url,

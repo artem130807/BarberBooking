@@ -2,9 +2,9 @@ import 'dart:convert';
 import 'package:barber_booking_app/models/appointment_models/response/salon_appointment_admin_response.dart';
 import 'package:barber_booking_app/models/params/page_params.dart';
 import 'package:http/http.dart' as http;
+import 'package:barber_booking_app/config/api_config.dart';
 
 class GetSalonAppointmentsAdminService {
-  final String baseUrl = 'http://192.168.0.100:5088';
 
   Future<Map<String, dynamic>?> getPaged(
     String salonId,
@@ -21,7 +21,7 @@ class GetSalonAppointmentsAdminService {
       if (from != null) qp['from'] = from.toUtc().toIso8601String();
       if (to != null) qp['to'] = to.toUtc().toIso8601String();
       final url = Uri.parse(
-        '$baseUrl/api/Appointment/get-salon-appointments-paged/$salonId',
+        '$kApiBaseUrl/api/Appointment/get-salon-appointments-paged/$salonId',
       ).replace(queryParameters: qp);
       final response = await http.get(
         url,

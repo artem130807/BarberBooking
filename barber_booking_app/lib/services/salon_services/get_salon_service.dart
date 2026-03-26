@@ -2,12 +2,12 @@ import 'package:barber_booking_app/models/salon_models/request/get_salon_request
 import 'package:barber_booking_app/models/salon_models/response/get_salon_response.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:barber_booking_app/config/api_config.dart';
 class GetSalonService {
-  final String baseUrl = 'http://192.168.0.100:5088';
 
   Future<GetSalonResponse?> getSalon(String? Id) async{
     try{
-      final url = Uri.parse('$baseUrl/api/Salon/GetSalonById/$Id');
+      final url = Uri.parse('$kApiBaseUrl/api/Salon/GetSalonById/$Id');
       
       final response = await http.get(
       url,

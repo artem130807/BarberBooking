@@ -2,12 +2,13 @@ import 'dart:convert';
 
 import 'package:barber_booking_app/models/master_subscription_models/response/get_subscriptions_response.dart';
 import 'package:http/http.dart' as http;
+import 'package:barber_booking_app/config/api_config.dart';
 class GetSubscriptionsService {
-  final String baseUrl = 'http://192.168.0.100:5088';
+
   Future<List<GetSubscriptionsResponse>?> getSubscriptions(String? token) async{
     try{
       
-      final url = Uri.parse('$baseUrl/api/MasterSubscriptions/Get-MasterSubscriptions');
+      final url = Uri.parse('$kApiBaseUrl/api/MasterSubscriptions/Get-MasterSubscriptions');
 
         final response = await http.get(url, headers: {
           'Content-Type': 'application/json',

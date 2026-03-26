@@ -4,14 +4,14 @@ import 'package:barber_booking_app/models/salon_models/response/get_salons_respo
 import 'package:barber_booking_app/providers/auth_providers/auth_provider.dart';
 import 'package:http/http.dart' as http;
 import 'package:provider/provider.dart';
+import 'package:barber_booking_app/config/api_config.dart';
 class GetSalonsSearchService{
-final String baseUrl = 'http://192.168.0.100:5088';
 
 Future<List<GetSalonsResponse>?> GetSalons(String? name, PageParams params, String? token) async{
       try {
         print('📦 Получен запрос: параметры ${name},${params.Page}, ${params.PageSize}');
 
-        final url = Uri.parse('$baseUrl/api/Salon/GetSalonsName').replace(
+        final url = Uri.parse('$kApiBaseUrl/api/Salon/GetSalonsName').replace(
           queryParameters: {
             'name':name.toString(),
             'page':params.Page.toString(),

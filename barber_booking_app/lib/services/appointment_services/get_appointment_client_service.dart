@@ -1,13 +1,13 @@
 import 'dart:convert';
 import 'package:barber_booking_app/models/appointment_models/response/get_appointment_client_response.dart';
 import 'package:http/http.dart' as http;
+import 'package:barber_booking_app/config/api_config.dart';
 
 class GetAppointmentClientService {
-  final String baseUrl = 'http://192.168.0.100:5088';
 
   Future<GetAppointmentClientResponse?> getAppointmentById(String appointmentId, String token) async {
     try {
-      final url = Uri.parse('$baseUrl/api/Appointment/get-appointmentClientById/$appointmentId');
+      final url = Uri.parse('$kApiBaseUrl/api/Appointment/get-appointmentClientById/$appointmentId');
 
       final response = await http.get(url, headers: {
         'Content-Type': 'application/json',

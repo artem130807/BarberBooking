@@ -3,9 +3,9 @@ import 'package:barber_booking_app/models/params/page_params.dart';
 import 'package:barber_booking_app/models/params/review_params/review_admin_filter.dart';
 import 'package:barber_booking_app/models/review_models/response/review_admin_list_item.dart';
 import 'package:http/http.dart' as http;
+import 'package:barber_booking_app/config/api_config.dart';
 
 class GetReviewsAdminService {
-  final String baseUrl = 'http://192.168.0.100:5088';
 
   Future<Map<String, dynamic>?> getAll({
     required PageParams pageParams,
@@ -30,7 +30,7 @@ class GetReviewsAdminService {
       if (filter.prioritizeLowRatings) {
         qp['LowRating'] = 'true';
       }
-      final url = Uri.parse('$baseUrl/api/Review/GetAllReviewsAdmin')
+      final url = Uri.parse('$kApiBaseUrl/api/Review/GetAllReviewsAdmin')
           .replace(queryParameters: qp);
       final response = await http.get(
         url,

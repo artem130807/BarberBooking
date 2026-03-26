@@ -5,14 +5,14 @@ import 'package:barber_booking_app/models/user_models/responses/email_verify_res
 import 'package:http/http.dart' as http;
 import 'package:barber_booking_app/models/user_models/requests/send_verification_request.dart';
 import 'package:barber_booking_app/models/user_models/responses/send_verification_response.dart';
+import 'package:barber_booking_app/config/api_config.dart';
 
 class EmailVerifyService {
-  final String baseUrl = 'http://192.168.0.100:5088';
 
   Future<SendVerificationResponse?> SendCodeInEmail(SendVerificationRequest request) async{
       try
       {
-        final url = Uri.parse('$baseUrl/api/Users/send-verification');
+        final url = Uri.parse('$kApiBaseUrl/api/Users/send-verification');
         final requestBody = json.encode(request.toJson());
         final response = await http.post(
         url,
@@ -40,7 +40,7 @@ class EmailVerifyService {
    Future<EmailVerifyResponse?> VerifyCode(EmailVerifyRequest request) async{
       try
       {
-        final url = Uri.parse('$baseUrl/api/Users/verify-email');
+        final url = Uri.parse('$kApiBaseUrl/api/Users/verify-email');
         final requestBody = json.encode(request.toJson());
         final response = await http.post(
         url,

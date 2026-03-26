@@ -1,12 +1,13 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:barber_booking_app/models/service_models/response/get_service_search_response.dart';
+import 'package:barber_booking_app/config/api_config.dart';
 
 class GetServiceSearchService {
-    final String baseUrl = 'http://192.168.0.100:5088';
+
      Future<List<GetServiceSearchResponse>?> getServices(String? token) async{
        try {
-        final url = Uri.parse('$baseUrl/api/Services/get-services-by-startWith');
+        final url = Uri.parse('$kApiBaseUrl/api/Services/get-services-by-startWith');
         final response = await http.get(url, headers: 
         {
           'Content-Type': 'application/json',

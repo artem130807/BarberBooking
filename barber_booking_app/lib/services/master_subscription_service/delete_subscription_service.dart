@@ -1,9 +1,10 @@
 import 'package:http/http.dart' as http;
+import 'package:barber_booking_app/config/api_config.dart';
 class DeleteSubscriptionService {
-  final String baseUrl = 'http://192.168.0.100:5088';
+
   Future<bool?> deleteSubscription(String? id) async{
     try{
-     final url = Uri.parse('$baseUrl/api/MasterSubscriptions/Delete-MasterSubscription/$id');
+     final url = Uri.parse('$kApiBaseUrl/api/MasterSubscriptions/Delete-MasterSubscription/$id');
      final response = await http.delete(url);
         print('📥 Статус: ${response.statusCode}');
         print('📥 Ответ: ${response.body}');

@@ -2,8 +2,9 @@ import 'dart:convert';
 
 import 'package:barber_booking_app/models/service_models/response/get_services_response.dart';
 import 'package:http/http.dart' as http;
+import 'package:barber_booking_app/config/api_config.dart';
 class GetServicesService {
-  final String baseUrl = 'http://192.168.0.100:5088';
+
   Future<List<GetServicesResponse>?> getServices(String? salonId) async{
        try {
         if (salonId == null || salonId.isEmpty) {
@@ -11,7 +12,7 @@ class GetServicesService {
           return null;
         }
         print(salonId);
-        final url = Uri.parse('$baseUrl/api/Services/get-serviceBySalon/$salonId');
+        final url = Uri.parse('$kApiBaseUrl/api/Services/get-serviceBySalon/$salonId');
         final response = await http.get(url, headers: {'Content-Type': 'application/json'},);
         print('📥 Статус: ${response.statusCode}');
         print('📥 Ответ: ${response.body}');

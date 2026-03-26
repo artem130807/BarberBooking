@@ -1,9 +1,9 @@
 import 'dart:convert';
 
 import 'package:http/http.dart' as http;
+import 'package:barber_booking_app/config/api_config.dart';
 
 class GetUserCitiesService {
-  final String baseUrl = 'http://192.168.0.100:5088';
 
   Future<List<String>> getCities({String? search}) async {
     try {
@@ -11,7 +11,7 @@ class GetUserCitiesService {
       if (search != null && search.trim().isNotEmpty) {
         queryParams['city'] = search.trim();
       }
-      final url = Uri.parse('$baseUrl/api/Users/get_cities').replace(
+      final url = Uri.parse('$kApiBaseUrl/api/Users/get_cities').replace(
         queryParameters: queryParams.isEmpty ? null : queryParams,
       );
       final response = await http.get(

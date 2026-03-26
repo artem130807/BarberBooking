@@ -3,14 +3,14 @@ import 'dart:convert';
 import 'package:barber_booking_app/models/params/page_params.dart';
 import 'package:barber_booking_app/models/salon_models/response/get_salons_response.dart';
 import 'package:http/http.dart' as http;
+import 'package:barber_booking_app/config/api_config.dart';
 class GetSalonsByServiceService {
-  final String baseUrl = 'http://192.168.0.100:5088';
 
      Future<List<GetSalonsResponse>?> GetSalons(String? serviceName ,PageParams params, String? token) async{
       try {
         print('📦 Получен запрос: параметры ${params.Page}, ${params.PageSize}');
 
-        final url = Uri.parse('$baseUrl/api/Salon/GetSalonsByServiceName').replace(
+        final url = Uri.parse('$kApiBaseUrl/api/Salon/GetSalonsByServiceName').replace(
           queryParameters: {
             'serviceName':serviceName.toString(),
             'page':params.Page.toString(),

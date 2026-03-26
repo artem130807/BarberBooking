@@ -2,11 +2,12 @@ import 'dart:convert';
 
 import 'package:barber_booking_app/models/master_models/response/get_master_response.dart';
 import 'package:http/http.dart' as http;
+import 'package:barber_booking_app/config/api_config.dart';
 class GetMasterService {
-  final String baseUrl = 'http://192.168.0.100:5088';
+
   Future<GetMasterResponse?> getMaster(String? Id) async{
      try{
-      final url = Uri.parse('$baseUrl/api/MasterProfile/GetMasterProfileById/$Id');
+      final url = Uri.parse('$kApiBaseUrl/api/MasterProfile/GetMasterProfileById/$Id');
       
       final response = await http.get(
       url,

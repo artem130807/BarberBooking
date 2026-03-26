@@ -4,9 +4,9 @@ import 'package:barber_booking_app/models/service_models/request/create_service_
 import 'package:barber_booking_app/models/service_models/request/update_service_request.dart';
 import 'package:barber_booking_app/models/service_models/response/service_admin_list_item.dart';
 import 'package:http/http.dart' as http;
+import 'package:barber_booking_app/config/api_config.dart';
 
 class AdminSalonServicesApiService {
-  final String baseUrl = 'http://192.168.0.100:5088';
 
   Map<String, String> _headers(String? token) => {
         'Content-Type': 'application/json',
@@ -24,7 +24,7 @@ class AdminSalonServicesApiService {
         'PageSize': '${pageParams.PageSize ?? 30}',
       };
       final url = Uri.parse(
-        '$baseUrl/api/Services/get-services-by-salon-paged/$salonId',
+        '$kApiBaseUrl/api/Services/get-services-by-salon-paged/$salonId',
       ).replace(queryParameters: qp);
       final response = await http.get(url, headers: _headers(token));
       if (response.statusCode == 200) {
@@ -53,7 +53,7 @@ class AdminSalonServicesApiService {
         'PageSize': '${pageParams.PageSize ?? 30}',
       };
       final url = Uri.parse(
-        '$baseUrl/api/Services/get-top-services-by-salon/$salonId',
+        '$kApiBaseUrl/api/Services/get-top-services-by-salon/$salonId',
       ).replace(queryParameters: qp);
       final response = await http.get(url, headers: _headers(token));
       if (response.statusCode == 200) {
@@ -87,7 +87,7 @@ class AdminSalonServicesApiService {
 
   Future<bool> create(CreateServiceRequest body, String? token) async {
     try {
-      final url = Uri.parse('$baseUrl/api/Services/create-service');
+      final url = Uri.parse('$kApiBaseUrl/api/Services/create-service');
       final response = await http.post(
         url,
         headers: _headers(token),
@@ -105,7 +105,7 @@ class AdminSalonServicesApiService {
     String? token,
   ) async {
     try {
-      final url = Uri.parse('$baseUrl/api/Services/update-service$serviceId');
+      final url = Uri.parse('$kApiBaseUrl/api/Services/update-service$serviceId');
       final response = await http.patch(
         url,
         headers: _headers(token),
@@ -119,7 +119,7 @@ class AdminSalonServicesApiService {
 
   Future<bool> delete(String serviceId, String? token) async {
     try {
-      final url = Uri.parse('$baseUrl/api/Services/delete-service$serviceId');
+      final url = Uri.parse('$kApiBaseUrl/api/Services/delete-service$serviceId');
       final response = await http.delete(url, headers: _headers(token));
       return response.statusCode == 200;
     } catch (_) {

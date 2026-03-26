@@ -1,13 +1,13 @@
 import 'dart:convert';
 import 'package:barber_booking_app/models/salon_models/response/salon_admin_stats_response.dart';
 import 'package:http/http.dart' as http;
+import 'package:barber_booking_app/config/api_config.dart';
 
 class GetSalonAdminStatsService {
-  final String baseUrl = 'http://192.168.0.100:5088';
 
   Future<SalonAdminStatsResponse?> getStats(String salonId, String? token) async {
     try {
-      final url = Uri.parse('$baseUrl/api/Salon/GetSalonAdminStats/$salonId');
+      final url = Uri.parse('$kApiBaseUrl/api/Salon/GetSalonAdminStats/$salonId');
       final response = await http.get(
         url,
         headers: {

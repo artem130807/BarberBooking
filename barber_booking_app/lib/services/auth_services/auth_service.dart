@@ -5,16 +5,16 @@ import 'dart:convert';
 import 'package:barber_booking_app/models/user_models/requests/login_user_request.dart';
 import 'package:barber_booking_app/models/user_models/requests/register_user_request.dart';
 import 'package:barber_booking_app/models/user_models/responses/auth_response.dart';
+import 'package:barber_booking_app/config/api_config.dart';
 
 class AuthService {
-    final String baseUrl = 'http://192.168.0.100:5088';
-    
+
     Future<AuthResponse?> Login(LoginUserRequest request) async
     {
         try {
         print('📦 Получен запрос: email=${request.email}, password=${request.passwordHash}');
         
-        final url = Uri.parse('$baseUrl/api/Users/LoginUser');
+        final url = Uri.parse('$kApiBaseUrl/api/Users/LoginUser');
         print('🌐 URL: $url');
         
         final requestBody = json.encode(request.toJson());
@@ -47,7 +47,7 @@ class AuthService {
         try {
         print('📦 Получен запрос: ${request.toJson()}');
         
-        final url = Uri.parse('$baseUrl/api/Users/RegisterUser');
+        final url = Uri.parse('$kApiBaseUrl/api/Users/RegisterUser');
         print('🌐 URL: $url');
         
         final requestBody = json.encode(request.toJson());
@@ -80,7 +80,7 @@ class AuthService {
         try {
         print('📦 Получен запрос: ${request.toJson()}');
         
-        final url = Uri.parse('$baseUrl/api/Users/updatePassword');
+        final url = Uri.parse('$kApiBaseUrl/api/Users/updatePassword');
         print('🌐 URL: $url');
         
         final requestBody = json.encode(request.toJson());

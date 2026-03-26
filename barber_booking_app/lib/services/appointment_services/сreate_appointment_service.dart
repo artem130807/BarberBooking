@@ -2,15 +2,16 @@ import 'dart:convert';
 
 import 'package:barber_booking_app/models/appointment_models/request/create_appointment_request.dart';
 import 'package:http/http.dart' as http;
+import 'package:barber_booking_app/config/api_config.dart';
 class CreateAppointmentService{
- final String baseUrl = 'http://192.168.0.100:5088';
+
  Future<bool> createAppointment(CreateAppointmentRequest? request, String? token) async{
   if (request == null || token == null || token.isEmpty) {
     return false;
   }
 
   try{
-     final url = Uri.parse('$baseUrl/api/Appointment/create-appointment');
+     final url = Uri.parse('$kApiBaseUrl/api/Appointment/create-appointment');
      final response = await http.post(
         url,
         headers: 

@@ -4,12 +4,13 @@ import 'package:barber_booking_app/models/params/page_params.dart';
 import 'package:barber_booking_app/models/params/review_params/review_sort_params.dart';
 import 'package:barber_booking_app/models/review_models/response/get_reviews_master_response.dart';
 import 'package:http/http.dart' as http;
+import 'package:barber_booking_app/config/api_config.dart';
 class GetReviewsMasterService {
-  final String baseUrl = 'http://192.168.0.100:5088';
+
   Future<List<GetReviewsMasterResponse>?> getReviewsMaster(String? masterId, PageParams pageParams, ReviewSortParams sort) async{
      try {
 
-        final url = Uri.parse('$baseUrl/api/Review/GetReviewsByMasterIdSort/$masterId').replace(
+        final url = Uri.parse('$kApiBaseUrl/api/Review/GetReviewsByMasterIdSort/$masterId').replace(
           queryParameters: {
           'page':pageParams.Page.toString(),
           'pageSize':pageParams.PageSize.toString()
