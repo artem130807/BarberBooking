@@ -16,5 +16,6 @@ namespace BarberBooking.API.Dto.DtoMasterProfile
         public string? AvatarUrl { get; private set; }
         public decimal Rating {get; private set;}
         public int RatingCount {get; private set;}
+        public bool IsSubscripe {get; set;}
     }
 }

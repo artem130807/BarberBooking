@@ -20,5 +20,6 @@ namespace BarberBooking.API.Contracts.MasterProfileContracts
         Task<List<MasterProfile>> GetTheBestMasters(string city, int? take);
         Task UpdateAsync(MasterProfile master);
         Task<PagedResult<MasterProfile>> GetTopMastersInSalon(Guid salonId, PageParams pageParams);
+        Task<bool> UserIsSubscripeMaster(Guid userId, Guid masterId);
     }
 }

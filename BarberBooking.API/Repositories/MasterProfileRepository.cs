@@ -88,5 +88,12 @@ namespace BarberBooking.API.Repositories
             _context.MasterProfiles.Update(master);
             await _context.SaveChangesAsync();
         }
+        public async Task<bool> UserIsSubscripeMaster(Guid userId, Guid masterId)
+        {
+            var subscripe = await _context.MasterSubscriptions.FirstOrDefaultAsync(x => x.ClientId == userId && x.MasterId == masterId);
+            if(subscripe == null)
+                return false;
+            return true;
+        }
     }
 }
