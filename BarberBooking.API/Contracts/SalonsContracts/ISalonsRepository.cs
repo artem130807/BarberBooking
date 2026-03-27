@@ -25,8 +25,7 @@ namespace BarberBooking.API.Contracts.SalonsContracts
         Task SaveChangesAsync();
         Task UpdateAsync(Salons salon);
         Task<Salons?> GetSalonStats(Guid salonId);
-
-        /// <summary>Salons with appointments in the given UTC calendar month (for monthly report).</summary>
+        Task<List<Salons>> GetSalonsDayStats(int year, int month, int day,CancellationToken cancellationToken = default);
         Task<List<Salons>> GetSalonsMonthStats(int year, int month, CancellationToken cancellationToken = default);
     }
 }

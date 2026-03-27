@@ -13,13 +13,8 @@ namespace BarberBooking.API.ExtensionsProject
         {
             if(filter.SalonId.HasValue)
                 query = query.Where(x => x.SalonId == filter.SalonId);
-            if(filter.Mounth.HasValue)
-                query = query.Where(x => x.CreatedAt.Month == filter.Mounth);
-            if (filter.Date.HasValue)
-            {
-                var targetDate = filter.Date.Value.ToDateTime(TimeOnly.MinValue);
-                query = query.Where(x => x.CreatedAt.Date == targetDate.Date);
-            }
+            if(filter.Day.HasValue)
+                query = query.Where(x => x.CreatedAt.Day == filter.Day);
             return query;
         }
     }

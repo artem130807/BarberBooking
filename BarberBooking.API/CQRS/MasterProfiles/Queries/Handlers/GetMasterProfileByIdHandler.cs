@@ -26,9 +26,9 @@ namespace BarberBooking.API.CQRS.MasterProfile.Queries
         {
             var userId = _userContext.UserId;
             var masterProfile = await _masterProfileRepository.GetMasterProfileById(query.Id);
-            bool IsSubcripe = await _masterProfileRepository.UserIsSubscripeMaster(userId, masterProfile.Id);
             if(masterProfile == null)
                 return Result.Failure<DtoMasterProfileInfo>("Профиль мастера не найден");
+            bool IsSubcripe = await _masterProfileRepository.UserIsSubscripeMaster(userId, masterProfile.Id);
             var dto =  _mapper.Map<DtoMasterProfileInfo>(masterProfile);
             dto.IsSubscripe = IsSubcripe;
             return Result.Success(dto);

@@ -52,7 +52,6 @@ namespace BarberBooking.API.CQRS.Salon.Commands.Handlers
                 _unitOfWork.RollBack();
                 return Result.Failure<DtoSalonCreateInfo>($"Ошибка:{ex.Message}");
             }
-            await _kafkaProducerSalonEvent.ProduceAsync(domainEvent, cancellationToken);
             await _ratingCreateSalon.AddRating(salon.Id, cancellationToken);
             var result = _mapper.Map<DtoSalonCreateInfo>(salon);
             return Result.Success(result);

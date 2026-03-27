@@ -21,6 +21,25 @@ class _CreateReviewScreenState extends State<CreateReviewScreen> {
   int _masterRating = 5;
   late TextEditingController _commentController;
 
+  CreateReviewUserProvider? _createForApiErrors;
+
+  void _onCreateApiError() {
+    if (!mounted) return;
+    final p = _createForApiErrors;
+    if (p == null) return;
+    final msg = p.errorMessage;
+    if (msg != null && msg.isNotEmpty) p.showApiError(context, msg);
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (_createForApiErrors != null) return;
+    final p = context.read<CreateReviewUserProvider>();
+    _createForApiErrors = p;
+    p.addListener(_onCreateApiError);
+  }
+
   @override
   void initState() {
     super.initState();
@@ -29,6 +48,7 @@ class _CreateReviewScreenState extends State<CreateReviewScreen> {
 
   @override
   void dispose() {
+    _createForApiErrors?.removeListener(_onCreateApiError);
     _commentController.dispose();
     super.dispose();
   }
@@ -80,12 +100,6 @@ class _CreateReviewScreenState extends State<CreateReviewScreen> {
   Widget build(BuildContext context) {
     return Consumer<CreateReviewUserProvider>(
       builder: (context, provider, child) {
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          if (provider.errorMessage != null && mounted) {
-            provider.showApiError(context, provider.errorMessage);
-          }
-        });
-
         final cs = Theme.of(context).colorScheme;
         final salonName = widget.appointment.salonNavigationResponse?.SalonName ?? 'Салон';
         final masterName = widget.appointment.masterNavigationResponse?.MasterName ?? 'Мастер';

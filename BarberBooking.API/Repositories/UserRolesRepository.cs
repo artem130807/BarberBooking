@@ -43,7 +43,17 @@ namespace BarberBooking.API.Repositories
 
         public async Task<int> GetMaxRole(Guid userId)
         {
-            return await _context.UserRoles.Where(x => x.UserId == userId).Select(x => x.RoleId).MaxAsync();
+            var roleIds = await _context.UserRoles
+                .Where(x => x.UserId == userId)
+                .Select(x => x.RoleId)
+                .ToListAsync();
+            if (roleIds.Count == 0)
+                return (int)RolesEnum.User;
+            if (roleIds.Contains((int)RolesEnum.Admin))
+                return (int)RolesEnum.Admin;
+            if (roleIds.Contains((int)RolesEnum.Master))
+                return (int)RolesEnum.Master;
+            return (int)RolesEnum.User;
         }
     }
 }

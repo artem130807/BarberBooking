@@ -11,7 +11,6 @@ namespace BarberBooking.API.Filters.Salon
     public class SalonStatisticsFilter
     {
         public Guid? SalonId {get; set;}
-        public int? Mounth {get; set;}
-        public DateOnly? Date {get; set;}
+        public int? Day {get; set;}
     }
 }

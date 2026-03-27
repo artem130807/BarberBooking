@@ -50,7 +50,6 @@ namespace BarberBooking.API.Service
                 _unitOfWork.RollBack();
                 return Result.Failure(e.Message);
             }
-            await _kafkaProducerMaster.ProduceAsync(domainEvent, cancellationToken);
             return Result.Success();
         }
 
@@ -74,7 +73,6 @@ namespace BarberBooking.API.Service
                 _unitOfWork.RollBack();
                 return Result.Failure(e.Message);
             }
-            await _kafkaProducerSalon.ProduceAsync(domainEvent, cancellationToken);
             return Result.Success();
         }
     }

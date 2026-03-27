@@ -14,6 +14,5 @@ namespace BarberBooking.API.Dto.DtoServices
         public int DurationMinutes { get;  set; } 
         public DtoPrice Price { get;  set; }
         public string? PhotoUrl { get; set; }
-        public string? MainPhotoUrl { get; private set; }
     }
 }

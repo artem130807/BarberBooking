@@ -45,5 +45,7 @@
 	<true/>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Приложение загружает выбранное фото для услуги или профиля мастера.</string>
 </dict>
 </plist>

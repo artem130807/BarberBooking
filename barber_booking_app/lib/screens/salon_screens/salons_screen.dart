@@ -24,6 +24,25 @@ class _SalonsScreenState extends State<SalonsScreen> {
   final ScrollController _scrollController = ScrollController();
   int _selectedNavIndex = 0;
 
+  GetSalonsProvider? _salonsForApiErrors;
+
+  void _onSalonsApiError() {
+    if (!mounted) return;
+    final p = _salonsForApiErrors;
+    if (p == null) return;
+    final msg = p.errorMessage;
+    if (msg != null && msg.isNotEmpty) p.showApiError(context, msg);
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (_salonsForApiErrors != null) return;
+    final p = context.read<GetSalonsProvider>();
+    _salonsForApiErrors = p;
+    p.addListener(_onSalonsApiError);
+  }
+
   @override
   void initState() {
     super.initState();
@@ -72,12 +91,6 @@ class _SalonsScreenState extends State<SalonsScreen> {
   Widget build(BuildContext context) {
     return Consumer<GetSalonsProvider>(
       builder: (context, salonsProvider, child) {
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          if (salonsProvider.errorMessage != null && mounted) {
-            salonsProvider.showApiError(context, salonsProvider.errorMessage);
-          }
-        });
-
         return Scaffold(
           appBar: AppBar(
             leading: IconButton(
@@ -235,6 +248,7 @@ class _SalonsScreenState extends State<SalonsScreen> {
 
   @override
   void dispose() {
+    _salonsForApiErrors?.removeListener(_onSalonsApiError);
     _scrollController.dispose();
     super.dispose();
   }

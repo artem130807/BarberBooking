@@ -1,5 +1,6 @@
 import 'package:barber_booking_app/models/appointment_models/response/salon_appointment_admin_response.dart';
 import 'package:barber_booking_app/models/base/base_provider.dart';
+import 'package:barber_booking_app/models/params/appointment_params/filter_appointments_params.dart';
 import 'package:barber_booking_app/models/params/page_params.dart';
 import 'package:barber_booking_app/services/appointment_services/get_salon_appointments_admin_service.dart';
 
@@ -18,10 +19,18 @@ class GetSalonAppointmentsAdminProvider extends BaseProvider {
     DateTime? to,
     required PageParams pageParams,
     String? token,
+    FilterAppointmentsParams? statusFilter,
   }) async {
     startLoading();
     try {
-      final map = await _service.getPaged(salonId, from, to, pageParams, token);
+      final map = await _service.getPaged(
+        salonId,
+        from,
+        to,
+        pageParams,
+        token,
+        statusFilter: statusFilter,
+      );
       if (map == null) {
         setError('Не удалось загрузить записи');
         finishLoading();
@@ -43,6 +52,7 @@ class GetSalonAppointmentsAdminProvider extends BaseProvider {
     DateTime? to,
     String? token,
     int pageSize = 100,
+    FilterAppointmentsParams? statusFilter,
   }) async {
     startLoading();
     try {
@@ -55,6 +65,7 @@ class GetSalonAppointmentsAdminProvider extends BaseProvider {
           to,
           PageParams(Page: page, PageSize: pageSize),
           token,
+          statusFilter: statusFilter,
         );
         if (map == null) {
           setError('Не удалось загрузить записи');

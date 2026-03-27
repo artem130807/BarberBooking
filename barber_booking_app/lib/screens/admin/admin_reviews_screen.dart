@@ -12,7 +12,10 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 class AdminReviewsScreen extends StatefulWidget {
-  const AdminReviewsScreen({super.key});
+  const AdminReviewsScreen({super.key, this.initialSalonId});
+
+  /// Если задан — фильтр по салону и загрузка сразу (экран из карточки салона).
+  final String? initialSalonId;
 
   @override
   State<AdminReviewsScreen> createState() => _AdminReviewsScreenState();
@@ -26,6 +29,12 @@ class _AdminReviewsScreenState extends State<AdminReviewsScreen> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       await _loadSalons();
+      final sid = widget.initialSalonId;
+      if (sid != null && sid.isNotEmpty && mounted) {
+        context.read<GetReviewsAdminProvider>().setActiveFilter(
+              ReviewAdminFilter(salonId: sid),
+            );
+      }
       if (mounted) await _reloadList();
     });
   }
@@ -77,8 +86,10 @@ class _AdminReviewsScreenState extends State<AdminReviewsScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Отзывы'),
-        automaticallyImplyLeading: false,
+        title: Text(
+          widget.initialSalonId != null ? 'Отзывы салона' : 'Отзывы',
+        ),
+        automaticallyImplyLeading: widget.initialSalonId != null,
       ),
       body: Column(
         children: [

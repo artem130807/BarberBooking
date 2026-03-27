@@ -8,6 +8,7 @@ import 'package:barber_booking_app/providers/master_providers/get_master_provide
 import 'package:barber_booking_app/providers/master_subscription_providers/create_subscription_provider.dart';
 import 'package:barber_booking_app/providers/master_subscription_providers/delete_subscription_provider.dart';
 import 'package:barber_booking_app/providers/review_providers/get_reviews_master_provider.dart';
+import 'package:barber_booking_app/screens/user_interfaces/service_screens/service_selection_screen.dart';
 import 'package:barber_booking_app/utils/date_formatter.dart';
 import 'package:barber_booking_app/widgets/loading_indicator.dart';
 import 'package:barber_booking_app/widgets/error_widget.dart';
@@ -29,6 +30,42 @@ class _MasterDetailScreenState extends State<MasterDetailScreen> {
   bool _isSubscribed = false;
   String? _subscriptionId;
   int _selectedNavIndex = 0;
+
+  GetMasterProvider? _masterForApiErrors;
+  GetReviewsMasterProvider? _reviewsForApiErrors;
+
+  void _onMasterReviewsApiError() {
+    if (!mounted) return;
+    final m = _masterForApiErrors;
+    final r = _reviewsForApiErrors;
+    if (m != null) {
+      final msg = m.errorMessage;
+      if (msg != null && msg.isNotEmpty) m.showApiError(context, msg);
+    }
+    if (r != null) {
+      final msg = r.errorMessage;
+      if (msg != null && msg.isNotEmpty) r.showApiError(context, msg);
+    }
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (_masterForApiErrors != null) return;
+    final master = context.read<GetMasterProvider>();
+    final reviews = context.read<GetReviewsMasterProvider>();
+    _masterForApiErrors = master;
+    _reviewsForApiErrors = reviews;
+    master.addListener(_onMasterReviewsApiError);
+    reviews.addListener(_onMasterReviewsApiError);
+  }
+
+  @override
+  void dispose() {
+    _masterForApiErrors?.removeListener(_onMasterReviewsApiError);
+    _reviewsForApiErrors?.removeListener(_onMasterReviewsApiError);
+    super.dispose();
+  }
 
   void _onNavItemTapped(int index) {
     setState(() => _selectedNavIndex = index);
@@ -55,8 +92,9 @@ class _MasterDetailScreenState extends State<MasterDetailScreen> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      final auth = Provider.of<AuthProvider>(context, listen: false);
       final masterProvider = Provider.of<GetMasterProvider>(context, listen: false);
-      masterProvider.getMaster(widget.masterId);
+      masterProvider.getMaster(widget.masterId, token: auth.token);
       final reviewsProvider = Provider.of<GetReviewsMasterProvider>(context, listen: false);
       reviewsProvider.getReviewsMaster(widget.masterId, _reviewsPageParams, _reviewSortParams);
     });
@@ -112,15 +150,6 @@ class _MasterDetailScreenState extends State<MasterDetailScreen> {
 
     return Consumer2<GetMasterProvider, GetReviewsMasterProvider>(
       builder: (context, masterProvider, reviewsProvider, child) {
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          if (masterProvider.errorMessage != null && mounted) {
-            masterProvider.showApiError(context, masterProvider.errorMessage);
-          }
-          if (reviewsProvider.errorMessage != null && mounted) {
-            reviewsProvider.showApiError(context, reviewsProvider.errorMessage);
-          }
-        });
-
         final master = masterProvider.getMasterResponse;
 
         if (masterProvider.isLoading && master == null) {
@@ -133,7 +162,10 @@ class _MasterDetailScreenState extends State<MasterDetailScreen> {
           return Scaffold(
             body: ErrorWidgetCustom(
               message: masterProvider.errorMessage!,
-              onRetry: () => masterProvider.getMaster(widget.masterId),
+              onRetry: () => masterProvider.getMaster(
+                    widget.masterId,
+                    token: Provider.of<AuthProvider>(context, listen: false).token,
+                  ),
             ),
           );
         }
@@ -479,7 +511,23 @@ class _MasterDetailScreenState extends State<MasterDetailScreen> {
           const SizedBox(height: 12),
           ElevatedButton(
             onPressed: () {
-              // TODO: навигация к экрану записи
+              final salonId = master.SalonNavigation?.Id;
+              if (salonId == null || salonId.isEmpty) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Мастер не привязан к салону')),
+                );
+                return;
+              }
+              Navigator.push(
+                context,
+                MaterialPageRoute<void>(
+                  builder: (_) => ServiceSelectionScreen(
+                    masterName: master.UserName ?? 'Мастер',
+                    masterId: widget.masterId,
+                    salonId: salonId,
+                  ),
+                ),
+              );
             },
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.black,

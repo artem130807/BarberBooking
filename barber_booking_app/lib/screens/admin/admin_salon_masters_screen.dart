@@ -1,10 +1,14 @@
+import 'dart:io';
+
 import 'package:barber_booking_app/models/master_models/request/create_master_profile_admin_request.dart';
 import 'package:barber_booking_app/models/master_models/response/master_profile_info_admin_response.dart';
 import 'package:barber_booking_app/providers/auth_providers/auth_provider.dart';
 import 'package:barber_booking_app/providers/master_providers/admin_salon_masters_provider.dart';
+import 'package:barber_booking_app/services/media/admin_media_upload_service.dart';
 import 'package:barber_booking_app/widgets/error_widget.dart';
 import 'package:barber_booking_app/widgets/loading_indicator.dart';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 
 final _emailRe = RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$');
@@ -241,7 +245,9 @@ class _CreateMasterDialogState extends State<_CreateMasterDialog> {
   final _email = TextEditingController();
   final _bio = TextEditingController();
   final _spec = TextEditingController();
-  final _avatar = TextEditingController();
+  final _picker = ImagePicker();
+  final _upload = AdminMediaUploadService();
+  XFile? _pickedAvatar;
 
   static const double _fieldGap = 16;
 
@@ -250,8 +256,17 @@ class _CreateMasterDialogState extends State<_CreateMasterDialog> {
     _email.dispose();
     _bio.dispose();
     _spec.dispose();
-    _avatar.dispose();
     super.dispose();
+  }
+
+  Future<void> _pickAvatar() async {
+    final x = await _picker.pickImage(
+      source: ImageSource.gallery,
+      maxWidth: 2048,
+      maxHeight: 2048,
+      imageQuality: 88,
+    );
+    if (x != null) setState(() => _pickedAvatar = x);
   }
 
   Future<void> _submit() async {
@@ -262,12 +277,38 @@ class _CreateMasterDialogState extends State<_CreateMasterDialog> {
       widget.hostContext,
       listen: false,
     );
+    String? avatarUrl;
+    if (_pickedAvatar != null) {
+      if (token == null || token.isEmpty) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Нужна авторизация')),
+          );
+        }
+        return;
+      }
+      final up = await _upload.uploadImage(
+        token: token,
+        filePath: _pickedAvatar!.path,
+      );
+      if (up.url == null) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(up.error ?? 'Не удалось загрузить фото'),
+            ),
+          );
+        }
+        return;
+      }
+      avatarUrl = up.url;
+    }
     final body = CreateMasterProfileAdminRequest(
       emailUser: _email.text.trim(),
       salonId: widget.salonId,
       bio: _bio.text.trim().isEmpty ? null : _bio.text.trim(),
       specialization: _spec.text.trim().isEmpty ? null : _spec.text.trim(),
-      avatarUrl: _avatar.text.trim().isEmpty ? null : _avatar.text.trim(),
+      avatarUrl: avatarUrl,
     );
     final err = await prov.createMaster(body, token);
     if (!mounted) return;
@@ -324,9 +365,52 @@ class _CreateMasterDialogState extends State<_CreateMasterDialog> {
                 maxLines: 2,
               ),
               const SizedBox(height: _fieldGap),
-              TextFormField(
-                controller: _avatar,
-                decoration: const InputDecoration(labelText: 'URL аватара'),
+              Align(
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  'Фото мастера',
+                  style: Theme.of(context).textTheme.labelLarge,
+                ),
+              ),
+              const SizedBox(height: 8),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  CircleAvatar(
+                    radius: 36,
+                    backgroundColor:
+                        Theme.of(context).colorScheme.surfaceContainerHighest,
+                    backgroundImage: _pickedAvatar != null
+                        ? FileImage(File(_pickedAvatar!.path))
+                        : null,
+                    child: _pickedAvatar == null
+                        ? Icon(
+                            Icons.person_rounded,
+                            color: Theme.of(context).colorScheme.onSurfaceVariant,
+                          )
+                        : null,
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Wrap(
+                      spacing: 8,
+                      runSpacing: 8,
+                      children: [
+                        OutlinedButton.icon(
+                          onPressed: _pickAvatar,
+                          icon: const Icon(Icons.photo_library_outlined),
+                          label: const Text('Из галереи'),
+                        ),
+                        if (_pickedAvatar != null)
+                          TextButton(
+                            onPressed: () =>
+                                setState(() => _pickedAvatar = null),
+                            child: const Text('Убрать'),
+                          ),
+                      ],
+                    ),
+                  ),
+                ],
               ),
             ],
           ),

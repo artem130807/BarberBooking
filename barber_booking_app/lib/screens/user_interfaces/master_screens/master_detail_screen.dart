@@ -1,13 +1,15 @@
+import 'dart:async';
+
 import 'package:barber_booking_app/models/master_models/response/get_master_response.dart';
-import 'package:barber_booking_app/models/master_subscription_models/request/create_subscription_request.dart';
 import 'package:barber_booking_app/models/params/page_params.dart';
 import 'package:barber_booking_app/models/params/review_params/review_sort_params.dart';
 import 'package:barber_booking_app/models/review_models/response/get_reviews_master_response.dart';
 import 'package:barber_booking_app/providers/auth_providers/auth_provider.dart';
 import 'package:barber_booking_app/providers/master_providers/get_master_provider.dart';
-import 'package:barber_booking_app/providers/master_subscription_providers/create_subscription_provider.dart';
-import 'package:barber_booking_app/providers/master_subscription_providers/delete_subscription_provider.dart';
+import 'package:barber_booking_app/providers/master_subscription_providers/get_subscriptions_provider.dart';
 import 'package:barber_booking_app/providers/review_providers/get_reviews_master_provider.dart';
+import 'package:barber_booking_app/services/master_subscription_service/master_subscription_sync_service.dart';
+import 'package:barber_booking_app/screens/user_interfaces/service_screens/service_selection_screen.dart';
 import 'package:barber_booking_app/utils/date_formatter.dart';
 import 'package:barber_booking_app/widgets/loading_indicator.dart';
 import 'package:barber_booking_app/widgets/error_widget.dart';
@@ -26,9 +28,35 @@ class MasterDetailScreen extends StatefulWidget {
 class _MasterDetailScreenState extends State<MasterDetailScreen> {
   final PageParams _reviewsPageParams = PageParams(Page: 1, PageSize: 5);
   final ReviewSortParams _reviewSortParams = ReviewSortParams();
-  bool _isSubscribed = false;
-  String? _subscriptionId;
+  final MasterSubscriptionSyncService _subscriptionSync = MasterSubscriptionSyncService();
+
+  /// Состояние на сервере при загрузке профиля.
+  bool? _initialSubscribed;
+
+  /// Локальное «избранное» до выхода с экрана.
+  bool _draftSubscribed = false;
+  bool _favoriteStateInitialized = false;
+  bool _favoriteInitScheduled = false;
+  bool _subscriptionSyncCompleted = false;
+  String? _authToken;
   int _selectedNavIndex = 0;
+
+  GetMasterProvider? _masterForApiErrors;
+  GetReviewsMasterProvider? _reviewsForApiErrors;
+
+  void _onMasterReviewsApiError() {
+    if (!mounted) return;
+    final m = _masterForApiErrors;
+    final r = _reviewsForApiErrors;
+    if (m != null) {
+      final msg = m.errorMessage;
+      if (msg != null && msg.isNotEmpty) m.showApiError(context, msg);
+    }
+    if (r != null) {
+      final msg = r.errorMessage;
+      if (msg != null && msg.isNotEmpty) r.showApiError(context, msg);
+    }
+  }
 
   void _onNavItemTapped(int index) {
     setState(() => _selectedNavIndex = index);
@@ -55,54 +83,76 @@ class _MasterDetailScreenState extends State<MasterDetailScreen> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      final auth = Provider.of<AuthProvider>(context, listen: false);
       final masterProvider = Provider.of<GetMasterProvider>(context, listen: false);
-      masterProvider.getMaster(widget.masterId);
+      masterProvider.getMaster(widget.masterId, token: auth.token);
       final reviewsProvider = Provider.of<GetReviewsMasterProvider>(context, listen: false);
       reviewsProvider.getReviewsMaster(widget.masterId, _reviewsPageParams, _reviewSortParams);
     });
   }
 
-  Future<void> _toggleSubscription(
-    BuildContext context,
-    bool currentState,
-    String masterId,
-    String token,
-  ) async {
-    if (currentState) {
-      if (_subscriptionId == null) return;
-      final deleteProvider = Provider.of<DeleteSubscriptionProvider>(context, listen: false);
-      final success = await deleteProvider.deleteSubscription(_subscriptionId!);
-      if (success && mounted) {
-        setState(() {
-          _isSubscribed = false;
-          _subscriptionId = null;
-        });
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Мастер удалён из избранного'), duration: Duration(seconds: 1)),
-        );
-      } else if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(deleteProvider.errorMessage ?? 'Ошибка при удалении')),
-        );
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final token = Provider.of<AuthProvider>(context, listen: false).token;
+    if (token != _authToken) {
+      _authToken = token;
+    }
+    if (_masterForApiErrors == null) {
+      final master = context.read<GetMasterProvider>();
+      final reviews = context.read<GetReviewsMasterProvider>();
+      _masterForApiErrors = master;
+      _reviewsForApiErrors = reviews;
+      master.addListener(_onMasterReviewsApiError);
+      reviews.addListener(_onMasterReviewsApiError);
+    }
+  }
+
+  void _toggleFavoriteDraft() {
+    final m = Provider.of<GetMasterProvider>(context, listen: false).getMasterResponse;
+    if (m == null) return;
+    setState(() {
+      if (!_favoriteStateInitialized) {
+        _initialSubscribed = m.isSubscripe ?? false;
+        _draftSubscribed = _initialSubscribed!;
+        _favoriteStateInitialized = true;
       }
-    } else {
-      final createProvider = Provider.of<CreateSubscriptionProvider>(context, listen: false);
-      final request = CreateSubscriptionRequest(MasterId: masterId);
-      final success = await createProvider.createSubscription(request, token);
-      if (success && mounted) {
-        setState(() {
-          _isSubscribed = true;
-          _subscriptionId = createProvider.id;
-        });
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Мастер добавлен в избранное'), duration: Duration(seconds: 1)),
-        );
-      } else if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(createProvider.errorMessage ?? 'Ошибка при добавлении')),
-        );
+      _draftSubscribed = !_draftSubscribed;
+    });
+  }
+
+  Future<void> _persistSubscriptionExit({BuildContext? contextForRefresh}) async {
+    final token = _authToken;
+    if (token == null) return;
+    if (!_favoriteStateInitialized) return;
+    final initial = _initialSubscribed;
+    if (initial == null) return;
+    if (_draftSubscribed == initial) return;
+
+    final ok = await _subscriptionSync.persistIfChanged(
+      initialSubscribed: initial,
+      draftSubscribed: _draftSubscribed,
+      masterId: widget.masterId,
+      token: token,
+    );
+    if (ok && contextForRefresh != null && contextForRefresh.mounted) {
+      await contextForRefresh.read<GetSubscriptionsProvider>().getSubscriptions(token);
+    }
+  }
+
+  @override
+  void dispose() {
+    _masterForApiErrors?.removeListener(_onMasterReviewsApiError);
+    _reviewsForApiErrors?.removeListener(_onMasterReviewsApiError);
+    if (!_subscriptionSyncCompleted && _favoriteStateInitialized && _authToken != null) {
+      final token = _authToken;
+      if (token != null &&
+          _initialSubscribed != null &&
+          _draftSubscribed != _initialSubscribed) {
+        unawaited(_persistSubscriptionExit());
       }
     }
+    super.dispose();
   }
 
   @override
@@ -112,15 +162,6 @@ class _MasterDetailScreenState extends State<MasterDetailScreen> {
 
     return Consumer2<GetMasterProvider, GetReviewsMasterProvider>(
       builder: (context, masterProvider, reviewsProvider, child) {
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          if (masterProvider.errorMessage != null && mounted) {
-            masterProvider.showApiError(context, masterProvider.errorMessage);
-          }
-          if (reviewsProvider.errorMessage != null && mounted) {
-            reviewsProvider.showApiError(context, reviewsProvider.errorMessage);
-          }
-        });
-
         final master = masterProvider.getMasterResponse;
 
         if (masterProvider.isLoading && master == null) {
@@ -133,7 +174,10 @@ class _MasterDetailScreenState extends State<MasterDetailScreen> {
           return Scaffold(
             body: ErrorWidgetCustom(
               message: masterProvider.errorMessage!,
-              onRetry: () => masterProvider.getMaster(widget.masterId),
+              onRetry: () => masterProvider.getMaster(
+                    widget.masterId,
+                    token: Provider.of<AuthProvider>(context, listen: false).token,
+                  ),
             ),
           );
         }
@@ -146,18 +190,41 @@ class _MasterDetailScreenState extends State<MasterDetailScreen> {
           );
         }
 
-        return Scaffold(
+        if (!_favoriteInitScheduled) {
+          _favoriteInitScheduled = true;
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (!mounted || _favoriteStateInitialized) return;
+            setState(() {
+              _initialSubscribed = master.isSubscripe ?? false;
+              _draftSubscribed = _initialSubscribed!;
+              _favoriteStateInitialized = true;
+            });
+          });
+        }
+
+        final bool favoriteIcon = _favoriteStateInitialized
+            ? _draftSubscribed
+            : (master.isSubscripe ?? false);
+
+        return PopScope(
+          canPop: false,
+          onPopInvokedWithResult: (bool didPop, Object? result) async {
+            if (didPop) return;
+            await _persistSubscriptionExit(contextForRefresh: context);
+            if (!context.mounted) return;
+            _subscriptionSyncCompleted = true;
+            Navigator.of(context).pop();
+          },
+          child: Scaffold(
           appBar: AppBar(
             title: Text(master.UserName ?? 'Мастер'),
             actions: [
               IconButton(
                 icon: Icon(
-                  _isSubscribed ? Icons.favorite : Icons.favorite_border,
-                  color: _isSubscribed ? Colors.red : null,
+                  favoriteIcon ? Icons.favorite : Icons.favorite_border,
+                  color: favoriteIcon ? Colors.red : null,
                 ),
-                onPressed: token == null
-                    ? null
-                    : () => _toggleSubscription(context, _isSubscribed, widget.masterId, token),
+                onPressed: token == null ? null : _toggleFavoriteDraft,
               ),
             ],
           ),
@@ -186,6 +253,7 @@ class _MasterDetailScreenState extends State<MasterDetailScreen> {
               BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Профиль'),
             ],
           ),
+        ),
         );
       },
     );
@@ -480,7 +548,23 @@ class _MasterDetailScreenState extends State<MasterDetailScreen> {
           const SizedBox(height: 12),
           ElevatedButton(
             onPressed: () {
-              // TODO: навигация к экрану записи
+              final salonId = master.SalonNavigation?.Id;
+              if (salonId == null || salonId.isEmpty) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Мастер не привязан к салону')),
+                );
+                return;
+              }
+              Navigator.push(
+                context,
+                MaterialPageRoute<void>(
+                  builder: (_) => ServiceSelectionScreen(
+                    masterName: master.UserName ?? 'Мастер',
+                    masterId: widget.masterId,
+                    salonId: salonId,
+                  ),
+                ),
+              );
             },
             style: ElevatedButton.styleFrom(
               backgroundColor: Theme.of(context).colorScheme.primary,

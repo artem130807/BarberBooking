@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using AutoMapper;
 using BarberBooking.API.Contracts;
@@ -28,20 +29,20 @@ namespace BarberBooking.API.CQRS.Salon.Queries.Handlers
         {
             var userCity = _userContext.UserCity;
             var salons = await _salonsRepository.GetSalonsByCity(userCity, query.pageParams);
-            var availableSlots = await _masterTimeSlotRepository.GetAvailableSlotsInSalons(DateOnly.FromDateTime(DateTime.Now));
-            var slotsBySalonId = availableSlots
-                .Where(x => x.Master != null)
-                .GroupBy(x => x.Master.SalonId)
-                .ToDictionary(g => g.Key, g => g.Count());
             if(salons.Count == 0)
                 return Result.Failure<List<DtoSalonShortInfo>>("Салоны в вашем городе не найдены");
-            var dtoSalon = salons.Data.Select(salon =>
+            var date = DateOnly.FromDateTime(DateTime.Now);
+            var dtoList = salons.Data.Select(s => _mapper.Map<DtoSalonShortInfo>(s)).ToList();
+            var slotCounts = await _masterTimeSlotRepository.GetAvailableSlotsCountBySalonIdsAsync(
+                dtoList.Select(d => d.Id).ToList(),
+                date,
+                cancellationToken);
+            foreach (var dto in dtoList)
             {
-                var dto =  _mapper.Map<DtoSalonShortInfo>(salon);
-                dto.AvailableSlots = slotsBySalonId.TryGetValue(salon.Id, out var count) ? count : 0;
-                return dto;
-            }).ToList();
-            return Result.Success(dtoSalon);
+                dto.AvailableSlots = slotCounts.TryGetValue(dto.Id, out var c) ? c : 0;
+            }
+
+            return Result.Success(dtoList);
         }
     }
 }

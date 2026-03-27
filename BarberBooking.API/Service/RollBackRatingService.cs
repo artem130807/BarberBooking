@@ -51,7 +51,6 @@ namespace BarberBooking.API.Service
             await _masterProfileRepository.UpdateAsync(master);
             var rollbackEvent = new MasterRollBackRatingEvent(AggregateId, rating, ratingCount);
             await _eventStoreRepository.SaveEventsAsync(AggregateId, new List<DomainEvent>{rollbackEvent});
-            await _kafkaProducerMaster.ProduceAsync(rollbackEvent, cancellationToken);
             return Result.Success();
         }
 
@@ -72,7 +71,6 @@ namespace BarberBooking.API.Service
             await _salonsRepository.UpdateAsync(salon);
             var rollbackEvent = new SalonRatingRollbackedEvent(AggregateId, rating, ratingCount);
             await _eventStoreRepository.SaveEventsAsync(AggregateId, new List<DomainEvent>{rollbackEvent});
-            await _kafkaProducerSalon.ProduceAsync(rollbackEvent, cancellationToken);
             return Result.Success();
         }
     }

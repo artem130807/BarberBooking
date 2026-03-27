@@ -5,15 +5,21 @@ import 'package:http/http.dart' as http;
 import 'package:barber_booking_app/config/api_config.dart';
 class GetMasterService {
 
-  Future<GetMasterResponse?> getMaster(String? Id) async{
+  /// [token] нужен, чтобы API вернул персональное поле [isSubscripe] (подписка текущего пользователя).
+  Future<GetMasterResponse?> getMaster(String? Id, {String? token}) async{
      try{
       final url = Uri.parse('$kApiBaseUrl/api/MasterProfile/GetMasterProfileById/$Id');
-      
+
+      final headers = <String, String>{
+        'Content-Type': 'application/json',
+      };
+      if (token != null && token.isNotEmpty) {
+        headers['Authorization'] = 'Bearer $token';
+      }
+
       final response = await http.get(
       url,
-        headers: {
-          'Content-Type': 'application/json'
-        }
+        headers: headers,
       );
       print('📥 Статус: ${response.statusCode}');
       print('📥 Ответ: ${response.body}');

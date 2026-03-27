@@ -20,6 +20,25 @@ class _EditReviewScreenState extends State<EditReviewScreen> {
   late int _masterRating;
   late TextEditingController _commentController;
 
+  UpdateReviewUserProvider? _updateForApiErrors;
+
+  void _onUpdateApiError() {
+    if (!mounted) return;
+    final p = _updateForApiErrors;
+    if (p == null) return;
+    final msg = p.errorMessage;
+    if (msg != null && msg.isNotEmpty) p.showApiError(context, msg);
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (_updateForApiErrors != null) return;
+    final p = context.read<UpdateReviewUserProvider>();
+    _updateForApiErrors = p;
+    p.addListener(_onUpdateApiError);
+  }
+
   @override
   void initState() {
     super.initState();
@@ -32,6 +51,7 @@ class _EditReviewScreenState extends State<EditReviewScreen> {
 
   @override
   void dispose() {
+    _updateForApiErrors?.removeListener(_onUpdateApiError);
     _commentController.dispose();
     super.dispose();
   }
@@ -64,12 +84,6 @@ class _EditReviewScreenState extends State<EditReviewScreen> {
   Widget build(BuildContext context) {
     return Consumer<UpdateReviewUserProvider>(
       builder: (context, provider, child) {
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          if (provider.errorMessage != null && mounted) {
-            provider.showApiError(context, provider.errorMessage);
-          }
-        });
-
         final cs = Theme.of(context).colorScheme;
         final salonName = widget.review.dtoSalonNavigation?.SalonName ?? 'Салон';
         final masterName = widget.review.masterProfileNavigation?.MasterName ?? 'Мастер';

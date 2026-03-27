@@ -9,10 +9,10 @@ class GetMasterProvider extends BaseProvider {
   GetMasterResponse? get getMasterResponse => _getMasterResponse;
   GetMasterService? get masterService => _masterService;
 
-  Future<bool> getMaster(String id) async{
+  Future<bool> getMaster(String id, {String? token}) async{
   startLoading();
   try{
-    final response = await _masterService.getMaster(id);
+    final response = await _masterService.getMaster(id, token: token);
     if(response != null){
       _getMasterResponse = response;
       finishLoading();

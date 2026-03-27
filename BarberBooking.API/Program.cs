@@ -128,6 +128,10 @@ app.UseCors(builder => builder
     .AllowAnyMethod()
     .AllowAnyHeader());
 
+var webRoot = Path.Combine(app.Environment.ContentRootPath, "wwwroot");
+Directory.CreateDirectory(Path.Combine(webRoot, "uploads", "images"));
+app.UseStaticFiles();
+
 app.UseAuthentication();
 
 app.UseAuthorization();

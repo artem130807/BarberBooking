@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:barber_booking_app/providers/appointment_providers/%D1%81reate_appointment_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -33,23 +35,66 @@ class DateTimeSelectionScreen extends StatefulWidget {
 }
 
 class _DateTimeSelectionScreenState extends State<DateTimeSelectionScreen> {
+  static const Duration _loadDebounceDelay = Duration(milliseconds: 350);
+
   DateTime _selectedDate = DateTime.now();
   GetAvailableSlots? _selectedSlot;
+  GetSlotsProvider? _slotsProvider;
+  Timer? _loadDebounce;
 
   @override
   void initState() {
     super.initState();
-    _loadSlotsForDate(_selectedDate);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      final provider = context.read<GetSlotsProvider>();
+      provider.resetForNewScreen();
+      _slotsProvider = provider;
+      _slotsProvider!.addListener(_onSlotsProviderChanged);
+      _scheduleLoadSlotsForDate(_selectedDate, immediate: true);
+    });
   }
 
-  void _loadSlotsForDate(DateTime date) {
+  void _onSlotsProviderChanged() {
+    if (!mounted) return;
+    final p = _slotsProvider;
+    final msg = p?.errorMessage;
+    if (msg != null && msg.isNotEmpty) {
+      p!.showApiError(context, msg);
+    }
+  }
+
+  @override
+  void dispose() {
+    _loadDebounce?.cancel();
+    _slotsProvider?.removeListener(_onSlotsProviderChanged);
+    super.dispose();
+  }
+
+  void _scheduleLoadSlotsForDate(DateTime date, {bool immediate = false}) {
+    _loadDebounce?.cancel();
+    if (immediate) {
+      _runLoadSlotsForDate(date);
+      return;
+    }
+    _loadDebounce = Timer(_loadDebounceDelay, () {
+      if (!mounted) return;
+      _runLoadSlotsForDate(date);
+    });
+  }
+
+  void _runLoadSlotsForDate(DateTime date) {
     final provider = Provider.of<GetSlotsProvider>(context, listen: false);
     final dateStr = DateFormat('yyyy-MM-dd').format(date);
-    final duration = Duration(minutes: widget.serviceDuration ?? 0);
+    final minutes = (widget.serviceDuration != null && widget.serviceDuration! > 0)
+        ? widget.serviceDuration!
+        : 30;
+    final duration = Duration(minutes: minutes);
     final hours = duration.inHours;
-    final minutes = duration.inMinutes.remainder(60);
+    final minutePart = duration.inMinutes.remainder(60);
     final seconds = duration.inSeconds.remainder(60);
-    final durationStr = '${hours.toString().padLeft(2, '0')}:${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}';
+    final durationStr =
+        '${hours.toString().padLeft(2, '0')}:${minutePart.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}';
 
     final request = GetSlotsRequest(
       DateTime: dateStr,
@@ -92,12 +137,6 @@ class _DateTimeSelectionScreenState extends State<DateTimeSelectionScreen> {
   Widget build(BuildContext context) {
     return Consumer<GetSlotsProvider>(
       builder: (context, provider, child) {
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          if (provider.errorMessage != null && mounted) {
-            provider.showApiError(context, provider.errorMessage);
-          }
-        });
-
         return Scaffold(
           appBar: AppBar(
             title: Text('Выбор времени — ${widget.serviceName}'),
@@ -111,7 +150,7 @@ class _DateTimeSelectionScreenState extends State<DateTimeSelectionScreen> {
                     _selectedDate = date;
                     _selectedSlot = null;
                   });
-                  _loadSlotsForDate(date);
+                  _scheduleLoadSlotsForDate(date);
                 },
               ),
               const SizedBox(height: 16),
@@ -147,7 +186,7 @@ class _DateTimeSelectionScreenState extends State<DateTimeSelectionScreen> {
       return Center(
         child: ErrorWidgetCustom(
           message: provider.errorMessage!,
-          onRetry: () => _loadSlotsForDate(_selectedDate),
+          onRetry: () => _scheduleLoadSlotsForDate(_selectedDate, immediate: true),
         ),
       );
     }

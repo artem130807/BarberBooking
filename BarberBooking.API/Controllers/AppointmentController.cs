@@ -8,6 +8,7 @@ using BarberBooking.API.CQRS.AppointmentsCommands.Handlers;
 using BarberBooking.API.CQRS.AppointmentsQueries;
 using BarberBooking.API.Dto.DtoAppointments;
 using BarberBooking.API.Filters;
+using BarberBooking.API.Filters.AppointmentsFilter;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -102,9 +103,9 @@ namespace BarberBooking.API.Controllers
         }
         [Authorize("Admin")]
         [HttpGet("get-salon-appointments-paged/{salonId}")]
-        public async Task<IActionResult> GetSalonAppointmentsPaged(Guid salonId, [FromQuery] DateTime? from, [FromQuery] DateTime? to, [FromQuery] PageParams pageParams)
+        public async Task<IActionResult> GetSalonAppointmentsPaged(Guid salonId, [FromQuery] DateTime? from, [FromQuery] DateTime? to, [FromQuery] FilterAppointments filter,[FromQuery] PageParams pageParams)
         {
-            var query = new GetSalonAppointmentsPagedQuery(salonId, from, to, pageParams);
+            var query = new GetSalonAppointmentsPagedQuery(salonId, from, to, filter, pageParams);
             var result = await _mediator.Send(query);
             if (result.IsFailure)
                 return BadRequest(result.Error);

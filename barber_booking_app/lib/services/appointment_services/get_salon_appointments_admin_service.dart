@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:barber_booking_app/models/appointment_models/response/salon_appointment_admin_response.dart';
+import 'package:barber_booking_app/models/params/appointment_params/filter_appointments_params.dart';
 import 'package:barber_booking_app/models/params/page_params.dart';
 import 'package:http/http.dart' as http;
 import 'package:barber_booking_app/config/api_config.dart';
@@ -11,8 +12,9 @@ class GetSalonAppointmentsAdminService {
     DateTime? from,
     DateTime? to,
     PageParams params,
-    String? token,
-  ) async {
+    String? token, {
+    FilterAppointmentsParams? statusFilter,
+  }) async {
     try {
       final qp = <String, String>{
         'page': params.Page.toString(),
@@ -20,6 +22,7 @@ class GetSalonAppointmentsAdminService {
       };
       if (from != null) qp['from'] = from.toUtc().toIso8601String();
       if (to != null) qp['to'] = to.toUtc().toIso8601String();
+      if (statusFilter != null) qp.addAll(statusFilter.toQueryMap());
       final url = Uri.parse(
         '$kApiBaseUrl/api/Appointment/get-salon-appointments-paged/$salonId',
       ).replace(queryParameters: qp);

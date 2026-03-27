@@ -28,6 +28,35 @@ class _UserReviewsScreenState extends State<UserReviewsScreen> with SingleTicker
   final PageParams _awaitingPageParams = PageParams(Page: 1, PageSize: 20);
   late TabController _tabController;
 
+  GetAppointmentAwaitingReviewProvider? _awaitingForApiErrors;
+  GetReviewsUserProvider? _reviewsForApiErrors;
+
+  void _onUserReviewsApiError() {
+    if (!mounted) return;
+    final a = _awaitingForApiErrors;
+    final r = _reviewsForApiErrors;
+    if (a != null) {
+      final msg = a.errorMessage;
+      if (msg != null && msg.isNotEmpty) a.showApiError(context, msg);
+    }
+    if (r != null) {
+      final msg = r.errorMessage;
+      if (msg != null && msg.isNotEmpty) r.showApiError(context, msg);
+    }
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (_awaitingForApiErrors != null) return;
+    final awaiting = context.read<GetAppointmentAwaitingReviewProvider>();
+    final reviews = context.read<GetReviewsUserProvider>();
+    _awaitingForApiErrors = awaiting;
+    _reviewsForApiErrors = reviews;
+    awaiting.addListener(_onUserReviewsApiError);
+    reviews.addListener(_onUserReviewsApiError);
+  }
+
   @override
   void initState() {
     super.initState();
@@ -38,6 +67,8 @@ class _UserReviewsScreenState extends State<UserReviewsScreen> with SingleTicker
 
   @override
   void dispose() {
+    _awaitingForApiErrors?.removeListener(_onUserReviewsApiError);
+    _reviewsForApiErrors?.removeListener(_onUserReviewsApiError);
     _tabController.dispose();
     super.dispose();
   }
@@ -83,15 +114,6 @@ class _UserReviewsScreenState extends State<UserReviewsScreen> with SingleTicker
   Widget build(BuildContext context) {
     return Consumer2<GetAppointmentAwaitingReviewProvider, GetReviewsUserProvider>(
       builder: (context, awaitingProvider, reviewsProvider, child) {
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          if (awaitingProvider.errorMessage != null && mounted) {
-            awaitingProvider.showApiError(context, awaitingProvider.errorMessage);
-          }
-          if (reviewsProvider.errorMessage != null && mounted) {
-            reviewsProvider.showApiError(context, reviewsProvider.errorMessage);
-          }
-        });
-
         return Scaffold(
           appBar: AppBar(
             title: const Text('Отзывы'),

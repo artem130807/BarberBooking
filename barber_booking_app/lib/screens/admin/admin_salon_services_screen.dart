@@ -1,12 +1,16 @@
+import 'dart:io';
+
 import 'package:barber_booking_app/models/service_models/request/create_service_request.dart';
 import 'package:barber_booking_app/models/service_models/request/update_service_request.dart';
 import 'package:barber_booking_app/models/service_models/response/service_admin_list_item.dart';
 import 'package:barber_booking_app/providers/auth_providers/auth_provider.dart';
 import 'package:barber_booking_app/providers/service_providers/admin_salon_services_provider.dart';
+import 'package:barber_booking_app/services/media/admin_media_upload_service.dart';
 import 'package:barber_booking_app/widgets/error_widget.dart';
 import 'package:barber_booking_app/widgets/loading_indicator.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
@@ -301,8 +305,11 @@ class _ServiceFormDialogState extends State<_ServiceFormDialog> {
   late final TextEditingController _desc;
   late final TextEditingController _duration;
   late final TextEditingController _price;
-  late final TextEditingController _photo;
   bool _isActive = true;
+  final _picker = ImagePicker();
+  final _upload = AdminMediaUploadService();
+  XFile? _pickedPhoto;
+  String? _existingPhotoUrl;
 
   @override
   void initState() {
@@ -316,7 +323,7 @@ class _ServiceFormDialogState extends State<_ServiceFormDialog> {
     _price = TextEditingController(
       text: e?.Price?.Value != null ? '${e!.Price!.Value}' : '',
     );
-    _photo = TextEditingController(text: e?.PhotoUrl ?? '');
+    _existingPhotoUrl = e?.PhotoUrl;
     _isActive = e?.IsActive != false;
   }
 
@@ -326,8 +333,17 @@ class _ServiceFormDialogState extends State<_ServiceFormDialog> {
     _desc.dispose();
     _duration.dispose();
     _price.dispose();
-    _photo.dispose();
     super.dispose();
+  }
+
+  Future<void> _pickPhoto() async {
+    final x = await _picker.pickImage(
+      source: ImageSource.gallery,
+      maxWidth: 2048,
+      maxHeight: 2048,
+      imageQuality: 88,
+    );
+    if (x != null) setState(() => _pickedPhoto = x);
   }
 
   double? _parsePrice(String s) {
@@ -348,6 +364,35 @@ class _ServiceFormDialogState extends State<_ServiceFormDialog> {
     if (duration == null || duration <= 0) return;
     if (price == null || price < 0) return;
 
+    String? photoUrl;
+    if (_pickedPhoto != null) {
+      if (token == null || token.isEmpty) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Нужна авторизация')),
+          );
+        }
+        return;
+      }
+      final up = await _upload.uploadImage(
+        token: token,
+        filePath: _pickedPhoto!.path,
+      );
+      if (up.url == null) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(up.error ?? 'Не удалось загрузить фото'),
+            ),
+          );
+        }
+        return;
+      }
+      photoUrl = up.url;
+    } else {
+      photoUrl = _existingPhotoUrl;
+    }
+
     final existing = widget.existing;
     if (existing?.Id != null) {
       final body = UpdateServiceRequest(
@@ -355,7 +400,7 @@ class _ServiceFormDialogState extends State<_ServiceFormDialog> {
         description: _desc.text.trim().isEmpty ? null : _desc.text.trim(),
         durationMinutes: duration,
         priceValue: price,
-        photo: _photo.text.trim().isEmpty ? null : _photo.text.trim(),
+        photo: photoUrl,
         isActive: _isActive,
       );
       final ok = await prov.updateService(existing!.Id!, body, token);
@@ -369,7 +414,7 @@ class _ServiceFormDialogState extends State<_ServiceFormDialog> {
       description: _desc.text.trim().isEmpty ? null : _desc.text.trim(),
       durationMinutes: duration,
       priceValue: price,
-      photoUrl: _photo.text.trim().isEmpty ? null : _photo.text.trim(),
+      photoUrl: photoUrl,
     );
     final ok = await prov.createService(body, token);
     if (mounted) Navigator.pop(context, ok);
@@ -424,11 +469,79 @@ class _ServiceFormDialogState extends State<_ServiceFormDialog> {
                 },
               ),
               const SizedBox(height: _fieldGap),
-              TextFormField(
-                controller: _photo,
-                decoration: const InputDecoration(
-                  labelText: 'URL фото (необязательно)',
+              Align(
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  'Фото услуги',
+                  style: Theme.of(context).textTheme.labelLarge,
                 ),
+              ),
+              const SizedBox(height: 8),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(8),
+                    child: SizedBox(
+                      width: 88,
+                      height: 88,
+                      child: _pickedPhoto != null
+                          ? Image.file(
+                              File(_pickedPhoto!.path),
+                              fit: BoxFit.cover,
+                            )
+                          : (_existingPhotoUrl != null &&
+                                  _existingPhotoUrl!.isNotEmpty)
+                              ? Image.network(
+                                  _existingPhotoUrl!,
+                                  fit: BoxFit.cover,
+                                  errorBuilder: (_, __, ___) => ColoredBox(
+                                    color: Theme.of(context)
+                                        .colorScheme
+                                        .surfaceContainerHighest,
+                                    child: Icon(
+                                      Icons.broken_image_outlined,
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .onSurfaceVariant,
+                                    ),
+                                  ),
+                                )
+                              : ColoredBox(
+                                  color: Theme.of(context)
+                                      .colorScheme
+                                      .surfaceContainerHighest,
+                                  child: Icon(
+                                    Icons.image_outlined,
+                                    color: Theme.of(context)
+                                        .colorScheme
+                                        .onSurfaceVariant,
+                                    size: 40,
+                                  ),
+                                ),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Wrap(
+                      spacing: 8,
+                      runSpacing: 8,
+                      children: [
+                        OutlinedButton.icon(
+                          onPressed: _pickPhoto,
+                          icon: const Icon(Icons.photo_library_outlined),
+                          label: const Text('Из галереи'),
+                        ),
+                        if (_pickedPhoto != null)
+                          TextButton(
+                            onPressed: () =>
+                                setState(() => _pickedPhoto = null),
+                            child: const Text('Убрать новое'),
+                          ),
+                      ],
+                    ),
+                  ),
+                ],
               ),
               if (isEdit) ...[
                 const SizedBox(height: _fieldGap),

@@ -1,4 +1,6 @@
+import 'package:barber_booking_app/utils/appointment_status_ru.dart';
 import 'package:barber_booking_app/utils/appointment_time_display.dart';
+import 'package:barber_booking_app/models/params/appointment_params/filter_appointments_params.dart';
 import 'package:barber_booking_app/models/params/page_params.dart';
 import 'package:barber_booking_app/models/params/salon_params/salon_filter.dart';
 import 'package:barber_booking_app/providers/appointment_providers/get_salon_appointments_admin_provider.dart';
@@ -11,11 +13,36 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 class AdminAppointmentsPeriodScreen extends StatefulWidget {
-  const AdminAppointmentsPeriodScreen({super.key});
+  const AdminAppointmentsPeriodScreen({super.key, this.initialSalonId});
+
+  final String? initialSalonId;
 
   @override
   State<AdminAppointmentsPeriodScreen> createState() =>
       _AdminAppointmentsPeriodScreenState();
+}
+
+/// Фильтр по статусу (соответствует `FilterAppointments` на API: Confirmed / Completed / Cancelled).
+enum _AdminApptStatusFilter {
+  all,
+  awaiting,
+  completed,
+  cancelled,
+}
+
+extension on _AdminApptStatusFilter {
+  FilterAppointmentsParams? get toApiFilter {
+    switch (this) {
+      case _AdminApptStatusFilter.all:
+        return null;
+      case _AdminApptStatusFilter.awaiting:
+        return FilterAppointmentsParams.awaiting();
+      case _AdminApptStatusFilter.completed:
+        return FilterAppointmentsParams.done();
+      case _AdminApptStatusFilter.cancelled:
+        return FilterAppointmentsParams.cancelledOnly();
+    }
+  }
 }
 
 class _AdminAppointmentsPeriodScreenState
@@ -23,16 +50,22 @@ class _AdminAppointmentsPeriodScreenState
   String? _salonId;
   DateTime? _from;
   DateTime? _to;
+  _AdminApptStatusFilter _statusFilter = _AdminApptStatusFilter.all;
   final PageParams _pageParams = PageParams(Page: 1, PageSize: 50);
   final SalonFilter _filter = SalonFilter();
 
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
       Provider.of<GetSalonAppointmentsAdminProvider>(context, listen: false)
           .clearList();
-      _loadSalons();
+      await _loadSalons();
+      final preset = widget.initialSalonId;
+      if (preset != null && preset.isNotEmpty && mounted) {
+        setState(() => _salonId = preset);
+        await _fetch();
+      }
     });
   }
 
@@ -71,7 +104,15 @@ class _AdminAppointmentsPeriodScreenState
       to: _to,
       pageParams: _pageParams,
       token: token,
+      statusFilter: _statusFilter.toApiFilter,
     );
+  }
+
+  void _onStatusFilterChanged(_AdminApptStatusFilter value) {
+    setState(() => _statusFilter = value);
+    if (_salonId != null && _salonId!.isNotEmpty) {
+      _fetch();
+    }
   }
 
   @override
@@ -79,7 +120,11 @@ class _AdminAppointmentsPeriodScreenState
     final df = DateFormat('dd.MM.yyyy');
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Записи за период'),
+        title: Text(
+          widget.initialSalonId != null
+              ? 'Записи салона'
+              : 'Записи за период',
+        ),
       ),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -113,6 +158,57 @@ class _AdminAppointmentsPeriodScreenState
                   onChanged: (v) => setState(() => _salonId = v),
                 );
               },
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Статус записи',
+                  style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                        fontWeight: FontWeight.w600,
+                      ),
+                ),
+                const SizedBox(height: 8),
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  children: [
+                    FilterChip(
+                      label: const Text('Все'),
+                      selected: _statusFilter == _AdminApptStatusFilter.all,
+                      onSelected: (_) =>
+                          _onStatusFilterChanged(_AdminApptStatusFilter.all),
+                    ),
+                    FilterChip(
+                      label: const Text('Ожидающие'),
+                      selected:
+                          _statusFilter == _AdminApptStatusFilter.awaiting,
+                      onSelected: (_) => _onStatusFilterChanged(
+                        _AdminApptStatusFilter.awaiting,
+                      ),
+                    ),
+                    FilterChip(
+                      label: const Text('Выполненные'),
+                      selected:
+                          _statusFilter == _AdminApptStatusFilter.completed,
+                      onSelected: (_) => _onStatusFilterChanged(
+                        _AdminApptStatusFilter.completed,
+                      ),
+                    ),
+                    FilterChip(
+                      label: const Text('Отменённые'),
+                      selected:
+                          _statusFilter == _AdminApptStatusFilter.cancelled,
+                      onSelected: (_) => _onStatusFilterChanged(
+                        _AdminApptStatusFilter.cancelled,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
             ),
           ),
           ListTile(
@@ -210,7 +306,7 @@ class _AdminAppointmentsPeriodScreenState
                               Text('Услуга: $service'),
                               const SizedBox(height: 4),
                               Chip(
-                                label: Text(a.Status ?? '—'),
+                                label: Text(appointmentStatusLabelRu(a.Status)),
                                 visualDensity: VisualDensity.compact,
                               ),
                             ],

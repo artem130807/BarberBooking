@@ -637,3 +637,4 @@ E:/AAAAA1111222C#/BarberBookingApp/BarberBooking.API/bin/Debug/net9.0/MimeKit.dl
 /home/shade/BarberBooking/BarberBooking.API/obj/Debug/net9.0/BarberBooking.API.pdb
 /home/shade/BarberBooking/BarberBooking.API/obj/Debug/net9.0/BarberBooking.API.genruntimeconfig.cache
 /home/shade/BarberBooking/BarberBooking.API/obj/Debug/net9.0/ref/BarberBooking.API.dll
+/home/shade/BarberBooking/BarberBooking.API/bin/Debug/net9.0/BarberBooking.API.staticwebassets.runtime.json

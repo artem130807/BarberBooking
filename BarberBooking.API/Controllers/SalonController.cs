@@ -86,8 +86,12 @@ namespace BarberBooking.API.Controllers
             return Ok(result.Value);
         }
         [HttpGet("GetSalonsByFilter")]
-        public async Task<IActionResult> GetSalonsByFilter([FromQuery] SalonFilter salonFilter, [FromQuery] PageParams pageParams)
+        public async Task<IActionResult> GetSalonsByFilter(
+            [FromQuery] SalonFilter salonFilter,
+            [FromQuery] int? page,
+            [FromQuery] int? pageSize)
         {
+            var pageParams = new PageParams { Page = page, PageSize = pageSize };
             var query = new GetSalonsByFilterQuery(salonFilter, pageParams);
             var result = await _mediator.Send(query);
             if (result.IsFailure)

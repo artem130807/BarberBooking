@@ -23,29 +23,46 @@ class ServiceSelectionScreen extends StatefulWidget {
 class _ServiceSelectionScreenState extends State<ServiceSelectionScreen> {
   GetServicesResponse? _selectedService;
 
+  void _onServicesProviderChanged() {
+    if (!mounted) return;
+    final p = Provider.of<GetServicesProvider>(context, listen: false);
+    final msg = p.errorMessage;
+    if (msg != null && msg.isNotEmpty) {
+      p.showApiError(context, msg);
+    }
+  }
+
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
       final provider = Provider.of<GetServicesProvider>(context, listen: false);
+      provider.addListener(_onServicesProviderChanged);
       provider.getServices(widget.salonId);
     });
+  }
+
+  @override
+  void dispose() {
+    final p = Provider.of<GetServicesProvider>(context, listen: false);
+    p.removeListener(_onServicesProviderChanged);
+    p.resetState();
+    p.clearList();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return Consumer<GetServicesProvider>(
       builder: (context, provider, child) {
-        // Показываем ошибки
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          if (provider.errorMessage != null && mounted) {
-            provider.showApiError(context, provider.errorMessage);
-          }
-        });
-
         return Scaffold(
           appBar: AppBar(
             title: Text('Услуги — ${widget.masterName}'),
+            leading: IconButton(
+              icon: const Icon(Icons.arrow_back),
+              onPressed: () => Navigator.of(context).maybePop(),
+            ),
           ),
           body: _buildBody(provider),
         );

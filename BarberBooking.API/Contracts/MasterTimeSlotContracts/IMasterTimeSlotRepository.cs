@@ -1,6 +1,6 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using BarberBooking.API.Models;
 
@@ -16,6 +16,10 @@ namespace BarberBooking.API.Contracts
         Task<List<MasterTimeSlot>> GetAvailableSlotsAsync(Guid masterId, DateOnly date, TimeSpan serviceDuration);
         Task<MasterTimeSlot?> FindSlotAsync(Guid masterId, DateOnly date, TimeOnly startTime);
         Task<List<MasterTimeSlot>> GetTimeSlotsInSalon(Guid salonId, DateOnly date);
-        Task<List<MasterTimeSlot>> GetAvailableSlotsInSalons(DateOnly date);
+        Task<int> GetAvailableSlotsInSalon(Guid salonId, DateOnly date);
+        Task<IReadOnlyDictionary<Guid, int>> GetAvailableSlotsCountBySalonIdsAsync(
+            IReadOnlyList<Guid> salonIds,
+            DateOnly date,
+            CancellationToken cancellationToken = default);
     }
 }

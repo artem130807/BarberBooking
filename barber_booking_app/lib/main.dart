@@ -1,5 +1,3 @@
-import 'package:barber_booking_app/models/master_models/response/get_master_response.dart';
-import 'package:barber_booking_app/models/master_models/response/get_masters_response.dart';
 import 'package:barber_booking_app/providers/appointment_providers/%D1%81reate_appointment_provider.dart';
 import 'package:barber_booking_app/providers/appointment_providers/delete_appointment_provider.dart';
 import 'package:barber_booking_app/providers/appointment_providers/get_appointment_awaiting_review_provider.dart';
@@ -26,6 +24,8 @@ import 'package:barber_booking_app/providers/salon_providers/get_salons_provider
 import 'package:barber_booking_app/providers/salon_providers/get_salons_by_service_provider.dart';
 import 'package:barber_booking_app/providers/salon_providers/get_salons_search_provider.dart';
 import 'package:barber_booking_app/providers/salon_providers/get_salon_admin_stats_provider.dart';
+import 'package:barber_booking_app/providers/salon_providers/salon_statistic_period_provider.dart';
+import 'package:barber_booking_app/providers/salon_providers/salon_statistics_filter_provider.dart';
 import 'package:barber_booking_app/providers/service_providers/admin_salon_services_provider.dart';
 import 'package:barber_booking_app/providers/master_providers/admin_salon_masters_provider.dart';
 import 'package:barber_booking_app/providers/admin_top_masters_provider.dart';
@@ -64,10 +64,12 @@ import 'package:barber_booking_app/screens/user_interfaces/message_screens/messa
 import 'package:barber_booking_app/screens/user_interfaces/appointment_screens/appointment_detail_screen.dart';
 import 'package:barber_booking_app/screens/admin/admin_shell_screen.dart';
 import 'package:barber_booking_app/screens/admin/admin_appointments_period_screen.dart';
+import 'package:barber_booking_app/screens/admin/admin_reviews_screen.dart';
 import 'package:barber_booking_app/screens/admin/admin_revenue_screen.dart';
 import 'package:barber_booking_app/screens/admin/admin_salon_detail_screen.dart';
 import 'package:barber_booking_app/screens/admin/admin_salon_services_screen.dart';
 import 'package:barber_booking_app/screens/admin/admin_salon_masters_screen.dart';
+import 'package:barber_booking_app/screens/admin/admin_salon_statistics_screen.dart';
 import 'package:barber_booking_app/screens/admin/admin_top_masters_screen.dart';
 import 'package:barber_booking_app/screens/admin/admin_top_services_screen.dart';
 import 'package:provider/provider.dart';
@@ -121,6 +123,8 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => GetSalonAppointmentsAdminProvider()),
         ChangeNotifierProvider(create: (_) => GetReviewsAdminProvider()),
         ChangeNotifierProvider(create: (_) => GetSalonAdminStatsProvider()),
+        ChangeNotifierProvider(create: (_) => SalonStatisticPeriodProvider()),
+        ChangeNotifierProvider(create: (_) => SalonStatisticsFilterProvider()),
         ChangeNotifierProvider(create: (_) => AdminSalonServicesProvider()),
         ChangeNotifierProvider(create: (_) => AdminSalonMastersProvider()),
         ChangeNotifierProvider(create: (_) => AdminTopMastersProvider()),
@@ -154,6 +158,21 @@ class MyApp extends StatelessWidget {
             final id =
                 ModalRoute.of(context)!.settings.arguments as String;
             return AdminSalonMastersScreen(salonId: id);
+          },
+          '/admin_salon_statistics': (context) {
+            final id =
+                ModalRoute.of(context)!.settings.arguments as String;
+            return AdminSalonStatisticsScreen(salonId: id);
+          },
+          '/admin_salon_appointments': (context) {
+            final id =
+                ModalRoute.of(context)!.settings.arguments as String;
+            return AdminAppointmentsPeriodScreen(initialSalonId: id);
+          },
+          '/admin_salon_reviews': (context) {
+            final id =
+                ModalRoute.of(context)!.settings.arguments as String;
+            return AdminReviewsScreen(initialSalonId: id);
           },
           '/forgot': (context) => const ForgotPasswordScreen(),
           '/email-verification': (context) => const EmailVerificationScreen(),

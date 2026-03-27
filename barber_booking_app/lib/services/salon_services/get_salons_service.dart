@@ -12,15 +12,14 @@ class GetSalonsService {
 
         final url = Uri.parse('$kApiBaseUrl/api/Salon/GetSalonsByFilter').replace(
           queryParameters: {
-            'page':params.Page.toString(),
-            'pageSize':params.PageSize.toString()
-          }
-        ).replace(queryParameters: {
-          'isActive':filter.IsActive.toString(),
-          'maxRating':filter.MaxRating.toString(),
-          'popular':filter.Popular.toString(),
-          'minPrice':filter.MinPrice.toString()
-        });
+            'page': params.Page.toString(),
+            'pageSize': params.PageSize.toString(),
+            'isActive': filter.IsActive.toString(),
+            'maxRating': filter.MaxRating.toString(),
+            'popular': filter.Popular.toString(),
+            'minPrice': filter.MinPrice.toString(),
+          },
+        );
         print('🌐 URL: $url');
         
         final requestBody = json.encode(params.toJson());

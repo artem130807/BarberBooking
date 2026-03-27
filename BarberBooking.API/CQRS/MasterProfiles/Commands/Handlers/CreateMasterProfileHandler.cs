@@ -97,7 +97,6 @@ namespace BarberBooking.API.CQRS.MasterProfile.Commands.Handlers
                 return Result.Failure<DtoCreateProfileInfo>("Не удалось создать профиль мастера.");
             }
 
-            await _kafkaProducerSalonEvent.ProduceAsync(domainCreatedEvent, cancellationToken);
             await _ratingCreateMaster.AddRating(masterProfile.Id, cancellationToken);
             var result = _mapper.Map<DtoCreateProfileInfo>(masterProfile);
             return Result.Success(result);

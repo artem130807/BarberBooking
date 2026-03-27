@@ -135,13 +135,31 @@ class _AdminSalonDetailScreenState extends State<AdminSalonDetailScreen> {
                   icon: Icons.event_note_outlined,
                   title: 'Записи',
                   value: '${s.AppointmentsCount ?? 0}',
-                  onTap: null,
+                  onTap: () => Navigator.pushNamed(
+                    context,
+                    '/admin_salon_appointments',
+                    arguments: widget.salonId,
+                  ),
                 ),
                 _MetricTile(
                   icon: Icons.reviews_outlined,
                   title: 'Отзывы',
                   value: '${s.ReviewsCount ?? 0}',
-                  onTap: null,
+                  onTap: () => Navigator.pushNamed(
+                    context,
+                    '/admin_salon_reviews',
+                    arguments: widget.salonId,
+                  ),
+                ),
+                _MetricTile(
+                  icon: Icons.insights_outlined,
+                  title: 'Статистика',
+                  value: 'Сводка · снимки',
+                  onTap: () => Navigator.pushNamed(
+                    context,
+                    '/admin_salon_statistics',
+                    arguments: widget.salonId,
+                  ),
                 ),
               ],
             ),
@@ -228,6 +246,10 @@ class _MetricTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
+    final titleStyle = Theme.of(context).textTheme.titleMedium;
+    final valueStyle = Theme.of(context).textTheme.titleMedium?.copyWith(
+          fontWeight: FontWeight.w700,
+        );
     return Card(
       margin: const EdgeInsets.only(bottom: 8),
       elevation: 0,
@@ -237,25 +259,45 @@ class _MetricTile extends StatelessWidget {
         side: BorderSide(color: cs.outline.withValues(alpha: 0.12)),
       ),
       clipBehavior: Clip.antiAlias,
-      child: ListTile(
-        leading: Icon(icon, color: cs.primary),
-        title: Text(title),
-        trailing: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(
-              value,
-              style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.w700,
-                  ),
-            ),
-            if (onTap != null) ...[
-              const SizedBox(width: 4),
-              Icon(Icons.chevron_right_rounded, color: cs.onSurfaceVariant),
-            ],
-          ],
-        ),
+      child: InkWell(
         onTap: onTap,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Icon(icon, color: cs.primary, size: 22),
+              const SizedBox(width: 12),
+              Expanded(
+                flex: 2,
+                child: Text(
+                  title,
+                  style: titleStyle,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                flex: 3,
+                child: Align(
+                  alignment: Alignment.centerRight,
+                  child: Text(
+                    value,
+                    style: valueStyle,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    textAlign: TextAlign.end,
+                  ),
+                ),
+              ),
+              if (onTap != null) ...[
+                const SizedBox(width: 4),
+                Icon(Icons.chevron_right_rounded, color: cs.onSurfaceVariant, size: 22),
+              ],
+            ],
+          ),
+        ),
       ),
     );
   }

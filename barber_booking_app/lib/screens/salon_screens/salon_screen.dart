@@ -27,6 +27,42 @@ class _SalonScreenState extends State<SalonScreen> {
   final ReviewSortParams _reviewSortParams = ReviewSortParams();
   int _selectedNavIndex = 0;
 
+  GetSalonProvider? _salonForApiErrors;
+  GetReviewsSalonProvider? _reviewsForApiErrors;
+
+  void _onSalonReviewsApiError() {
+    if (!mounted) return;
+    final s = _salonForApiErrors;
+    final r = _reviewsForApiErrors;
+    if (s != null) {
+      final msg = s.errorMessage;
+      if (msg != null && msg.isNotEmpty) s.showApiError(context, msg);
+    }
+    if (r != null) {
+      final msg = r.errorMessage;
+      if (msg != null && msg.isNotEmpty) r.showApiError(context, msg);
+    }
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (_salonForApiErrors != null) return;
+    final salon = context.read<GetSalonProvider>();
+    final reviews = context.read<GetReviewsSalonProvider>();
+    _salonForApiErrors = salon;
+    _reviewsForApiErrors = reviews;
+    salon.addListener(_onSalonReviewsApiError);
+    reviews.addListener(_onSalonReviewsApiError);
+  }
+
+  @override
+  void dispose() {
+    _salonForApiErrors?.removeListener(_onSalonReviewsApiError);
+    _reviewsForApiErrors?.removeListener(_onSalonReviewsApiError);
+    super.dispose();
+  }
+
   void _onNavItemTapped(int index) {
     setState(() => _selectedNavIndex = index);
     switch (index) {
@@ -64,15 +100,6 @@ class _SalonScreenState extends State<SalonScreen> {
   Widget build(BuildContext context) {
     return Consumer2<GetSalonProvider, GetReviewsSalonProvider>(
       builder: (context, salonProvider, reviewsProvider, child) {
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          if (salonProvider.errorMessage != null && mounted) {
-            salonProvider.showApiError(context, salonProvider.errorMessage);
-          }
-          if (reviewsProvider.errorMessage != null && mounted) {
-            reviewsProvider.showApiError(context, reviewsProvider.errorMessage);
-          }
-        });
-
         final salon = salonProvider.salon;
 
         return Scaffold(

@@ -96,6 +96,16 @@ namespace BarberBooking.API.Repositories
                 .Include(s => s.Appointments.Where(a => a.AppointmentDate >= start && a.AppointmentDate < end))
                 .ToListAsync(cancellationToken);
         }
+        public async Task<List<Salons>> GetSalonsDayStats(int year, int month, int day,CancellationToken cancellationToken = default)
+        {
+            var start = new DateTime(year, month, day, 0, 0, 0, DateTimeKind.Utc);
+            var end = start.AddDays(1);
+
+            return await _context.Salons
+                .AsSplitQuery()
+                .Include(s => s.Appointments.Where(a => a.AppointmentDate >= start && a.AppointmentDate < end))
+                .ToListAsync(cancellationToken);
+        }
 
         public async Task<PagedResult<Salons>> GetSalonsNameStartWith(SearchFilterParams searchParams, PageParams pageParams)
         {

@@ -6,6 +6,7 @@ import 'package:barber_booking_app/providers/auth_providers/auth_provider.dart';
 import 'package:barber_booking_app/providers/appointment_providers/get_appointments_by_client_provider.dart';
 import 'package:barber_booking_app/widgets/loading_indicator.dart';
 import 'package:barber_booking_app/widgets/error_widget.dart';
+import 'package:barber_booking_app/utils/appointment_status_ru.dart';
 
 class AppointmentsScreen extends StatefulWidget {
   const AppointmentsScreen({super.key});
@@ -18,6 +19,25 @@ class _AppointmentsScreenState extends State<AppointmentsScreen>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
   int _selectedNavIndex = 2; // индекс для 'Записи' (0-Главная,1-Поиск,2-Записи,3-Избранное,4-Профиль)
+
+  GetAppointmentsByClientProvider? _appointmentsForApiErrors;
+
+  void _onAppointmentsApiError() {
+    if (!mounted) return;
+    final p = _appointmentsForApiErrors;
+    if (p == null) return;
+    final msg = p.errorMessage;
+    if (msg != null && msg.isNotEmpty) p.showApiError(context, msg);
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (_appointmentsForApiErrors != null) return;
+    final p = context.read<GetAppointmentsByClientProvider>();
+    _appointmentsForApiErrors = p;
+    p.addListener(_onAppointmentsApiError);
+  }
 
   @override
   void initState() {
@@ -61,6 +81,7 @@ class _AppointmentsScreenState extends State<AppointmentsScreen>
 
   @override
   void dispose() {
+    _appointmentsForApiErrors?.removeListener(_onAppointmentsApiError);
     _tabController.dispose();
     super.dispose();
   }
@@ -69,12 +90,6 @@ class _AppointmentsScreenState extends State<AppointmentsScreen>
   Widget build(BuildContext context) {
     return Consumer<GetAppointmentsByClientProvider>(
       builder: (context, provider, child) {
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          if (provider.errorMessage != null && mounted) {
-            provider.showApiError(context, provider.errorMessage);
-          }
-        });
-
         return Scaffold(
           appBar: AppBar(
             title: const Text('Мои записи'),
@@ -280,7 +295,7 @@ class AppointmentCard extends StatelessWidget {
                     borderRadius: BorderRadius.circular(20),
                   ),
                   child: Text(
-                    _statusText(appointment.Status),
+                    appointmentStatusLabelRu(appointment.Status),
                     style: TextStyle(
                       fontSize: 12,
                       color: _statusColor(context, appointment.Status),
@@ -322,20 +337,6 @@ class AppointmentCard extends StatelessWidget {
       return DateFormat('dd.MM.yyyy').format(date);
     } catch (e) {
       return dateStr;
-    }
-  }
-
-  String _statusText(String? status) {
-    switch (status) {
-      case 'Pending':
-      case 'Confirmed':
-        return 'Предстоит';
-      case 'Completed':
-        return 'Завершена';
-      case 'Cancelled':
-        return 'Отменена';
-      default:
-        return status ?? '';
     }
   }
 

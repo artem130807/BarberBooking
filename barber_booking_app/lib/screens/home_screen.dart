@@ -1,10 +1,10 @@
 import 'package:barber_booking_app/models/params/page_params.dart';
 import 'package:barber_booking_app/models/params/salon_params/salon_filter.dart';
 import 'package:barber_booking_app/providers/auth_providers/auth_provider.dart';
+import 'package:barber_booking_app/providers/user_providers/get_user_provider.dart';
 import 'package:barber_booking_app/providers/message_providers/get_count_messages_provider.dart';
 import 'package:barber_booking_app/providers/master_providers/get_the_best_masters_provider.dart';
 import 'package:barber_booking_app/providers/salon_providers/get_salons_provider.dart';
-import 'package:barber_booking_app/screens/user_interfaces/master_screens/master_detail_screen.dart';
 import 'package:barber_booking_app/widgets/categors_widgets/category_item.dart';
 import 'package:barber_booking_app/widgets/master_widgets/master_card.dart';
 import 'package:barber_booking_app/widgets/salon_widgets/salon_card.dart';
@@ -23,12 +23,34 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  static const int _homeSalonPageSize = 3;
+
   final TextEditingController _searchController = TextEditingController();
   final FocusNode _searchFocusNode = FocusNode();
   bool _isSearchFocused = false;
-  final PageParams _pageParams = PageParams(Page: 1, PageSize: 3);
   final SalonFilter filter = SalonFilter();
   int _selectedNavIndex = 0;
+
+  GetSalonsProvider? _salonsForApiErrors;
+
+  void _onSalonsProviderApiError() {
+    if (!mounted) return;
+    final p = _salonsForApiErrors;
+    if (p == null) return;
+    final msg = p.errorMessage;
+    if (msg != null && msg.isNotEmpty) {
+      p.showApiError(context, msg);
+    }
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (_salonsForApiErrors != null) return;
+    final p = context.read<GetSalonsProvider>();
+    _salonsForApiErrors = p;
+    p.addListener(_onSalonsProviderApiError);
+  }
 
   @override
   void initState() {
@@ -36,12 +58,18 @@ class _HomeScreenState extends State<HomeScreen> {
     _searchFocusNode.addListener(_onFocusChange);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final token = Provider.of<AuthProvider>(context, listen: false).token;
-      Provider.of<GetSalonsProvider>(context, listen: false)
-          .getSalons(_pageParams, filter, token);
+      Provider.of<GetSalonsProvider>(context, listen: false).getSalons(
+        PageParams(Page: 1, PageSize: _homeSalonPageSize),
+        filter,
+        token,
+      );
       Provider.of<GetTheBestMastersProvider>(context, listen: false)
           .getMasters(4, token);
       Provider.of<GetCountMessagesProvider>(context, listen: false)
           .loadCount(token);
+      if (token != null) {
+        Provider.of<GetUserProvider>(context, listen: false).getUser(token);
+      }
     });
   }
 
@@ -63,13 +91,38 @@ class _HomeScreenState extends State<HomeScreen> {
     final token = Provider.of<AuthProvider>(context, listen: false).token;
     if (token == null) return;
     await Future.wait([
-      Provider.of<GetSalonsProvider>(context, listen: false)
-          .getSalons(_pageParams, filter, token),
+      Provider.of<GetSalonsProvider>(context, listen: false).getSalons(
+        PageParams(Page: 1, PageSize: _homeSalonPageSize),
+        filter,
+        token,
+      ),
       Provider.of<GetTheBestMastersProvider>(context, listen: false)
           .getMasters(4, token),
       Provider.of<GetCountMessagesProvider>(context, listen: false)
           .loadCount(token),
+      Provider.of<GetUserProvider>(context, listen: false).getUser(token),
     ]);
+  }
+
+  String _greetingText(AuthProvider auth, GetUserProvider user) {
+    if (!auth.isAuthenticated || auth.token == null) {
+      return 'Привет!';
+    }
+    final raw = user.userResponse?.Name?.trim();
+    if (raw != null && raw.isNotEmpty) {
+      final name = _firstGivenName(raw);
+      return 'Привет, $name!';
+    }
+    return 'Привет!';
+  }
+
+  String _firstGivenName(String fullName) {
+    final parts =
+        fullName.split(RegExp(r'\s+')).where((s) => s.isNotEmpty).toList();
+    if (parts.isEmpty) {
+      return fullName;
+    }
+    return parts.first;
   }
 
   void _onNavItemTapped(int index) {
@@ -96,6 +149,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   void dispose() {
+    _salonsForApiErrors?.removeListener(_onSalonsProviderApiError);
     _searchFocusNode.removeListener(_onFocusChange);
     _searchFocusNode.dispose();
     _searchController.dispose();
@@ -107,12 +161,6 @@ class _HomeScreenState extends State<HomeScreen> {
     final bestMastersProvider = Provider.of<GetTheBestMastersProvider>(context);
     return Consumer<GetSalonsProvider>(
       builder: (context, salonProvider, child) {
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          if (salonProvider.errorMessage != null && mounted) {
-            salonProvider.showApiError(context, salonProvider.errorMessage);
-          }
-        });
-
         return Scaffold(
           appBar: AppBar(
             automaticallyImplyLeading: false,
@@ -185,16 +233,21 @@ class _HomeScreenState extends State<HomeScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
-                          'Привет, Гость!',
-                          style: Theme.of(context)
-                              .textTheme
-                              .headlineSmall
-                              ?.copyWith(
-                                fontWeight: FontWeight.bold,
-                                color:
-                                    Theme.of(context).colorScheme.onBackground,
-                              ),
+                        Consumer2<AuthProvider, GetUserProvider>(
+                          builder: (context, auth, user, _) {
+                            return Text(
+                              _greetingText(auth, user),
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .headlineSmall
+                                  ?.copyWith(
+                                    fontWeight: FontWeight.bold,
+                                    color: Theme.of(context)
+                                        .colorScheme
+                                        .onSurface,
+                                  ),
+                            );
+                          },
                         ),
                         const SizedBox(height: 4),
                         Text(
@@ -380,7 +433,11 @@ class _HomeScreenState extends State<HomeScreen> {
     if (provider.errorMessage != null) {
       return ErrorWidgetCustom(
         message: provider.errorMessage!,
-        onRetry: () => provider.getSalons(_pageParams, filter, token),
+        onRetry: () => provider.getSalons(
+          PageParams(Page: 1, PageSize: _homeSalonPageSize),
+          filter,
+          token,
+        ),
       );
     }
 
@@ -391,12 +448,16 @@ class _HomeScreenState extends State<HomeScreen> {
       );
     }
 
+    // Превью на главной: не больше _homeSalonPageSize (на случай устаревших данных в общем провайдере).
+    final salonsForHome =
+        provider.getSalonsResponse!.take(_homeSalonPageSize).toList(growable: false);
+
     return ListView.builder(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
-      itemCount: provider.getSalonsResponse!.length,
+      itemCount: salonsForHome.length,
       itemBuilder: (context, index) {
-        final salon = provider.getSalonsResponse![index];
+        final salon = salonsForHome[index];
         return Padding(
           padding: const EdgeInsets.only(bottom: 16),
           child: SalonCard(
@@ -453,7 +514,7 @@ class _HomeScreenState extends State<HomeScreen> {
         return MasterCard(
           name: master.UserName ?? 'Без имени',
           specialty: 'Барбер',
-          rating: 5.0,
+          rating: master.Rating ?? 0.0,
           imageUrl: master.AvatarUrl,
           onTap: () {
             Navigator.pushNamed(

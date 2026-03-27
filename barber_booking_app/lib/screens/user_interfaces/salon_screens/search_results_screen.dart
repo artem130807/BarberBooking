@@ -24,6 +24,25 @@ class _SearchResultsScreenState extends State<SearchResultsScreen> {
   final ScrollController _scrollController = ScrollController();
   int _selectedNavIndex = 1;
 
+  GetSalonsSearchProvider? _searchForApiErrors;
+
+  void _onSearchApiError() {
+    if (!mounted) return;
+    final p = _searchForApiErrors;
+    if (p == null) return;
+    final msg = p.errorMessage;
+    if (msg != null && msg.isNotEmpty) p.showApiError(context, msg);
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (_searchForApiErrors != null) return;
+    final p = context.read<GetSalonsSearchProvider>();
+    _searchForApiErrors = p;
+    p.addListener(_onSearchApiError);
+  }
+
   @override
   void initState() {
     super.initState();
@@ -61,12 +80,6 @@ class _SearchResultsScreenState extends State<SearchResultsScreen> {
   Widget build(BuildContext context) {
     return Consumer<GetSalonsSearchProvider>(
       builder: (context, searchProvider, child) {
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          if (searchProvider.errorMessage != null && mounted) {
-            searchProvider.showApiError(context, searchProvider.errorMessage);
-          }
-        });
-
         return Scaffold(
           appBar: AppBar(
             title: Text('Результаты поиска: "${widget.query}"'),
@@ -160,6 +173,7 @@ class _SearchResultsScreenState extends State<SearchResultsScreen> {
 
   @override
   void dispose() {
+    _searchForApiErrors?.removeListener(_onSearchApiError);
     _scrollController.dispose();
     super.dispose();
   }

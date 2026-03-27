@@ -16,6 +16,10 @@ namespace BarberBooking.API.Contracts.SalonsContracts
         Task<SalonStatistic?> GetSalonStatistic(Guid id);
         Task AddRange(List<SalonStatistic> salonStatistics);
         Task<HashSet<Guid>> GetSalonIdsWithStatisticForMonthAsync(int year, int month, CancellationToken cancellationToken = default);
+        Task<HashSet<Guid>> GetSalonIdsWithStatisticForDayAsync(int year, int month, int day,CancellationToken cancellationToken = default);
         Task<List<Models.SalonStatistic>> GetSalonStatisticsByFilter(SalonStatisticsFilter filter, string city);
+        Task<List<SalonStatistic>> GetSalonStatisticsWeekBySalonId(Guid salonId, SalonStatisticsParams salonStatisticsParams);
+        Task<List<SalonStatistic>> GetSalonStatisticsMounthBySalonId(Guid salonId, int mounth, DateOnly date);
+        Task<List<SalonStatistic>> GetSalonStatisticsYearBySalonId(Guid salonId, DateOnly date);
     }
 }

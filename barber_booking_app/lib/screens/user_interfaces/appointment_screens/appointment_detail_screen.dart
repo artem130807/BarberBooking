@@ -7,6 +7,7 @@ import 'package:barber_booking_app/models/appointment_models/response/get_appoin
 import 'package:barber_booking_app/providers/appointment_providers/delete_appointment_provider.dart';
 import 'package:barber_booking_app/widgets/loading_indicator.dart';
 import 'package:barber_booking_app/widgets/error_widget.dart';
+import 'package:barber_booking_app/utils/appointment_status_ru.dart';
 
 class AppointmentDetailScreen extends StatefulWidget {
   final String appointmentId;
@@ -404,19 +405,7 @@ class _AppointmentDetailScreenState extends State<AppointmentDetailScreen> {
     return DateFormat('dd.MM.yyyy').format(date);
   }
 
-  String _statusText(String? status) {
-    switch (status) {
-      case 'Pending':
-      case 'Confirmed':
-        return 'Предстоит';
-      case 'Completed':
-        return 'Завершена';
-      case 'Cancelled':
-        return 'Отменена';
-      default:
-        return status ?? 'Неизвестно';
-    }
-  }
+  String _statusText(String? status) => appointmentStatusLabelRu(status);
 
   IconData _statusIcon(String? status) {
     switch (status) {

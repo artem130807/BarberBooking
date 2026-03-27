@@ -8,6 +8,7 @@ using BarberBooking.API.Filters;
 using BarberBooking.API.Models;
 using BarberBooking.API;
 using Microsoft.EntityFrameworkCore;
+using BarberBooking.API.Filters.AppointmentsFilter;
 
 namespace BarberBooking.API.Repositories
 {
@@ -108,13 +109,14 @@ namespace BarberBooking.API.Repositories
                 .ToListAsync();
         }
 
-        public async Task<PagedResult<Appointments>> GetAllAppointments(Guid salonId, DateTime? from, DateTime? to, PageParams pageParams)
+        public async Task<PagedResult<Appointments>> GetAllAppointments(Guid salonId, DateTime? from, DateTime? to, FilterAppointments? filter,PageParams pageParams)
         {
             var query = _context.Appointments
                 .AsNoTracking()
                 .Include(x => x.Salon)
                 .Include(x => x.Client)
                 .Include(x => x.Master)
+                .ThenInclude(x => x.User)
                 .Include(x => x.Service)
                 .Where(x => x.SalonId == salonId);
 
@@ -122,6 +124,14 @@ namespace BarberBooking.API.Repositories
                 query = query.Where(x => x.CreatedAt >= from.Value);
             if (to.HasValue)
                 query = query.Where(x => x.CreatedAt <= to.Value);
+            if (filter.Confirmed.HasValue)
+                query = query.Where(x => x.Status == AppointmentStatusEnum.Confirmed);
+
+            if (filter.Completed.HasValue)
+                query = query.Where(x => x.Status == AppointmentStatusEnum.Completed);
+
+            if (filter.Cancelled.HasValue)
+                query = query.Where(x => x.Status == AppointmentStatusEnum.Cancelled);
 
             query = query
                 .OrderByDescending(x => x.AppointmentDate)

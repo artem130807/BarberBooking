@@ -18,6 +18,25 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
   int _selectedNavIndex = 3;
   final Set<String> _markedForDeletionIds = {};
 
+  GetSubscriptionsProvider? _subscriptionsForApiErrors;
+
+  void _onSubscriptionsApiError() {
+    if (!mounted) return;
+    final p = _subscriptionsForApiErrors;
+    if (p == null) return;
+    final msg = p.errorMessage;
+    if (msg != null && msg.isNotEmpty) p.showApiError(context, msg);
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (_subscriptionsForApiErrors != null) return;
+    final p = context.read<GetSubscriptionsProvider>();
+    _subscriptionsForApiErrors = p;
+    p.addListener(_onSubscriptionsApiError);
+  }
+
   @override
   void initState() {
     super.initState();
@@ -69,12 +88,6 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
   Widget build(BuildContext context) {
     return Consumer<GetSubscriptionsProvider>(
       builder: (context, provider, child) {
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          if (provider.errorMessage != null && mounted) {
-            provider.showApiError(context, provider.errorMessage);
-          }
-        });
-
         return Scaffold(
           appBar: AppBar(
             automaticallyImplyLeading: false,
@@ -106,6 +119,12 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
         );
       },
     );
+  }
+
+  @override
+  void dispose() {
+    _subscriptionsForApiErrors?.removeListener(_onSubscriptionsApiError);
+    super.dispose();
   }
 
   Widget _buildBody(GetSubscriptionsProvider provider) {

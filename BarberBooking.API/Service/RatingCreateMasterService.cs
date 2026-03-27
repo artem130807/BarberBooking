@@ -31,7 +31,6 @@ namespace BarberBooking.API.Service
             try
             {
                 await _eventStoreRepository.SaveEventsAsync(masterId, new List<DomainEvent>{domainEvent});
-                await _kafkaProducerSalonEvent.ProduceAsync(domainEvent, cancellationToken);
             }catch(Exception ex)
             {
                 return Result.Failure(ex.Message);

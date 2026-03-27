@@ -6,10 +6,8 @@ using AutoMapper;
 using BarberBooking.API.Contracts;
 using BarberBooking.API.Contracts.SalonsContracts;
 using BarberBooking.API.Dto.DtoSalons;
-using BarberBooking.API.Models;
 using CSharpFunctionalExtensions;
 using MediatR;
-using Org.BouncyCastle.Ocsp;
 
 namespace BarberBooking.API.CQRS.SalonStatisctic.Queries
 {

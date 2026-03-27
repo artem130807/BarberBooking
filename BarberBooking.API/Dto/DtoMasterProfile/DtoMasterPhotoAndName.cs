@@ -10,5 +10,6 @@ namespace BarberBooking.API.Dto.DtoMasterProfile
         public Guid Id {get; set;}
         public string? AvatarUrl { get; set; }
         public string UserName {get; set;}
+        public decimal Rating {get; set;}
     }
 }

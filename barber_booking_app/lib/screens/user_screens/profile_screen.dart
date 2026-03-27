@@ -15,6 +15,31 @@ class ProfileScreen extends StatefulWidget {
 class _ProfileScreenState extends State<ProfileScreen> {
   int _selectedNavIndex = 4;
 
+  GetUserProvider? _userForApiErrors;
+
+  void _onUserApiError() {
+    if (!mounted) return;
+    final p = _userForApiErrors;
+    if (p == null) return;
+    final msg = p.errorMessage;
+    if (msg != null && msg.isNotEmpty) p.showApiError(context, msg);
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (_userForApiErrors != null) return;
+    final p = context.read<GetUserProvider>();
+    _userForApiErrors = p;
+    p.addListener(_onUserApiError);
+  }
+
+  @override
+  void dispose() {
+    _userForApiErrors?.removeListener(_onUserApiError);
+    super.dispose();
+  }
+
   @override
   void initState() {
     super.initState();
@@ -58,12 +83,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Widget build(BuildContext context) {
     return Consumer<GetUserProvider>(
       builder: (context, provider, child) {
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          if (provider.errorMessage != null && mounted) {
-            provider.showApiError(context, provider.errorMessage);
-          }
-        });
-
         return Scaffold(
           appBar: AppBar(
             automaticallyImplyLeading: false,

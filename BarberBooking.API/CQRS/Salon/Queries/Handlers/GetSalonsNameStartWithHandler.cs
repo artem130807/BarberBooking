@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using AutoMapper;
 using BarberBooking.API.Contracts;
@@ -29,28 +30,29 @@ namespace BarberBooking.API.CQRS.Salon.Queries.Handlers
         }
         public async Task<Result<List<DtoSalonShortInfo>>> Handle(GetSalonsNameStartWithQuery query, CancellationToken cancellationToken)
         {
+        
             var userCity = _userContext.UserCity;
             var paramsFilter = new SearchFilterParams
             {
                 SalonName = query.name,
-                City = userCity,
+                City = userCity
             };
-            var availableSlots = await _masterTimeSlotRepository.GetAvailableSlotsInSalons(DateOnly.FromDateTime(DateTime.Now));
-            var slotsBySalonId = availableSlots
-                .Where(x => x.Master != null)
-                .GroupBy(x => x.Master.SalonId)
-                .ToDictionary(g => g.Key, g => g.Count());
             _logger.LogInformation($"Фильтры {paramsFilter}");
             var salons = await _salonsRepository.GetSalonsNameStartWith(paramsFilter, query.pageParams);
             if(salons.Count == 0)
                 return Result.Failure<List<DtoSalonShortInfo>>("Салоны не найдены");
-            var dtoSalon = salons.Data.Select(salon =>
+            var date = DateOnly.FromDateTime(DateTime.Now);
+            var dtoList = salons.Data.Select(s => _mapper.Map<DtoSalonShortInfo>(s)).ToList();
+            var slotCounts = await _masterTimeSlotRepository.GetAvailableSlotsCountBySalonIdsAsync(
+                dtoList.Select(d => d.Id).ToList(),
+                date,
+                cancellationToken);
+            foreach (var dto in dtoList)
             {
-                var dto =  _mapper.Map<DtoSalonShortInfo>(salon);
-                dto.AvailableSlots = slotsBySalonId.TryGetValue(salon.Id, out var count) ? count : 0;
-                return dto;
-            }).ToList();
-            return Result.Success(dtoSalon);
+                dto.AvailableSlots = slotCounts.TryGetValue(dto.Id, out var c) ? c : 0;
+            }
+
+            return Result.Success(dtoList);
         }
     }
 }
