@@ -21,5 +21,6 @@ namespace BarberBooking.API.Contracts
             IReadOnlyList<Guid> salonIds,
             DateOnly date,
             CancellationToken cancellationToken = default);
+        Task<MasterTimeSlot> ForUpdate(Guid timeSlotId);
     }
 }

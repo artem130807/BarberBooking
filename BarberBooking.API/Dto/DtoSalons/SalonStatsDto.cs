@@ -12,6 +12,7 @@ namespace BarberBooking.API.Dto.DtoSalons
         public int CancelledAppointmentsCount {get; set;}
         public int RatingCount {get; set;}
         public decimal Rating {get; set;}
+        public decimal SumPrice {get; set;}
         public DateTime CreatedAt {get;  set;}
     }
 }

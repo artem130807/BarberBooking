@@ -5,9 +5,11 @@ using System.Threading.Tasks;
 using BarberBooking.API.CQRS.MasterProfile.Commands;
 using BarberBooking.API.CQRS.MasterProfile.Queries;
 using BarberBooking.API.CQRS.MasterProfiles.Queries;
+using BarberBooking.API.CQRS.Users.QueriesUser;
 using BarberBooking.API.Dto.DtoMasterProfile;
 using BarberBooking.API.Filters;
 using BarberBooking.API.Filters.MasterProfile;
+using BarberBooking.API.CQRS.MasterProfile.Queries;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -50,10 +52,30 @@ namespace BarberBooking.API.Controllers
                 return BadRequest(new { error = result.Error });
             return Ok(result.Value);
         }
+        [Authorize]
+        [HttpGet("GetMasterProfileForCurrentUser")]
+        public async Task<IActionResult> GetMasterProfileForCurrentUser()
+        {
+            var query = new GetMasterProfileForCurrentUserQuery();
+            var result = await _mediator.Send(query);
+            if (result.IsFailure)
+                return BadRequest(new { error = result.Error });
+            return Ok(result.Value);
+        }
+
         [HttpGet("GetMasterProfileById/{Id}")]
         public async Task<IActionResult> GetMasterProfileById(Guid Id)
         {
             var query = new GetMasterProfileByIdQuery(Id);
+            var result = await _mediator.Send(query);
+            if(result.IsFailure)
+                return BadRequest(new { error = result.Error });
+            return Ok(result.Value);
+        }
+        [HttpGet("GetMasterProfileByIdForAdmin/{Id}")]
+        public async Task<IActionResult> GetMasterProfileByIdForAdmin(Guid Id)
+        {
+            var query = new GetMasterProfileByIdForAdminQuery(Id);
             var result = await _mediator.Send(query);
             if(result.IsFailure)
                 return BadRequest(new { error = result.Error });

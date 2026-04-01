@@ -22,7 +22,7 @@ namespace BarberBooking.API.CQRS.Appointments.AppointmentsQueries.Handlers
 
         public async Task<Result<PagedResult<DtoSalonAppointmentAdmin>>> Handle(GetSalonAppointmentsPagedQuery query, CancellationToken cancellationToken)
         {
-            var appointments = await _appointmentsRepository.GetAllAppointments(query.salonId, query.from, query.to, query.filter, query.pageParams);
+            var appointments = await _appointmentsRepository.GetAllAppointments(query.salonId, query.filter, query.pageParams);
             if (appointments.Count == 0)
                 return Result.Failure<PagedResult<DtoSalonAppointmentAdmin>>("Список записей пуст");
             var result = _mapper.Map<PagedResult<DtoSalonAppointmentAdmin>>(appointments);

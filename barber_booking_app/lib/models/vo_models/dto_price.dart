@@ -12,6 +12,8 @@ class DtoPrice {
   }
 
   factory DtoPrice.fromJson(Map<String, dynamic> json) {
-    return DtoPrice(Value: _parseValue(json['value']));
+    return DtoPrice(
+      Value: _parseValue(json['value'] ?? json['Value']),
+    );
   }
 }

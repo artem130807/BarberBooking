@@ -7,5 +7,5 @@ using MediatR;
 
 namespace BarberBooking.API.CQRS.Appointments.AppointmentsQueries
 {
-    public record GetSalonAppointmentsPagedQuery(Guid salonId, DateTime? from, DateTime? to, FilterAppointments filter,PageParams pageParams) : IRequest<Result<PagedResult<DtoSalonAppointmentAdmin>>>;
+    public record GetSalonAppointmentsPagedQuery(Guid salonId, FilterAppointments filter,PageParams pageParams) : IRequest<Result<PagedResult<DtoSalonAppointmentAdmin>>>;
 }

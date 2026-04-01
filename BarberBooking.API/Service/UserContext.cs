@@ -15,11 +15,10 @@ namespace BarberBooking.API.Service
         {
             _httpContextAccessor = httpContextAccessor;
         }
-        public Guid UserId {get
+        public Guid UserId
+        {
+            get
             {
-             
-            {
-                
                 var userIdClaim = _httpContextAccessor.HttpContext?
                     .User?.FindFirstValue("userId");
                     
@@ -36,7 +35,6 @@ namespace BarberBooking.API.Service
                 }
                 
                 return Guid.TryParse(userIdClaim, out var userId) ? userId : Guid.Empty;
-            }
             }
         }
         public string UserCity

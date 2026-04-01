@@ -4,6 +4,7 @@ class SalonStatsDto {
   final int cancelledAppointmentsCount;
   final int ratingCount;
   final double rating;
+  final double sumPrice;
   final DateTime createdAt;
 
   SalonStatsDto({
@@ -12,6 +13,7 @@ class SalonStatsDto {
     required this.cancelledAppointmentsCount,
     required this.ratingCount,
     required this.rating,
+    required this.sumPrice,
     required this.createdAt,
   });
 
@@ -30,6 +32,7 @@ class SalonStatsDto {
       cancelledAppointmentsCount: _int(v('cancelledAppointmentsCount', 'CancelledAppointmentsCount')),
       ratingCount: _int(v('ratingCount', 'RatingCount')),
       rating: _double(v('rating', 'Rating')),
+      sumPrice: _double(v('sumPrice', 'SumPrice')),
       createdAt: at.isUtc ? at.toLocal() : at,
     );
   }

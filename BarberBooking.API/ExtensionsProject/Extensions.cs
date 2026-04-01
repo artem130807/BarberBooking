@@ -30,7 +30,7 @@ namespace BarberBooking.API
                 options.UseSqlServer(configuration.GetConnectionString("DefaultConnection"));
             });
         }
-         public static void AddApiAuthentication(this IServiceCollection services, IConfiguration configuration)
+        public static void AddApiAuthentication(this IServiceCollection services, IConfiguration configuration)
         {
             var jwtoptions = configuration.GetSection(nameof(JwtOptions)).Get<JwtOptions>();
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(JwtBearerDefaults.AuthenticationScheme, options =>
@@ -47,6 +47,14 @@ namespace BarberBooking.API
                 {
                     OnMessageReceived = context =>
                     {
+                        var accessToken = context.Request.Query["access_token"];
+                        var path = context.HttpContext.Request.Path;
+                        
+                        if (!string.IsNullOrEmpty(accessToken) && path.StartsWithSegments("/notificationHub"))
+                        {
+                            context.Token = accessToken;
+                            return Task.CompletedTask;
+                        }
                         context.Token = context.Request.Cookies["tasty"];
                         
                         if (string.IsNullOrEmpty(context.Token))
@@ -90,6 +98,8 @@ namespace BarberBooking.API
             services.AddHostedService<SalonBackground>();
             services.AddHostedService<EmailVerificateBackgroundDeleter>();
             services.AddHostedService<SalonStatiscticBackgroundService>();
+            services.AddHostedService<MasterStatisticBackgroundService>();
+            services.AddHostedService<MessageAppointmentBackgroundService>();
             return services;
         }
         public static void InitializingCache(this IApplicationBuilder app)

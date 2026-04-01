@@ -27,6 +27,7 @@ namespace BarberBooking.API.Models
         public ICollection<MasterSubscription> Subscriptions { get; private set; }
         public ICollection<Review> Reviews { get; private set; }
         public ICollection<WeeklyTemplate> WeeklyTemplates {get; private set;}
+        public ICollection<MasterStatistic> MasterStatistics {get; private set;}
         public DateTime CreatedAt {get; private set;} = DateTime.UtcNow;
 
         private MasterProfile()
@@ -36,6 +37,7 @@ namespace BarberBooking.API.Models
             Subscriptions = new List<MasterSubscription>();
             Reviews = new List<Review>();
             WeeklyTemplates = new List<WeeklyTemplate>();
+            MasterStatistics = new List<MasterStatistic>();
         }
         public static MasterProfile Create(Guid userId, Guid salonId, string? bio, string? specialization, string? avatarUrl)
         {
@@ -71,6 +73,7 @@ namespace BarberBooking.API.Models
             Subscriptions = new List<MasterSubscription>();
             Reviews = new List<Review>();
             WeeklyTemplates = new List<WeeklyTemplate>();
+            MasterStatistics = new List<MasterStatistic>();
         }
         private void Apply(MasterAddRatingEvent @event)
         {

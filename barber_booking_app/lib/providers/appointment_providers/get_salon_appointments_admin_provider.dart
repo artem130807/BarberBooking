@@ -15,21 +15,17 @@ class GetSalonAppointmentsAdminProvider extends BaseProvider {
 
   Future<bool> load({
     required String salonId,
-    DateTime? from,
-    DateTime? to,
     required PageParams pageParams,
     String? token,
-    FilterAppointmentsParams? statusFilter,
+    FilterAppointmentsParams? filter,
   }) async {
     startLoading();
     try {
       final map = await _service.getPaged(
         salonId,
-        from,
-        to,
         pageParams,
         token,
-        statusFilter: statusFilter,
+        filter: filter,
       );
       if (map == null) {
         setError('Не удалось загрузить записи');
@@ -48,35 +44,18 @@ class GetSalonAppointmentsAdminProvider extends BaseProvider {
 
   Future<void> loadAllPagesForRevenue({
     required String salonId,
-    DateTime? from,
-    DateTime? to,
     String? token,
     int pageSize = 100,
-    FilterAppointmentsParams? statusFilter,
+    FilterAppointmentsParams? filter,
   }) async {
     startLoading();
     try {
-      final all = <SalonAppointmentAdminResponse>[];
-      var page = 1;
-      while (true) {
-        final map = await _service.getPaged(
-          salonId,
-          from,
-          to,
-          PageParams(Page: page, PageSize: pageSize),
-          token,
-          statusFilter: statusFilter,
-        );
-        if (map == null) {
-          setError('Не удалось загрузить записи');
-          finishLoading();
-          return;
-        }
-        final chunk = _service.parseData(map) ?? [];
-        all.addAll(chunk);
-        if (chunk.length < pageSize) break;
-        page++;
-      }
+      final all = await _service.fetchAllPages(
+        salonId,
+        token,
+        filter: filter,
+        pageSize: pageSize,
+      );
       _list = all;
       _totalCount = all.length;
       finishLoading();

@@ -55,6 +55,8 @@ namespace BarberBooking.API.Controllers
         {
             var query = new GetAppointmentClientByIdHandler(Id);
             var result = await _mediator.Send(query);
+            if(result.IsFailure)
+                return BadRequest(result.Error);
             return Ok(result.Value);
         }
         [HttpGet("get-appointmentMasterById{Id}")]
@@ -62,6 +64,8 @@ namespace BarberBooking.API.Controllers
         {
             var query = new GetAppointmentMasterByIdQuery(Id);
             var result = await _mediator.Send(query);
+            if(result.IsFailure)
+                return BadRequest(result.Error);
             return Ok(result.Value);
         }
         [HttpGet("get-appointmentsByClientId")]
@@ -69,13 +73,17 @@ namespace BarberBooking.API.Controllers
         {
             var query = new GetAppointmentsByClientIdQuery();
             var result = await _mediator.Send(query);
+            if(result.IsFailure)
+                return BadRequest(result.Error);
             return Ok(result.Value);
         }
         [HttpGet("get-appointmentsByMasterId")]
-        public async Task<IActionResult> GetAppointmentsByMasterId()
+        public async Task<IActionResult> GetAppointmentsByMasterId([FromQuery] FilterAppointments filter, PageParams pageParams)
         {
-            var query = new GetAppointmentsByMasterIdQuery();
+            var query = new GetAppointmentsByMasterIdQuery(filter, pageParams);
             var result = await _mediator.Send(query);
+            if(result.IsFailure)
+                return BadRequest(result.Error);
             return Ok(result.Value);
         }
          [HttpGet("get-appointmentsByClientIdAndDate")]
@@ -83,6 +91,8 @@ namespace BarberBooking.API.Controllers
         {
             var query = new GetAppointmentsByClientIdAndDateQuery(date);
             var result = await _mediator.Send(query);
+            if(result.IsFailure)
+                return BadRequest(result.Error);
             return Ok(result.Value);
         }
         [HttpGet("get-appointmentsByMasterIdAndDate")]
@@ -90,6 +100,8 @@ namespace BarberBooking.API.Controllers
         {
             var query = new GetAppointmentsByMasterIdAndDateQuery(date, startTime);
             var result = await _mediator.Send(query);
+            if(result.IsFailure)
+                return BadRequest(result.Error);
             return Ok(result.Value);
         }
         [HttpGet("GetAppointmentsAwaitingReview")]
@@ -103,9 +115,9 @@ namespace BarberBooking.API.Controllers
         }
         [Authorize("Admin")]
         [HttpGet("get-salon-appointments-paged/{salonId}")]
-        public async Task<IActionResult> GetSalonAppointmentsPaged(Guid salonId, [FromQuery] DateTime? from, [FromQuery] DateTime? to, [FromQuery] FilterAppointments filter,[FromQuery] PageParams pageParams)
+        public async Task<IActionResult> GetSalonAppointmentsPaged(Guid salonId, [FromQuery] FilterAppointments filter,[FromQuery] PageParams pageParams)
         {
-            var query = new GetSalonAppointmentsPagedQuery(salonId, from, to, filter, pageParams);
+            var query = new GetSalonAppointmentsPagedQuery(salonId, filter, pageParams);
             var result = await _mediator.Send(query);
             if (result.IsFailure)
                 return BadRequest(result.Error);

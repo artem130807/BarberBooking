@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using BarberBooking.API.Enums;
 using CSharpFunctionalExtensions;
 
 namespace BarberBooking.API.Models
@@ -14,9 +15,11 @@ namespace BarberBooking.API.Models
         public Guid? AppointmentId {get; private set;}
         public Users User {get; private set;}
         public Appointments? Appointment {get; private set;}
+        public MessageAudience Audience {get; private set;}
+        public TypeMessage TypeMessage {get; private set;}
         public bool IsVisible {get; private set;} 
         public DateTime CreatedAt {get; private set;}
-        public static Result<Messages> Create(string content, Guid userId, Guid? appointmentId)
+        public static Result<Messages> Create(string content, Guid userId, Guid? appointmentId, MessageAudience messageAudience, TypeMessage typeMessage)
         {
             if (string.IsNullOrWhiteSpace(content))
                 return Result.Failure<Messages>("Содержание сообщения не может быть пустым");
@@ -30,6 +33,8 @@ namespace BarberBooking.API.Models
                 Content = content,
                 UserId = userId,
                 AppointmentId = appointmentId,
+                Audience = messageAudience,
+                TypeMessage = typeMessage,
                 IsVisible = false,
                 CreatedAt = DateTime.UtcNow
             };

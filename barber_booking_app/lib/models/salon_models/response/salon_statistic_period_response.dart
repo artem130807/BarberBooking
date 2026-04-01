@@ -4,6 +4,7 @@ class SalonStatisticPeriodResponse {
   final int cancelledAppointmentsCount;
   final double rating;
   final int ratingCount;
+  final double sumPrice;
 
   SalonStatisticPeriodResponse({
     required this.salonId,
@@ -11,6 +12,7 @@ class SalonStatisticPeriodResponse {
     required this.cancelledAppointmentsCount,
     required this.rating,
     required this.ratingCount,
+    required this.sumPrice,
   });
 
   factory SalonStatisticPeriodResponse.fromJson(Map<String, dynamic> json) {
@@ -22,6 +24,7 @@ class SalonStatisticPeriodResponse {
       cancelledAppointmentsCount: _int(v('cancelledAppointmentsCount', 'CancelledAppointmentsCount')),
       rating: _double(v('rating', 'Rating')),
       ratingCount: _int(v('ratingCount', 'RatingCount')),
+      sumPrice: _double(v('sumPrice', 'SumPrice')),
     );
   }
 

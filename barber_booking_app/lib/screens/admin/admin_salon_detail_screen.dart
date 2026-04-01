@@ -154,7 +154,7 @@ class _AdminSalonDetailScreenState extends State<AdminSalonDetailScreen> {
                 _MetricTile(
                   icon: Icons.insights_outlined,
                   title: 'Статистика',
-                  value: 'Сводка · снимки',
+                  value: '',
                   onTap: () => Navigator.pushNamed(
                     context,
                     '/admin_salon_statistics',

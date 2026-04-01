@@ -2,6 +2,7 @@ import 'package:barber_booking_app/models/dto/DtoCreateUser.dart';
 import 'package:barber_booking_app/models/user_models/requests/update_password_request.dart';
 import 'package:barber_booking_app/models/user_models/responses/update_password_response.dart';
 import 'package:flutter/material.dart';
+import 'package:barber_booking_app/utils/admin_last_salon_storage.dart';
 import 'package:barber_booking_app/services/auth_services/auth_service.dart';
 import 'package:barber_booking_app/models/user_models/requests/login_user_request.dart';
 import 'package:barber_booking_app/models/user_models/requests/register_user_request.dart';
@@ -98,7 +99,8 @@ class AuthProvider extends BaseProvider {
   void logout() {
     _currentUser = null;
     _isAuthenticated = false;
-    resetState();  
+    resetState();
+    AdminLastSalonStorage.clear();
     notifyListeners();
   }
 

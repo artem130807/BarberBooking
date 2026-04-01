@@ -1,4 +1,5 @@
 import 'package:barber_booking_app/screens/admin/admin_dashboard_placeholder_screen.dart';
+import 'package:barber_booking_app/screens/admin/admin_navigation.dart';
 import 'package:barber_booking_app/screens/admin/admin_profile_screen.dart';
 import 'package:barber_booking_app/screens/admin/admin_reviews_screen.dart';
 import 'package:barber_booking_app/screens/admin/admin_salons_tab_screen.dart';
@@ -13,6 +14,7 @@ class AdminShellScreen extends StatefulWidget {
 
 class _AdminShellScreenState extends State<AdminShellScreen> {
   int _index = 0;
+  bool _readRouteArgs = false;
 
   static const List<Widget> _pages = [
     AdminDashboardPlaceholderScreen(),
@@ -22,37 +24,26 @@ class _AdminShellScreenState extends State<AdminShellScreen> {
   ];
 
   @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (_readRouteArgs) return;
+    _readRouteArgs = true;
+    final args = ModalRoute.of(context)?.settings.arguments;
+    if (args is AdminShellArgs) {
+      _index = args.initialTab.clamp(0, 3);
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: IndexedStack(
         index: _index,
         children: _pages,
       ),
-      bottomNavigationBar: NavigationBar(
+      bottomNavigationBar: AdminBottomNavigationBar(
         selectedIndex: _index,
         onDestinationSelected: (i) => setState(() => _index = i),
-        destinations: const [
-          NavigationDestination(
-            icon: Icon(Icons.dashboard_outlined),
-            selectedIcon: Icon(Icons.dashboard),
-            label: 'Дашборд',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.store_mall_directory_outlined),
-            selectedIcon: Icon(Icons.store_mall_directory),
-            label: 'Салоны',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.reviews_outlined),
-            selectedIcon: Icon(Icons.reviews),
-            label: 'Отзывы',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.person_outline),
-            selectedIcon: Icon(Icons.person),
-            label: 'Профиль',
-          ),
-        ],
       ),
     );
   }

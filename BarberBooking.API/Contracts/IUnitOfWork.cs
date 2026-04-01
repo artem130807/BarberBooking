@@ -26,6 +26,7 @@ namespace BarberBooking.API.Contracts
         IMessagesRepository messagesRepository {get;}
         IUserRolesRepository userRolesRepository {get;}
         ISalonStatisticRepository salonStatisticRepository {get;}
+        IMasterStatisticRepository masterStatisticRepository {get;}
         void BeginTransaction();
         void Commit();
         void RollBack();

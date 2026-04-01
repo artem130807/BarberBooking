@@ -93,7 +93,7 @@ namespace BarberBooking.API.Models
             ClientNotes = clientNotes;
             UpdatedAt = DateTime.UtcNow;
         }
-        public void UpdateAppointmentStatusEnum(AppointmentStatusEnum status)
+        public void UpdateStatus(AppointmentStatusEnum status)
         {
             Status = status;
             UpdatedAt = DateTime.UtcNow;

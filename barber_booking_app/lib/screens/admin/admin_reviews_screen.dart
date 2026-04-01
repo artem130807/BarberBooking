@@ -1,3 +1,6 @@
+import 'package:barber_booking_app/utils/admin_last_salon_storage.dart';
+import 'package:barber_booking_app/services/admin_export/admin_excel_export_service.dart';
+import 'package:barber_booking_app/services/review_services/get_reviews_admin_service.dart';
 import 'package:barber_booking_app/models/params/page_params.dart';
 import 'package:barber_booking_app/models/params/review_params/review_admin_filter.dart';
 import 'package:barber_booking_app/models/params/salon_params/salon_filter.dart';
@@ -34,6 +37,18 @@ class _AdminReviewsScreenState extends State<AdminReviewsScreen> {
         context.read<GetReviewsAdminProvider>().setActiveFilter(
               ReviewAdminFilter(salonId: sid),
             );
+        await AdminLastSalonStorage.write(sid);
+      } else {
+        final saved = await AdminLastSalonStorage.read();
+        if (!mounted) return;
+        final list = context.read<GetSalonsProvider>().getSalonsResponse ?? [];
+        if (saved != null &&
+            saved.isNotEmpty &&
+            list.any((e) => e.Id == saved)) {
+          context.read<GetReviewsAdminProvider>().setActiveFilter(
+                ReviewAdminFilter(salonId: saved),
+              );
+        }
       }
       if (mounted) await _reloadList();
     });
@@ -63,6 +78,10 @@ class _AdminReviewsScreenState extends State<AdminReviewsScreen> {
       salons: salons,
       onApply: (applied) {
         reviewsProv.setActiveFilter(applied);
+        final salon = applied.salonId;
+        if (salon != null && salon.isNotEmpty) {
+          AdminLastSalonStorage.write(salon);
+        }
         _reloadList();
       },
       onResetAll: () {
@@ -79,6 +98,42 @@ class _AdminReviewsScreenState extends State<AdminReviewsScreen> {
     if (mounted) setState(() {});
   }
 
+  Future<void> _exportToExcel() async {
+    final token = context.read<AuthProvider>().token;
+    final filter = context.read<GetReviewsAdminProvider>().activeFilter;
+    showDialog<void>(
+      context: context,
+      barrierDismissible: false,
+      builder: (ctx) => const Center(child: CircularProgressIndicator()),
+    );
+    try {
+      final rows = await GetReviewsAdminService().fetchAllPages(
+        filter,
+        token,
+      );
+      if (!mounted) return;
+      Navigator.of(context).pop();
+      if (rows.isEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Нет данных для экспорта')),
+        );
+        return;
+      }
+      final stamp = DateFormat('yyyyMMdd_HHmm').format(DateTime.now());
+      await AdminExcelExportService.instance.shareReviews(
+        rows,
+        'отзывы_$stamp',
+      );
+    } catch (_) {
+      if (mounted) Navigator.of(context).pop();
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Не удалось экспортировать')),
+        );
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final df = DateFormat('dd.MM.yyyy HH:mm');
@@ -90,6 +145,13 @@ class _AdminReviewsScreenState extends State<AdminReviewsScreen> {
           widget.initialSalonId != null ? 'Отзывы салона' : 'Отзывы',
         ),
         automaticallyImplyLeading: widget.initialSalonId != null,
+        actions: [
+          IconButton(
+            tooltip: 'Экспорт Excel',
+            onPressed: _exportToExcel,
+            icon: const Icon(Icons.table_chart_outlined),
+          ),
+        ],
       ),
       body: Column(
         children: [
@@ -338,7 +400,6 @@ class _RatingPill extends StatelessWidget {
 
   final String label;
   final int? value;
-
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;

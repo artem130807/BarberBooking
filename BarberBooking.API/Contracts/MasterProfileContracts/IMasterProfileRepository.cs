@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using BarberBooking.API.Filters;
 using BarberBooking.API.Filters.MasterProfile;
@@ -21,5 +22,6 @@ namespace BarberBooking.API.Contracts.MasterProfileContracts
         Task UpdateAsync(MasterProfile master);
         Task<PagedResult<MasterProfile>> GetTopMastersInSalon(Guid salonId, PageParams pageParams);
         Task<bool> UserIsSubscripeMaster(Guid userId, Guid masterId);
+        Task<List<MasterProfile>> GetMastersDayStats(int year, int month, int day, CancellationToken cancellationToken = default);
     }
 }

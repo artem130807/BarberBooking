@@ -1,89 +1,84 @@
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
-using AutoMapper;
 using BarberBooking.API.Contracts;
-using BarberBooking.API.Domain.ValueObjects;
-using BarberBooking.API.Dto.DtoAppointments;
+using BarberBooking.API.Contracts.MasterProfileContracts;
+using BarberBooking.API.Contracts.MessagesContracts;
 using BarberBooking.API.Models;
 using CSharpFunctionalExtensions;
 using MediatR;
+using Microsoft.AspNetCore.SignalR;
 
 namespace BarberBooking.API.CQRS.AppointmentsCommands.Handlers
 {
     public class CreateAppointmentHandler : IRequestHandler<CreateAppointmentCommand, Result<string>>
     {
         private readonly IUnitOfWork _unitOfWork;
-        private readonly IAppointmentsRepository _appointmentsRepository;
-        private readonly IMapper _mapper;
-        private readonly IServicesRepository _servicesRepository;
         private readonly IUserContext _userContext;
-        public CreateAppointmentHandler(IUnitOfWork unitOfWork, IAppointmentsRepository appointmentsRepository, IMapper mapper, IServicesRepository servicesRepository, IUserContext userContext)
+        private readonly ISendMessageService _sendMessageService;
+        private readonly IAppointmentCreationValidator _appointmentCreationValidator;
+        private readonly IAppointmentsRepository _appointmentsRepository;
+        private readonly IMasterTimeSlotRepository _masterTimeSlotRepository;
+        public CreateAppointmentHandler(
+            IUnitOfWork unitOfWork,
+            IUserContext userContext,
+            ISendMessageService sendMessageService,
+            IAppointmentCreationValidator appointmentCreationValidator,
+            IAppointmentsRepository appointmentsRepository,
+            IMasterTimeSlotRepository masterTimeSlotRepository
+            )
         {
             _unitOfWork = unitOfWork;
+            _userContext = userContext;
+            _sendMessageService = sendMessageService;
+            _appointmentCreationValidator = appointmentCreationValidator;
             _appointmentsRepository = appointmentsRepository;
-            _mapper = mapper;
-            _servicesRepository = servicesRepository;     
-            _userContext = userContext;     
+            _masterTimeSlotRepository = masterTimeSlotRepository;
         }
+
         public async Task<Result<string>> Handle(CreateAppointmentCommand command, CancellationToken cancellationToken)
         {
             var userId = _userContext.UserId;
-            if (userId == Guid.Empty)
-                return Result.Failure<string>("Пользователь не авторизован");
 
-            var service = await _servicesRepository.GetByIdAsync(command.DtoCreateAppointment.ServiceId);
-            if(service == null)
-                return Result.Failure<string>("Услуги не существует");
+            var validation = await _appointmentCreationValidator.ValidateAsync(
+                command.DtoCreateAppointment, userId, cancellationToken);
+            if (validation.IsFailure)
+                return Result.Failure<string>(validation.Error);
 
-            var dtoAppointmet = _mapper.Map<Models.Appointments>(command.DtoCreateAppointment);
-            var serviceDuration = TimeSpan.FromMinutes(service.DurationMinutes);
-            if (serviceDuration <= TimeSpan.Zero)
-                return Result.Failure<string>("Некорректная длительность услуги");
-
-            var sourceTimeSlot = await _unitOfWork.masterTimeSlotRepository
-                .GetByIdAsync(command.DtoCreateAppointment.TimeSlotId);
-            if (sourceTimeSlot == null)
-                return Result.Failure<string>("Слот недоступен или устарел. Обновите список слотов.");
-
-            if (sourceTimeSlot.MasterId != command.DtoCreateAppointment.MasterId)
-                return Result.Failure<string>("Слот не принадлежит выбранному мастеру.");
-
-            var endTime = dtoAppointmet.StartTime.Add(serviceDuration);
-            var appointmentDateOnly = DateOnly.FromDateTime(command.DtoCreateAppointment.AppointmentDate);
-            if (sourceTimeSlot.ScheduleDate != appointmentDateOnly)
-                return Result.Failure<string>("Слот не принадлежит выбранной дате.");
-
-            if (dtoAppointmet.StartTime < sourceTimeSlot.StartTime || endTime > sourceTimeSlot.EndTime)
-                return Result.Failure<string>("Время записи выходит за пределы выбранного слота.");
-
-            var masterAppointmentsOnDate = await _appointmentsRepository
-                .GetAppointmentsByMasterId(command.DtoCreateAppointment.MasterId);
-
-            var hasOverlap = masterAppointmentsOnDate.Any(a =>
-                DateOnly.FromDateTime(a.AppointmentDate) == appointmentDateOnly &&
-                dtoAppointmet.StartTime < a.EndTime &&
-                a.StartTime < endTime);
-
-            if (hasOverlap)
-                return Result.Failure<string>("Выбранный интервал уже занят. Обновите доступные слоты.");
-
-            var appointment = Models.Appointments.Create(dtoAppointmet.SalonId,dtoAppointmet.MasterId, userId,
-                dtoAppointmet.ServiceId, dtoAppointmet.TimeSlotId, dtoAppointmet.StartTime,
-                dtoAppointmet.ClientNotes, endTime, dtoAppointmet.AppointmentDate);
+            var draft = validation.Value;
+            var appointment = Models.Appointments.Create(
+                draft.MappedAppointment.SalonId,
+                draft.MappedAppointment.MasterId,
+                userId,
+                draft.MappedAppointment.ServiceId,
+                draft.MappedAppointment.TimeSlotId,
+                draft.MappedAppointment.StartTime,
+                draft.MappedAppointment.ClientNotes,
+                draft.EndTime,
+                draft.MappedAppointment.AppointmentDate);
             try
             {
                 _unitOfWork.BeginTransaction();
+                var timeSlot = await _masterTimeSlotRepository.ForUpdate(appointment.TimeSlotId);
+                var activeAppointment = await _appointmentsRepository.GetAppointmentActive(appointment.TimeSlotId);
+                if (activeAppointment != null)
+                    return Result.Failure<string>("Слот занят");
                 await _unitOfWork.appointmentsRepository.CreateAsync(appointment);
                 _unitOfWork.Commit();
-            }catch(Exception ex)
+            }
+            catch (Exception ex)
             {
                 _unitOfWork.RollBack();
                 var detailedMessage = ex.InnerException?.Message ?? ex.Message;
                 throw new InvalidOperationException($"Ошибка сохранения записи: {detailedMessage}", ex);
             }
-            // var result =  _mapper.Map<DtoCreateAppointmentInfo>(appointment);
+            var userMessage = Models.Messages.Create($"Запись на {appointment.AppointmentDate}, успешно создана", userId, appointment.Id, 
+            Enums.MessageAudience.User, Enums.TypeMessage.CreationAppointment);
+            var masterMessage = Models.Messages.Create($"Пользователь {appointment.Client.Name}, записался к вам на {appointment.Service.Name}, запись {appointment.AppointmentDate}",
+            appointment.Master.UserId, 
+            appointment.Id, Enums.MessageAudience.Master, 
+            Enums.TypeMessage.CreationAppointment);
+            await _sendMessageService.Send(userMessage.Value);
+            await _sendMessageService.Send(masterMessage.Value);
             return Result.Success("Успешно");
         }
     }

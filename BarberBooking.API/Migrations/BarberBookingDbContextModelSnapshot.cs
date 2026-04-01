@@ -188,6 +188,40 @@ namespace BarberBooking.API.Migrations
                     b.ToTable("MasterProfiles", (string)null);
                 });
 
+            modelBuilder.Entity("BarberBooking.API.Models.MasterStatistic", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("CancelledAppointmentsCount")
+                        .HasColumnType("int");
+
+                    b.Property<int>("CompletedAppointmentsCount")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("MasterProfileId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<decimal>("Rating")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<int>("RatingCount")
+                        .HasColumnType("int");
+
+                    b.Property<double>("SumPrice")
+                        .HasColumnType("float");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("MasterProfileId");
+
+                    b.ToTable("MasterStatistic", (string)null);
+                });
+
             modelBuilder.Entity("BarberBooking.API.Models.MasterSubscription", b =>
                 {
                     b.Property<Guid>("Id")
@@ -252,6 +286,9 @@ namespace BarberBooking.API.Migrations
                     b.Property<Guid?>("AppointmentId")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<int>("Audience")
+                        .HasColumnType("int");
+
                     b.Property<string>("Content")
                         .IsRequired()
                         .HasMaxLength(1000)
@@ -263,6 +300,9 @@ namespace BarberBooking.API.Migrations
                     b.Property<bool>("IsVisible")
                         .HasColumnType("bit");
 
+                    b.Property<int>("TypeMessage")
+                        .HasColumnType("int");
+
                     b.Property<Guid>("UserId")
                         .HasColumnType("uniqueidentifier");
 
@@ -273,6 +313,48 @@ namespace BarberBooking.API.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("Messages", (string)null);
+                });
+
+            modelBuilder.Entity("BarberBooking.API.Models.OutboxMessage", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("AggregateId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("AggregateType")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Error")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("EventType")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("OccurredOn")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Payload")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("ProcessedOn")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("RetryCount")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("OutboxMessages");
                 });
 
             modelBuilder.Entity("BarberBooking.API.Models.Permissions", b =>
@@ -478,6 +560,12 @@ namespace BarberBooking.API.Migrations
 
                     b.Property<Guid>("SalonId")
                         .HasColumnType("uniqueidentifier");
+
+                    b.Property<double>("SumPrice")
+                        .HasColumnType("float");
+
+                    b.Property<int>("Version")
+                        .HasColumnType("int");
 
                     b.HasKey("Id");
 
@@ -793,6 +881,17 @@ namespace BarberBooking.API.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("BarberBooking.API.Models.MasterStatistic", b =>
+                {
+                    b.HasOne("BarberBooking.API.Models.MasterProfile", "MasterProfile")
+                        .WithMany("MasterStatistics")
+                        .HasForeignKey("MasterProfileId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("MasterProfile");
+                });
+
             modelBuilder.Entity("BarberBooking.API.Models.MasterSubscription", b =>
                 {
                     b.HasOne("BarberBooking.API.Models.Users", "Client")
@@ -961,6 +1060,8 @@ namespace BarberBooking.API.Migrations
             modelBuilder.Entity("BarberBooking.API.Models.MasterProfile", b =>
                 {
                     b.Navigation("Appointments");
+
+                    b.Navigation("MasterStatistics");
 
                     b.Navigation("Reviews");
 

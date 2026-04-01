@@ -1,5 +1,6 @@
 import 'package:barber_booking_app/models/params/page_params.dart';
 import 'package:barber_booking_app/models/params/salon_params/salon_filter.dart';
+import 'package:barber_booking_app/utils/admin_last_salon_storage.dart';
 import 'package:barber_booking_app/providers/admin_top_services_provider.dart';
 import 'package:barber_booking_app/providers/auth_providers/auth_provider.dart';
 import 'package:barber_booking_app/providers/salon_providers/get_salons_provider.dart';
@@ -35,12 +36,24 @@ class _AdminTopServicesScreenState extends State<AdminTopServicesScreen> {
           _filter,
           token,
         );
-    if (mounted) setState(() {});
+    if (!mounted) return;
+    final saved = await AdminLastSalonStorage.read();
+    if (!mounted) return;
+    final list = context.read<GetSalonsProvider>().getSalonsResponse ?? [];
+    if (saved != null &&
+        saved.isNotEmpty &&
+        list.any((e) => e.Id == saved)) {
+      await _onSalonChanged(saved);
+    } else {
+      setState(() {});
+    }
   }
 
   Future<void> _onSalonChanged(String? id) async {
     setState(() => _salonId = id);
+    await AdminLastSalonStorage.write(id);
     if (id == null || id.isEmpty) return;
+    if (!mounted) return;
     final token = context.read<AuthProvider>().token;
     await context.read<AdminTopServicesProvider>().load(id, token);
   }

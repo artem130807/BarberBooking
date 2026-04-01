@@ -1,5 +1,6 @@
 using BarberBooking.API;
 using BarberBooking.API.Authorization;
+using BarberBooking.API.MapperProfiles;
 using BarberBooking.API.Contracts;
 using BarberBooking.API.Contracts.EmailContracts;
 using BarberBooking.API.Contracts.MasterProfileContracts;
@@ -22,6 +23,11 @@ using BarberBooking.API.Service.UpdateService;
 using BarberBooking.API.Validator;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.CookiePolicy;
+using BarberBooking.API.Service.MessageService;
+using BarberBooking.API.Service.Validator;
+using BarberBooking.API.Hubs;
+using MediatR;
+using Microsoft.AspNetCore.SignalR;
 
 var builder = WebApplication.CreateBuilder(args);
 var configuration = builder.Configuration;
@@ -30,14 +36,23 @@ builder.Services.AddAuthentication("ApiKeys").AddScheme<AuthenticationSchemeOpti
 // Конфигурация JWT 
 builder.Services.Configure<JwtOptions>(configuration.GetSection(nameof(JwtOptions)));
 // Add services to the container.
-
+builder.Services.AddSingleton<IUserIdProvider, SignalRUserIdProvider>();
+var signalRBuilder = builder.Services.AddSignalR();
+var redisConnection = configuration["SignalR:Redis"] ?? configuration.GetConnectionString("Redis");
+if (!string.IsNullOrWhiteSpace(redisConnection))
+{
+    signalRBuilder.AddStackExchangeRedis(redisConnection, options =>
+    {
+        options.Configuration.ChannelPrefix = "BarberBooking";
+    });
+}
 builder.Services.AddDb(configuration);
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddControllers().ConfigureApiBehaviorOptions(options =>
 {
     options.SuppressModelStateInvalidFilter = true; 
 });
-builder.Services.AddAutoMapper(typeof (MapperProfile));
+builder.Services.AddAutoMapper(typeof(ServicesMappingProfile));
 builder.Services.AddApiAuthentication(configuration);
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
@@ -90,6 +105,7 @@ builder.Services.AddScoped<ISalonActiveHandler, SalonActiveHandler>();
 builder.Services.AddScoped<IEmailVerficationHandler, EmailVerificateDeleteHandler>();
 builder.Services.AddScoped<IDnsEmailValidator, DnsEmailValidator>();
 builder.Services.AddScoped<IUserValidatorService, UserValidatorService>();
+builder.Services.AddScoped<IAppointmentCreationValidator, AppointmentCreationValidator>();
 builder.Services.AddScoped<IRatingService, RatingService>();
 builder.Services.AddScoped<IEventStoreRepository, EventStoreRepository>();
 builder.Services.AddScoped<IRollBackRatingService, RollBackRatingService>();
@@ -103,6 +119,26 @@ builder.Services.AddScoped<IUpdateRatingService, UpdateRatingService>();
 builder.Services.AddScoped<IMessagesRepository, MessagesRepository>();
 builder.Services.AddScoped<ISalonStatisticRepository, SalonStatisticRepository>();
 builder.Services.AddScoped<ISalonStatiscticHandler, SalonStatiscticHandler>();
+builder.Services.AddScoped<ISendMessageService, SendMessageService>();
+builder.Services.AddScoped<IMasterStatisticRepository, MasterStatisticRepository>();
+builder.Services.AddScoped<IMasterStatisticHandler, MasterStatisticHandler>();
+builder.Services.AddScoped<INotificationService, NotificationService>();
+
+var corsOrigins = configuration.GetSection("Cors:AllowedOrigins").Get<string[]>();
+if (corsOrigins is { Length: > 0 })
+{
+    builder.Services.AddCors(options =>
+    {
+        options.AddPolicy("CorsPolicy", policy =>
+        {
+            policy.WithOrigins(corsOrigins)
+                .AllowAnyHeader()
+                .AllowAnyMethod()
+                .AllowCredentials();
+        });
+    });
+}
+
 var app = builder.Build();
 app.InitializingCache();
 // Configure the HTTP request pipeline.
@@ -123,10 +159,15 @@ app.UseCookiePolicy(new CookiePolicyOptions
      HttpOnly = HttpOnlyPolicy.Always,
      Secure = CookieSecurePolicy.Always
 });
-app.UseCors(builder => builder
-    .AllowAnyOrigin()
-    .AllowAnyMethod()
-    .AllowAnyHeader());
+if (corsOrigins is { Length: > 0 })
+    app.UseCors("CorsPolicy");
+else
+{
+    app.UseCors(policy => policy
+        .AllowAnyOrigin()
+        .AllowAnyMethod()
+        .AllowAnyHeader());
+}
 
 var webRoot = Path.Combine(app.Environment.ContentRootPath, "wwwroot");
 Directory.CreateDirectory(Path.Combine(webRoot, "uploads", "images"));
@@ -137,5 +178,7 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+
+app.MapHub<NotificationHub>("/notificationHub").RequireAuthorization();
 
 app.Run();

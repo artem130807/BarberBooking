@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
 using BarberBooking.API.Contracts;
+using BarberBooking.API.Contracts.MasterProfileContracts;
 using BarberBooking.API.Dto.DtoMasterTimeSlot;
 using BarberBooking.API.Models;
 using MediatR;
@@ -14,15 +15,21 @@ namespace BarberBooking.API.CQRS.MasterTimeSlotCommands.Handler
     {
         private readonly IMapper _mapper;
         private readonly IUnitOfWork _unitOfWork;
-        public MasterTimeSlotCreateAsyncHandler(IMapper mapper, IUnitOfWork unitOfWork)
+        private readonly IUserContext _userContext;
+        private readonly IMasterProfileRepository _masterProfileRepository;
+        public MasterTimeSlotCreateAsyncHandler(IMapper mapper, IUnitOfWork unitOfWork, IUserContext userContext, IMasterProfileRepository masterProfileRepository)
         {
             _mapper = mapper;
             _unitOfWork = unitOfWork;
+            _userContext = userContext;
+            _masterProfileRepository = masterProfileRepository;
         }
         public async Task<DtoMasterTimeSlotInfo> Handle(MasterTimeSlotCreateAsyncCommand command, CancellationToken cancellationToken)
         {
-            var dtoTimeSlot = _mapper.Map<MasterTimeSlot>(command.dtoCreateMasterTimeSlot);
-            var timeSlot = MasterTimeSlot.Create(dtoTimeSlot.MasterId, dtoTimeSlot.ScheduleDate,dtoTimeSlot.StartTime, dtoTimeSlot.EndTime);
+            var userId = _userContext.UserId;
+            var masterProfile = await _masterProfileRepository.GetMasterProfileByUserId(userId);
+            var timeSlot = MasterTimeSlot.Create(masterProfile.Id, command.dtoCreateMasterTimeSlot.ScheduleDate, 
+            command.dtoCreateMasterTimeSlot.StartTime, command.dtoCreateMasterTimeSlot.EndTime);
             try
             {
                 _unitOfWork.BeginTransaction();

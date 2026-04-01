@@ -24,19 +24,30 @@ class GetMasterResponse {
   });
 
   factory GetMasterResponse.fromJson(Map<String, dynamic> json) {
+    dynamic v(String a, String b) => json[a] ?? json[b];
+    final nav = v('salonNavigation', 'SalonNavigation');
     return GetMasterResponse(
-      Id: json['id'],
-      UserName: json['userName'],
-      SalonNavigation: json['salonNavigation'] != null
-          ? SalonNavigationResponse.fromJson(json['salonNavigation'])
+      Id: v('id', 'Id')?.toString(),
+      UserName: v('userName', 'UserName')?.toString(),
+      SalonNavigation: nav != null
+          ? SalonNavigationResponse.fromJson(
+              Map<String, dynamic>.from(nav as Map),
+            )
           : null,
-      Bio: json['bio'],
-      Specialization: json['specialization'],
-      AvatarUrl: json['avatarUrl'],
-      Rating: (json['rating'] as num?)?.toDouble(),
-      RatingCount: json['ratingCount'],
-      isSubscripe: _parseBool(json['isSubscripe'] ?? json['IsSubscripe']),
+      Bio: v('bio', 'Bio')?.toString(),
+      Specialization: v('specialization', 'Specialization')?.toString(),
+      AvatarUrl: v('avatarUrl', 'AvatarUrl')?.toString(),
+      Rating: (v('rating', 'Rating') as num?)?.toDouble(),
+      RatingCount: _parseInt(v('ratingCount', 'RatingCount')),
+      isSubscripe: _parseBool(v('isSubscripe', 'IsSubscripe')),
     );
+  }
+
+  static int? _parseInt(dynamic v) {
+    if (v == null) return null;
+    if (v is int) return v;
+    if (v is num) return v.toInt();
+    return int.tryParse(v.toString());
   }
 
   static bool? _parseBool(dynamic v) {

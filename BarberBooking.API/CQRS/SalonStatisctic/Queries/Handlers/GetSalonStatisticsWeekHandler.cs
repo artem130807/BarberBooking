@@ -28,6 +28,7 @@ namespace BarberBooking.API.CQRS.SalonStatisctic.Queries.Handlers
                 RatingCount = Convert.ToInt32(salonStatistics.Sum(s => s.RatingCount)),
                 CancelledAppointmentsCount = Convert.ToInt32(salonStatistics.Sum(s => s.CancelledAppointmentsCount)),
                 CompletedAppointmentsCount = Convert.ToInt32(salonStatistics.Sum(s => s.CompletedAppointmentsCount)),
+                SumPrice = salonStatistics.Sum(s => s.SumPrice)
             };
             return Result.Success(salonStatisticWeek);
         }

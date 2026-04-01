@@ -6,23 +6,18 @@ import 'package:http/http.dart' as http;
 import 'package:barber_booking_app/config/api_config.dart';
 
 class GetSalonAppointmentsAdminService {
-
   Future<Map<String, dynamic>?> getPaged(
     String salonId,
-    DateTime? from,
-    DateTime? to,
     PageParams params,
     String? token, {
-    FilterAppointmentsParams? statusFilter,
+    FilterAppointmentsParams? filter,
   }) async {
     try {
       final qp = <String, String>{
         'page': params.Page.toString(),
         'pageSize': params.PageSize.toString(),
       };
-      if (from != null) qp['from'] = from.toUtc().toIso8601String();
-      if (to != null) qp['to'] = to.toUtc().toIso8601String();
-      if (statusFilter != null) qp.addAll(statusFilter.toQueryMap());
+      if (filter != null) qp.addAll(filter.toQueryMap());
       final url = Uri.parse(
         '$kApiBaseUrl/api/Appointment/get-salon-appointments-paged/$salonId',
       ).replace(queryParameters: qp);
@@ -74,4 +69,29 @@ class GetSalonAppointmentsAdminService {
     if (c is num) return c.toInt();
     return 0;
   }
+
+  Future<List<SalonAppointmentAdminResponse>> fetchAllPages(
+    String salonId,
+    String? token, {
+    FilterAppointmentsParams? filter,
+    int pageSize = 100,
+  }) async {
+    final all = <SalonAppointmentAdminResponse>[];
+    var page = 1;
+    while (true) {
+      final map = await getPaged(
+        salonId,
+        PageParams(Page: page, PageSize: pageSize),
+        token,
+        filter: filter,
+      );
+      if (map == null) break;
+      final chunk = parseData(map) ?? [];
+      all.addAll(chunk);
+      if (chunk.length < pageSize) break;
+      page++;
+    }
+    return all;
+  }
+
 }

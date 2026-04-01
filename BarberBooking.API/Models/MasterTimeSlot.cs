@@ -33,7 +33,6 @@ namespace BarberBooking.API.Models
             };
             return timeSlot;
         }
-        // Used for calculated availability ranges. Reuses existing DB slot id.
         public static MasterTimeSlot CreatePreview(Guid sourceSlotId, Guid masterId, DateOnly scheduleDate, TimeOnly startTime, TimeOnly endTime)
         {
             var timeSlot = new MasterTimeSlot

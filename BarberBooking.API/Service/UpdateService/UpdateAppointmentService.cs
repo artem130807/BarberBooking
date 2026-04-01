@@ -25,7 +25,7 @@ namespace BarberBooking.API.Service.UpdateService
            var notes = !string.IsNullOrWhiteSpace(dto.ClientNotes) ? dto.ClientNotes : appointments.ClientNotes;
            appointments.UpdateClientNotes(notes);
            var status = dto.Status.HasValue ? dto.Status : appointments.Status;
-           appointments.UpdateAppointmentStatusEnum(status.Value);
+           appointments.UpdateStatus(status.Value);
            await UpdateService(appointments, dto);
            await UpdateStartTime(appointments, dto);
         }

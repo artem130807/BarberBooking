@@ -30,6 +30,7 @@ namespace BarberBooking.API.Service
         private IMessagesRepository _messageRepository;
         private IUserRolesRepository _userRolesRepository;
         private ISalonStatisticRepository _salonStatisticRepository;
+        private IMasterStatisticRepository _masterStatisticRepository;
         public UnitOfWork(BarberBookingDbContext dbContext)
         {
             _dbContext = dbContext;
@@ -95,6 +96,11 @@ namespace BarberBooking.API.Service
         public ISalonStatisticRepository salonStatisticRepository
         {
             get{return _salonStatisticRepository ?? new SalonStatisticRepository(_dbContext);}
+        }
+
+        public IMasterStatisticRepository masterStatisticRepository
+        {
+            get { return _masterStatisticRepository ??= new MasterStatisticRepository(_dbContext); }
         }
 
         public void BeginTransaction()

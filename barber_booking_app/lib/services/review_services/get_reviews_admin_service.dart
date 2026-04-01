@@ -63,4 +63,26 @@ class GetReviewsAdminService {
     if (c is num) return c.toInt();
     return 0;
   }
+
+  Future<List<ReviewAdminListItem>> fetchAllPages(
+    ReviewAdminFilter filter,
+    String? token, {
+    int pageSize = 50,
+  }) async {
+    final all = <ReviewAdminListItem>[];
+    var page = 1;
+    while (true) {
+      final map = await getAll(
+        pageParams: PageParams(Page: page, PageSize: pageSize),
+        filter: filter,
+        token: token,
+      );
+      if (map == null) break;
+      final chunk = parseData(map) ?? [];
+      all.addAll(chunk);
+      if (chunk.length < pageSize) break;
+      page++;
+    }
+    return all;
+  }
 }

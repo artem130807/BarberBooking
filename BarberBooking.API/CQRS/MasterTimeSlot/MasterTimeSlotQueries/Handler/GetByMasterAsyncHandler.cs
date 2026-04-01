@@ -23,7 +23,7 @@ namespace BarberBooking.API.CQRS.MasterTimeSlotQueries.Handler
         {
             var timeslot = await _masterTimeSlotRepository.GetByMasterAsync(query.masterId, query.date);
             if(timeslot.Count == 0)
-                return Result.Failure<List<DtoMasterTimeSlotInfo>>("Список тайм слотов пуст");
+                return new List<DtoMasterTimeSlotInfo>();
             var dto = _mapper.Map<List<DtoMasterTimeSlotInfo>>(timeslot);
             return Result.Success(dto);
         }

@@ -10,5 +10,11 @@ namespace BarberBooking.API.Filters.AppointmentsFilter
         public bool? Confirmed {get; set;}
         public bool? Completed {get; set;}
         public bool? Cancelled {get; set;}
+        public bool? ThisMounth {get; set;}
+        public bool? ThisWeek {get; set;}
+        public bool? ThisDay {get; set;}
+        public DateTime? from {get; set;}
+        public DateTime? to {get; set;}
+        
     }
 }

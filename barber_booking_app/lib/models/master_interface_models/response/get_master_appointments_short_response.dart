@@ -20,14 +20,18 @@ class GetMasterAppointmentsShortResponse {
   });
 
   factory GetMasterAppointmentsShortResponse.fromJson(Map<String, dynamic> json) {
+    dynamic v(String a, String b) => json[a] ?? json[b];
+    final price = v('price', 'Price');
     return GetMasterAppointmentsShortResponse(
-      Id: json['id'],
-      UserName: json['userName'],
-      ServiceName: json['serviceName'],
-      StartTime: json['startTime'],
-      EndTime: json['endTime'],
-      Price: json['price'] != null ? DtoPrice.fromJson(json['price']) : null,
-      AppointmentDate: json['appointmentDate'],
+      Id: v('id', 'Id')?.toString(),
+      UserName: v('userName', 'UserName')?.toString(),
+      ServiceName: v('serviceName', 'ServiceName')?.toString(),
+      StartTime: v('startTime', 'StartTime')?.toString(),
+      EndTime: v('endTime', 'EndTime')?.toString(),
+      Price: price != null
+          ? DtoPrice.fromJson(Map<String, dynamic>.from(price as Map))
+          : null,
+      AppointmentDate: v('appointmentDate', 'AppointmentDate')?.toString(),
     );
   }
 }

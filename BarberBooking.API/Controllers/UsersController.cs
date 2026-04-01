@@ -11,6 +11,7 @@ using BarberBooking.API.Dto.DtoAuthorization;
 using BarberBooking.API.Dto.DtoUsers;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ActionConstraints;
 using Microsoft.Extensions.Caching.Memory;
 using Serilog;
 
@@ -104,6 +105,15 @@ namespace BarberBooking.API.Controllers
         public async Task<IActionResult> GetCities([FromQuery] string city)
         {
             var command = new GetUserCitiesQuery(city);     
+            var result = await _mediator.Send(command);
+            if (result.IsFailure)
+                return BadRequest(result.Error);
+            return Ok(result.Value);
+        }
+        [HttpGet("get_user_profile/{Id}")]
+        public async Task<IActionResult> GetUserProfileById(Guid Id)
+        {
+            var command = new GetUserProfileByIdQuery(Id);     
             var result = await _mediator.Send(command);
             if (result.IsFailure)
                 return BadRequest(result.Error);

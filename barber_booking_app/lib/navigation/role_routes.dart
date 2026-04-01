@@ -7,6 +7,7 @@ class RoleRoutes {
 
   static String homeRouteForRole(int? roleInterface) {
     if (roleInterface == adminRole) return '/admin_home';
+    if (roleInterface == masterRole) return '/master_home';
     return '/home';
   }
 }

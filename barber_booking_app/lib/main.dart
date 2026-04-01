@@ -4,6 +4,7 @@ import 'package:barber_booking_app/providers/appointment_providers/get_appointme
 import 'package:barber_booking_app/providers/appointment_providers/get_appointment_client_provider.dart';
 import 'package:barber_booking_app/providers/appointment_providers/get_appointments_by_client_provider.dart';
 import 'package:barber_booking_app/providers/appointment_providers/get_salon_appointments_admin_provider.dart';
+import 'package:barber_booking_app/providers/master_providers/master_session_provider.dart';
 import 'package:barber_booking_app/providers/master_providers/get_master_provider.dart';
 import 'package:barber_booking_app/providers/master_providers/get_the_best_masters_provider.dart';
 import 'package:barber_booking_app/providers/master_providers/get_masters_provider.dart';
@@ -28,6 +29,7 @@ import 'package:barber_booking_app/providers/salon_providers/salon_statistic_per
 import 'package:barber_booking_app/providers/salon_providers/salon_statistics_filter_provider.dart';
 import 'package:barber_booking_app/providers/service_providers/admin_salon_services_provider.dart';
 import 'package:barber_booking_app/providers/master_providers/admin_salon_masters_provider.dart';
+import 'package:barber_booking_app/providers/master_providers/admin_master_profile_provider.dart';
 import 'package:barber_booking_app/providers/admin_top_masters_provider.dart';
 import 'package:barber_booking_app/providers/admin_top_services_provider.dart';
 import 'package:barber_booking_app/providers/service_providers/get_service_search_provider.dart';
@@ -35,6 +37,7 @@ import 'package:barber_booking_app/providers/service_providers/get_services_prov
 import 'package:barber_booking_app/providers/time_slot_providers/get_slots_provider.dart';
 import 'package:barber_booking_app/providers/user_providers/get_user_cities_provider.dart';
 import 'package:barber_booking_app/providers/user_providers/get_user_provider.dart';
+import 'package:barber_booking_app/providers/user_providers/get_user_profile_by_id_provider.dart';
 import 'package:barber_booking_app/providers/user_providers/update_user_city_provider.dart';
 import 'package:barber_booking_app/screens/user_interfaces/appointment_screens/appointments_screen.dart';
 import 'package:barber_booking_app/screens/user_interfaces/review_screens/reviews_by_master_screen.dart';
@@ -62,6 +65,9 @@ import 'package:barber_booking_app/screens/user_interfaces/auth_screens/veify_co
 import 'package:barber_booking_app/screens/user_interfaces/auth_screens/update_password_screen.dart';
 import 'package:barber_booking_app/screens/user_interfaces/message_screens/messages_screen.dart';
 import 'package:barber_booking_app/screens/user_interfaces/appointment_screens/appointment_detail_screen.dart';
+import 'package:barber_booking_app/screens/admin/admin_navigation.dart';
+import 'package:barber_booking_app/screens/admin/admin_shell_layout.dart';
+import 'package:barber_booking_app/screens/master/master_shell_screen.dart';
 import 'package:barber_booking_app/screens/admin/admin_shell_screen.dart';
 import 'package:barber_booking_app/screens/admin/admin_appointments_period_screen.dart';
 import 'package:barber_booking_app/screens/admin/admin_reviews_screen.dart';
@@ -72,9 +78,15 @@ import 'package:barber_booking_app/screens/admin/admin_salon_masters_screen.dart
 import 'package:barber_booking_app/screens/admin/admin_salon_statistics_screen.dart';
 import 'package:barber_booking_app/screens/admin/admin_top_masters_screen.dart';
 import 'package:barber_booking_app/screens/admin/admin_top_services_screen.dart';
+import 'package:barber_booking_app/screens/admin/admin_client_profile_screen.dart';
+import 'package:barber_booking_app/screens/admin/admin_master_profile_screen.dart';
 import 'package:provider/provider.dart';
 import 'package:barber_booking_app/providers/auth_providers/auth_provider.dart';
 import 'package:barber_booking_app/providers/auth_providers/email_verify_provider.dart';
+import 'package:barber_booking_app/providers/notification_providers/notification_toast_controller.dart';
+import 'package:barber_booking_app/services/realtime/signalr_notification_service.dart';
+import 'package:barber_booking_app/widgets/notifications/auth_signal_r_bootstrap.dart';
+import 'package:barber_booking_app/widgets/notifications/notification_toast_overlay.dart';
 
 void main() {
   runApp(const MyApp());
@@ -88,6 +100,13 @@ class MyApp extends StatelessWidget {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => AuthProvider()),
+        ChangeNotifierProvider(create: (_) => NotificationToastController()),
+        Provider<SignalRNotificationService>(
+          create: (context) => SignalRNotificationService(
+            context.read<NotificationToastController>(),
+          ),
+          dispose: (_, s) => s.disposeSync(),
+        ),
         ChangeNotifierProvider(create: (_) => EmailVerifyProvider()),
         ChangeNotifierProvider(create: (_) => GetSalonsProvider()),
         ChangeNotifierProvider(create: (_) => GetSalonsSearchProvider()),
@@ -95,6 +114,7 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => GetSalonProvider()),
         ChangeNotifierProvider(create: (_) => GetTheBestMastersProvider()),
         ChangeNotifierProvider(create: (_) => GetMastersProvider()),
+        ChangeNotifierProvider(create: (_) => MasterSessionProvider()),
         ChangeNotifierProvider(create: (_) => GetMasterProvider()),
         ChangeNotifierProvider(create: (_) => GetReviewsMasterProvider()),
         ChangeNotifierProvider(create: (_) => GetReviewsSalonProvider()),
@@ -110,6 +130,8 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => GetSubscriptionsProvider()),
         ChangeNotifierProvider(create: (_) => GetServiceSearchProvider()),
         ChangeNotifierProvider(create: (_) => GetUserProvider()),
+        ChangeNotifierProvider(create: (_) => GetUserProfileByIdProvider()),
+        ChangeNotifierProvider(create: (_) => AdminMasterProfileProvider()),
         ChangeNotifierProvider(create: (_) => GetUserCitiesProvider()),
         ChangeNotifierProvider(create: (_) => UpdateUserCityProvider()),
         ChangeNotifierProvider(create: (_) => GetReviewsUserProvider()),
@@ -134,45 +156,124 @@ class MyApp extends StatelessWidget {
         title: 'BarberBooking',
         theme: AppTheme.darkTheme,
         initialRoute: '/login',
+        builder: (context, child) {
+          return Stack(
+            clipBehavior: Clip.none,
+            children: [
+              Positioned.fill(
+                child: AuthSignalRBootstrap(
+                  child: child ?? const SizedBox.shrink(),
+                ),
+              ),
+              const NotificationToastOverlay(),
+            ],
+          );
+        },
         routes: {
           '/login': (context) => const LoginScreen(),
           '/register': (context) => const RegisterScreen(),
           '/home': (context) => const HomeScreen(),
           '/admin_home': (context) => const AdminShellScreen(),
-          '/admin_appointments_period': (context) =>
-              const AdminAppointmentsPeriodScreen(),
-          '/admin_revenue': (context) => const AdminRevenueScreen(),
-          '/admin_top_masters': (context) => const AdminTopMastersScreen(),
-          '/admin_top_services': (context) => const AdminTopServicesScreen(),
+          '/master_home': (context) => const MasterShellScreen(),
+          '/admin_appointments_period': (context) => AdminShellLayout(
+                selectedTab: AdminNav.dashboard,
+                child: const AdminAppointmentsPeriodScreen(),
+              ),
+          '/admin_revenue': (context) => AdminShellLayout(
+                selectedTab: AdminNav.dashboard,
+                child: const AdminRevenueScreen(),
+              ),
+          '/admin_top_masters': (context) => AdminShellLayout(
+                selectedTab: AdminNav.dashboard,
+                child: const AdminTopMastersScreen(),
+              ),
+          '/admin_top_services': (context) => AdminShellLayout(
+                selectedTab: AdminNav.dashboard,
+                child: const AdminTopServicesScreen(),
+              ),
           '/admin_salon_detail': (context) {
             final id =
                 ModalRoute.of(context)!.settings.arguments as String;
-            return AdminSalonDetailScreen(salonId: id);
+            return AdminShellLayout(
+              selectedTab: AdminNav.salons,
+              child: AdminSalonDetailScreen(salonId: id),
+            );
           },
           '/admin_salon_services': (context) {
             final id =
                 ModalRoute.of(context)!.settings.arguments as String;
-            return AdminSalonServicesScreen(salonId: id);
+            return AdminShellLayout(
+              selectedTab: AdminNav.salons,
+              child: AdminSalonServicesScreen(salonId: id),
+            );
           },
           '/admin_salon_masters': (context) {
             final id =
                 ModalRoute.of(context)!.settings.arguments as String;
-            return AdminSalonMastersScreen(salonId: id);
+            return AdminShellLayout(
+              selectedTab: AdminNav.salons,
+              child: AdminSalonMastersScreen(salonId: id),
+            );
           },
           '/admin_salon_statistics': (context) {
             final id =
                 ModalRoute.of(context)!.settings.arguments as String;
-            return AdminSalonStatisticsScreen(salonId: id);
+            return AdminShellLayout(
+              selectedTab: AdminNav.salons,
+              child: AdminSalonStatisticsScreen(salonId: id),
+            );
           },
           '/admin_salon_appointments': (context) {
             final id =
                 ModalRoute.of(context)!.settings.arguments as String;
-            return AdminAppointmentsPeriodScreen(initialSalonId: id);
+            return AdminShellLayout(
+              selectedTab: AdminNav.salons,
+              child: AdminAppointmentsPeriodScreen(initialSalonId: id),
+            );
           },
           '/admin_salon_reviews': (context) {
             final id =
                 ModalRoute.of(context)!.settings.arguments as String;
-            return AdminReviewsScreen(initialSalonId: id);
+            return AdminShellLayout(
+              selectedTab: AdminNav.salons,
+              child: AdminReviewsScreen(initialSalonId: id),
+            );
+          },
+          '/admin_client_profile': (context) {
+            final args = ModalRoute.of(context)!.settings.arguments;
+            if (args is AdminClientProfileArgs) {
+              return AdminShellLayout(
+                selectedTab: AdminNav.dashboard,
+                child: AdminClientProfileScreen(
+                  userId: args.userId,
+                  previewName: args.previewName,
+                ),
+              );
+            }
+            return AdminShellLayout(
+              selectedTab: AdminNav.dashboard,
+              child: const Scaffold(
+                body: Center(child: Text('Некорректные аргументы маршрута')),
+              ),
+            );
+          },
+          '/admin_master_profile': (context) {
+            final args = ModalRoute.of(context)!.settings.arguments;
+            if (args is AdminMasterProfileArgs) {
+              return AdminShellLayout(
+                selectedTab: AdminNav.dashboard,
+                child: AdminMasterProfileScreen(
+                  masterId: args.masterId,
+                  previewName: args.previewName,
+                ),
+              );
+            }
+            return AdminShellLayout(
+              selectedTab: AdminNav.dashboard,
+              child: const Scaffold(
+                body: Center(child: Text('Некорректные аргументы маршрута')),
+              ),
+            );
           },
           '/forgot': (context) => const ForgotPasswordScreen(),
           '/email-verification': (context) => const EmailVerificationScreen(),

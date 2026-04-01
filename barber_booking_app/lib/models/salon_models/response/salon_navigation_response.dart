@@ -10,16 +10,25 @@ class SalonNavigationResponse {
 
   SalonNavigationResponse({this.Id, this.SalonName, this.Address, this.MainPhotoUrl, this.Rating, this.RatingCount});
 
-  factory SalonNavigationResponse.fromJson(Map<String, dynamic> json){
+  factory SalonNavigationResponse.fromJson(Map<String, dynamic> json) {
+    dynamic v(String a, String b) => json[a] ?? json[b];
+    final addr = v('address', 'Address');
     return SalonNavigationResponse(
-      Id: json['id'],
-      SalonName: json['salonName'],
-      Address: json['address'] != null
-      ? DtoAddress.fromJson(json['address'])
-      : null,
-      MainPhotoUrl: json['mainPhotoUrl'],
-      Rating: json['rating'],
-      RatingCount: json['ratingCount']
+      Id: v('id', 'Id')?.toString(),
+      SalonName: v('salonName', 'SalonName')?.toString(),
+      Address: addr != null
+          ? DtoAddress.fromJson(Map<String, dynamic>.from(addr as Map))
+          : null,
+      MainPhotoUrl: v('mainPhotoUrl', 'MainPhotoUrl')?.toString(),
+      Rating: (v('rating', 'Rating') as num?)?.toDouble(),
+      RatingCount: _parseInt(v('ratingCount', 'RatingCount')),
     );
+  }
+
+  static int? _parseInt(dynamic v) {
+    if (v == null) return null;
+    if (v is int) return v;
+    if (v is num) return v.toInt();
+    return int.tryParse(v.toString());
   }
 }

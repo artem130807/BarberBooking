@@ -1,5 +1,6 @@
 import 'package:barber_booking_app/models/salon_models/response/salon_stats_dto.dart';
 import 'package:barber_booking_app/providers/auth_providers/auth_provider.dart';
+import 'package:barber_booking_app/services/admin_export/admin_excel_export_service.dart';
 import 'package:barber_booking_app/providers/salon_providers/salon_statistic_period_provider.dart';
 import 'package:barber_booking_app/providers/salon_providers/salon_statistics_filter_provider.dart';
 import 'package:barber_booking_app/widgets/loading_indicator.dart';
@@ -37,7 +38,7 @@ class AdminSalonStatisticsScreen extends StatefulWidget {
 }
 
 class _AdminSalonStatisticsScreenState extends State<AdminSalonStatisticsScreen> {
-  /// 0 — сводка (неделя/месяц/год), 1 — дневные снимки.
+  /// 0 — сводка (неделя/месяц/год), 1 — дневная статистика.
   int _viewSegment = 0;
   int _segment = 0;
   DateTime _weekAnchor = DateTime.now();
@@ -108,6 +109,63 @@ class _AdminSalonStatisticsScreenState extends State<AdminSalonStatisticsScreen>
     }
   }
 
+  Future<void> _exportToExcel() async {
+    final stamp = DateFormat('yyyyMMdd_HHmm').format(DateTime.now());
+    final base = 'статистика_салона_${widget.salonId}_$stamp';
+    if (_viewSegment == 0) {
+      final r = context.read<SalonStatisticPeriodProvider>().result;
+      if (r == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Нет данных для экспорта')),
+        );
+        return;
+      }
+      String kind;
+      String range;
+      switch (_segment) {
+        case 0:
+          kind = 'Неделя';
+          range = DateFormat('dd.MM.yyyy').format(_weekAnchor);
+          break;
+        case 1:
+          kind = 'Месяц';
+          range = _monthYearLabelRu(_monthAnchor);
+          break;
+        case 2:
+          kind = 'Год';
+          range = '$_year';
+          break;
+        default:
+          kind = '';
+          range = '';
+      }
+      await AdminExcelExportService.instance.shareSalonPeriodSummary(
+        r,
+        base,
+        periodKindLabel: kind,
+        periodRangeLabel: range,
+      );
+      return;
+    }
+    final items = context.read<SalonStatisticsFilterProvider>().items;
+    if (items == null || items.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Нет данных: сначала загрузите дневную статистику'),
+        ),
+      );
+      return;
+    }
+    final filterDesc = _feedUseDayFilter
+        ? 'День месяца: $_feedDayOfMonth'
+        : 'Все дни месяца';
+    await AdminExcelExportService.instance.shareSalonDailySnapshots(
+      items,
+      base,
+      filterDescription: filterDesc,
+    );
+  }
+
   Future<void> _pickWeekDay() async {
     final d = await showDatePicker(
       context: context,
@@ -140,6 +198,13 @@ class _AdminSalonStatisticsScreenState extends State<AdminSalonStatisticsScreen>
     return Scaffold(
       appBar: AppBar(
         title: const Text('Статистика салона'),
+        actions: [
+          IconButton(
+            tooltip: 'Экспорт Excel',
+            onPressed: _exportToExcel,
+            icon: const Icon(Icons.table_chart_outlined),
+          ),
+        ],
       ),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -162,7 +227,7 @@ class _AdminSalonStatisticsScreenState extends State<AdminSalonStatisticsScreen>
                 Expanded(
                   child: _SalonStyleToggleTile(
                     icon: Icons.view_list_outlined,
-                    label: 'Дневные снимки',
+                    label: 'Дневная статистика',
                     selected: _viewSegment == 1,
                     stacked: true,
                     onTap: () async {
@@ -323,6 +388,7 @@ class _AdminSalonStatisticsScreenState extends State<AdminSalonStatisticsScreen>
                   ),
                 );
               }
+              final money = NumberFormat('#,##0.00', 'ru_RU');
               return ListView(
                 padding: const EdgeInsets.all(16),
                 children: [
@@ -367,6 +433,16 @@ class _AdminSalonStatisticsScreenState extends State<AdminSalonStatisticsScreen>
                   ),
                   const SizedBox(height: 10),
                   _MetricCard(
+                    icon: Icons.payments_outlined,
+                    label: 'Выручка',
+                    value: '${money.format(r.sumPrice)} ₽',
+                    sub: 'по ценам услуг за период',
+                    color: cs.surfaceContainerHighest,
+                    onColor: cs.onSurface,
+                    fullWidth: true,
+                  ),
+                  const SizedBox(height: 10),
+                  _MetricCard(
                     icon: Icons.cancel_outlined,
                     label: 'Отменено',
                     value: '${r.cancelledAppointmentsCount}',
@@ -390,16 +466,6 @@ class _AdminSalonStatisticsScreenState extends State<AdminSalonStatisticsScreen>
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Padding(
-          padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
-          child: Text(
-            'Список дневных снимков из API. Учитывается город из вашего профиля. '
-            'Опционально можно отфильтровать по числу месяца (1–31), как на сервере.',
-            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: cs.onSurfaceVariant,
-                ),
-          ),
-        ),
         SwitchListTile(
           title: const Text('Фильтр по дню месяца'),
           subtitle: Text(
@@ -600,6 +666,7 @@ class _FeedSnapshotCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final money = NumberFormat('#,##0.00', 'ru_RU');
     return Card(
       elevation: 0,
       color: cs.surfaceContainerHighest.withValues(alpha: 0.6),
@@ -632,6 +699,7 @@ class _FeedSnapshotCard extends StatelessWidget {
                 _Chip(text: 'оценок: ${row.ratingCount}'),
                 _Chip(text: '✓ ${row.completedAppointmentsCount}'),
                 _Chip(text: '✕ ${row.cancelledAppointmentsCount}'),
+                _Chip(text: '₽ ${money.format(row.sumPrice)}'),
               ],
             ),
           ],

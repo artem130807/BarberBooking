@@ -7,6 +7,8 @@ using BarberBooking.API.Models;
 using BarberBooking.API.Configurations;
 using Microsoft.Extensions.Options;
 using BarberBooking.API.Authorization;
+using Microsoft.EntityFrameworkCore.Infrastructure.Internal;
+using BarberBooking.API.Infrastructure.Persistence.Configurations;
 
 
 namespace BarberBooking.API
@@ -31,6 +33,8 @@ namespace BarberBooking.API
         public DbSet<EventStore> EventStores {get; set;}
         public DbSet<Messages> Messages {get; set;}
         public DbSet<SalonStatistic> SalonStatistics {get; set;}
+        public DbSet<OutboxMessage> OutboxMessages {get; set;}
+        public DbSet<MasterStatistic> MasterStatistics {get; set;}
         
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -49,6 +53,8 @@ namespace BarberBooking.API
             modelBuilder.ApplyConfiguration(new MasterSubscriptionConfigurations());
             modelBuilder.ApplyConfiguration(new MessagesConfigurations());
             modelBuilder.ApplyConfiguration(new SalonStatisticConfigurations());
+            modelBuilder.ApplyConfiguration(new OutboxMessageConfigurations());
+            modelBuilder.ApplyConfiguration(new MasterStatisticConfigurations());
             base.OnModelCreating(modelBuilder);
         }
         public void BeginTransaction()

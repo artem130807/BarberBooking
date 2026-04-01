@@ -19,9 +19,10 @@ namespace BarberBooking.API.Service.Background
         }
         protected async override Task ExecuteAsync(CancellationToken stoppingToken)
         {
-             try
+             
+            while (!stoppingToken.IsCancellationRequested)
             {
-                while (!stoppingToken.IsCancellationRequested)
+                try
                 {
                     using (var scope = _serviceProvider.CreateScope())
                     {
@@ -29,13 +30,15 @@ namespace BarberBooking.API.Service.Background
                         .GetRequiredService<IMessageAppointmentHandler>();
                         await handlerSalon.Handle(stoppingToken);
                     }
-                    _logger.LogInformation($"Жду {_interval.TotalMinutes} минут до следующей обработки");
-                    await Task.Delay(_interval, stoppingToken);
-                }
-            }catch(Exception ex)
-            {
-                _logger.LogError(ex.Message);
-            }
+                        _logger.LogInformation($"Жду {_interval.TotalMinutes} минут до следующей обработки");
+                        await Task.Delay(_interval, stoppingToken);
+                    }
+                    catch(Exception ex)
+                    {
+                        _logger.LogError(ex.Message);
+                    }  
+                    
+             }
         }
     }
 }
