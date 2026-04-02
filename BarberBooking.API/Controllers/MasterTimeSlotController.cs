@@ -25,21 +25,39 @@ namespace BarberBooking.API.Controllers
         {
             var command = new MasterTimeSlotCreateAsyncCommand(dtoCreateMasterTimeSlot);
             var result = await _mediator.Send(command);
-           
-            return Ok(result);
+            if (result.IsFailure)
+                return BadRequest(result.Error);
+        
+            return Ok(result.Value);
+        }
+        [HttpPost("create-timeSlots")]
+        public async Task<IActionResult> CreateMasterTimeSlots([FromBody] List<DtoCreateMasterTimeSlot> dtoCreateMasterTimeSlot)
+        {
+            var command = new MasterTimeSlotCreateRangeAsyncCommand(dtoCreateMasterTimeSlot);
+            var result = await _mediator.Send(command);
+            if (result.IsFailure)
+                return BadRequest(result.Error);
+            
+            return Ok(result.Value);
         }
         [HttpDelete("delete-timeSlot{Id}")]
         public async Task<IActionResult> DeleteMasterTimeSlot(Guid Id)
         {
             var command = new MasterTimeSlotDeleteAsyncCommand(Id);
             var result = await _mediator.Send(command);
-            return Ok(result);
+            if (result.IsFailure)
+                return BadRequest(result.Error);
+    
+            return Ok(result.Value);
         }
         [HttpPatch("update-timeSlot{Id}")]
         public async Task<IActionResult> UpdateMasterTimeSlot(Guid Id)
         {
             var command = new MasterTimeSlotDeleteAsyncCommand(Id);
             var result = await _mediator.Send(command);
+            if (result.IsFailure)
+                return BadRequest(result.Error);
+            
             return Ok(result);
         }
         [HttpGet("get-FindTimeSlot{masterId}")]

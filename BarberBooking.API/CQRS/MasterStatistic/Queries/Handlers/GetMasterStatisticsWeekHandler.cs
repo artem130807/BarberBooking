@@ -27,7 +27,17 @@ namespace BarberBooking.API.CQRS.MasterStatistic.Queries.Handlers
                 query.masterProfileId,
                 query.statisticsParams);
             if (statistics.Count == 0)
-                return Result.Failure<DtoMasterStatistic>("Список пуст");
+            {
+                return Result.Success(new DtoMasterStatistic
+                {
+                    MasterProfileId = query.masterProfileId,
+                    Rating = 0,
+                    RatingCount = 0,
+                    CancelledAppointmentsCount = 0,
+                    CompletedAppointmentsCount = 0,
+                    SumPrice = 0
+                });
+            }
             var dto = new DtoMasterStatistic
             {
                 MasterProfileId = query.masterProfileId,

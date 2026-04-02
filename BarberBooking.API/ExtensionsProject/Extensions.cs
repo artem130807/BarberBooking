@@ -75,6 +75,7 @@ namespace BarberBooking.API
              services.AddAuthorization(options =>
              {
                  options.AddPolicy("Admin", policy => policy.RequireRole("Admin"));
+                 options.AddPolicy("AdminOrMaster", policy => policy.RequireRole("Admin", "Master"));
              });
         }
         public static IEndpointConventionBuilder RequirePermissions<TBuilder>
@@ -82,8 +83,9 @@ namespace BarberBooking.API
         {
             return builder.RequireAuthorization(policy => policy.AddRequirements(new PermissionRequirement(permissions)));
         }
-        public static async Task<PagedResult<T>> ToPagedAsync<T>(this IQueryable<T> query, PageParams pageParams)
+        public static async Task<PagedResult<T>> ToPagedAsync<T>(this IQueryable<T> query, PageParams? pageParams)
         {
+            pageParams ??= new PageParams();
             var count = await query.CountAsync();
             if (count == 0) return new PagedResult<T>([], 0);
             var page = pageParams.Page ?? 1;

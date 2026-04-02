@@ -1,7 +1,10 @@
 using System;
 using System.Threading.Tasks;
+using BarberBooking.API.Contracts;
+using BarberBooking.API.Contracts.MasterProfileContracts;
 using BarberBooking.API.CQRS.MasterStatistic.Queries;
 using BarberBooking.API.Filters.Master;
+using CSharpFunctionalExtensions;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -13,10 +16,25 @@ namespace BarberBooking.API.Controllers
     public class MasterStatisticsController : ControllerBase
     {
         private readonly IMediator _mediator;
+        private readonly IUserContext _userContext;
+        private readonly IMasterProfileRepository _masterProfileRepository;
 
-        public MasterStatisticsController(IMediator mediator)
+        public MasterStatisticsController(
+            IMediator mediator,
+            IUserContext userContext,
+            IMasterProfileRepository masterProfileRepository)
         {
             _mediator = mediator;
+            _userContext = userContext;
+            _masterProfileRepository = masterProfileRepository;
+        }
+
+        private async Task<Result<Guid>> ResolveCurrentMasterIdAsync()
+        {
+            var master = await _masterProfileRepository.GetMasterProfileByUserId(_userContext.UserId);
+            if (master == null)
+                return Result.Failure<Guid>("Профиль мастера не найден");
+            return Result.Success(master.Id);
         }
 
         [Authorize("Admin")]
@@ -54,6 +72,50 @@ namespace BarberBooking.API.Controllers
             var result = await _mediator.Send(query);
             if (result.IsFailure)
                 return BadRequest(result.Error);
+            return Ok(result.Value);
+        }
+
+        [Authorize]
+        [HttpGet("GetMyStatisticWeek")]
+        public async Task<IActionResult> GetMyStatisticWeek([FromQuery] MasterStatisticsParams statisticsParams)
+        {
+            var masterIdRes = await ResolveCurrentMasterIdAsync();
+            if (masterIdRes.IsFailure)
+                return BadRequest(new { error = masterIdRes.Error });
+            var query = new GetMasterStatisticsWeekQuery(masterIdRes.Value, statisticsParams);
+            var result = await _mediator.Send(query);
+            if (result.IsFailure)
+                return BadRequest(new { error = result.Error });
+            return Ok(result.Value);
+        }
+
+        [Authorize]
+        [HttpGet("GetMyStatisticMounth")]
+        public async Task<IActionResult> GetMyStatisticMounth(
+            [FromQuery] int mounth,
+            [FromQuery] DateOnly date)
+        {
+            var masterIdRes = await ResolveCurrentMasterIdAsync();
+            if (masterIdRes.IsFailure)
+                return BadRequest(new { error = masterIdRes.Error });
+            var query = new GetMasterStatisticsMounthQuery(masterIdRes.Value, mounth, date);
+            var result = await _mediator.Send(query);
+            if (result.IsFailure)
+                return BadRequest(new { error = result.Error });
+            return Ok(result.Value);
+        }
+
+        [Authorize]
+        [HttpGet("GetMyStatisticYear")]
+        public async Task<IActionResult> GetMyStatisticYear([FromQuery] DateOnly date)
+        {
+            var masterIdRes = await ResolveCurrentMasterIdAsync();
+            if (masterIdRes.IsFailure)
+                return BadRequest(new { error = masterIdRes.Error });
+            var query = new GetMasterStatisticYearQuery(masterIdRes.Value, date);
+            var result = await _mediator.Send(query);
+            if (result.IsFailure)
+                return BadRequest(new { error = result.Error });
             return Ok(result.Value);
         }
     }

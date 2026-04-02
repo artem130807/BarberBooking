@@ -38,14 +38,14 @@ builder.Services.Configure<JwtOptions>(configuration.GetSection(nameof(JwtOption
 // Add services to the container.
 builder.Services.AddSingleton<IUserIdProvider, SignalRUserIdProvider>();
 var signalRBuilder = builder.Services.AddSignalR();
-var redisConnection = configuration["SignalR:Redis"] ?? configuration.GetConnectionString("Redis");
-if (!string.IsNullOrWhiteSpace(redisConnection))
-{
-    signalRBuilder.AddStackExchangeRedis(redisConnection, options =>
-    {
-        options.Configuration.ChannelPrefix = "BarberBooking";
-    });
-}
+// var redisConnection = configuration["SignalR:Redis"] ?? configuration.GetConnectionString("Redis");
+// if (!string.IsNullOrWhiteSpace(redisConnection))
+// {
+//     signalRBuilder.AddStackExchangeRedis(redisConnection, options =>
+//     {
+//         options.Configuration.ChannelPrefix = "BarberBooking";
+//     });
+// }
 builder.Services.AddDb(configuration);
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddControllers().ConfigureApiBehaviorOptions(options =>
@@ -120,6 +120,7 @@ builder.Services.AddScoped<IMessagesRepository, MessagesRepository>();
 builder.Services.AddScoped<ISalonStatisticRepository, SalonStatisticRepository>();
 builder.Services.AddScoped<ISalonStatiscticHandler, SalonStatiscticHandler>();
 builder.Services.AddScoped<ISendMessageService, SendMessageService>();
+builder.Services.AddScoped<IMessageAppointmentHandler, MessageAppointmentHandler>();
 builder.Services.AddScoped<IMasterStatisticRepository, MasterStatisticRepository>();
 builder.Services.AddScoped<IMasterStatisticHandler, MasterStatisticHandler>();
 builder.Services.AddScoped<INotificationService, NotificationService>();

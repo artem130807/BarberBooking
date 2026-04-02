@@ -13,6 +13,18 @@ namespace BarberBooking.API.ExtensionsProject
     {
         public static IQueryable<Appointments> AppointmentFilter(this IQueryable<Appointments> query, FilterAppointments filter)
         {
+            if (filter.AppointmentFrom.HasValue)
+            {
+                var from = filter.AppointmentFrom.Value.Date;
+                query = query.Where(x => x.AppointmentDate >= from);
+            }
+
+            if (filter.AppointmentTo.HasValue)
+            {
+                var toExclusive = filter.AppointmentTo.Value.Date.AddDays(1);
+                query = query.Where(x => x.AppointmentDate < toExclusive);
+            }
+
             if (filter.from.HasValue)
                 query = query.Where(x => x.CreatedAt >= filter.from.Value);
 

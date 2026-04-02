@@ -21,7 +21,7 @@ namespace BarberBooking.API.Models
         {
             Appointments = new List<Appointments>();
         }
-        public static MasterTimeSlot Create(Guid masterId, DateOnly scheduleDate, TimeOnly startTime, TimeOnly endTime)
+        public static Result<MasterTimeSlot> Create(Guid masterId, DateOnly scheduleDate, TimeOnly startTime, TimeOnly endTime)
         {
             var timeSlot = new MasterTimeSlot
             {

@@ -14,6 +14,7 @@ namespace BarberBooking.API.Dto.DtoAppointments
         public TimeOnly StartTime { get; private set; }
         public TimeOnly EndTime { get; private set; } 
         public DtoPrice Price {get; private set;}
-        public DateTime AppointmentDate {get; private set;} 
+        public DateTime AppointmentDate {get; private set;}
+        public string Status { get; private set; }
     }
 }

@@ -31,9 +31,7 @@ namespace BarberBooking.API.CQRS.Appointments.AppointmentsQueries.Handlers
             var userId = _userContext.UserId;
             var master = await _masterProfileRepository.GetMasterProfileByUserId(userId);
             var appointments = await _appointmentsRepository.GetAppointmentsByMasterId(master.Id, query.filter, query.pageParams);
-            if(appointments.Count == 0)
-                return Result.Failure<PagedResult<DtoMasterAppointmentShortInfo>>("Список ваших записей пуст");
-            var result  = _mapper.Map<PagedResult<DtoMasterAppointmentShortInfo>>(appointments);
+            var result = _mapper.Map<PagedResult<DtoMasterAppointmentShortInfo>>(appointments);
             return Result.Success(result);
         }
     }

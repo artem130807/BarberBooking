@@ -52,7 +52,12 @@ namespace BarberBooking.API.MapperProfiles
             CreateMap<Appointments, DtoMasterAppointmentShortInfo>()
                 .ForMember(dest => dest.UserName, opt => opt.MapFrom(src => src.Client.Name))
                 .ForMember(dest => dest.ServiceName, opt => opt.MapFrom(src => src.Service.Name))
-                .ForMember(dest => dest.Price, opt => opt.MapFrom(src => src.Service.Price));
+                .ForMember(dest => dest.Price, opt => opt.MapFrom(src => src.Service.Price))
+                .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status.ToString()));
+
+            CreateMap<PagedResult<Appointments>, PagedResult<DtoMasterAppointmentShortInfo>>()
+                .ForMember(dest => dest.Data, opt => opt.MapFrom(src => src.Data))
+                .ForMember(dest => dest.Count, opt => opt.MapFrom(src => src.Count));
 
             CreateMap<DtoUpdateAppointment, Appointments>()
                 .ForMember(dest => dest.UpdatedAt, opt => opt.MapFrom(src => DateTime.UtcNow))

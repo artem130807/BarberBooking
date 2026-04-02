@@ -15,6 +15,7 @@ namespace BarberBooking.API.Filters.AppointmentsFilter
         public bool? ThisDay {get; set;}
         public DateTime? from {get; set;}
         public DateTime? to {get; set;}
-        
+        public DateTime? AppointmentFrom { get; set; }
+        public DateTime? AppointmentTo { get; set; }
     }
 }

@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using BarberBooking.API.Enums;
 using BarberBooking.API.Filters;
 using BarberBooking.API.Filters.AppointmentsFilter;
 using BarberBooking.API.Models;
@@ -11,6 +12,7 @@ namespace BarberBooking.API.Contracts
     public interface IAppointmentsRepository
     {
         Task<Appointments> CreateAsync(Appointments appointments);
+        Task StatusUpdateRange(Guid timeSlotId, AppointmentStatusEnum status);
         Task DeleteAsync(Guid Id);
         Task<Appointments> GetByIdAsync(Guid id);
         Task<Appointments> GeAppointmentByMasterIdAndDate(Guid masterId, DateTime date);
@@ -25,5 +27,6 @@ namespace BarberBooking.API.Contracts
         Task<List<Appointments>> GetConfirmedAppointmentsCreatedSince(DateTime sinceUtc);
         Task<PagedResult<Appointments>> GetAllAppointments(Guid salonId, FilterAppointments? filter,PageParams pageParams);
         Task<Appointments> GetAppointmentActive(Guid timeSlotId);
+        Task<List<Appointments>> GetAppointmentsByTimeSlotId(Guid timeSlotId);
     }
 }

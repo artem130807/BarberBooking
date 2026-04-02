@@ -6,11 +6,12 @@ using AutoMapper;
 using BarberBooking.API.Contracts;
 using BarberBooking.API.Dto.DtoAppointments;
 using BarberBooking.API.Dto.DtoMasterTimeSlot;
+using CSharpFunctionalExtensions;
 using MediatR;
 
 namespace BarberBooking.API.CQRS.MasterTimeSlotCommands.Handler
 {
-    public class MasterTimeSlotUpdateHandler : IRequestHandler<MasterTimeSlotUpdateCommand, DtoMasterTimeSlotInfo>
+    public class MasterTimeSlotUpdateHandler : IRequestHandler<MasterTimeSlotUpdateCommand, Result<DtoMasterTimeSlotInfo>>
     {
         private readonly IMasterTimeSlotRepository _masterTimeSlotRepository;
         private readonly IMapper _mapper;
@@ -23,11 +24,11 @@ namespace BarberBooking.API.CQRS.MasterTimeSlotCommands.Handler
             _unitOfWork = unitOfWork;
             _updateMasterTimeSlotService = updateMasterTimeSlotService;
         }
-        public async Task<DtoMasterTimeSlotInfo> Handle(MasterTimeSlotUpdateCommand command, CancellationToken cancellationToken)
+        public async Task<Result<DtoMasterTimeSlotInfo>> Handle(MasterTimeSlotUpdateCommand command, CancellationToken cancellationToken)
         {
             var timeSlot = await _masterTimeSlotRepository.GetByIdAsync(command.Id);
             if(timeSlot  == null)
-                throw new InvalidOperationException("Такого слота нету");
+                return Result.Failure<DtoMasterTimeSlotInfo>("Такого слота нету");
             try
             {
                 _unitOfWork.BeginTransaction();

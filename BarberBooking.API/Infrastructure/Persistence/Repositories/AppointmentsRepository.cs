@@ -151,5 +151,17 @@ namespace BarberBooking.API.Repositories
                     && x.CreatedAt >= sinceUtc)
                 .ToListAsync();
         }
+
+        public async Task StatusUpdateRange(Guid timeSlotId, AppointmentStatusEnum status)
+        {
+           await _context.Appointments.Where(x => x.TimeSlotId == timeSlotId)
+           .ExecuteUpdateAsync(s => 
+           s.SetProperty(s => s.Status, status));
+        }
+
+        public async Task<List<Appointments>> GetAppointmentsByTimeSlotId(Guid timeSlotId)
+        {
+            return await _context.Appointments.Where(x => x.TimeSlotId == timeSlotId).ToListAsync();
+        }
     }
 }

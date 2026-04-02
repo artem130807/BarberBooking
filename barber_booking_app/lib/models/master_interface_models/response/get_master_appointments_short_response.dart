@@ -8,6 +8,7 @@ class GetMasterAppointmentsShortResponse {
   String? EndTime;
   DtoPrice? Price;
   String? AppointmentDate;
+  String? Status;
 
   GetMasterAppointmentsShortResponse({
     this.Id,
@@ -17,6 +18,7 @@ class GetMasterAppointmentsShortResponse {
     this.EndTime,
     this.Price,
     this.AppointmentDate,
+    this.Status,
   });
 
   factory GetMasterAppointmentsShortResponse.fromJson(Map<String, dynamic> json) {
@@ -32,6 +34,7 @@ class GetMasterAppointmentsShortResponse {
           ? DtoPrice.fromJson(Map<String, dynamic>.from(price as Map))
           : null,
       AppointmentDate: v('appointmentDate', 'AppointmentDate')?.toString(),
+      Status: v('status', 'Status')?.toString(),
     );
   }
 }

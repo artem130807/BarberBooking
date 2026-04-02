@@ -10,6 +10,7 @@ class GetMasterResponse {
   double? Rating;
   int? RatingCount;
   bool? isSubscripe;
+  String? MasterPhone;
 
   GetMasterResponse({
     this.Id,
@@ -21,6 +22,7 @@ class GetMasterResponse {
     this.Rating,
     this.RatingCount,
     this.isSubscripe,
+    this.MasterPhone,
   });
 
   factory GetMasterResponse.fromJson(Map<String, dynamic> json) {
@@ -40,6 +42,7 @@ class GetMasterResponse {
       Rating: (v('rating', 'Rating') as num?)?.toDouble(),
       RatingCount: _parseInt(v('ratingCount', 'RatingCount')),
       isSubscripe: _parseBool(v('isSubscripe', 'IsSubscripe')),
+      MasterPhone: v('masterPhone', 'MasterPhone')?.toString(),
     );
   }
 

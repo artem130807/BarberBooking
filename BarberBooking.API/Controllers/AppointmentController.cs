@@ -77,8 +77,9 @@ namespace BarberBooking.API.Controllers
                 return BadRequest(result.Error);
             return Ok(result.Value);
         }
+        [Authorize]
         [HttpGet("get-appointmentsByMasterId")]
-        public async Task<IActionResult> GetAppointmentsByMasterId([FromQuery] FilterAppointments filter, PageParams pageParams)
+        public async Task<IActionResult> GetAppointmentsByMasterId([FromQuery] FilterAppointments filter, [FromQuery] PageParams pageParams)
         {
             var query = new GetAppointmentsByMasterIdQuery(filter, pageParams);
             var result = await _mediator.Send(query);

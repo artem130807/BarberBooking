@@ -43,6 +43,7 @@ namespace BarberBooking.API.Controllers
                 return BadRequest(new { error = result.Error });
             return Ok(result.Value);
         }
+        [Authorize]
         [HttpPatch("UpdateMasterProfile{Id}")]
         public async Task<IActionResult> UpdateMasterProfile(Guid Id, [FromBody] DtoUpdateMasterProfile dtoUpdateMasterProfile)
         {

@@ -7,12 +7,13 @@ using AutoMapper;
 using BarberBooking.API.Contracts;
 using BarberBooking.API.Dto.DtoMasterTimeSlot;
 using BarberBooking.API.Models;
+using CSharpFunctionalExtensions;
 using MediatR;
 using Microsoft.AspNetCore.Mvc.ModelBinding.Binders;
 
 namespace BarberBooking.API.CQRS.MasterTimeSlotCommands.Handler
 {
-    public class MasterTimeSlotCreateRangeAsyncHandler : IRequestHandler<MasterTimeSlotCreateRangeAsyncCommand, List<DtoMasterTimeSlotInfo>>
+    public class MasterTimeSlotCreateRangeAsyncHandler : IRequestHandler<MasterTimeSlotCreateRangeAsyncCommand, Result<List<DtoMasterTimeSlotInfo>>>
     {
         private readonly IMasterTimeSlotRepository _masterTimeSlotRepository;
         private readonly IMapper _mapper;
@@ -23,9 +24,11 @@ namespace BarberBooking.API.CQRS.MasterTimeSlotCommands.Handler
             _mapper = mapper;
             _unitOfWork = unitOfWork;
         }
-        public async Task<List<DtoMasterTimeSlotInfo>> Handle(MasterTimeSlotCreateRangeAsyncCommand command, CancellationToken cancellationToken)
+        public async Task<Result<List<DtoMasterTimeSlotInfo>>> Handle(MasterTimeSlotCreateRangeAsyncCommand command, CancellationToken cancellationToken)
         {
             var timeSlots = _mapper.Map<List<MasterTimeSlot>>(command.dtoCreateMasterTimeSlot);
+            if(timeSlots.Count == 0)
+                return Result.Failure<List<DtoMasterTimeSlotInfo>>("Список оказался пуст"); 
             try
             {
                 _unitOfWork.BeginTransaction();

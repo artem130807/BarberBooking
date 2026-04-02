@@ -21,7 +21,7 @@ public class MediaController : ControllerBase
         _mediator = mediator;
     }
 
-    [Authorize("Admin")]
+    [Authorize("AdminOrMaster")]
     [HttpPost("upload-image")]
     [RequestFormLimits(MultipartBodyLengthLimit = MaxBytes)]
     [RequestSizeLimit(MaxBytes)]
