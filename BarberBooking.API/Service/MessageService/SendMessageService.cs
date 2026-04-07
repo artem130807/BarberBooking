@@ -25,6 +25,7 @@ namespace BarberBooking.API.Service.MessageService
             var request = Messages.Create(message.Content, message.UserId, message.AppointmentId, message.Audience, message.TypeMessage);
             await _messagesRepository.Add(request.Value);
             await _notificationService.SendAppointmentNotification(message);
+            await _messagesRepository.SaveChangesAsync();
             _logger.LogInformation("Успешная отправка сообщения");
         }            
     }

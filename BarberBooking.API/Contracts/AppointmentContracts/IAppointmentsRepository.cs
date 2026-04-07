@@ -27,6 +27,7 @@ namespace BarberBooking.API.Contracts
         Task<List<Appointments>> GetConfirmedAppointmentsCreatedSince(DateTime sinceUtc);
         Task<PagedResult<Appointments>> GetAllAppointments(Guid salonId, FilterAppointments? filter,PageParams pageParams);
         Task<Appointments> GetAppointmentActive(Guid timeSlotId);
+        Task<PagedResult<Appointments>> GetPagedAppointmentsByTimeSlotId(Guid timeSlotId, PageParams pageParams, StatusFilter filter);
         Task<List<Appointments>> GetAppointmentsByTimeSlotId(Guid timeSlotId);
     }
 }

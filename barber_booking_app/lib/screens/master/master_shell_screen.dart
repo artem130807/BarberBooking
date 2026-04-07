@@ -1,5 +1,6 @@
 import 'package:barber_booking_app/providers/auth_providers/auth_provider.dart';
 import 'package:barber_booking_app/providers/master_providers/master_session_provider.dart';
+import 'package:barber_booking_app/providers/message_providers/get_count_messages_provider.dart';
 import 'package:barber_booking_app/screens/master/master_appointments_list_screen.dart';
 import 'package:barber_booking_app/screens/master/master_navigation.dart';
 import 'package:barber_booking_app/screens/master/master_profile_tab_screen.dart';
@@ -37,6 +38,7 @@ class _MasterShellScreenState extends State<MasterShellScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final token = context.read<AuthProvider>().token;
       context.read<MasterSessionProvider>().load(token);
+      context.read<GetCountMessagesProvider>().loadCount(token);
     });
   }
 

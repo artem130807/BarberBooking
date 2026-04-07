@@ -159,9 +159,35 @@ namespace BarberBooking.API.Repositories
            s.SetProperty(s => s.Status, status));
         }
 
+        public async Task<PagedResult<Appointments>> GetPagedAppointmentsByTimeSlotId(Guid timeSlotId, PageParams pageParams, StatusFilter filter)
+        {
+            var query = _context.Appointments
+            .Include(x => x.Client)
+            .Include(x => x.Service)
+            .Include(x => x.Master)
+            .Include(x => x.TimeSlot)
+            .Where(x => x.TimeSlotId == timeSlotId);
+            var anyStatus = filter.Confirmed == true || filter.Completed == true ||
+                            filter.Cancelled == true;
+            if (anyStatus)
+            {
+                query = query.Where(x =>
+                    (filter.Confirmed == true && x.Status == AppointmentStatusEnum.Confirmed) ||
+                    (filter.Completed == true && x.Status == AppointmentStatusEnum.Completed) ||
+                    (filter.Cancelled == true && x.Status == AppointmentStatusEnum.Cancelled));
+            }
+
+            return await query.ToPagedAsync(pageParams);
+        }
+
         public async Task<List<Appointments>> GetAppointmentsByTimeSlotId(Guid timeSlotId)
         {
-            return await _context.Appointments.Where(x => x.TimeSlotId == timeSlotId).ToListAsync();
+            return await _context.Appointments
+            .Include(x => x.Client)
+            .Include(x => x.Service)
+            .Include(x => x.Master)
+            .Include(x => x.TimeSlot)
+            .Where(x => x.TimeSlotId == timeSlotId).ToListAsync();
         }
     }
 }

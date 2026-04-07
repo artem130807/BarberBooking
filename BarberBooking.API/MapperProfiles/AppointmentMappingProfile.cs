@@ -45,6 +45,7 @@ namespace BarberBooking.API.MapperProfiles
                 .ForMember(dest => dest.EndTime, opt => opt.MapFrom(src => src.StartTime));
 
             CreateMap<Appointments, DtoMasterAppointmentInfo>()
+                .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status.ToString()))
                 .ForMember(dest => dest.dtoUsersNavigation, opt => opt.MapFrom(src => src.Client))
                 .ForMember(dest => dest.dtoServicesNavigation, opt => opt.MapFrom(src => src.Service))
                 .ForMember(dest => dest.SalonName, opt => opt.MapFrom(src => src.Salon.Name));

@@ -28,6 +28,12 @@ using BarberBooking.API.Service.Validator;
 using BarberBooking.API.Hubs;
 using MediatR;
 using Microsoft.AspNetCore.SignalR;
+using BarberBooking.API.Contracts.MasterTimeSlotContracts;
+using BarberBooking.API.Service.TimeSlotService;
+using BarberBooking.API.Contracts.TemplateDayContracts;
+using BarberBooking.API.Contracts.WeeklyTemplateContracts;
+using BarberBooking.API.Infrastructure.Persistence.Repositories;
+using BarberBooking.API.Contracts.MasterServicesContracts;
 
 var builder = WebApplication.CreateBuilder(args);
 var configuration = builder.Configuration;
@@ -124,7 +130,10 @@ builder.Services.AddScoped<IMessageAppointmentHandler, MessageAppointmentHandler
 builder.Services.AddScoped<IMasterStatisticRepository, MasterStatisticRepository>();
 builder.Services.AddScoped<IMasterStatisticHandler, MasterStatisticHandler>();
 builder.Services.AddScoped<INotificationService, NotificationService>();
-
+builder.Services.AddScoped<ITimeSlotQualifierBookedService, TimeSlotQualifierBookedService>();
+builder.Services.AddScoped<IWeeklyTemplateRepository, WeeklyTemplateRepository>();
+builder.Services.AddScoped<ITemplateDayRepository, TemplateDayRepository>();
+builder.Services.AddScoped<IMasterServicesRepository, MasterServicesRepository>();
 var corsOrigins = configuration.GetSection("Cors:AllowedOrigins").Get<string[]>();
 if (corsOrigins is { Length: > 0 })
 {

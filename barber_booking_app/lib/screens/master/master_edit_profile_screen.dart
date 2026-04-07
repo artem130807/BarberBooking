@@ -105,6 +105,11 @@ class _MasterEditProfileScreenState extends State<MasterEditProfileScreen> {
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
+    final tt = Theme.of(context).textTheme;
+    final cardShape = RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(12),
+      side: BorderSide(color: cs.outline.withValues(alpha: 0.2)),
+    );
     return Scaffold(
       appBar: AppBar(
         title: const Text('Редактирование'),
@@ -114,76 +119,120 @@ class _MasterEditProfileScreenState extends State<MasterEditProfileScreen> {
           : Form(
               key: _formKey,
               child: ListView(
-                padding: const EdgeInsets.all(20),
+                padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
                 children: [
-                  Text(
-                    'Профиль',
-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.w600,
-                        ),
-                  ),
-                  const SizedBox(height: 16),
-                  Align(
-                    alignment: Alignment.centerLeft,
+                  Padding(
+                    padding: const EdgeInsets.only(left: 4, bottom: 8),
                     child: Text(
-                      'Фото',
-                      style: Theme.of(context).textTheme.labelLarge,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Builder(
-                        builder: (context) {
-                          ImageProvider? bg;
-                          if (_pickedAvatar != null) {
-                            bg = FileImage(File(_pickedAvatar!.path));
-                          } else if (widget.profile.AvatarUrl != null &&
-                              widget.profile.AvatarUrl!.isNotEmpty) {
-                            bg = NetworkImage(widget.profile.AvatarUrl!);
-                          }
-                          return CircleAvatar(
-                            radius: 44,
-                            backgroundColor: cs.surfaceContainerHighest,
-                            backgroundImage: bg,
-                            child: bg == null
-                                ? Icon(Icons.person, size: 48, color: cs.primary)
-                                : null,
-                          );
-                        },
+                      'Фото профиля',
+                      style: tt.titleSmall?.copyWith(
+                        fontWeight: FontWeight.w600,
+                        color: cs.onSurfaceVariant,
                       ),
-                      const SizedBox(width: 16),
-                      Expanded(
-                        child: OutlinedButton.icon(
-                          onPressed: _pickAvatar,
-                          icon: const Icon(Icons.photo_library_outlined),
-                          label: const Text('Выбрать из галереи'),
-                        ),
+                    ),
+                  ),
+                  Card(
+                    margin: EdgeInsets.zero,
+                    clipBehavior: Clip.antiAlias,
+                    shape: cardShape,
+                    child: Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Container(
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              border: Border.all(
+                                color: cs.outline.withValues(alpha: 0.35),
+                                width: 2,
+                              ),
+                            ),
+                            padding: const EdgeInsets.all(2),
+                            child: Builder(
+                              builder: (context) {
+                                ImageProvider? bg;
+                                if (_pickedAvatar != null) {
+                                  bg = FileImage(File(_pickedAvatar!.path));
+                                } else if (widget.profile.AvatarUrl != null &&
+                                    widget.profile.AvatarUrl!.isNotEmpty) {
+                                  bg = NetworkImage(widget.profile.AvatarUrl!);
+                                }
+                                return CircleAvatar(
+                                  radius: 42,
+                                  backgroundColor: cs.surfaceContainerHighest,
+                                  backgroundImage: bg,
+                                  child: bg == null
+                                      ? Icon(Icons.person_rounded,
+                                          size: 46, color: cs.primary)
+                                      : null,
+                                );
+                              },
+                            ),
+                          ),
+                          const SizedBox(width: 16),
+                          Expanded(
+                            child: OutlinedButton.icon(
+                              onPressed: _pickAvatar,
+                              icon: const Icon(Icons.photo_library_outlined),
+                              label: const Text('Выбрать из галереи'),
+                            ),
+                          ),
+                        ],
                       ),
-                    ],
-                  ),
-                  const SizedBox(height: 16),
-                  TextFormField(
-                    controller: _bio,
-                    decoration: const InputDecoration(
-                      labelText: 'О себе',
-                      border: OutlineInputBorder(),
-                      alignLabelWithHint: true,
-                    ),
-                    maxLines: 4,
-                  ),
-                  const SizedBox(height: 16),
-                  TextFormField(
-                    controller: _spec,
-                    decoration: const InputDecoration(
-                      labelText: 'Специализация',
-                      border: OutlineInputBorder(),
                     ),
                   ),
-                  const SizedBox(height: 28),
+                  const SizedBox(height: 20),
+                  Padding(
+                    padding: const EdgeInsets.only(left: 4, bottom: 8),
+                    child: Text(
+                      'Информация',
+                      style: tt.titleSmall?.copyWith(
+                        fontWeight: FontWeight.w600,
+                        color: cs.onSurfaceVariant,
+                      ),
+                    ),
+                  ),
+                  Card(
+                    margin: EdgeInsets.zero,
+                    clipBehavior: Clip.antiAlias,
+                    shape: cardShape,
+                    child: Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          TextFormField(
+                            controller: _spec,
+                            decoration: const InputDecoration(
+                              labelText: 'Специализация',
+                              border: OutlineInputBorder(),
+                              isDense: false,
+                            ),
+                          ),
+                          const SizedBox(height: 16),
+                          TextFormField(
+                            controller: _bio,
+                            decoration: const InputDecoration(
+                              labelText: 'О себе',
+                              border: OutlineInputBorder(),
+                              alignLabelWithHint: true,
+                            ),
+                            maxLines: 4,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 24),
                   FilledButton(
                     onPressed: _save,
+                    style: FilledButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
                     child: const Text('Сохранить'),
                   ),
                 ],

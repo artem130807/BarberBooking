@@ -51,9 +51,31 @@ class NotificationToastOverlay extends StatelessWidget {
                               horizontal: 16,
                               vertical: 14,
                             ),
-                            child: Text(
-                              n.text,
-                              style: Theme.of(context).textTheme.bodyMedium,
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Text(
+                                  n.text,
+                                  style:
+                                      Theme.of(context).textTheme.bodyMedium,
+                                ),
+                                if (n.subtitle != null &&
+                                    n.subtitle!.isNotEmpty) ...[
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    n.subtitle!,
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .labelSmall
+                                        ?.copyWith(
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .onSurfaceVariant,
+                                        ),
+                                  ),
+                                ],
+                              ],
                             ),
                           ),
                         ),

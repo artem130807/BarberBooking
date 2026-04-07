@@ -1,12 +1,13 @@
-using System;
 using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
 namespace BarberBooking.API.Migrations
 {
-    public class AddMasterStatisticTable : Migration
+    /// <inheritdoc />
+    public partial class MasterStatstic : Migration
     {
+        /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
@@ -39,6 +40,7 @@ namespace BarberBooking.API.Migrations
                 column: "MasterProfileId");
         }
 
+        /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(

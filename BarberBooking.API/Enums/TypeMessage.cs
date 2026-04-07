@@ -8,6 +8,7 @@ namespace BarberBooking.API.Enums
     public enum TypeMessage
     {
         CreationAppointment,
+        CompletedAppointment,
         Reminder,
         Promotion,
         CancelledAppointment

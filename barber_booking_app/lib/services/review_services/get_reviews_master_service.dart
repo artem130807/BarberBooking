@@ -1,52 +1,70 @@
 import 'dart:convert';
 
+import 'package:barber_booking_app/config/api_config.dart';
 import 'package:barber_booking_app/models/params/page_params.dart';
 import 'package:barber_booking_app/models/params/review_params/review_sort_params.dart';
 import 'package:barber_booking_app/models/review_models/response/get_reviews_master_response.dart';
+import 'package:barber_booking_app/models/review_models/response/master_reviews_page_result.dart';
 import 'package:http/http.dart' as http;
-import 'package:barber_booking_app/config/api_config.dart';
+
 class GetReviewsMasterService {
+  Future<List<GetReviewsMasterResponse>?> getReviewsMaster(
+    String? masterId,
+    PageParams pageParams,
+    ReviewSortParams sort,
+  ) async {
+    final page = await fetchMasterReviewsPage(masterId, pageParams, sort);
+    return page?.items;
+  }
 
-  Future<List<GetReviewsMasterResponse>?> getReviewsMaster(String? masterId, PageParams pageParams, ReviewSortParams sort) async{
-     try {
-
-        final url = Uri.parse('$kApiBaseUrl/api/Review/GetReviewsByMasterIdSort/$masterId').replace(
-          queryParameters: {
-          'page':pageParams.Page.toString(),
-          'pageSize':pageParams.PageSize.toString()
-          }
-        ).replace(
-        queryParameters: {
-          'orderBy':sort.OrderBy.toString(),
-          'orderbyDescending':sort.OrderbyDescending.toString()
-        });
-        
-        final response = await http.get(url, headers: {'Content-Type': 'application/json'},);
-        
-        print('📥 Статус: ${response.statusCode}');
-        print('📥 Ответ: ${response.body}');
-        
-        if (response.statusCode == 200) {
-        final Map<String, dynamic> jsonResponse = json.decode(response.body);
-        final List<dynamic> jsonList = jsonResponse['data'];
-        print('📊 Количество отзывов: ${jsonList.length}');
-        if (jsonList.isEmpty) {
-          print('⚠️ Сервер вернул пустой список');
-          return [];
+  Future<MasterReviewsPageResult?> fetchMasterReviewsPage(
+    String? masterId,
+    PageParams pageParams,
+    ReviewSortParams sort,
+  ) async {
+    if (masterId == null || masterId.isEmpty) return null;
+    try {
+      final qp = <String, String>{
+        'Page': '${pageParams.Page ?? 1}',
+        'PageSize': '${pageParams.PageSize ?? 20}',
+      };
+      if (sort.OrderBy != null) {
+        qp['OrderBy'] = sort.OrderBy.toString();
+      }
+      if (sort.OrderbyDescending != null) {
+        qp['OrderbyDescending'] = sort.OrderbyDescending.toString();
+      }
+      final url = Uri.parse(
+        '$kApiBaseUrl/api/Review/GetReviewsByMasterIdSort/$masterId',
+      ).replace(queryParameters: qp);
+      final response = await http.get(
+        url,
+        headers: const {'Content-Type': 'application/json'},
+      );
+      if (response.statusCode == 200) {
+        final decoded = json.decode(response.body);
+        if (decoded is! Map<String, dynamic>) return null;
+        final rawList = decoded['data'] ?? decoded['Data'];
+        final countRaw = decoded['count'] ?? decoded['Count'];
+        final totalCount = countRaw is int
+            ? countRaw
+            : int.tryParse(countRaw?.toString() ?? '') ?? 0;
+        if (rawList is! List) {
+          return MasterReviewsPageResult(items: [], totalCount: totalCount);
         }
-        return jsonList.map((json) => GetReviewsMasterResponse.fromJson(json)).toList();
-        } else {
-        print('❌ Ошибка сервера: ${response.body}');
-        try {
-        final errorJson = json.decode(response.body);
-        throw Exception(errorJson['error'] ?? 'Неизвестная ошибка');
-        } catch (e) {
-        throw Exception('Ошибка сервера: ${response.statusCode}');
-        }
-        }
-        } catch(e) {
-        print('🔥 Исключение: $e');
-        return null;
-      } 
+        final items = rawList
+            .map((e) => GetReviewsMasterResponse.fromJson(
+                  Map<String, dynamic>.from(e as Map),
+                ))
+            .toList();
+        return MasterReviewsPageResult(items: items, totalCount: totalCount);
+      }
+      if (response.statusCode == 400) {
+        return MasterReviewsPageResult(items: [], totalCount: 0);
+      }
+      return null;
+    } catch (_) {
+      return null;
+    }
   }
 }

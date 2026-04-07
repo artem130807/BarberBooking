@@ -10,9 +10,10 @@ class DtoPhone extends JsonSerializable{
         'number':Number,
     };
   }
-  factory DtoPhone.fromJson(Map<String, dynamic> json){
-      return  DtoPhone(
-          Number: json['number']
-      );
-    }
+  factory DtoPhone.fromJson(Map<String, dynamic> json) {
+    final n = json['number'] ?? json['Number'];
+    return DtoPhone(
+      Number: n?.toString() ?? '',
+    );
+  }
 }

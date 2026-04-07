@@ -39,8 +39,8 @@ namespace BarberBooking.API.CQRS.MasterTimeSlotCommands.Handler
                 _unitOfWork.RollBack();
                 throw new InvalidOperationException(ex.Message);
             }
-            return _mapper.Map<DtoMasterTimeSlotInfo>(timeSlot);
-            
+            var result = _mapper.Map<DtoMasterTimeSlotInfo>(timeSlot);
+            return Result.Success(result);
         }
     }
 }

@@ -1,4 +1,5 @@
 import 'package:barber_booking_app/providers/auth_providers/auth_provider.dart';
+import 'package:barber_booking_app/providers/message_providers/get_count_messages_provider.dart';
 import 'package:barber_booking_app/services/realtime/signalr_notification_service.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -35,7 +36,12 @@ class _AuthSignalRBootstrapState extends State<AuthSignalRBootstrap> {
     final token = auth.token;
     if (auth.isAuthenticated && token != null && token.isNotEmpty) {
       svc.connectIfNeeded(token);
+      svc.setOnAfterReceive(() {
+        final t = context.read<AuthProvider>().token;
+        context.read<GetCountMessagesProvider>().loadCount(t);
+      });
     } else {
+      svc.setOnAfterReceive(null);
       svc.disconnect();
     }
   }

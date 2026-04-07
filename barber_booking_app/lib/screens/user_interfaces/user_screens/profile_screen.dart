@@ -1,9 +1,10 @@
-import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import 'package:barber_booking_app/providers/auth_providers/auth_provider.dart';
 import 'package:barber_booking_app/providers/user_providers/get_user_provider.dart';
-import 'package:barber_booking_app/widgets/loading_indicator.dart';
 import 'package:barber_booking_app/widgets/error_widget.dart';
+import 'package:barber_booking_app/widgets/loading_indicator.dart';
+import 'package:barber_booking_app/widgets/profile_shell_widgets.dart';
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -87,7 +88,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
           appBar: AppBar(
             automaticallyImplyLeading: false,
             title: const Text('Профиль'),
-            elevation: 0,
           ),
           body: _buildBody(provider),
           bottomNavigationBar: BottomNavigationBar(
@@ -97,8 +97,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
             items: const [
               BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Главная'),
               BottomNavigationBarItem(icon: Icon(Icons.search), label: 'Поиск'),
-              BottomNavigationBarItem(icon: Icon(Icons.calendar_today), label: 'Записи'),
-              BottomNavigationBarItem(icon: Icon(Icons.favorite), label: 'Избранное'),
+              BottomNavigationBarItem(
+                  icon: Icon(Icons.calendar_today), label: 'Записи'),
+              BottomNavigationBarItem(
+                  icon: Icon(Icons.favorite), label: 'Избранное'),
               BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Профиль'),
             ],
           ),
@@ -108,6 +110,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Widget _buildBody(GetUserProvider provider) {
+    final cs = Theme.of(context).colorScheme;
+    final tt = Theme.of(context).textTheme;
+
     if (provider.isLoading && provider.userResponse == null) {
       return const Center(child: LoadingIndicator(message: 'Загрузка профиля...'));
     }
@@ -126,122 +131,206 @@ class _ProfileScreenState extends State<ProfileScreen> {
       return Center(
         child: Text(
           'Не удалось загрузить профиль',
-          style: TextStyle(fontSize: 16, color: Theme.of(context).colorScheme.onSurfaceVariant),
+          style: TextStyle(color: cs.onSurfaceVariant),
         ),
       );
     }
+
+    final email = user.Email?.trim();
+    final city = user.City?.trim();
+    final cityDisplay =
+        city != null && city.isNotEmpty ? city : 'Не указан';
 
     return RefreshIndicator(
       onRefresh: _onRefreshProfile,
       child: ListView(
         physics: const AlwaysScrollableScrollPhysics(),
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.fromLTRB(16, 8, 16, 32),
         children: [
-        const SizedBox(height: 20),
-        // Аватар
-        Center(
-          child: CircleAvatar(
-            radius: 60,
-            backgroundColor: Theme.of(context).colorScheme.surfaceContainerHighest,
-            child: Icon(Icons.person, size: 60, color: Theme.of(context).colorScheme.onSurfaceVariant),
-          ),
-        ),
-        const SizedBox(height: 16),
-        // Имя
-        Center(
-          child: Text(
-            user.Name ?? 'Пользователь',
-            style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-          ),
-        ),
-        const SizedBox(height: 8),
-        // Email
-        Center(
-          child: Text(
-            user.Email ?? 'email@example.com',
-            style: TextStyle(fontSize: 16, color: Theme.of(context).colorScheme.onSurfaceVariant),
-          ),
-        ),
-        const SizedBox(height: 4),
-        // Город
-        Center(
-          child: Text(
-            user.City ?? 'Город не указан',
-            style: TextStyle(fontSize: 14, color: Theme.of(context).colorScheme.onSurfaceVariant),
-          ),
-        ),
-        const SizedBox(height: 40),
-        // Пункты меню
-        _buildMenuItem(
-          icon: Icons.favorite,
-          title: 'Избранное',
-          onTap: () {
-            Navigator.pushNamed(context, '/favorites_screen');
-          },
-        ),
-        _buildMenuItem(
-          icon: Icons.star,
-          title: 'Ваши отзывы',
-          onTap: () {
-            Navigator.pushNamed(context, '/user_reviews');
-          },
-        ),
-        _buildMenuItem(
-          icon: Icons.settings,
-          title: 'Настройки',
-          onTap: () {
-            Navigator.pushNamed(context, '/profile_settings');
-          },
-        ),
-        const SizedBox(height: 20),
-        // Кнопка выхода
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          child: Material(
-            color: Theme.of(context).colorScheme.error,
-            borderRadius: BorderRadius.circular(12),
-            child: InkWell(
-              onTap: () {
-                Provider.of<AuthProvider>(context, listen: false).logout();
-                Navigator.pushReplacementNamed(context, '/login');
-              },
-              borderRadius: BorderRadius.circular(12),
-              splashColor: Colors.white24,
-              highlightColor: Colors.white12,
-              child: Container(
-                width: double.infinity,
-                padding: const EdgeInsets.symmetric(vertical: 14),
-                alignment: Alignment.center,
-                child: Text(
-                  'Выйти',
-                  style: TextStyle(
-                    fontSize: 16,
-                    color: Theme.of(context).colorScheme.onError,
-                    fontWeight: FontWeight.w500,
+          const SizedBox(height: 8),
+          Center(
+            child: Column(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(3),
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    border: Border.all(
+                      color: cs.outline.withValues(alpha: 0.35),
+                      width: 2,
+                    ),
+                  ),
+                  child: ClipOval(
+                    child: SizedBox(
+                      width: 104,
+                      height: 104,
+                      child: ColoredBox(
+                        color: cs.surfaceContainerHighest,
+                        child: Icon(
+                          Icons.person_rounded,
+                          size: 52,
+                          color: cs.primary,
+                        ),
+                      ),
+                    ),
                   ),
                 ),
+                const SizedBox(height: 14),
+                Chip(
+                  avatar: Icon(Icons.face_rounded, size: 18, color: cs.primary),
+                  label: const Text('Клиент'),
+                  visualDensity: VisualDensity.compact,
+                  side: BorderSide(color: cs.outline.withValues(alpha: 0.25)),
+                ),
+                const SizedBox(height: 10),
+                Text(
+                  user.Name ?? 'Пользователь',
+                  textAlign: TextAlign.center,
+                  style: tt.headlineSmall?.copyWith(
+                    fontWeight: FontWeight.w700,
+                    letterSpacing: -0.3,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 24),
+          ProfileSectionHeading(text: 'Контакты', colorScheme: cs),
+          Card(
+            margin: EdgeInsets.zero,
+            clipBehavior: Clip.antiAlias,
+            shape: profileCardShape(cs),
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(16, 4, 16, 4),
+              child: Column(
+                children: [
+                  ProfileLabeledRow(
+                    icon: Icons.mail_outlined,
+                    title: 'Email',
+                    value: email ?? '—',
+                    colorScheme: cs,
+                    valueWidget: email != null && email.isNotEmpty
+                        ? SelectableText(
+                            email,
+                            style: tt.bodyLarge?.copyWith(
+                              fontWeight: FontWeight.w600,
+                              color: cs.onSurface,
+                            ),
+                          )
+                        : Text(
+                            '—',
+                            style: tt.bodyLarge?.copyWith(
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                  ),
+                  Divider(
+                    height: 1,
+                    color: cs.outlineVariant.withValues(alpha: 0.45),
+                  ),
+                  ProfileLabeledRow(
+                    icon: Icons.place_outlined,
+                    title: 'Город',
+                    value: cityDisplay,
+                    colorScheme: cs,
+                    valueWidget: city == null || city.isEmpty
+                        ? Text(
+                            cityDisplay,
+                            style: tt.bodyLarge?.copyWith(
+                              fontWeight: FontWeight.w500,
+                              color: cs.onSurfaceVariant,
+                            ),
+                          )
+                        : null,
+                  ),
+                ],
               ),
             ),
           ),
-        ),
-      ],
-      ),
-    );
-  }
-
-  Widget _buildMenuItem({
-    required IconData icon,
-    required String title,
-    required VoidCallback onTap,
-  }) {
-    return Card(
-      margin: const EdgeInsets.only(bottom: 8),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      child: ListTile(
-        leading: Icon(icon, color: Theme.of(context).colorScheme.primary),
-        title: Text(title, style: const TextStyle(fontSize: 16)),
-        trailing: const Icon(Icons.chevron_right),
-        onTap: onTap,
+          const SizedBox(height: 20),
+          ProfileSectionHeading(text: 'Меню', colorScheme: cs),
+          Card(
+            margin: EdgeInsets.zero,
+            clipBehavior: Clip.antiAlias,
+            shape: profileCardShape(cs),
+            child: Column(
+              children: [
+                ListTile(
+                  contentPadding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                  leading: Icon(Icons.favorite_outline_rounded, color: cs.primary),
+                  title: const Text('Избранное'),
+                  trailing: Icon(
+                    Icons.chevron_right_rounded,
+                    color: cs.onSurfaceVariant.withValues(alpha: 0.7),
+                  ),
+                  onTap: () =>
+                      Navigator.pushNamed(context, '/favorites_screen'),
+                ),
+                Divider(
+                  height: 1,
+                  indent: 56,
+                  color: cs.outlineVariant.withValues(alpha: 0.45),
+                ),
+                ListTile(
+                  contentPadding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                  leading: Icon(Icons.star_outline_rounded, color: cs.primary),
+                  title: const Text('Ваши отзывы'),
+                  trailing: Icon(
+                    Icons.chevron_right_rounded,
+                    color: cs.onSurfaceVariant.withValues(alpha: 0.7),
+                  ),
+                  onTap: () => Navigator.pushNamed(context, '/user_reviews'),
+                ),
+                Divider(
+                  height: 1,
+                  indent: 56,
+                  color: cs.outlineVariant.withValues(alpha: 0.45),
+                ),
+                ListTile(
+                  contentPadding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                  leading:
+                      Icon(Icons.settings_outlined, color: cs.primary),
+                  title: const Text('Настройки'),
+                  trailing: Icon(
+                    Icons.chevron_right_rounded,
+                    color: cs.onSurfaceVariant.withValues(alpha: 0.7),
+                  ),
+                  onTap: () =>
+                      Navigator.pushNamed(context, '/profile_settings'),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 28),
+          SizedBox(
+            width: double.infinity,
+            child: FilledButton(
+              style: FilledButton.styleFrom(
+                backgroundColor: cs.error,
+                foregroundColor: cs.onError,
+                padding: const EdgeInsets.symmetric(vertical: 14),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+              onPressed: () {
+                Provider.of<AuthProvider>(context, listen: false).logout();
+                Navigator.pushNamedAndRemoveUntil(
+                  context,
+                  '/login',
+                  (r) => false,
+                );
+              },
+              child: const Text(
+                'Выйти',
+                style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

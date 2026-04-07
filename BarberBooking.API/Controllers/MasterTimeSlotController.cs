@@ -2,11 +2,13 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using BarberBooking.API.CQRS.MasterTimeSlot.MasterTimeSlotCommands;
 using BarberBooking.API.CQRS.MasterTimeSlotCommands;
 using BarberBooking.API.CQRS.MasterTimeSlotCommands.Handler;
 using BarberBooking.API.CQRS.MasterTimeSlotQueries;
 using BarberBooking.API.Dto.DtoMasterTimeSlot;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BarberBooking.API.Controllers
@@ -20,6 +22,7 @@ namespace BarberBooking.API.Controllers
         {
             _mediator = mediator;
         }
+        [Authorize]
         [HttpPost("create-timeSlot")]
         public async Task<IActionResult> CreateMasterTimeSlot([FromBody] DtoCreateMasterTimeSlot dtoCreateMasterTimeSlot)
         {
@@ -30,6 +33,7 @@ namespace BarberBooking.API.Controllers
         
             return Ok(result.Value);
         }
+        [Authorize]
         [HttpPost("create-timeSlots")]
         public async Task<IActionResult> CreateMasterTimeSlots([FromBody] List<DtoCreateMasterTimeSlot> dtoCreateMasterTimeSlot)
         {
@@ -40,6 +44,7 @@ namespace BarberBooking.API.Controllers
             
             return Ok(result.Value);
         }
+        [Authorize]
         [HttpDelete("delete-timeSlot{Id}")]
         public async Task<IActionResult> DeleteMasterTimeSlot(Guid Id)
         {
@@ -50,6 +55,7 @@ namespace BarberBooking.API.Controllers
     
             return Ok(result.Value);
         }
+        [Authorize]
         [HttpPatch("update-timeSlot{Id}")]
         public async Task<IActionResult> UpdateMasterTimeSlot(Guid Id)
         {
@@ -78,6 +84,7 @@ namespace BarberBooking.API.Controllers
                 return BadRequest(new { error = result.Error });
             return Ok(result.Value);
         }
+        [Authorize]
         [HttpGet("get-slotById{Id}")]
         public async Task<IActionResult> GetSlotById(Guid Id)
         {
@@ -87,12 +94,23 @@ namespace BarberBooking.API.Controllers
                 return BadRequest(new { error = result.Error });
             return Ok(result.Value);
         }
+        [Authorize]
         [HttpGet("get-slotByMasterId{masterId}")]
         public async Task<IActionResult> GetByMasterId(Guid masterId, [FromQuery] DateOnly date)
         {
             var query = new GetByMasterAsyncQuery(masterId, date);
             var result = await _mediator.Send(query);
              if(result.IsFailure)
+                return BadRequest(new { error = result.Error });
+            return Ok(result.Value);   
+        }
+        [Authorize]
+        [HttpPost("timeSlot-createRangeByWeeklyTemplateHandler/{weeklyTemplateId}")]
+        public async Task<IActionResult> TimeSlotCreateRangeByWeeklyTemplate(Guid weeklyTemplateId, [FromQuery] DateOnly dateFrom, [FromQuery] DateOnly dateTo)
+        {
+            var command = new TimeSlotCreateRangeByWeeklyTemplateCommand(weeklyTemplateId, dateFrom, dateTo);
+            var result = await _mediator.Send(command);
+            if(result.IsFailure)
                 return BadRequest(new { error = result.Error });
             return Ok(result.Value);   
         }

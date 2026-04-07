@@ -28,6 +28,29 @@ class GetServicesProvider extends BaseProvider {
       return false;
     }
   }
+
+  Future<bool?> getServicesForMasterBooking(String? masterProfileId) async {
+    startLoading();
+    try {
+      final response =
+          await _getServicesService.getServicesForMasterBooking(masterProfileId);
+      if (response != null) {
+        _list = response;
+        finishLoading();
+        notifyListeners();
+        return response.isNotEmpty;
+      }
+      _list = [];
+      setError('Не удалось загрузить услуги');
+      finishLoading();
+      notifyListeners();
+      return false;
+    } catch (e) {
+      setError(e.toString());
+      finishLoading();
+      return false;
+    }
+  }
   void clearList() {
   _list = null;
   notifyListeners();

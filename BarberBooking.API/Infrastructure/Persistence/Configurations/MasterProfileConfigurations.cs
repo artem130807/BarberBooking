@@ -61,13 +61,18 @@ namespace BarberBooking.API.Configurations
 
             builder.HasMany(x => x.WeeklyTemplates)
                 .WithOne(x => x.MasterProfile)
-                .HasForeignKey(x => x.MasterId)
+                .HasForeignKey(x => x.MasterProfileId)
                 .OnDelete(DeleteBehavior.Restrict);
 
             builder.Property(x => x.CreatedAt)
                 .IsRequired();
             
             builder.HasMany(x => x.MasterStatistics)
+            .WithOne(x => x.MasterProfile)
+            .HasForeignKey(x => x.MasterProfileId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+            builder.HasMany(x => x.MasterServices)
             .WithOne(x => x.MasterProfile)
             .HasForeignKey(x => x.MasterProfileId)
             .OnDelete(DeleteBehavior.Cascade);

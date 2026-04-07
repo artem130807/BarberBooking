@@ -4,6 +4,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using AutoMapper;
 using BarberBooking.API.Contracts;
+using BarberBooking.API.Contracts.MasterServicesContracts;
 using BarberBooking.API.Dto.DtoAppointments;
 using BarberBooking.API.Enums;
 using BarberBooking.API.Filters;
@@ -21,17 +22,20 @@ namespace BarberBooking.API.Service.Validator
         private readonly IServicesRepository _servicesRepository;
         private readonly IMasterTimeSlotRepository _masterTimeSlotRepository;
         private readonly IAppointmentsRepository _appointmentsRepository;
+        private readonly IMasterServicesRepository _masterServicesRepository;
 
         public AppointmentCreationValidator(
             IMapper mapper,
             IServicesRepository servicesRepository,
             IMasterTimeSlotRepository masterTimeSlotRepository,
-            IAppointmentsRepository appointmentsRepository)
+            IAppointmentsRepository appointmentsRepository,
+            IMasterServicesRepository masterServicesRepository)
         {
             _mapper = mapper;
             _servicesRepository = servicesRepository;
             _masterTimeSlotRepository = masterTimeSlotRepository;
             _appointmentsRepository = appointmentsRepository;
+            _masterServicesRepository = masterServicesRepository;
         }
 
         public async Task<Result<ValidatedAppointmentCreationData>> ValidateAsync(
@@ -45,6 +49,12 @@ namespace BarberBooking.API.Service.Validator
             var service = await _servicesRepository.GetByIdAsync(dto.ServiceId);
             if (service == null)
                 return Result.Failure<ValidatedAppointmentCreationData>("Услуги не существует");
+
+            var masterOffersService =
+                await _masterServicesRepository.ExistsAsync(dto.MasterId, dto.ServiceId);
+            if (!masterOffersService)
+                return Result.Failure<ValidatedAppointmentCreationData>(
+                    "Выбранная услуга недоступна у этого мастера");
 
             var mapped = _mapper.Map<Appointments>(dto);
             var serviceDuration = TimeSpan.FromMinutes(service.DurationMinutes);

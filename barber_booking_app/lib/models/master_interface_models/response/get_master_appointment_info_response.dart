@@ -1,4 +1,5 @@
 import 'package:barber_booking_app/models/master_interface_models/response/users_navigation_response.dart';
+import 'package:barber_booking_app/utils/appointment_status_normalize.dart';
 import 'package:barber_booking_app/models/service_models/response/service_navigation_response.dart';
 
 class GetMasterAppointmentInfoResponse {
@@ -27,23 +28,29 @@ class GetMasterAppointmentInfoResponse {
   });
 
   factory GetMasterAppointmentInfoResponse.fromJson(Map<String, dynamic> json) {
+    dynamic v(String a, String b) => json[a] ?? json[b];
+    final usersNav = v('dtoUsersNavigation', 'DtoUsersNavigation');
+    final servicesNav = v('dtoServicesNavigation', 'DtoServicesNavigation');
+    final ad = v('appointmentDate', 'AppointmentDate');
     return GetMasterAppointmentInfoResponse(
-      Id: json['id'],
-      ClientNotes: json['clientNotes'],
-      SalonId: json['salonId'],
-      SalonName: json['salonName'],
-      dtoUsersNavigation: json['dtoUsersNavigation'] != null
-          ? UsersNavigationResponse.fromJson(json['dtoUsersNavigation'])
+      Id: v('id', 'Id')?.toString(),
+      ClientNotes: v('clientNotes', 'ClientNotes')?.toString(),
+      SalonId: v('salonId', 'SalonId')?.toString(),
+      SalonName: v('salonName', 'SalonName')?.toString(),
+      dtoUsersNavigation: usersNav != null
+          ? UsersNavigationResponse.fromJson(
+              Map<String, dynamic>.from(usersNav as Map),
+            )
           : null,
-      dtoServicesNavigation: json['dtoServicesNavigation'] != null
-          ? ServiceNavigationResponse.fromJson(json['dtoServicesNavigation'])
+      dtoServicesNavigation: servicesNav != null
+          ? ServiceNavigationResponse.fromJson(
+              Map<String, dynamic>.from(servicesNav as Map),
+            )
           : null,
-      Status: json['status'],
-      StartTime: json['startTime'],
-      EndTime: json['endTime'],
-      AppointmentDate: json['appointmentDate'] != null
-          ? DateTime.tryParse(json['appointmentDate'].toString())
-          : null,
+      Status: normalizeAppointmentStatus(v('status', 'Status')?.toString()),
+      StartTime: v('startTime', 'StartTime')?.toString(),
+      EndTime: v('endTime', 'EndTime')?.toString(),
+      AppointmentDate: ad != null ? DateTime.tryParse(ad.toString()) : null,
     );
   }
 }

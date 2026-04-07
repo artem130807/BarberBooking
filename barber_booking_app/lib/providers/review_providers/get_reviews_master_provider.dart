@@ -21,16 +21,15 @@ class GetReviewsMasterProvider extends BaseProvider {
     OrderbyDescending: sort.OrderbyDescending
   );
     final response = await _getReviewsMasterService.getReviewsMaster(masterId, requestPage, requestSort);
-  if(response != null && response.isNotEmpty){
-    _reviewsList = response;
-    finishLoading();  
-    notifyListeners();
-    return true;
-  }else{
+    if (response != null) {
+      _reviewsList = response;
+      finishLoading();
+      notifyListeners();
+      return true;
+    }
     _reviewsList = [];
     finishLoading();
     return false;
-  }
   }catch(e){
     print(e);
     setError(e.toString());

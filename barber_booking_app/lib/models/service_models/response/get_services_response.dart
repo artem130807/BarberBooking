@@ -9,13 +9,24 @@ class GetServicesResponse {
 
   GetServicesResponse({this.Id, this.Name, this.PhotoUrl,this.DurationMinutes, this.Price});
 
-   factory GetServicesResponse.fromJson(Map<String, dynamic> json){
-      return  GetServicesResponse(
-          Id: json['id'],
-          Name: json['name'],
-          PhotoUrl: json['photoUrl'],
-          DurationMinutes: json['durationMinutes'],
-          Price: json['price'] != null ? DtoPrice.fromJson(json['price']): null
-      );
+  factory GetServicesResponse.fromJson(Map<String, dynamic> json) {
+    dynamic v(String a, String b) => json[a] ?? json[b];
+    final dm = v('durationMinutes', 'DurationMinutes');
+    int? d;
+    if (dm is int) {
+      d = dm;
+    } else if (dm != null) {
+      d = int.tryParse(dm.toString());
     }
+    final priceRaw = v('price', 'Price');
+    return GetServicesResponse(
+      Id: v('id', 'Id')?.toString(),
+      Name: v('name', 'Name')?.toString(),
+      PhotoUrl: v('photoUrl', 'PhotoUrl')?.toString(),
+      DurationMinutes: d,
+      Price: priceRaw is Map
+          ? DtoPrice.fromJson(Map<String, dynamic>.from(priceRaw))
+          : null,
+    );
+  }
 }

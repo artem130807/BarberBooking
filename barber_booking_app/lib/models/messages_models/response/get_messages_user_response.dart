@@ -10,10 +10,21 @@ class GetMessagesUserResponse {
   });
 
   factory GetMessagesUserResponse.fromJson(Map<String, dynamic> json) {
+    final idRaw = json['id'] ?? json['Id'];
+    final id = idRaw is String ? idRaw : idRaw?.toString() ?? '';
+    final content =
+        (json['content'] ?? json['Content'] ?? '') as String;
+    final createdRaw = json['createdAt'] ?? json['CreatedAt'];
+    DateTime createdAt;
+    if (createdRaw is String) {
+      createdAt = DateTime.parse(createdRaw);
+    } else {
+      createdAt = DateTime.now();
+    }
     return GetMessagesUserResponse(
-      id: json['id'] as String,
-      content: (json['content'] ?? '') as String,
-      createdAt: DateTime.parse(json['createdAt'] as String),
+      id: id,
+      content: content,
+      createdAt: createdAt,
     );
   }
 }

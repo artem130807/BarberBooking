@@ -3,8 +3,11 @@ import 'package:barber_booking_app/models/master_interface_models/response/get_m
 import 'package:barber_booking_app/models/master_models/response/get_master_response.dart';
 import 'package:barber_booking_app/providers/auth_providers/auth_provider.dart';
 import 'package:barber_booking_app/providers/master_providers/master_session_provider.dart';
+import 'package:barber_booking_app/screens/master/master_appointment_detail_screen.dart';
 import 'package:barber_booking_app/services/master_services/master_appointments_list_service.dart';
+import 'package:barber_booking_app/utils/appointment_time_format.dart';
 import 'package:barber_booking_app/widgets/loading_indicator.dart';
+import 'package:barber_booking_app/widgets/master/master_notification_app_bar_button.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
@@ -85,6 +88,7 @@ class _MasterTodayScreenState extends State<MasterTodayScreen> {
       appBar: AppBar(
         title: const Text('Сегодня'),
         automaticallyImplyLeading: false,
+        actions: const [MasterNotificationAppBarButton()],
       ),
       body: Consumer<MasterSessionProvider>(
         builder: (context, session, _) {
@@ -185,6 +189,23 @@ class _MasterTodayScreenState extends State<MasterTodayScreen> {
                               borderRadius: BorderRadius.circular(12),
                             ),
                             child: ListTile(
+                              onTap: a.Id == null || a.Id!.isEmpty
+                                  ? null
+                                  : () async {
+                                      final refreshed =
+                                          await Navigator.of(context)
+                                              .push<bool>(
+                                        MaterialPageRoute(
+                                          builder: (_) =>
+                                              MasterAppointmentDetailScreen(
+                                            appointmentId: a.Id!,
+                                          ),
+                                        ),
+                                      );
+                                      if (refreshed == true && mounted) {
+                                        _load();
+                                      }
+                                    },
                               contentPadding: const EdgeInsets.symmetric(
                                 horizontal: 16,
                                 vertical: 8,
@@ -203,7 +224,7 @@ class _MasterTodayScreenState extends State<MasterTodayScreen> {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
-                                    '${a.ServiceName ?? '—'} · ${a.StartTime ?? ''}–${a.EndTime ?? ''}',
+                                    '${a.ServiceName ?? '—'} · ${formatAppointmentTimeHm(a.StartTime)}–${formatAppointmentTimeHm(a.EndTime)}',
                                     maxLines: 2,
                                     overflow: TextOverflow.ellipsis,
                                   ),

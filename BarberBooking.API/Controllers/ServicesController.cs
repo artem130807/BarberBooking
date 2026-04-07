@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using BarberBooking.API.CQRS.Services.ServicesQueries;
+using BarberBooking.API.CQRS.Services.ServicesQueries.Handller;
 using BarberBooking.API.CQRS.ServicesCommands;
 using BarberBooking.API.CQRS.ServicesQueries;
 using BarberBooking.API.Dto.DtoServices;
@@ -89,6 +90,15 @@ namespace BarberBooking.API.Controllers
         {
             var query = new GetServicesBySalonPagedQuery(salonId, pageParams);
             var result = await _mediator.Send(query);
+            if (result.IsFailure)
+                return BadRequest(new { error = result.Error });
+            return Ok(result.Value);
+        }
+        [HttpGet("get-services-salon-for-Master")]
+        public async Task<IActionResult> GetServicesSalonForMaster()
+        {
+            var query = new GetServicesSalonForMasterQuery();
+             var result = await _mediator.Send(query);
             if (result.IsFailure)
                 return BadRequest(new { error = result.Error });
             return Ok(result.Value);

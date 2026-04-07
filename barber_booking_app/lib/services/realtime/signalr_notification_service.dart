@@ -1,5 +1,6 @@
 import 'package:barber_booking_app/config/api_config.dart';
 import 'package:barber_booking_app/providers/notification_providers/notification_toast_controller.dart';
+import 'package:intl/intl.dart';
 import 'package:signalr_netcore/hub_connection.dart';
 import 'package:signalr_netcore/hub_connection_builder.dart';
 import 'package:signalr_netcore/http_connection_options.dart';
@@ -11,6 +12,7 @@ class SignalRNotificationService {
   final NotificationToastController _toasts;
   HubConnection? _hub;
   String? _token;
+  void Function()? _onAfterReceive;
 
   static const String _hubPath = '/notificationHub';
   static const String _receiveMethod = 'ReceiveNotification';
@@ -49,6 +51,11 @@ class SignalRNotificationService {
     }
   }
 
+  /// Вызывается после показа тоста (например, обновить счётчик непрочитанных).
+  void setOnAfterReceive(void Function()? callback) {
+    _onAfterReceive = callback;
+  }
+
   String _hubUrl() {
     final base = kApiBaseUrl.endsWith('/')
         ? kApiBaseUrl.substring(0, kApiBaseUrl.length - 1)
@@ -58,17 +65,36 @@ class SignalRNotificationService {
 
   void _onReceive(List<Object?>? arguments) {
     String? text;
+    DateTime? serverTime;
+    String? serverId;
     if (arguments != null && arguments.isNotEmpty) {
       final first = arguments.first;
       if (first is Map) {
         final m = Map<Object?, Object?>.from(first);
         final msg = m['message'] ?? m['Message'];
         if (msg is String) text = msg;
+        final ts = m['timestamp'] ?? m['Timestamp'];
+        if (ts is String) {
+          serverTime = DateTime.tryParse(ts);
+        }
+        final idRaw = m['id'] ?? m['Id'];
+        if (idRaw != null) serverId = idRaw.toString();
       } else if (first is String) {
         text = first;
       }
     }
-    _toasts.push(text ?? 'Новое уведомление');
+    final display = (text != null && text.trim().isNotEmpty)
+        ? text.trim()
+        : 'Новое уведомление';
+    final at = serverTime ?? DateTime.now();
+    final subtitle = DateFormat('dd.MM.yyyy · HH:mm').format(at.toLocal());
+    _toasts.push(
+      display,
+      subtitle: subtitle,
+      createdAt: at,
+      stableId: serverId,
+    );
+    _onAfterReceive?.call();
   }
 
   Future<void> disconnect() async {

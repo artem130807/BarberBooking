@@ -50,5 +50,9 @@ namespace BarberBooking.API.Repositories
             && x.TypeMessage == Enums.TypeMessage.CreationAppointment);
         }
 
+        public async Task SaveChangesAsync()
+        {
+            await _context.SaveChangesAsync();
+        }
     }
 }

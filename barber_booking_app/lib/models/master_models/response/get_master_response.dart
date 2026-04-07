@@ -1,4 +1,5 @@
 import 'package:barber_booking_app/models/salon_models/response/salon_navigation_response.dart';
+import 'package:barber_booking_app/utils/api_media_url.dart';
 
 class GetMasterResponse {
   String? Id;
@@ -38,7 +39,7 @@ class GetMasterResponse {
           : null,
       Bio: v('bio', 'Bio')?.toString(),
       Specialization: v('specialization', 'Specialization')?.toString(),
-      AvatarUrl: v('avatarUrl', 'AvatarUrl')?.toString(),
+      AvatarUrl: resolveApiMediaUrl(v('avatarUrl', 'AvatarUrl')?.toString()),
       Rating: (v('rating', 'Rating') as num?)?.toDouble(),
       RatingCount: _parseInt(v('ratingCount', 'RatingCount')),
       isSubscripe: _parseBool(v('isSubscripe', 'IsSubscripe')),

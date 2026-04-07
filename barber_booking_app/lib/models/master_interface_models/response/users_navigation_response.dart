@@ -8,11 +8,13 @@ class UsersNavigationResponse {
   UsersNavigationResponse({this.Id, this.Name, this.dtoPhone});
 
   factory UsersNavigationResponse.fromJson(Map<String, dynamic> json) {
+    dynamic v(String a, String b) => json[a] ?? json[b];
+    final phone = v('dtoPhone', 'DtoPhone');
     return UsersNavigationResponse(
-      Id: json['id'],
-      Name: json['name'],
-      dtoPhone: json['dtoPhone'] != null
-          ? DtoPhone.fromJson(json['dtoPhone'])
+      Id: v('id', 'Id')?.toString(),
+      Name: v('name', 'Name')?.toString(),
+      dtoPhone: phone != null
+          ? DtoPhone.fromJson(Map<String, dynamic>.from(phone as Map))
           : null,
     );
   }

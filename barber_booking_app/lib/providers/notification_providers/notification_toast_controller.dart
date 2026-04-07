@@ -6,15 +6,22 @@ class NotificationToastController extends ChangeNotifier {
 
   List<AppNotification> get items => List.unmodifiable(_items);
 
-  void push(String text) {
-    final id =
-        '${DateTime.now().microsecondsSinceEpoch}_${text.hashCode}';
+  void push(
+    String text, {
+    String? subtitle,
+    DateTime? createdAt,
+    String? stableId,
+  }) {
+    final id = stableId != null && stableId.isNotEmpty
+        ? 'srv_${stableId}_${DateTime.now().microsecondsSinceEpoch}'
+        : '${DateTime.now().microsecondsSinceEpoch}_${text.hashCode}';
     _items.insert(
       0,
       AppNotification(
         id: id,
         text: text,
-        createdAt: DateTime.now(),
+        subtitle: subtitle,
+        createdAt: createdAt ?? DateTime.now(),
       ),
     );
     if (_items.length > 6) {

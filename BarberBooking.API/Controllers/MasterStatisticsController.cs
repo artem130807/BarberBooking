@@ -118,5 +118,11 @@ namespace BarberBooking.API.Controllers
                 return BadRequest(new { error = result.Error });
             return Ok(result.Value);
         }
+        [Authorize]
+        [HttpPost("Create_Master_Stastic")]
+        public async Task<IActionResult> CreateMasterStatistic()
+        {
+            return Ok();
+        }
     }
 }

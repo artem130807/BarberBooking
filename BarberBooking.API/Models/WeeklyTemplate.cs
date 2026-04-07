@@ -8,7 +8,7 @@ namespace BarberBooking.API.Models
     public class WeeklyTemplate
     {
         public Guid Id { get; private set; }
-        public Guid MasterId { get; private set; }
+        public Guid MasterProfileId { get; private set; }
         public string Name { get; private set; }
         public bool IsActive { get; private set; } = true;
         public DateTime CreatedAt { get; private set; } = DateTime.UtcNow;
@@ -23,7 +23,7 @@ namespace BarberBooking.API.Models
             var weekly = new WeeklyTemplate
             {
                 Id = Guid.NewGuid(),
-                MasterId = masterId,
+                MasterProfileId = masterId,
                 Name = name,
                 IsActive = isActive,
                 CreatedAt = DateTime.UtcNow

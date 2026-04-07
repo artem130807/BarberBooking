@@ -1,5 +1,5 @@
 
 const String kApiBaseUrl = String.fromEnvironment(
   'API_BASE_URL',
-  defaultValue: 'http://172.20.10.11:5088',
+  defaultValue: 'http://192.168.0.59:5088',
 );

@@ -39,4 +39,30 @@ class GetServicesService {
         return null;
       } 
   }
+
+  Future<List<GetServicesResponse>?> getServicesForMasterBooking(
+    String? masterProfileId,
+  ) async {
+    try {
+      if (masterProfileId == null || masterProfileId.isEmpty) return null;
+      final url = Uri.parse(
+        '$kApiBaseUrl/api/MasterServices/get-services-for-booking-by-master/$masterProfileId',
+      );
+      final response = await http.get(
+        url,
+        headers: {'Content-Type': 'application/json'},
+      );
+      if (response.statusCode != 200) return null;
+      final decoded = json.decode(response.body);
+      if (decoded is! List) return null;
+      if (decoded.isEmpty) return [];
+      return decoded
+          .map((e) => GetServicesResponse.fromJson(
+                Map<String, dynamic>.from(e as Map),
+              ))
+          .toList();
+    } catch (_) {
+      return null;
+    }
+  }
 }

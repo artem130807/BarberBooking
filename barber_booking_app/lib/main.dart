@@ -67,6 +67,7 @@ import 'package:barber_booking_app/screens/user_interfaces/message_screens/messa
 import 'package:barber_booking_app/screens/user_interfaces/appointment_screens/appointment_detail_screen.dart';
 import 'package:barber_booking_app/screens/admin/admin_navigation.dart';
 import 'package:barber_booking_app/screens/admin/admin_shell_layout.dart';
+import 'package:barber_booking_app/screens/master/master_notifications_screen.dart';
 import 'package:barber_booking_app/screens/master/master_shell_screen.dart';
 import 'package:barber_booking_app/screens/admin/admin_shell_screen.dart';
 import 'package:barber_booking_app/screens/admin/admin_appointments_period_screen.dart';
@@ -175,6 +176,8 @@ class MyApp extends StatelessWidget {
           '/home': (context) => const HomeScreen(),
           '/admin_home': (context) => const AdminShellScreen(),
           '/master_home': (context) => const MasterShellScreen(),
+          '/master_notifications': (context) =>
+              const MasterNotificationsScreen(),
           '/admin_appointments_period': (context) => AdminShellLayout(
                 selectedTab: AdminNav.dashboard,
                 child: const AdminAppointmentsPeriodScreen(),

@@ -2,7 +2,9 @@ using System;
 using System.Threading.Tasks;
 using BarberBooking.API.Contracts;
 using BarberBooking.API.Contracts.MasterProfileContracts;
+using BarberBooking.API.Contracts.MasterTimeSlotContracts;
 using BarberBooking.API.Contracts.MessagesContracts;
+using BarberBooking.API.Helpers;
 using BarberBooking.API.Models;
 using CSharpFunctionalExtensions;
 using MediatR;
@@ -18,13 +20,15 @@ namespace BarberBooking.API.CQRS.AppointmentsCommands.Handlers
         private readonly IAppointmentCreationValidator _appointmentCreationValidator;
         private readonly IAppointmentsRepository _appointmentsRepository;
         private readonly IMasterTimeSlotRepository _masterTimeSlotRepository;
+        private readonly ITimeSlotQualifierBookedService _timeSlotQualifierBookedService;
         public CreateAppointmentHandler(
             IUnitOfWork unitOfWork,
             IUserContext userContext,
             ISendMessageService sendMessageService,
             IAppointmentCreationValidator appointmentCreationValidator,
             IAppointmentsRepository appointmentsRepository,
-            IMasterTimeSlotRepository masterTimeSlotRepository
+            IMasterTimeSlotRepository masterTimeSlotRepository,
+            ITimeSlotQualifierBookedService timeSlotQualifierBookedService
             )
         {
             _unitOfWork = unitOfWork;
@@ -33,6 +37,7 @@ namespace BarberBooking.API.CQRS.AppointmentsCommands.Handlers
             _appointmentCreationValidator = appointmentCreationValidator;
             _appointmentsRepository = appointmentsRepository;
             _masterTimeSlotRepository = masterTimeSlotRepository;
+            _timeSlotQualifierBookedService = timeSlotQualifierBookedService;
         }
 
         public async Task<Result<string>> Handle(CreateAppointmentCommand command, CancellationToken cancellationToken)
@@ -71,9 +76,10 @@ namespace BarberBooking.API.CQRS.AppointmentsCommands.Handlers
                 var detailedMessage = ex.InnerException?.Message ?? ex.Message;
                 throw new InvalidOperationException($"Ошибка сохранения записи: {detailedMessage}", ex);
             }
-            var userMessage = Models.Messages.Create($"Запись на {appointment.AppointmentDate}, успешно создана", userId, appointment.Id, 
+            await _timeSlotQualifierBookedService.Handle(appointment.TimeSlotId, appointment.TimeSlot.ScheduleDate);
+            var userMessage = Models.Messages.Create($"Запись на {AppointmentMessageFormatting.FormatForMessage(appointment.AppointmentDate)}, успешно создана", userId, appointment.Id, 
             Enums.MessageAudience.User, Enums.TypeMessage.CreationAppointment);
-            var masterMessage = Models.Messages.Create($"Пользователь {appointment.Client.Name}, записался к вам на {appointment.Service.Name}, запись {appointment.AppointmentDate}",
+            var masterMessage = Models.Messages.Create($"Пользователь {appointment.Client.Name}, записался к вам на {appointment.Service.Name}, запись {AppointmentMessageFormatting.FormatForMessage(appointment.AppointmentDate)}",
             appointment.Master.UserId, 
             appointment.Id, Enums.MessageAudience.Master, 
             Enums.TypeMessage.CreationAppointment);

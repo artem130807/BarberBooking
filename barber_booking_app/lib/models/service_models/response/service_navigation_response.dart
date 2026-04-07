@@ -6,11 +6,15 @@ class ServiceNavigationResponse {
   DtoPrice? Price;
   ServiceNavigationResponse({this.Id, this.Name, this.Price});
 
-   factory ServiceNavigationResponse.fromJson(Map<String, dynamic> json){
+  factory ServiceNavigationResponse.fromJson(Map<String, dynamic> json) {
+    dynamic v(String a, String b) => json[a] ?? json[b];
+    final price = v('price', 'Price');
     return ServiceNavigationResponse(
-      Id: json['id'],
-      Name: json['name'],
-      Price: json['price'] != null ? DtoPrice.fromJson(json['price']) : null,
+      Id: v('id', 'Id')?.toString(),
+      Name: v('name', 'Name')?.toString(),
+      Price: price != null
+          ? DtoPrice.fromJson(Map<String, dynamic>.from(price as Map))
+          : null,
     );
   }
  

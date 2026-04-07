@@ -18,5 +18,6 @@ namespace BarberBooking.API.Contracts
         Task<PagedResult<Services>> GetServicesNameStartWith(SearchServicesParams searchParams, PageParams pageParams);
         Task<PagedResult<Services>> GetTopServices(Guid salonId ,PageParams pageParams);
         Task<PagedResult<Services>> GetServicesBySalonPaged(Guid salonId, PageParams pageParams);
+        Task<List<Services>> GetServicesBySalon(Guid salonId);
     }
 }

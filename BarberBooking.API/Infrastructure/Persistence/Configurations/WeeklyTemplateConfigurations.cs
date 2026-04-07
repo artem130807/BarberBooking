@@ -21,8 +21,8 @@ namespace BarberBooking.API.Configurations
                 .HasMaxLength(200);
                 
             builder.HasOne(x => x.MasterProfile)
-                .WithMany()
-                .HasForeignKey(x => x.MasterId)
+                .WithMany(x => x.WeeklyTemplates)
+                .HasForeignKey(x => x.MasterProfileId)
                 .OnDelete(DeleteBehavior.Cascade);
                 
             builder.HasMany(x => x.TemplateDays)

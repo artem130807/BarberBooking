@@ -9,11 +9,12 @@ namespace BarberBooking.API.Dto.DtoMasterTimeSlot
 {
     public class DtoMasterTimeSlotInfo
     {
-        public Guid Id {get; private set;}
-        public Guid MasterId {get; private set;}
-        public DateOnly ScheduleDate { get; private set; }
-        public TimeOnly StartTime { get; private set; } 
-        public TimeOnly EndTime { get; private set; } 
-        public MasterTimeSlotStatus Status {get; private set;}
+        public Guid Id {get; set;}
+        public Guid MasterId {get; set;}
+        public DateOnly ScheduleDate { get; set; }
+        public TimeOnly StartTime { get; set; } 
+        public TimeOnly EndTime { get; set; } 
+        public MasterTimeSlotStatus Status {get; set;}
+        public int TimeSlotCount {get; set;}
     }
 }

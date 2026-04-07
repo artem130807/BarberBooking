@@ -51,6 +51,11 @@ namespace BarberBooking.API.Configurations
                 
             builder.HasIndex(x => new { x.SalonId, x.Name })
                 .IsUnique();
+
+            builder.HasMany(x => x.MasterServices)
+            .WithOne(x => x.Service)
+            .HasForeignKey(x => x.ServiceId)
+            .OnDelete(DeleteBehavior.Cascade);
         }
     }
 }

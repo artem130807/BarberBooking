@@ -15,5 +15,6 @@ namespace BarberBooking.API.Contracts.MessagesContracts
         Task<List<Messages>> GetUnreadMessages(Guid userId);
         Task<List<Messages>> GetMessagesByAppointmentId(Guid appointmentId);
         Task<Messages> GetMessagesMasterMessageCreationAppointment(Guid appointmentId);
+        Task SaveChangesAsync();
     }
 }

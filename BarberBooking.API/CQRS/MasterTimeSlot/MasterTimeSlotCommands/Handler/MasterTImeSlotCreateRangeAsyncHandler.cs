@@ -26,7 +26,7 @@ namespace BarberBooking.API.CQRS.MasterTimeSlotCommands.Handler
         }
         public async Task<Result<List<DtoMasterTimeSlotInfo>>> Handle(MasterTimeSlotCreateRangeAsyncCommand command, CancellationToken cancellationToken)
         {
-            var timeSlots = _mapper.Map<List<MasterTimeSlot>>(command.dtoCreateMasterTimeSlot);
+            var timeSlots = _mapper.Map<List<Models.MasterTimeSlot>>(command.dtoCreateMasterTimeSlot);
             if(timeSlots.Count == 0)
                 return Result.Failure<List<DtoMasterTimeSlotInfo>>("Список оказался пуст"); 
             try
@@ -39,8 +39,8 @@ namespace BarberBooking.API.CQRS.MasterTimeSlotCommands.Handler
                 _unitOfWork.RollBack();
                 throw new InvalidOperationException(ex.Message);
             }
-            return _mapper.Map<List<DtoMasterTimeSlotInfo>>(timeSlots);
-            
+            var result= _mapper.Map<List<DtoMasterTimeSlotInfo>>(timeSlots);
+            return Result.Success(result);
         }
     }
 }

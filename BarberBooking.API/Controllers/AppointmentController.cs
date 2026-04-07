@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using BarberBooking.API.CQRS.Appointments.AppointmentsCommands;
 using BarberBooking.API.CQRS.Appointments.AppointmentsQueries;
 using BarberBooking.API.CQRS.AppointmentsCommands;
 using BarberBooking.API.CQRS.AppointmentsCommands.Handlers;
@@ -33,7 +34,8 @@ namespace BarberBooking.API.Controllers
                 return BadRequest(result.Error);
             return Ok(result.Value);
         }
-        [HttpDelete("delete-appointment{Id}")]
+        [Authorize]
+        [HttpPatch("delete-appointment/{Id}")]
         public async Task<IActionResult> DeleteAppointment(Guid Id)
         {
             var command = new DeleteAppointmentCommand(Id);
@@ -42,6 +44,16 @@ namespace BarberBooking.API.Controllers
                 return BadRequest(result.Error);
             return Ok(result.Value);
         }
+        [Authorize]
+        [HttpPatch("completed-appointment/{Id}")]
+        public async Task<IActionResult> CompletedAppointment(Guid Id)
+        {
+            var command = new CompletedStatusAppointmentQuery(Id);
+            var result = await _mediator.Send(command);
+            if(result.IsFailure)
+                return BadRequest(result.Error);
+            return Ok(result.Value);
+        }  
         [HttpPatch("update-appointment{Id}")]
         public async Task<IActionResult> UpdateAppointment(Guid Id, [FromBody] DtoUpdateAppointment dtoUpdateAppointment)
         {
@@ -59,6 +71,7 @@ namespace BarberBooking.API.Controllers
                 return BadRequest(result.Error);
             return Ok(result.Value);
         }
+        [Authorize]
         [HttpGet("get-appointmentMasterById{Id}")]
         public async Task<IActionResult> GetMasterAppointmentById(Guid Id)
         {
@@ -124,5 +137,16 @@ namespace BarberBooking.API.Controllers
                 return BadRequest(result.Error);
             return Ok(result.Value);
         }
+        [Authorize]
+        [HttpGet("get-appointments-by-timeSlot/{timeSlotId}")]
+        public async Task<IActionResult> GetMasterAppointmentByTimeSlot(Guid timeSlotId, [FromQuery] PageParams pageParams, [FromQuery] StatusFilter filter)
+        {
+            var query = new GetAppointmentsByTimeSlotQuery(timeSlotId, pageParams, filter);
+            var result = await _mediator.Send(query);
+            if(result.IsFailure)
+                return BadRequest(result.Error);
+            return Ok(result.Value);
+        }
+        
     }
 }

@@ -9,6 +9,10 @@ using BarberBooking.API.Contracts.MasterSubscriptionContracts;
 using BarberBooking.API.Contracts.MessagesContracts;
 using BarberBooking.API.Contracts.ReviewContracts;
 using BarberBooking.API.Contracts.SalonsContracts;
+using BarberBooking.API.Contracts.TemplateDayContracts;
+using BarberBooking.API.Contracts.WeeklyTemplateContracts;
+using BarberBooking.API.Contracts.MasterServicesContracts;
+using BarberBooking.API.Infrastructure.Persistence.Repositories;
 using BarberBooking.API.Repositories;
 
 namespace BarberBooking.API.Service
@@ -20,6 +24,7 @@ namespace BarberBooking.API.Service
         private IAppointmentsRepository _appointmentsRepository;
         private IMasterTimeSlotRepository _masterTimeSlotRepository;
         private IServicesRepository _servicesRepository;
+        private IMasterServicesRepository _masterServicesRepository;
         private ISalonsRepository _salonsRepository;
         private IMasterProfileRepository _masterProfileRepository;
         private IEmailVerificationRepository _emailVerificationRepository;
@@ -31,6 +36,8 @@ namespace BarberBooking.API.Service
         private IUserRolesRepository _userRolesRepository;
         private ISalonStatisticRepository _salonStatisticRepository;
         private IMasterStatisticRepository _masterStatisticRepository;
+        private IWeeklyTemplateRepository _weeklyTemplateRepository;
+        private ITemplateDayRepository _templateDayRepository;
         public UnitOfWork(BarberBookingDbContext dbContext)
         {
             _dbContext = dbContext;
@@ -52,6 +59,11 @@ namespace BarberBooking.API.Service
         public IServicesRepository servicesRepository
         {
             get {return _servicesRepository ??= new ServicesRepository(_dbContext);}
+        }
+
+        public IMasterServicesRepository masterServicesRepository
+        {
+            get { return _masterServicesRepository ??= new MasterServicesRepository(_dbContext); }
         }
 
         public IMasterProfileRepository masterProfileRepository
@@ -102,7 +114,14 @@ namespace BarberBooking.API.Service
         {
             get { return _masterStatisticRepository ??= new MasterStatisticRepository(_dbContext); }
         }
-
+        public IWeeklyTemplateRepository weeklyTemplateRepository
+        {
+            get {return _weeklyTemplateRepository ??= new WeeklyTemplateRepository(_dbContext);}
+        }
+        public ITemplateDayRepository templateDayRepository
+        {
+            get {return _templateDayRepository ??= new TemplateDayRepository(_dbContext);}
+        }
         public void BeginTransaction()
         {
             _dbContext.BeginTransaction();

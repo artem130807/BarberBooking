@@ -18,10 +18,12 @@ namespace BarberBooking.API.Models
         public bool IsActive { get; private set; } = true;
         public DateTime CreatedAt { get; private set; } = DateTime.UtcNow;      
         public  Salons Salon { get; private set; } 
-        public  ICollection<Appointments> Appointments { get; private set; } 
+        public ICollection<Appointments> Appointments { get; private set; } 
+        public ICollection<MasterServices> MasterServices {get; private set;}
         private Services()
         {
             Appointments = new List<Appointments>();
+            MasterServices = new List<MasterServices>();
         }
         public static Services Create(Services services)
         {

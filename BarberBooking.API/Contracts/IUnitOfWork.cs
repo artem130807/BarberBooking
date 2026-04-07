@@ -8,6 +8,9 @@ using BarberBooking.API.Contracts.MasterSubscriptionContracts;
 using BarberBooking.API.Contracts.MessagesContracts;
 using BarberBooking.API.Contracts.ReviewContracts;
 using BarberBooking.API.Contracts.SalonsContracts;
+using BarberBooking.API.Contracts.TemplateDayContracts;
+using BarberBooking.API.Contracts.WeeklyTemplateContracts;
+using BarberBooking.API.Contracts.MasterServicesContracts;
 
 namespace BarberBooking.API.Contracts
 {
@@ -16,6 +19,7 @@ namespace BarberBooking.API.Contracts
         IAppointmentsRepository appointmentsRepository {get;}
         IMasterTimeSlotRepository masterTimeSlotRepository {get;}
         IServicesRepository servicesRepository {get;}
+        IMasterServicesRepository masterServicesRepository { get; }
         ISalonsRepository salonsRepository {get;}
         IMasterProfileRepository masterProfileRepository {get;}
         IEmailVerificationRepository emailVerificationRepository {get;}
@@ -27,6 +31,8 @@ namespace BarberBooking.API.Contracts
         IUserRolesRepository userRolesRepository {get;}
         ISalonStatisticRepository salonStatisticRepository {get;}
         IMasterStatisticRepository masterStatisticRepository {get;}
+        IWeeklyTemplateRepository weeklyTemplateRepository {get;}
+        ITemplateDayRepository templateDayRepository {get;}
         void BeginTransaction();
         void Commit();
         void RollBack();

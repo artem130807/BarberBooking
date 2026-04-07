@@ -39,7 +39,7 @@ class _ServiceSelectionScreenState extends State<ServiceSelectionScreen> {
       if (!mounted) return;
       final provider = Provider.of<GetServicesProvider>(context, listen: false);
       provider.addListener(_onServicesProviderChanged);
-      provider.getServices(widget.salonId);
+      provider.getServicesForMasterBooking(widget.masterId);
     });
   }
 
@@ -58,7 +58,7 @@ class _ServiceSelectionScreenState extends State<ServiceSelectionScreen> {
       builder: (context, provider, child) {
         return Scaffold(
           appBar: AppBar(
-            title: Text('Услуги — ${widget.masterName}'),
+            title: Text('Запись: ${widget.masterName}'),
             leading: IconButton(
               icon: const Icon(Icons.arrow_back),
               onPressed: () => Navigator.of(context).maybePop(),
@@ -83,7 +83,7 @@ class _ServiceSelectionScreenState extends State<ServiceSelectionScreen> {
             Text(provider.errorMessage!),
             const SizedBox(height: 16),
             ElevatedButton(
-              onPressed: () => provider.getServices(widget.salonId),
+              onPressed: () => provider.getServicesForMasterBooking(widget.masterId),
               child: const Text('Повторить'),
             ),
           ],
@@ -94,7 +94,7 @@ class _ServiceSelectionScreenState extends State<ServiceSelectionScreen> {
     final services = provider.list;
     if (services == null || services.isEmpty) {
       return const Center(
-        child: Text('В этом салоне пока нет услуг'),
+        child: Text('У мастера нет услуг для записи'),
       );
     }
 
