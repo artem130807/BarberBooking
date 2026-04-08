@@ -1,4 +1,5 @@
 import 'package:barber_booking_app/models/master_interface_models/request/create_template_day_request.dart';
+import 'package:barber_booking_app/screens/master/master_navigation.dart';
 import 'package:barber_booking_app/providers/auth_providers/auth_provider.dart';
 import 'package:barber_booking_app/services/master_services/weekly_template_service.dart';
 import 'package:barber_booking_app/utils/weekday_template_api.dart';
@@ -104,7 +105,8 @@ class _MasterAddTemplateDayScreenState extends State<MasterAddTemplateDayScreen>
         .where((d) => !widget.usedApiDays.contains(d))
         .toList();
 
-    return Scaffold(
+    return MasterScreenScaffold(
+      selectedTabIndex: MasterNav.slots,
       appBar: AppBar(
         title: const Text('День в шаблоне'),
       ),

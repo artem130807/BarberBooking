@@ -2,6 +2,7 @@ import 'package:barber_booking_app/models/master_interface_models/response/get_m
 import 'package:barber_booking_app/models/master_interface_models/slot_appointment_status_filter.dart';
 import 'package:barber_booking_app/providers/auth_providers/auth_provider.dart';
 import 'package:barber_booking_app/screens/master/master_appointment_detail_screen.dart';
+import 'package:barber_booking_app/screens/master/master_navigation.dart';
 import 'package:barber_booking_app/services/master_services/master_slot_appointments_service.dart';
 import 'package:barber_booking_app/utils/appointment_time_format.dart';
 import 'package:barber_booking_app/widgets/loading_indicator.dart';
@@ -125,7 +126,8 @@ class _MasterSlotAppointmentsScreenState
     final appBarFg = Theme.of(context).appBarTheme.foregroundColor ??
         Theme.of(context).colorScheme.onSurface;
 
-    return Scaffold(
+    return MasterScreenScaffold(
+      selectedTabIndex: MasterNav.slots,
       appBar: AppBar(
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -220,6 +222,7 @@ class _MasterSlotAppointmentsScreenState
                                               builder: (_) =>
                                                   MasterAppointmentDetailScreen(
                                                 appointmentId: a.Id!,
+                                                masterNavTab: MasterNav.slots,
                                               ),
                                             ),
                                           );

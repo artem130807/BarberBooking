@@ -137,40 +137,46 @@ class _DateTimeSelectionScreenState extends State<DateTimeSelectionScreen> {
   Widget build(BuildContext context) {
     return Consumer<GetSlotsProvider>(
       builder: (context, provider, child) {
+        final bg = Theme.of(context).scaffoldBackgroundColor;
         return Scaffold(
+          backgroundColor: bg,
           appBar: AppBar(
             title: Text('Выбор времени — ${widget.serviceName}'),
           ),
-          body: Column(
-            children: [
-              WeekCalendar(
-                selectedDate: _selectedDate,
-                onDateSelected: (date) {
-                  setState(() {
-                    _selectedDate = date;
-                    _selectedSlot = null;
-                  });
-                  _scheduleLoadSlotsForDate(date);
-                },
-              ),
-              const SizedBox(height: 16),
-              Expanded(
-                child: _buildTimeSlots(provider),
-              ),
-              Padding(
-                padding: const EdgeInsets.all(16),
-                child: SizedBox(
-                  width: double.infinity,
-                  height: 50,
-                  child: ElevatedButton(
-                    onPressed: _selectedSlot == null
-                        ? null
-                        : _createAppointment,
-                    child: const Text('Записаться', style: TextStyle(fontSize: 16)),
+          body: ColoredBox(
+            color: bg,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                WeekCalendar(
+                  selectedDate: _selectedDate,
+                  onDateSelected: (date) {
+                    setState(() {
+                      _selectedDate = date;
+                      _selectedSlot = null;
+                    });
+                    _scheduleLoadSlotsForDate(date);
+                  },
+                ),
+                const SizedBox(height: 16),
+                Expanded(
+                  child: _buildTimeSlots(provider),
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: SizedBox(
+                    width: double.infinity,
+                    height: 50,
+                    child: ElevatedButton(
+                      onPressed: _selectedSlot == null
+                          ? null
+                          : _createAppointment,
+                      child: const Text('Записаться', style: TextStyle(fontSize: 16)),
+                    ),
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         );
       },
@@ -258,19 +264,13 @@ class WeekCalendar extends StatelessWidget {
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
 
-    return Container(
-      padding: const EdgeInsets.symmetric(vertical: 12),
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surface,
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.15),
-            blurRadius: 4,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Column(
+    return Material(
+      color: Theme.of(context).colorScheme.surface,
+      elevation: 1,
+      shadowColor: Colors.black.withValues(alpha: 0.2),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 12),
+        child: Column(
         children: [
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -320,6 +320,7 @@ class WeekCalendar extends StatelessWidget {
             }),
           ),
         ],
+        ),
       ),
     );
   }

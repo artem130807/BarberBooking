@@ -4,6 +4,8 @@ import 'package:barber_booking_app/models/master_models/response/get_master_resp
 import 'package:barber_booking_app/providers/auth_providers/auth_provider.dart';
 import 'package:barber_booking_app/providers/master_providers/master_session_provider.dart';
 import 'package:barber_booking_app/screens/master/master_appointment_detail_screen.dart';
+import 'package:barber_booking_app/screens/master/master_calendar_screen.dart';
+import 'package:barber_booking_app/screens/master/master_navigation.dart';
 import 'package:barber_booking_app/services/master_services/master_appointments_list_service.dart';
 import 'package:barber_booking_app/utils/appointment_time_format.dart';
 import 'package:barber_booking_app/widgets/loading_indicator.dart';
@@ -88,7 +90,21 @@ class _MasterTodayScreenState extends State<MasterTodayScreen> {
       appBar: AppBar(
         title: const Text('Сегодня'),
         automaticallyImplyLeading: false,
-        actions: const [MasterNotificationAppBarButton()],
+        actions: [
+          IconButton(
+            tooltip: 'Календарь',
+            icon: const Icon(Icons.calendar_month_rounded),
+            onPressed: () {
+              Navigator.of(context).push<void>(
+                MaterialPageRoute(
+                  builder: (_) =>
+                      MasterCalendarScreen(masterNavTab: MasterNav.today),
+                ),
+              );
+            },
+          ),
+          const MasterNotificationAppBarButton(),
+        ],
       ),
       body: Consumer<MasterSessionProvider>(
         builder: (context, session, _) {
@@ -199,6 +215,7 @@ class _MasterTodayScreenState extends State<MasterTodayScreen> {
                                           builder: (_) =>
                                               MasterAppointmentDetailScreen(
                                             appointmentId: a.Id!,
+                                            masterNavTab: MasterNav.today,
                                           ),
                                         ),
                                       );

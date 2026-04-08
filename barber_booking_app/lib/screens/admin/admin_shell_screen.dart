@@ -36,10 +36,13 @@ class _AdminShellScreenState extends State<AdminShellScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final bg = Theme.of(context).scaffoldBackgroundColor;
+    final i = _index.clamp(0, _pages.length - 1);
     return Scaffold(
-      body: IndexedStack(
-        index: _index,
-        children: _pages,
+      backgroundColor: bg,
+      body: ColoredBox(
+        color: bg,
+        child: _pages[i],
       ),
       bottomNavigationBar: AdminBottomNavigationBar(
         selectedIndex: _index,

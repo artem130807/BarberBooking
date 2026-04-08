@@ -158,12 +158,16 @@ class MyApp extends StatelessWidget {
         theme: AppTheme.darkTheme,
         initialRoute: '/login',
         builder: (context, child) {
+          final bg = Theme.of(context).scaffoldBackgroundColor;
           return Stack(
-            clipBehavior: Clip.none,
+            clipBehavior: Clip.hardEdge,
             children: [
               Positioned.fill(
-                child: AuthSignalRBootstrap(
-                  child: child ?? const SizedBox.shrink(),
+                child: ColoredBox(
+                  color: bg,
+                  child: AuthSignalRBootstrap(
+                    child: child ?? const SizedBox.shrink(),
+                  ),
                 ),
               ),
               const NotificationToastOverlay(),

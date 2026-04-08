@@ -43,7 +43,10 @@ class _SalonsByServiceScreenState extends State<SalonsByServiceScreen> {
   @override
   void initState() {
     super.initState();
-    _loadSalons();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      _loadSalons();
+    });
   }
 
   void _onNavItemTapped(int index) {

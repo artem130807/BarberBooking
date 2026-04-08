@@ -43,6 +43,10 @@ class _AppointmentsScreenState extends State<AppointmentsScreen>
   void initState() {
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
+    _tabController.addListener(() {
+      if (_tabController.indexIsChanging) return;
+      setState(() {});
+    });
     _loadAppointments();
   }
 
@@ -90,10 +94,12 @@ class _AppointmentsScreenState extends State<AppointmentsScreen>
   Widget build(BuildContext context) {
     return Consumer<GetAppointmentsByClientProvider>(
       builder: (context, provider, child) {
+        final bg = Theme.of(context).scaffoldBackgroundColor;
         return Scaffold(
+          backgroundColor: bg,
           appBar: AppBar(
             title: const Text('Мои записи'),
-            automaticallyImplyLeading: false, // убирает стрелку назад
+            automaticallyImplyLeading: false,
             bottom: TabBar(
               controller: _tabController,
               tabs: const [
@@ -140,12 +146,22 @@ class _AppointmentsScreenState extends State<AppointmentsScreen>
     final completed = allAppointments.where((a) =>
         a.Status == 'Completed' || a.Status == 'Cancelled').toList();
 
-    return TabBarView(
-      controller: _tabController,
-      children: [
-        _buildList(upcoming, 'Нет предстоящих записей'),
-        _buildList(completed, 'Нет завершённых записей'),
-      ],
+    return ColoredBox(
+      color: Theme.of(context).scaffoldBackgroundColor,
+      child: AnimatedSwitcher(
+        duration: const Duration(milliseconds: 220),
+        switchInCurve: Curves.easeOut,
+        switchOutCurve: Curves.easeOut,
+        child: _tabController.index == 0
+            ? KeyedSubtree(
+                key: const ValueKey('upcoming'),
+                child: _buildList(upcoming, 'Нет предстоящих записей'),
+              )
+            : KeyedSubtree(
+                key: const ValueKey('completed'),
+                child: _buildList(completed, 'Нет завершённых записей'),
+              ),
+      ),
     );
   }
 

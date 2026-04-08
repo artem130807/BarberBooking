@@ -11,13 +11,19 @@ class GetSalonsByServiceProvider extends BaseProvider{
 
   List<GetSalonsResponse>? get getSalonsResponse => _getSalonsResponse;
   Future<bool> getSalons(String? serviceName, PageParams params, String? token) async{
+  final trimmed = serviceName?.trim();
+  if (trimmed == null || trimmed.isEmpty) {
+    setError('Не указано название услуги');
+    return false;
+  }
+  _getSalonsResponse = null;
   startLoading();
   try{
   final request = PageParams(
     Page: params.Page,
     PageSize: params.PageSize
   );
-  final response = await _salonService.GetSalons(serviceName, request, token);
+  final response = await _salonService.GetSalons(trimmed, request, token);
   if(response != null && response.isNotEmpty){
     _getSalonsResponse = response;
     finishLoading();  
@@ -26,11 +32,13 @@ class GetSalonsByServiceProvider extends BaseProvider{
   }else{
     _getSalonsResponse = [];
     finishLoading();
+    notifyListeners();
     return false;
   }
   }catch(e){
     print(e);
     finishLoading();
+    notifyListeners();
     return false;
   }
   }

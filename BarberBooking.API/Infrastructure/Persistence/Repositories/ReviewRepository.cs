@@ -31,7 +31,9 @@ namespace BarberBooking.API.Repositories
 
         public async Task<Review> GetReviewByAppointmentId(Guid appointmentId)
         {
-            return await _context.Reviews.FirstOrDefaultAsync(x => x.AppointmentId == appointmentId);
+            return await _context.Reviews
+            .Include(x => x.Appointment)
+            .FirstOrDefaultAsync(x => x.AppointmentId == appointmentId);
         }
 
         public async Task<Review> GetReviewById(Guid Id)

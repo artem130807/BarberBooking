@@ -302,6 +302,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                   const SizedBox(height: 24),
                   Stack(
+                    clipBehavior: Clip.hardEdge,
                     children: [
                       Opacity(
                         opacity: _isSearchFocused ? 0.3 : 1.0,

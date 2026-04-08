@@ -1,5 +1,6 @@
 import 'package:barber_booking_app/models/master_interface_models/response/get_master_time_slot_response.dart';
 import 'package:barber_booking_app/providers/auth_providers/auth_provider.dart';
+import 'package:barber_booking_app/screens/master/master_navigation.dart';
 import 'package:barber_booking_app/screens/master/master_slot_appointments_screen.dart';
 import 'package:barber_booking_app/services/master_services/master_time_slots_service.dart';
 import 'package:barber_booking_app/utils/appointment_time_format.dart';
@@ -136,7 +137,8 @@ class _MasterTimeSlotDetailScreenState extends State<MasterTimeSlotDetailScreen>
     final cs = Theme.of(context).colorScheme;
     final tt = Theme.of(context).textTheme;
 
-    return Scaffold(
+    return MasterScreenScaffold(
+      selectedTabIndex: MasterNav.slots,
       appBar: AppBar(
         title: const Text('Слот'),
       ),

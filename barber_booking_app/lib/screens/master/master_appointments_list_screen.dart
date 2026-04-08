@@ -2,6 +2,8 @@ import 'package:barber_booking_app/models/master_interface_models/master_appoint
 import 'package:barber_booking_app/models/master_interface_models/response/get_master_appointments_short_response.dart';
 import 'package:barber_booking_app/providers/auth_providers/auth_provider.dart';
 import 'package:barber_booking_app/screens/master/master_appointment_detail_screen.dart';
+import 'package:barber_booking_app/screens/master/master_calendar_screen.dart';
+import 'package:barber_booking_app/screens/master/master_navigation.dart';
 import 'package:barber_booking_app/services/master_services/master_appointments_list_service.dart';
 import 'package:barber_booking_app/utils/appointment_time_format.dart';
 import 'package:barber_booking_app/widgets/loading_indicator.dart';
@@ -116,7 +118,22 @@ class _MasterAppointmentsListScreenState
       appBar: AppBar(
         title: const Text('Записи'),
         automaticallyImplyLeading: false,
-        actions: const [MasterNotificationAppBarButton()],
+        actions: [
+          IconButton(
+            tooltip: 'Календарь',
+            icon: const Icon(Icons.calendar_month_rounded),
+            onPressed: () {
+              Navigator.of(context).push<void>(
+                MaterialPageRoute(
+                  builder: (_) => MasterCalendarScreen(
+                        masterNavTab: MasterNav.appointments,
+                      ),
+                ),
+              );
+            },
+          ),
+          const MasterNotificationAppBarButton(),
+        ],
       ),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -176,6 +193,8 @@ class _MasterAppointmentsListScreenState
                                               builder: (_) =>
                                                   MasterAppointmentDetailScreen(
                                                 appointmentId: a.Id!,
+                                                masterNavTab:
+                                                    MasterNav.appointments,
                                               ),
                                             ),
                                           );

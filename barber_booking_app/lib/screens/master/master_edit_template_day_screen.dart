@@ -1,4 +1,5 @@
 import 'package:barber_booking_app/models/master_interface_models/request/update_template_day_request.dart';
+import 'package:barber_booking_app/screens/master/master_navigation.dart';
 import 'package:barber_booking_app/models/master_interface_models/response/template_day_info.dart';
 import 'package:barber_booking_app/providers/auth_providers/auth_provider.dart';
 import 'package:barber_booking_app/services/master_services/weekly_template_service.dart';
@@ -113,7 +114,8 @@ class _MasterEditTemplateDayScreenState extends State<MasterEditTemplateDayScree
     final cs = Theme.of(context).colorScheme;
     final available = _availableDays;
 
-    return Scaffold(
+    return MasterScreenScaffold(
+      selectedTabIndex: MasterNav.slots,
       appBar: AppBar(
         title: const Text('Редактировать день'),
       ),

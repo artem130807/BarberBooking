@@ -8,6 +8,7 @@ import 'package:barber_booking_app/screens/master/master_my_services_screen.dart
 import 'package:barber_booking_app/screens/master/master_my_reviews_screen.dart';
 import 'package:barber_booking_app/screens/master/master_statistics_screen.dart';
 import 'package:barber_booking_app/widgets/master/master_notification_app_bar_button.dart';
+import 'package:barber_booking_app/widgets/phone_tap_bar.dart';
 import 'package:barber_booking_app/widgets/profile_shell_widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -155,8 +156,9 @@ class MasterProfileTabScreen extends StatelessWidget {
                       title: 'Телефон',
                       value: phone,
                       colorScheme: cs,
-                      valueWidget: SelectableText(
-                        phone,
+                      valueWidget: PhoneTapBar(
+                        phone: phone,
+                        showDialIcon: false,
                         style: tt.bodyLarge?.copyWith(
                           fontWeight: FontWeight.w600,
                           color: cs.onSurface,

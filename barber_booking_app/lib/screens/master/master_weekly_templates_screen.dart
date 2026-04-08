@@ -1,4 +1,5 @@
 import 'package:barber_booking_app/models/master_interface_models/response/weekly_template_short_info.dart';
+import 'package:barber_booking_app/screens/master/master_navigation.dart';
 import 'package:barber_booking_app/providers/auth_providers/auth_provider.dart';
 import 'package:barber_booking_app/screens/master/master_create_weekly_template_screen.dart';
 import 'package:barber_booking_app/screens/master/master_weekly_template_detail_screen.dart';
@@ -68,7 +69,8 @@ class _MasterWeeklyTemplatesScreenState extends State<MasterWeeklyTemplatesScree
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
 
-    return Scaffold(
+    return MasterScreenScaffold(
+      selectedTabIndex: MasterNav.slots,
       appBar: AppBar(
         title: const Text('Недельные шаблоны'),
       ),

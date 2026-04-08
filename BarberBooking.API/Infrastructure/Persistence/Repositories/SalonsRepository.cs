@@ -59,7 +59,7 @@ namespace BarberBooking.API.Repositories
         public async Task<PagedResult<Salons>> GetSalonsByServiceName(string serviceName, string city, PageParams pageParams)
         {
             var salonIdsWithService = await _context.Sevices
-            .Where(x => x.Name == serviceName)
+            .Where(x => x.Name.Contains(serviceName)) 
             .Select(x => x.SalonId)
             .Distinct()
             .ToListAsync();

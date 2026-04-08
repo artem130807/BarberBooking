@@ -3,6 +3,7 @@ import 'package:barber_booking_app/providers/auth_providers/auth_provider.dart';
 import 'package:barber_booking_app/providers/message_providers/get_count_messages_provider.dart';
 import 'package:barber_booking_app/services/messages_services/get_message_user_service.dart';
 import 'package:barber_booking_app/widgets/loading_indicator.dart';
+import 'package:barber_booking_app/screens/master/master_navigation.dart';
 import 'package:barber_booking_app/widgets/profile_shell_widgets.dart'
     show profileCardShape;
 import 'package:flutter/material.dart';
@@ -61,7 +62,8 @@ class _MasterNotificationsScreenState extends State<MasterNotificationsScreen> {
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
 
-    return Scaffold(
+    return MasterScreenScaffold(
+      selectedTabIndex: MasterNav.today,
       appBar: AppBar(
         title: const Text('Уведомления'),
       ),

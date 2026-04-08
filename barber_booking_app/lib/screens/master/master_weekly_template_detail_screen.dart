@@ -1,4 +1,5 @@
 import 'package:barber_booking_app/models/master_interface_models/response/template_day_info.dart';
+import 'package:barber_booking_app/screens/master/master_navigation.dart';
 import 'package:barber_booking_app/models/master_interface_models/response/weekly_template_info.dart';
 import 'package:barber_booking_app/providers/auth_providers/auth_provider.dart';
 import 'package:barber_booking_app/screens/master/master_add_template_day_screen.dart';
@@ -200,7 +201,8 @@ class _MasterWeeklyTemplateDetailScreenState
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
 
-    return Scaffold(
+    return MasterScreenScaffold(
+      selectedTabIndex: MasterNav.slots,
       appBar: AppBar(
         title: Text(_info?.name ?? 'Шаблон'),
         actions: [

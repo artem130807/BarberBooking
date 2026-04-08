@@ -1,4 +1,5 @@
 import 'package:barber_booking_app/models/master_interface_models/request/create_time_slot_request.dart';
+import 'package:barber_booking_app/screens/master/master_navigation.dart';
 import 'package:barber_booking_app/providers/auth_providers/auth_provider.dart';
 import 'package:barber_booking_app/services/master_services/master_time_slots_service.dart';
 import 'package:flutter/material.dart';
@@ -133,7 +134,8 @@ class _MasterCreateTimeSlotScreenState extends State<MasterCreateTimeSlotScreen>
     final cs = Theme.of(context).colorScheme;
     final df = DateFormat('dd.MM.yyyy');
 
-    return Scaffold(
+    return MasterScreenScaffold(
+      selectedTabIndex: MasterNav.slots,
       appBar: AppBar(
         title: const Text('Новый слот'),
       ),

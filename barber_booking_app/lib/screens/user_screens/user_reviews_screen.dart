@@ -61,6 +61,10 @@ class _UserReviewsScreenState extends State<UserReviewsScreen> with SingleTicker
   void initState() {
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
+    _tabController.addListener(() {
+      if (_tabController.indexIsChanging) return;
+      setState(() {});
+    });
     _loadReviews();
     _loadAwaiting();
   }
@@ -114,7 +118,9 @@ class _UserReviewsScreenState extends State<UserReviewsScreen> with SingleTicker
   Widget build(BuildContext context) {
     return Consumer2<GetAppointmentAwaitingReviewProvider, GetReviewsUserProvider>(
       builder: (context, awaitingProvider, reviewsProvider, child) {
+        final bg = Theme.of(context).scaffoldBackgroundColor;
         return Scaffold(
+          backgroundColor: bg,
           appBar: AppBar(
             title: const Text('Отзывы'),
             bottom: TabBar(
@@ -125,12 +131,22 @@ class _UserReviewsScreenState extends State<UserReviewsScreen> with SingleTicker
               ],
             ),
           ),
-          body: TabBarView(
-            controller: _tabController,
-            children: [
-              _buildMyReviewsPage(reviewsProvider),
-              _buildAwaitingPage(awaitingProvider),
-            ],
+          body: ColoredBox(
+            color: bg,
+            child: AnimatedSwitcher(
+              duration: const Duration(milliseconds: 220),
+              switchInCurve: Curves.easeOut,
+              switchOutCurve: Curves.easeOut,
+              child: _tabController.index == 0
+                  ? KeyedSubtree(
+                      key: const ValueKey('my_reviews'),
+                      child: _buildMyReviewsPage(reviewsProvider),
+                    )
+                  : KeyedSubtree(
+                      key: const ValueKey('awaiting'),
+                      child: _buildAwaitingPage(awaitingProvider),
+                    ),
+            ),
           ),
           bottomNavigationBar: BottomNavigationBar(
             type: BottomNavigationBarType.fixed,

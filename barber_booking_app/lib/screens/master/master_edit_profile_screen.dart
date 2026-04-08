@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:barber_booking_app/models/master_interface_models/request/update_master_profile_request.dart';
+import 'package:barber_booking_app/screens/master/master_navigation.dart';
 import 'package:barber_booking_app/models/master_models/response/get_master_response.dart';
 import 'package:barber_booking_app/providers/auth_providers/auth_provider.dart';
 import 'package:barber_booking_app/providers/master_providers/master_session_provider.dart';
@@ -110,7 +111,8 @@ class _MasterEditProfileScreenState extends State<MasterEditProfileScreen> {
       borderRadius: BorderRadius.circular(12),
       side: BorderSide(color: cs.outline.withValues(alpha: 0.2)),
     );
-    return Scaffold(
+    return MasterScreenScaffold(
+      selectedTabIndex: MasterNav.profile,
       appBar: AppBar(
         title: const Text('Редактирование'),
       ),

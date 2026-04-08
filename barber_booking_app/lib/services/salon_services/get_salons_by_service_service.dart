@@ -8,19 +8,21 @@ class GetSalonsByServiceService {
 
      Future<List<GetSalonsResponse>?> GetSalons(String? serviceName ,PageParams params, String? token) async{
       try {
-        print('📦 Получен запрос: параметры ${params.Page}, ${params.PageSize}');
+        final name = (serviceName ?? '').trim();
+        if (name.isEmpty) {
+          return null;
+        }
+        final page = params.Page ?? 1;
+        final pageSize = params.PageSize ?? 20;
 
         final url = Uri.parse('$kApiBaseUrl/api/Salon/GetSalonsByServiceName').replace(
-          queryParameters: {
-            'serviceName':serviceName.toString(),
-            'page':params.Page.toString(),
-            'pageSize':params.PageSize.toString()
-          }
+          queryParameters: <String, String>{
+            'serviceName': name,
+            'Page': '$page',
+            'PageSize': '$pageSize',
+          },
         );
-        print('🌐 URL: $url');
-        
-        final requestBody = json.encode(params.toJson());
-        print('📤 Отправляю: $requestBody');
+        print('🌐 GetSalonsByServiceName: $url');
         
         final response = await http.get(
         url,

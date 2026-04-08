@@ -3,6 +3,7 @@ import 'package:barber_booking_app/models/params/review_params/review_sort_param
 import 'package:barber_booking_app/models/review_models/response/get_reviews_master_response.dart';
 import 'package:barber_booking_app/services/review_services/get_reviews_master_service.dart';
 import 'package:barber_booking_app/widgets/loading_indicator.dart';
+import 'package:barber_booking_app/screens/master/master_navigation.dart';
 import 'package:barber_booking_app/widgets/review_widgets/master_review_card.dart';
 import 'package:flutter/material.dart';
 
@@ -137,7 +138,8 @@ class _MasterMyReviewsScreenState extends State<MasterMyReviewsScreen> {
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
 
-    return Scaffold(
+    return MasterScreenScaffold(
+      selectedTabIndex: MasterNav.profile,
       appBar: AppBar(
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,

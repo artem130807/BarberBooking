@@ -11,6 +11,51 @@ abstract final class MasterNav {
   static const int appointments = 1;
   static const int slots = 2;
   static const int profile = 3;
+
+  /// Переход на вкладку shell мастера (сбрасывает стек до `/master_home`).
+  static void goToTab(BuildContext context, int index) {
+    final i = index.clamp(0, 3);
+    Navigator.of(context).pushNamedAndRemoveUntil(
+      '/master_home',
+      (route) => false,
+      arguments: MasterShellArgs(initialTab: i),
+    );
+  }
+}
+
+/// Нижняя навигация мастера для экранов поверх [MasterShellScreen] (не для вкладок внутри shell).
+class MasterScreenScaffold extends StatelessWidget {
+  const MasterScreenScaffold({
+    super.key,
+    required this.selectedTabIndex,
+    required this.body,
+    this.appBar,
+    this.floatingActionButton,
+    this.backgroundColor,
+    this.resizeToAvoidBottomInset = true,
+  });
+
+  final int selectedTabIndex;
+  final Widget body;
+  final PreferredSizeWidget? appBar;
+  final Widget? floatingActionButton;
+  final Color? backgroundColor;
+  final bool resizeToAvoidBottomInset;
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: backgroundColor,
+      appBar: appBar,
+      body: body,
+      floatingActionButton: floatingActionButton,
+      resizeToAvoidBottomInset: resizeToAvoidBottomInset,
+      bottomNavigationBar: MasterBottomNavigationBar(
+        selectedIndex: selectedTabIndex.clamp(0, 3),
+        onDestinationSelected: (i) => MasterNav.goToTab(context, i),
+      ),
+    );
+  }
 }
 
 class MasterBottomNavigationBar extends StatelessWidget {

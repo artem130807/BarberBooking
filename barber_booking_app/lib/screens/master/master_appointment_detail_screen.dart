@@ -1,17 +1,25 @@
 import 'package:barber_booking_app/models/master_interface_models/response/get_master_appointment_info_response.dart';
 import 'package:barber_booking_app/providers/auth_providers/auth_provider.dart';
+import 'package:barber_booking_app/screens/master/master_navigation.dart';
 import 'package:barber_booking_app/services/master_services/master_appointment_detail_service.dart';
 import 'package:barber_booking_app/utils/appointment_status_normalize.dart';
 import 'package:barber_booking_app/utils/appointment_time_format.dart';
 import 'package:barber_booking_app/widgets/loading_indicator.dart';
+import 'package:barber_booking_app/widgets/phone_tap_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 class MasterAppointmentDetailScreen extends StatefulWidget {
-  const MasterAppointmentDetailScreen({super.key, required this.appointmentId});
+  const MasterAppointmentDetailScreen({
+    super.key,
+    required this.appointmentId,
+    this.masterNavTab = MasterNav.appointments,
+  });
 
   final String appointmentId;
+  /// Вкладка shell, с которой логично вернуться (подсветка нижней панели).
+  final int masterNavTab;
 
   @override
   State<MasterAppointmentDetailScreen> createState() =>
@@ -154,7 +162,8 @@ class _MasterAppointmentDetailScreenState
     final df = DateFormat('dd.MM.yyyy');
     final phone = _data?.dtoUsersNavigation?.dtoPhone?.Number.trim();
 
-    return Scaffold(
+    return MasterScreenScaffold(
+      selectedTabIndex: widget.masterNavTab,
       appBar: AppBar(
         title: const Text('Запись'),
       ),
@@ -211,21 +220,26 @@ class _MasterAppointmentDetailScreenState
                               child: Row(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Icon(
-                                    Icons.phone_outlined,
-                                    size: 18,
-                                    color: cs.onSurfaceVariant,
+                                  Padding(
+                                    padding: const EdgeInsets.only(top: 2),
+                                    child: Icon(
+                                      Icons.phone_outlined,
+                                      size: 18,
+                                      color: cs.onSurfaceVariant,
+                                    ),
                                   ),
                                   const SizedBox(width: 8),
                                   Expanded(
-                                    child: SelectableText(
-                                      phone,
+                                    child: PhoneTapBar(
+                                      phone: phone,
                                       style: Theme.of(context)
                                           .textTheme
                                           .bodyMedium
                                           ?.copyWith(
                                             color: cs.onSurfaceVariant,
                                           ),
+                                      dense: true,
+                                      showDialIcon: false,
                                     ),
                                   ),
                                 ],

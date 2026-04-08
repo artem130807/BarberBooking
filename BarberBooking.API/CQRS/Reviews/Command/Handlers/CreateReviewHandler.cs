@@ -23,8 +23,8 @@ namespace BarberBooking.API.CQRS.Reviews.Command.Handlers
         private readonly IReviewRepository _reviewRepository;
         private readonly IValidateReviewRepository _validateReviewRepository;
         private readonly IUserRepository _userRepository;
-
-        public CreateReviewHandler(IMapper mapper, IUnitOfWork unitOfWork, IRatingService ratingService, IUserContext userContext, IReviewRepository reviewRepository, IValidateReviewRepository validateReviewRepository, IUserRepository userRepository)
+        private readonly IAppointmentsRepository _appointmentsRepository;
+        public CreateReviewHandler(IMapper mapper, IUnitOfWork unitOfWork, IRatingService ratingService, IUserContext userContext, IReviewRepository reviewRepository, IValidateReviewRepository validateReviewRepository, IUserRepository userRepository, IAppointmentsRepository appointmentsRepository)
         {
             _mapper = mapper;
             _unitOfWork = unitOfWork;
@@ -33,6 +33,7 @@ namespace BarberBooking.API.CQRS.Reviews.Command.Handlers
             _reviewRepository = reviewRepository;
             _validateReviewRepository = validateReviewRepository;
             _userRepository = userRepository;
+            _appointmentsRepository = appointmentsRepository;
         }
 
         public async Task<Result<DtoReviewInfo>> Handle(CreateReviewCommand command, CancellationToken cancellationToken)
@@ -44,7 +45,6 @@ namespace BarberBooking.API.CQRS.Reviews.Command.Handlers
             var user = await _userRepository.GetUserById(userId);
             if (user == null)
                 return Result.Failure<DtoReviewInfo>("Пользователь не найден. Убедитесь, что вы зарегистрированы в приложении.");
-
             var valid = await _validateReviewRepository.Validate(command.dtoCreateReview);
             if(valid.IsFailure)
                 return Result.Failure<DtoReviewInfo>(valid.Error);
@@ -52,6 +52,9 @@ namespace BarberBooking.API.CQRS.Reviews.Command.Handlers
             var review = await _reviewRepository.GetReviewByAppointmentId(command.dtoCreateReview.AppointmentId);
             if(review != null)
                 return Result.Failure<DtoReviewInfo>("Вы уже оставляли отзыв на эту запись");
+            if(review.Appointment.Status != Enums.AppointmentStatusEnum.Completed)
+                return Result.Failure<DtoReviewInfo>("Вы не можете оставить отзыв на невыполненную запись");
+                
             var CreateReview = Review.Create(command.dtoCreateReview.AppointmentId, userId,command.dtoCreateReview.SalonId, command.dtoCreateReview.MasterProfileId, 
             command.dtoCreateReview.SalonRating, command.dtoCreateReview.MasterRating, 
             command.dtoCreateReview.Comment);

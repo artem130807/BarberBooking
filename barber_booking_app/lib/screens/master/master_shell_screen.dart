@@ -1,3 +1,4 @@
+import 'package:barber_booking_app/models/master_models/response/get_master_response.dart';
 import 'package:barber_booking_app/providers/auth_providers/auth_provider.dart';
 import 'package:barber_booking_app/providers/master_providers/master_session_provider.dart';
 import 'package:barber_booking_app/providers/message_providers/get_count_messages_provider.dart';
@@ -46,15 +47,18 @@ class _MasterShellScreenState extends State<MasterShellScreen> {
   Widget build(BuildContext context) {
     return Consumer<MasterSessionProvider>(
       builder: (context, session, _) {
+        final themeBg = Theme.of(context).scaffoldBackgroundColor;
         if (session.isLoading && session.profile == null) {
-          return const Scaffold(
-            body: Center(
+          return Scaffold(
+            backgroundColor: themeBg,
+            body: const Center(
               child: LoadingIndicator(message: 'Загрузка…'),
             ),
           );
         }
         if (session.errorMessage != null && session.profile == null) {
           return Scaffold(
+            backgroundColor: themeBg,
             body: Center(
               child: Padding(
                 padding: const EdgeInsets.all(24),
@@ -87,19 +91,21 @@ class _MasterShellScreenState extends State<MasterShellScreen> {
         }
         final profile = session.profile;
         if (profile == null) {
-          return const Scaffold(
-            body: Center(child: Text('Профиль мастера недоступен')),
+          return Scaffold(
+            backgroundColor: themeBg,
+            body: const Center(child: Text('Профиль мастера недоступен')),
           );
         }
+        final bg = themeBg;
         return Scaffold(
-          body: IndexedStack(
-            index: _index,
-            children: [
-              MasterTodayScreen(profile: profile),
-              const MasterAppointmentsListScreen(),
-              MasterSlotsScreen(masterId: profile.Id ?? ''),
-              MasterProfileTabScreen(profile: profile),
-            ],
+          backgroundColor: bg,
+          extendBody: false,
+          body: ColoredBox(
+            color: bg,
+            child: _MasterTabBody(
+              index: _index,
+              profile: profile,
+            ),
           ),
           bottomNavigationBar: MasterBottomNavigationBar(
             selectedIndex: _index,
@@ -108,5 +114,31 @@ class _MasterShellScreenState extends State<MasterShellScreen> {
         );
       },
     );
+  }
+}
+
+class _MasterTabBody extends StatelessWidget {
+  const _MasterTabBody({
+    required this.index,
+    required this.profile,
+  });
+
+  final int index;
+  final GetMasterResponse profile;
+
+  @override
+  Widget build(BuildContext context) {
+    switch (index.clamp(0, 3)) {
+      case 0:
+        return MasterTodayScreen(profile: profile);
+      case 1:
+        return const MasterAppointmentsListScreen();
+      case 2:
+        return MasterSlotsScreen(masterId: profile.Id ?? '');
+      case 3:
+        return MasterProfileTabScreen(profile: profile);
+      default:
+        return MasterProfileTabScreen(profile: profile);
+    }
   }
 }

@@ -1,4 +1,5 @@
 import 'package:barber_booking_app/models/master_interface_models/response/master_service_link_response.dart';
+import 'package:barber_booking_app/screens/master/master_navigation.dart';
 import 'package:barber_booking_app/models/master_interface_models/response/salon_service_catalog_item.dart';
 import 'package:barber_booking_app/providers/auth_providers/auth_provider.dart';
 import 'package:barber_booking_app/services/master_services/master_services_api_service.dart';
@@ -149,7 +150,8 @@ class _MasterMyServicesScreenState extends State<MasterMyServicesScreen> {
     final cs = Theme.of(context).colorScheme;
     final tt = Theme.of(context).textTheme;
 
-    return Scaffold(
+    return MasterScreenScaffold(
+      selectedTabIndex: MasterNav.profile,
       appBar: AppBar(
         title: const Text('Мои услуги'),
       ),

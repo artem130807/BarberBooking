@@ -1,4 +1,5 @@
 import 'package:barber_booking_app/models/master_interface_models/request/create_weekly_template_request.dart';
+import 'package:barber_booking_app/screens/master/master_navigation.dart';
 import 'package:barber_booking_app/providers/auth_providers/auth_provider.dart';
 import 'package:barber_booking_app/services/master_services/weekly_template_service.dart';
 import 'package:flutter/material.dart';
@@ -59,7 +60,8 @@ class _MasterCreateWeeklyTemplateScreenState
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
 
-    return Scaffold(
+    return MasterScreenScaffold(
+      selectedTabIndex: MasterNav.slots,
       appBar: AppBar(
         title: const Text('Новый шаблон'),
       ),
