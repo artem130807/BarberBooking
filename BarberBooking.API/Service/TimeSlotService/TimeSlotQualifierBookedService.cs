@@ -38,6 +38,7 @@ namespace BarberBooking.API.Service.TimeSlotService
                     _unitOfWork.BeginTransaction();
                     timeSlot.UpdateMasterTimeSlotStatus(Enums.MasterTimeSlotStatus.Booked);
                     _unitOfWork.Commit();
+                    _logger.LogInformation("Слот полносью зарезервирован");  
                 }catch(Exception ex)
                 {
                     _unitOfWork.RollBack();

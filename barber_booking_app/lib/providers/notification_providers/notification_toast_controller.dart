@@ -12,8 +12,14 @@ class NotificationToastController extends ChangeNotifier {
     DateTime? createdAt,
     String? stableId,
   }) {
+    if (stableId != null && stableId.isNotEmpty) {
+      final dedupeId = 'srv_$stableId';
+      if (_items.any((e) => e.id == dedupeId)) {
+        return;
+      }
+    }
     final id = stableId != null && stableId.isNotEmpty
-        ? 'srv_${stableId}_${DateTime.now().microsecondsSinceEpoch}'
+        ? 'srv_$stableId'
         : '${DateTime.now().microsecondsSinceEpoch}_${text.hashCode}';
     _items.insert(
       0,

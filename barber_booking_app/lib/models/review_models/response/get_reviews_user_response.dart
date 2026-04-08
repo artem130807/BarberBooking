@@ -1,7 +1,6 @@
 import 'package:barber_booking_app/models/appointment_models/response/appointment_navigation_response.dart';
 import 'package:barber_booking_app/models/master_models/response/master_navigation_response.dart';
 import 'package:barber_booking_app/models/salon_models/response/salon_navigation_response.dart';
-import 'package:barber_booking_app/screens/user_interfaces/appointment_screens/appointments_screen.dart';
 
 class GetReviewsUserResponse {
   String? Id;
@@ -18,17 +17,37 @@ class GetReviewsUserResponse {
   this.dtoSalonNavigation, this.masterProfileNavigation, 
   this.Comment, this.CreatedAt});
 
-  factory GetReviewsUserResponse.fromJson(Map<String, dynamic> json){
-      return GetReviewsUserResponse(
-        Id: json['id'],
-        SalonRating: json['salonRating'],
-        MasterRating: json['masterRating'],
-        ServiceName: json['serviceName'],
-        dtoAppointmentNavigation: json['dtoAppointmentNavigation'] != null ? AppointmentNavigationResponse.fromJson(json['dtoAppointmentNavigation']): null,
-        dtoSalonNavigation: json['dtoSalonNavigation'] != null ? SalonNavigationResponse.fromJson(json['dtoSalonNavigation']): null,
-       masterProfileNavigation: json['masterProfileNavigation'] != null ? MasterNavigationResponse.fromJson(json['masterProfileNavigation']): null,
-        Comment: json['comment'],
-        CreatedAt: json['createdAt']
-      );
+  factory GetReviewsUserResponse.fromJson(Map<String, dynamic> json) {
+    dynamic v(String a, String b) => json[a] ?? json[b];
+    final appt = v('dtoAppointmentNavigation', 'DtoAppointmentNavigation');
+    final salon = v('dtoSalonNavigation', 'DtoSalonNavigation');
+    final master = v('masterProfileNavigation', 'MasterProfileNavigation');
+    return GetReviewsUserResponse(
+      Id: v('id', 'Id')?.toString(),
+      SalonRating: _parseInt(v('salonRating', 'SalonRating')),
+      MasterRating: _parseInt(v('masterRating', 'MasterRating')),
+      ServiceName: v('serviceName', 'ServiceName')?.toString(),
+      dtoAppointmentNavigation: appt != null
+          ? AppointmentNavigationResponse.fromJson(
+              Map<String, dynamic>.from(appt as Map))
+          : null,
+      dtoSalonNavigation: salon != null
+          ? SalonNavigationResponse.fromJson(
+              Map<String, dynamic>.from(salon as Map))
+          : null,
+      masterProfileNavigation: master != null
+          ? MasterNavigationResponse.fromJson(
+              Map<String, dynamic>.from(master as Map))
+          : null,
+      Comment: v('comment', 'Comment')?.toString(),
+      CreatedAt: v('createdAt', 'CreatedAt')?.toString(),
+    );
+  }
+
+  static int? _parseInt(dynamic x) {
+    if (x == null) return null;
+    if (x is int) return x;
+    if (x is num) return x.toInt();
+    return int.tryParse(x.toString());
   }
 }

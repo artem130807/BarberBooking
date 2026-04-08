@@ -14,16 +14,25 @@ namespace BarberBooking.API.CQRS.AppointmentsQueries.Handlers
     {
         private readonly IAppointmentsRepository _appointmentsRepository;
         private readonly IMapper _mapper;
-        public GetAppointmentClientByIdHandler(IAppointmentsRepository appointmentsRepository, IMapper mapper)
+        private readonly IUserContext _userContext;
+        public GetAppointmentClientByIdHandler(
+            IAppointmentsRepository appointmentsRepository,
+            IMapper mapper,
+            IUserContext userContext)
         {
             _appointmentsRepository = appointmentsRepository;
             _mapper = mapper;
+            _userContext = userContext;
         }
         public async Task<Result<DtoClientAppointmentInfo>> Handle(AppointmentsQueries.GetAppointmentClientByIdHandler query, CancellationToken cancellationToken)
         {
+            if (!_userContext.IsAuthenticated || _userContext.UserId == Guid.Empty)
+                return Result.Failure<DtoClientAppointmentInfo>("Требуется авторизация");
             var appointment = await _appointmentsRepository.GetByIdAsync(query.Id);
             if(appointment == null)
                 return Result.Failure<DtoClientAppointmentInfo>("Запись не найдена");
+            if (appointment.ClientId != _userContext.UserId)
+                return Result.Failure<DtoClientAppointmentInfo>("Нет доступа");
             var result = _mapper.Map<DtoClientAppointmentInfo>(appointment);
             return Result.Success(result);
         }

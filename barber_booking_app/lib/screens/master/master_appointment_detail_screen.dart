@@ -100,9 +100,7 @@ class _MasterAppointmentDetailScreenState
     if (!mounted) return;
     setState(() => _completing = false);
     if (result.ok) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Запись отмечена как выполненная')),
-      );
+      // Один канал обратной связи: push приходит по SignalR (см. CompletedStatusAppointmentHandler).
       Navigator.of(context).pop(true);
       return;
     }

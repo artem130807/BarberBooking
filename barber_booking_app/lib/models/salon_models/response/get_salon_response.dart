@@ -18,20 +18,34 @@ class GetSalonResponse {
   this.ClosingTime, this.IsActive, this.MainPhotoUrl, this.Rating, 
   this.RatingCount});
 
-  factory GetSalonResponse.fromJson(Map<String, dynamic> json){
-      return  GetSalonResponse(
-          Id: json['id'],
-          Name: json['name'],
-          Description: json['description'],
-          Address: json['address'] != null ? DtoAddress.fromJson(json['address']): null,
-          Phone: json['phone'] != null ? DtoPhone.fromJson(json['phone']) : null,
-          OpeningTime: json['openingTime'],
-          ClosingTime: json['closingTime'],
-          IsActive: json['isActive'],
-          MainPhotoUrl: json['mainPhotoUrl'],
-          Rating: json['rating'],
-          RatingCount: json['ratingCount']
-      );
-    }
+  factory GetSalonResponse.fromJson(Map<String, dynamic> json) {
+    dynamic v(String a, String b) => json[a] ?? json[b];
+    final ot = v('openingTime', 'OpeningTime');
+    final ct = v('closingTime', 'ClosingTime');
+    return GetSalonResponse(
+      Id: v('id', 'Id')?.toString(),
+      Name: v('name', 'Name')?.toString(),
+      Description: v('description', 'Description')?.toString(),
+      Address: v('address', 'Address') != null
+          ? DtoAddress.fromJson(Map<String, dynamic>.from(v('address', 'Address') as Map))
+          : null,
+      Phone: v('phone', 'Phone') != null
+          ? DtoPhone.fromJson(Map<String, dynamic>.from(v('phone', 'Phone') as Map))
+          : null,
+      OpeningTime: ot != null ? ot.toString() : null,
+      ClosingTime: ct != null ? ct.toString() : null,
+      IsActive: v('isActive', 'IsActive') as bool?,
+      MainPhotoUrl: v('mainPhotoUrl', 'MainPhotoUrl')?.toString(),
+      Rating: (v('rating', 'Rating') as num?)?.toDouble(),
+      RatingCount: _parseInt(v('ratingCount', 'RatingCount')),
+    );
+  }
+
+  static int? _parseInt(dynamic x) {
+    if (x == null) return null;
+    if (x is int) return x;
+    if (x is num) return x.toInt();
+    return int.tryParse(x.toString());
+  }
 
 }

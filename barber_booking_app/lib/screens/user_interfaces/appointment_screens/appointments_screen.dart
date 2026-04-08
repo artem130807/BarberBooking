@@ -143,8 +143,9 @@ class _AppointmentsScreenState extends State<AppointmentsScreen>
     // Пример фильтрации: замените на реальные статусы
     final upcoming = allAppointments.where((a) =>
         a.Status == 'Pending' || a.Status == 'Confirmed').toList();
-    final completed = allAppointments.where((a) =>
-        a.Status == 'Completed' || a.Status == 'Cancelled').toList();
+    final completed = allAppointments
+        .where((a) => a.Status == 'Completed')
+        .toList();
 
     return ColoredBox(
       color: Theme.of(context).scaffoldBackgroundColor,

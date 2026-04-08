@@ -51,6 +51,10 @@ namespace BarberBooking.API.Service.Background
                         {
                             salon.UpdateIsActive(true);
                         }
+                        if(DateTime.Now.Hour <= minTime.Hour || DateTime.Now.Hour >= maxTime.Hour)
+                        {
+                            salon.UpdateIsActive(false);
+                        }
                         else
                         {
                             salon.UpdateIsActive(false);

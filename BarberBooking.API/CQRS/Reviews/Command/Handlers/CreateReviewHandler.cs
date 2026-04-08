@@ -10,7 +10,6 @@ using BarberBooking.API.Dto.DtoReview;
 using BarberBooking.API.Models;
 using CSharpFunctionalExtensions;
 using MediatR;
-using Microsoft.VisualBasic;
 
 namespace BarberBooking.API.CQRS.Reviews.Command.Handlers
 {
@@ -50,11 +49,17 @@ namespace BarberBooking.API.CQRS.Reviews.Command.Handlers
                 return Result.Failure<DtoReviewInfo>(valid.Error);
                 
             var review = await _reviewRepository.GetReviewByAppointmentId(command.dtoCreateReview.AppointmentId);
-            if(review != null)
+            if (review != null)
                 return Result.Failure<DtoReviewInfo>("Вы уже оставляли отзыв на эту запись");
-            if(review.Appointment.Status != Enums.AppointmentStatusEnum.Completed)
+
+            var appointment = await _appointmentsRepository.GetByIdAsync(command.dtoCreateReview.AppointmentId);
+            if (appointment == null)
+                return Result.Failure<DtoReviewInfo>("Запись не найдена");
+            if (appointment.ClientId != userId)
+                return Result.Failure<DtoReviewInfo>("Вы можете оставить отзыв только по своей записи");
+            if (appointment.Status != Enums.AppointmentStatusEnum.Completed)
                 return Result.Failure<DtoReviewInfo>("Вы не можете оставить отзыв на невыполненную запись");
-                
+
             var CreateReview = Review.Create(command.dtoCreateReview.AppointmentId, userId,command.dtoCreateReview.SalonId, command.dtoCreateReview.MasterProfileId, 
             command.dtoCreateReview.SalonRating, command.dtoCreateReview.MasterRating, 
             command.dtoCreateReview.Comment);
@@ -70,7 +75,10 @@ namespace BarberBooking.API.CQRS.Reviews.Command.Handlers
             }
             await _ratingService.AddSalonRating(command.dtoCreateReview.SalonId, command.dtoCreateReview.SalonRating,cancellationToken);
             if (command.dtoCreateReview.MasterProfileId.HasValue)
-                await _ratingService.AddMasterRating(command.dtoCreateReview.MasterProfileId.Value, command.dtoCreateReview.SalonRating, cancellationToken);
+            {
+                var masterRating = command.dtoCreateReview.MasterRating ?? command.dtoCreateReview.SalonRating;
+                await _ratingService.AddMasterRating(command.dtoCreateReview.MasterProfileId.Value, masterRating, cancellationToken);
+            }
                 
             var result = _mapper.Map<DtoReviewInfo>(CreateReview);
             return Result.Success(result);

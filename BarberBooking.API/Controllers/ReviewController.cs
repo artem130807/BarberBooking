@@ -22,6 +22,7 @@ namespace BarberBooking.API.Controllers
         {
             _mediator = mediator;
         }
+        [Authorize]
         [HttpPost("Create-Review")]
         public async Task<IActionResult> CreateReview([FromBody] DtoCreateReview dtoCreateReview)
         {
@@ -31,6 +32,7 @@ namespace BarberBooking.API.Controllers
                 return BadRequest(result.Error);
             return Ok(result.Value);
         }
+        [Authorize]
         [HttpDelete("Delete-Review/{Id}")]
         public async Task<IActionResult> DeleteReview(Guid Id)
         {
@@ -49,6 +51,7 @@ namespace BarberBooking.API.Controllers
                 return BadRequest(result.Error);
             return Ok(result.Value);
         }
+        [Authorize]
         [HttpGet("GetReviewsByClientId")]
         public async Task<IActionResult> GetReviewsByClientId([FromQuery] PageParams pageParams)
         {
@@ -85,6 +88,7 @@ namespace BarberBooking.API.Controllers
                 return BadRequest(result.Error);
             return Ok(result.Value);
         }
+        [Authorize]
         [HttpPatch("UpdateReview/{Id}")]
         public async Task<IActionResult> UpdateReview(Guid Id, [FromBody] DtoUpdateReview dtoUpdateReview)
         {

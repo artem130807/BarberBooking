@@ -22,6 +22,7 @@ namespace BarberBooking.API.Controllers
         {
             _mediator = mediator;
         }
+        [Authorize("Admin")]
         [HttpPost("CreateSalon")]
         public async Task<IActionResult> CreateSalon([FromBody] DtoCreateSalon dtoCreateSalon)
         {
@@ -31,6 +32,7 @@ namespace BarberBooking.API.Controllers
                 return BadRequest(new { error = result.Error });
             return Ok(result.Value);
         }
+        [Authorize("Admin")]
         [HttpDelete("DeleteSalon{Id}")]
         public async Task<IActionResult> DeleteSalon(Guid Id)
         {
@@ -40,6 +42,7 @@ namespace BarberBooking.API.Controllers
                 return BadRequest(new { error = result.Error });
             return Ok(result.Value);
         }
+        [Authorize("Admin")]
         [HttpPatch("UpdateSalon{Id}")]
         public async Task<IActionResult> UpdateSalon(Guid Id, [FromBody] DtoUpdateSalon dtoUpdateSalon)
         {

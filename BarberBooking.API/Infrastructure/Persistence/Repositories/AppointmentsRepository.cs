@@ -38,6 +38,7 @@ namespace BarberBooking.API.Repositories
             return await _context.Appointments
             .Include(x => x.Salon)
             .Include(x => x.Master)
+                .ThenInclude(m => m.User)
             .Include(x => x.Service)
             .Where(x =>  x.ClientId == clientId && x.AppointmentDate == appointmentDateTime)
             .ToListAsync();
@@ -60,6 +61,7 @@ namespace BarberBooking.API.Repositories
             .Include(x => x.Client)
             .Include(x => x.Service)
             .Include(x => x.Master)
+                .ThenInclude(m => m.User)
             .FirstOrDefaultAsync(x => x.Id == id);
         }
 
@@ -69,8 +71,12 @@ namespace BarberBooking.API.Repositories
             .Include(x => x.Client)
             .Include(x => x.Salon)
             .Include(x => x.Master)
+                .ThenInclude(m => m.User)
             .Include(x => x.Service)
-            .Where(x =>  x.ClientId == clientId && x.Status == AppointmentStatusEnum.Confirmed)
+            .Where(x => x.ClientId == clientId &&
+                (x.Status == AppointmentStatusEnum.Confirmed ||
+                 x.Status == AppointmentStatusEnum.Completed ||
+                 x.Status == AppointmentStatusEnum.Cancelled))
             .ToListAsync();
         }
 
@@ -80,6 +86,7 @@ namespace BarberBooking.API.Repositories
             .Include(x => x.Salon)
             .Include(x => x.Client)
             .Include(x => x.Master)
+                .ThenInclude(m => m.User)
             .Include(x => x.Service)
             .Where(x =>  x.MasterId == masterId)
             .AppointmentFilter(filter)
@@ -93,7 +100,11 @@ namespace BarberBooking.API.Repositories
 
         public async Task<PagedResult<Appointments>> GetCompletedAppointmentsByClientId(Guid clientId, PageParams pageParams)
         {        
-            return await _context.Appointments.Include(x => x.Salon).Include(x => x.Master).Include(x => x.Service)
+            return await _context.Appointments
+            .Include(x => x.Salon)
+            .Include(x => x.Master)
+                .ThenInclude(m => m.User)
+            .Include(x => x.Service)
             .Where(a => a.ClientId == clientId && a.Status == AppointmentStatusEnum.Completed)
             .Where(a => !_context.Reviews.Any(r => r.AppointmentId == a.Id)).ToPagedAsync(pageParams);
         }
@@ -104,6 +115,7 @@ namespace BarberBooking.API.Repositories
                 .Include(x => x.Client)
                 .Include(x => x.Salon)
                 .Include(x => x.Master)
+                    .ThenInclude(m => m.User)
                 .Include(x => x.Service)
                 .Where(x => x.Status == AppointmentStatusEnum.Confirmed
                     && x.AppointmentDate > from
@@ -134,9 +146,22 @@ namespace BarberBooking.API.Repositories
             return await _context.Appointments.Where(x => x.SalonId == salonId && x.Status == AppointmentStatusEnum.Completed).CountAsync();
         }
 
-        public async Task<Appointments> GetAppointmentActive(Guid timeSlotId)
+        public async Task<Appointments?> GetOverlappingConfirmedAppointment(
+            Guid timeSlotId,
+            DateTime appointmentDate,
+            TimeOnly startTime,
+            TimeOnly endTime)
         {
-            return await _context.Appointments.FirstOrDefaultAsync(x => x.TimeSlotId == timeSlotId && x.Status == AppointmentStatusEnum.Confirmed);
+            var day = appointmentDate.Date;
+            var nextDay = day.AddDays(1);
+
+            return await _context.Appointments.FirstOrDefaultAsync(x =>
+                x.TimeSlotId == timeSlotId &&
+                x.Status == AppointmentStatusEnum.Confirmed &&
+                x.AppointmentDate >= day &&
+                x.AppointmentDate < nextDay &&
+                x.StartTime < endTime &&
+                startTime < x.EndTime);
         }
 
         public async Task<List<Appointments>> GetConfirmedAppointmentsCreatedSince(DateTime sinceUtc)
@@ -146,6 +171,7 @@ namespace BarberBooking.API.Repositories
                 .Include(x => x.Client)
                 .Include(x => x.Salon)
                 .Include(x => x.Master)
+                    .ThenInclude(m => m.User)
                 .Include(x => x.Service)
                 .Where(x => x.Status == AppointmentStatusEnum.Confirmed
                     && x.CreatedAt >= sinceUtc)
@@ -165,6 +191,7 @@ namespace BarberBooking.API.Repositories
             .Include(x => x.Client)
             .Include(x => x.Service)
             .Include(x => x.Master)
+                .ThenInclude(m => m.User)
             .Include(x => x.TimeSlot)
             .Where(x => x.TimeSlotId == timeSlotId);
             var anyStatus = filter.Confirmed == true || filter.Completed == true ||
@@ -186,6 +213,7 @@ namespace BarberBooking.API.Repositories
             .Include(x => x.Client)
             .Include(x => x.Service)
             .Include(x => x.Master)
+                .ThenInclude(m => m.User)
             .Include(x => x.TimeSlot)
             .Where(x => x.TimeSlotId == timeSlotId).ToListAsync();
         }

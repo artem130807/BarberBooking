@@ -26,6 +26,8 @@ namespace BarberBooking.API.CQRS.Messages.Queries.Handleers
         }
         public async Task<Result<List<DtoMessagesShortInfo>>> Handle(GetMessagesQuery query, CancellationToken cancellationToken)
         {
+            if (!_userContext.IsAuthenticated || _userContext.UserId == Guid.Empty)
+                return Result.Failure<List<DtoMessagesShortInfo>>("Требуется авторизация");
             var userId = _userContext.UserId;
             var messages = await _messagesRepository.GetMessages(userId);
             if(messages.Count == 0)

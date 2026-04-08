@@ -20,6 +20,8 @@ namespace BarberBooking.API.CQRS.Messages.Queries.Handlers
         }
         public async Task<Result<int>> Handle(GetCountMessagesQuery query, CancellationToken cancellationToken)
         {
+            if (!_userContext.IsAuthenticated || _userContext.UserId == Guid.Empty)
+                return Result.Failure<int>("Требуется авторизация");
             var userId = _userContext.UserId;
             var messages = await _messagesRepository.GetUnreadMessages(userId);
             if(messages.Count == 0)

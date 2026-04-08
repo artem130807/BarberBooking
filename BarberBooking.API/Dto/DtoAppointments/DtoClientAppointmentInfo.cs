@@ -6,8 +6,6 @@ using BarberBooking.API.Domain.ValueObjects;
 using BarberBooking.API.Dto.DtoMasterProfile;
 using BarberBooking.API.Dto.DtoSalons;
 using BarberBooking.API.Dto.DtoServices;
-using BarberBooking.API.Enums;
-
 namespace BarberBooking.API.Dto.DtoAppointments
 {
     public class DtoClientAppointmentInfo
@@ -18,8 +16,7 @@ namespace BarberBooking.API.Dto.DtoAppointments
         public string SalonName { get; private set;}
         public DtoMasterProfileNavigation dtoMasterProfileNavigation {get; private set;}
         public DtoServicesNavigation dtoServicesNavigation {get; private set;}
-        private AppointmentStatusEnum _status;
-        public string Status => _status.ToString();
+        public string Status { get; set; }
         public TimeOnly StartTime { get; private set; }
         public TimeOnly EndTime { get; private set; } 
         public DateTime AppointmentDate {get; private set;} 

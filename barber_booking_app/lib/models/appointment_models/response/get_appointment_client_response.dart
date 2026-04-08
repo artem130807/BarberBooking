@@ -27,23 +27,28 @@ class GetAppointmentClientResponse {
   });
 
   factory GetAppointmentClientResponse.fromJson(Map<String, dynamic> json) {
+    dynamic v(String a, String b) => json[a] ?? json[b];
+    final mNav = v('dtoMasterProfileNavigation', 'DtoMasterProfileNavigation');
+    final sNav = v('dtoServicesNavigation', 'DtoServicesNavigation');
+    final ad = v('appointmentDate', 'AppointmentDate');
     return GetAppointmentClientResponse(
-      Id: json['id'],
-      ClientNotes: json['clientNotes'],
-      SalonId: json['salonId'],
-      SalonName: json['salonName'],
-      dtoMasterProfileNavigation: json['dtoMasterProfileNavigation'] != null
-          ? MasterNavigationResponse.fromJson(json['dtoMasterProfileNavigation'])
+      Id: v('id', 'Id')?.toString(),
+      ClientNotes: v('clientNotes', 'ClientNotes')?.toString(),
+      SalonId: v('salonId', 'SalonId')?.toString(),
+      SalonName: v('salonName', 'SalonName')?.toString(),
+      dtoMasterProfileNavigation: mNav != null
+          ? MasterNavigationResponse.fromJson(
+              Map<String, dynamic>.from(mNav as Map))
           : null,
-      dtoServicesNavigation: json['dtoServicesNavigation'] != null
-          ? ServiceNavigationResponse.fromJson(json['dtoServicesNavigation'])
+      dtoServicesNavigation: sNav != null
+          ? ServiceNavigationResponse.fromJson(
+              Map<String, dynamic>.from(sNav as Map))
           : null,
-      Status: json['status'],
-      StartTime: json['startTime'],
-      EndTime: json['endTime'],
-      AppointmentDate: json['appointmentDate'] != null
-          ? DateTime.tryParse(json['appointmentDate'].toString())
-          : null,
+      Status: v('status', 'Status')?.toString(),
+      StartTime: v('startTime', 'StartTime')?.toString(),
+      EndTime: v('endTime', 'EndTime')?.toString(),
+      AppointmentDate:
+          ad != null ? DateTime.tryParse(ad.toString()) : null,
     );
   }
 }

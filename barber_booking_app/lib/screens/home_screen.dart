@@ -363,9 +363,8 @@ class _HomeScreenState extends State<HomeScreen> {
                               SectionHeader(
                                 title: 'Салоны в вашем городе',
                                 actionText: 'Все',
-                                onActionTap: () async {
-                                  Navigator.pushReplacementNamed(
-                                      context, '/salons_screen');
+                                onActionTap: () {
+                                  Navigator.pushNamed(context, '/salons_screen');
                                 },
                               ),
                               const SizedBox(height: 16),

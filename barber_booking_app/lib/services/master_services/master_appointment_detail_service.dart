@@ -12,7 +12,7 @@ class MasterAppointmentDetailService {
     if (token == null || token.isEmpty) return null;
     try {
       final url = Uri.parse(
-        '$kApiBaseUrl/api/Appointment/get-appointmentMasterById$appointmentId',
+        '$kApiBaseUrl/api/Appointment/get-appointmentMasterById/$appointmentId',
       );
       final response = await http.get(
         url,

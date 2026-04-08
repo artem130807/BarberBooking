@@ -8,7 +8,6 @@ using BarberBooking.API.Helpers;
 using BarberBooking.API.Models;
 using CSharpFunctionalExtensions;
 using MediatR;
-using Microsoft.AspNetCore.SignalR;
 
 namespace BarberBooking.API.CQRS.AppointmentsCommands.Handlers
 {
@@ -43,7 +42,6 @@ namespace BarberBooking.API.CQRS.AppointmentsCommands.Handlers
         public async Task<Result<string>> Handle(CreateAppointmentCommand command, CancellationToken cancellationToken)
         {
             var userId = _userContext.UserId;
-
             var validation = await _appointmentCreationValidator.ValidateAsync(
                 command.DtoCreateAppointment, userId, cancellationToken);
             if (validation.IsFailure)
@@ -63,10 +61,17 @@ namespace BarberBooking.API.CQRS.AppointmentsCommands.Handlers
             try
             {
                 _unitOfWork.BeginTransaction();
-                var timeSlot = await _masterTimeSlotRepository.ForUpdate(appointment.TimeSlotId);
-                var activeAppointment = await _appointmentsRepository.GetAppointmentActive(appointment.TimeSlotId);
-                if (activeAppointment != null)
+                await _masterTimeSlotRepository.ForUpdate(appointment.TimeSlotId);
+                var conflicting = await _appointmentsRepository.GetOverlappingConfirmedAppointment(
+                    appointment.TimeSlotId,
+                    appointment.AppointmentDate,
+                    appointment.StartTime,
+                    appointment.EndTime);
+                if (conflicting != null)
+                {
+                    _unitOfWork.RollBack();
                     return Result.Failure<string>("Слот занят");
+                }
                 await _unitOfWork.appointmentsRepository.CreateAsync(appointment);
                 _unitOfWork.Commit();
             }
@@ -76,15 +81,40 @@ namespace BarberBooking.API.CQRS.AppointmentsCommands.Handlers
                 var detailedMessage = ex.InnerException?.Message ?? ex.Message;
                 throw new InvalidOperationException($"Ошибка сохранения записи: {detailedMessage}", ex);
             }
-            await _timeSlotQualifierBookedService.Handle(appointment.TimeSlotId, appointment.TimeSlot.ScheduleDate);
-            var userMessage = Models.Messages.Create($"Запись на {AppointmentMessageFormatting.FormatForMessage(appointment.AppointmentDate)}, успешно создана", userId, appointment.Id, 
-            Enums.MessageAudience.User, Enums.TypeMessage.CreationAppointment);
-            var masterMessage = Models.Messages.Create($"Пользователь {appointment.Client.Name}, записался к вам на {appointment.Service.Name}, запись {AppointmentMessageFormatting.FormatForMessage(appointment.AppointmentDate)}",
-            appointment.Master.UserId, 
-            appointment.Id, Enums.MessageAudience.Master, 
-            Enums.TypeMessage.CreationAppointment);
+
+            var scheduleDate = DateOnly.FromDateTime(appointment.AppointmentDate);
+            await _timeSlotQualifierBookedService.Handle(appointment.TimeSlotId, scheduleDate);
+
+            var clientUser = await _unitOfWork.userRepository.GetUserById(userId);
+            var serviceEntity = await _unitOfWork.servicesRepository.GetByIdAsync(appointment.ServiceId);
+            var masterProfile = await _unitOfWork.masterProfileRepository.GetMasterProfileById(appointment.MasterId);
+
+            var clientName = string.IsNullOrWhiteSpace(clientUser?.Name) ? "Клиент" : clientUser!.Name.Trim();
+            var serviceName = string.IsNullOrWhiteSpace(serviceEntity?.Name) ? "услуга" : serviceEntity!.Name.Trim();
+
+            var userMessage = Models.Messages.Create(
+                $"Запись на {AppointmentMessageFormatting.FormatForMessage(appointment.AppointmentDate)}, успешно создана",
+                userId,
+                appointment.Id,
+                Enums.MessageAudience.User,
+                Enums.TypeMessage.CreationAppointment);
+            if (userMessage.IsFailure)
+                return Result.Failure<string>(userMessage.Error);
             await _sendMessageService.Send(userMessage.Value);
-            await _sendMessageService.Send(masterMessage.Value);
+
+            if (masterProfile != null && masterProfile.UserId != Guid.Empty)
+            {
+                var masterMessage = Models.Messages.Create(
+                    $"Пользователь {clientName}, записался к вам на {serviceName}, запись {AppointmentMessageFormatting.FormatForMessage(appointment.AppointmentDate)}",
+                    masterProfile.UserId,
+                    appointment.Id,
+                    Enums.MessageAudience.Master,
+                    Enums.TypeMessage.CreationAppointment);
+                if (masterMessage.IsFailure)
+                    return Result.Failure<string>(masterMessage.Error);
+                await _sendMessageService.Send(masterMessage.Value);
+            }
+
             return Result.Success("Успешно");
         }
     }

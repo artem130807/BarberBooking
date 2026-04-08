@@ -13,6 +13,7 @@ class SignalRNotificationService {
   HubConnection? _hub;
   String? _token;
   void Function()? _onAfterReceive;
+  Future<void>? _connectFuture;
 
   static const String _hubPath = '/notificationHub';
   static const String _receiveMethod = 'ReceiveNotification';
@@ -28,6 +29,23 @@ class SignalRNotificationService {
         _hub!.state == HubConnectionState.Connected) {
       return;
     }
+    if (_connectFuture != null) {
+      await _connectFuture;
+      if (_token == t &&
+          _hub != null &&
+          _hub!.state == HubConnectionState.Connected) {
+        return;
+      }
+    }
+    _connectFuture = _connectInternal(t);
+    try {
+      await _connectFuture;
+    } finally {
+      _connectFuture = null;
+    }
+  }
+
+  Future<void> _connectInternal(String t) async {
     await disconnect();
     _token = t;
     final url = _hubUrl();

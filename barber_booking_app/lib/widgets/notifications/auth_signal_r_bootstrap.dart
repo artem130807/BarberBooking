@@ -30,16 +30,19 @@ class _AuthSignalRBootstrapState extends State<AuthSignalRBootstrap> {
     super.dispose();
   }
 
+  void _onAfterSignalR() {
+    if (!mounted) return;
+    final t = context.read<AuthProvider>().token;
+    context.read<GetCountMessagesProvider>().loadCount(t);
+  }
+
   void _sync() {
     final auth = _auth;
     final svc = context.read<SignalRNotificationService>();
     final token = auth.token;
     if (auth.isAuthenticated && token != null && token.isNotEmpty) {
+      svc.setOnAfterReceive(_onAfterSignalR);
       svc.connectIfNeeded(token);
-      svc.setOnAfterReceive(() {
-        final t = context.read<AuthProvider>().token;
-        context.read<GetCountMessagesProvider>().loadCount(t);
-      });
     } else {
       svc.setOnAfterReceive(null);
       svc.disconnect();

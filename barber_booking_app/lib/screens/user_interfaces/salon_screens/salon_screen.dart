@@ -12,6 +12,7 @@ import 'package:barber_booking_app/widgets/salon_widgets/salon_rating.dart';
 import 'package:barber_booking_app/widgets/review_widgets/salon_review_tile.dart';
 import 'package:barber_booking_app/widgets/loading_indicator.dart';
 import 'package:barber_booking_app/widgets/error_widget.dart';
+import 'package:barber_booking_app/utils/salon_working_hours_label.dart';
 
 class SalonScreen extends StatefulWidget {
   final String salonId;
@@ -210,25 +211,41 @@ class _SalonScreenState extends State<SalonScreen> {
                       Icon(Icons.phone, size: 16, color: Theme.of(context).colorScheme.onSurfaceVariant),
                       const SizedBox(width: 6),
                       Text(
-                        salon.phone!.Number ?? '',
+                        salon.phone!.Number,
                         style: TextStyle(fontSize: 14, color: Theme.of(context).colorScheme.onSurfaceVariant),
                       ),
                     ],
                   ),
                 const SizedBox(height: 8),
-                Row(
-                  children: [
-                    Icon(Icons.access_time, size: 16, color: Theme.of(context).colorScheme.onSurfaceVariant),
-                    const SizedBox(width: 6),
-                    Text(
-                      'По записи',
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: Theme.of(context).colorScheme.onSurfaceVariant,
-                        fontStyle: FontStyle.italic,
-                      ),
-                    ),
-                  ],
+                Builder(
+                  builder: (context) {
+                    final hoursLabel =
+                        salonWorkingHoursLabel(salon.openingTime, salon.closingTime);
+                    final byAppointment = hoursLabel == 'По записи';
+                    return Row(
+                      children: [
+                        Icon(Icons.access_time,
+                            size: 16,
+                            color: Theme.of(context).colorScheme.onSurfaceVariant),
+                        const SizedBox(width: 6),
+                        Expanded(
+                          child: Text(
+                            hoursLabel,
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: Theme.of(context).colorScheme.onSurfaceVariant,
+                              fontStyle: byAppointment
+                                  ? FontStyle.italic
+                                  : FontStyle.normal,
+                              fontWeight: byAppointment
+                                  ? FontWeight.normal
+                                  : FontWeight.w500,
+                            ),
+                          ),
+                        ),
+                      ],
+                    );
+                  },
                 ),
                 const SizedBox(height: 8),
                 Row(

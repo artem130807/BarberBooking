@@ -7,12 +7,14 @@ using BarberBooking.API.CQRS.MasterSubscription.MasterSubscriptionCommands;
 using BarberBooking.API.CQRS.MasterSubscription.MasterSubscriptionQueries;
 using BarberBooking.API.Dto.DtoMasterSubscription;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BarberBooking.API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [Authorize]
     public class MasterSubscriptions : ControllerBase
     {
         private readonly IMediator _mediator;

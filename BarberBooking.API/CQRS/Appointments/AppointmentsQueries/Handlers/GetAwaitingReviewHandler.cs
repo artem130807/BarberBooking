@@ -24,6 +24,8 @@ namespace BarberBooking.API.CQRS.Appointments.AppointmentsQueries.Handlers
         }
         public async Task<Result<PagedResult<DtoAppointmentAwaitingReview>>> Handle(GetAwaitingReviewQuery query, CancellationToken cancellationToken)
         {
+            if (!_userContext.IsAuthenticated || _userContext.UserId == Guid.Empty)
+                return Result.Failure<PagedResult<DtoAppointmentAwaitingReview>>("Требуется авторизация");
             var userId = _userContext.UserId;
             var appointment = await _appointmentsRepository.GetCompletedAppointmentsByClientId(userId, query.pageParams);
             if(appointment.Count == 0)

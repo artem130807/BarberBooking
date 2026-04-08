@@ -24,13 +24,15 @@ namespace BarberBooking.API.MapperProfiles
             CreateMap<Appointments, DtoClientAppointmentInfo>()
                 .ForMember(dest => dest.dtoMasterProfileNavigation, opt => opt.MapFrom(src => src.Master))
                 .ForMember(dest => dest.dtoServicesNavigation, opt => opt.MapFrom(src => src.Service))
-                .ForMember(dest => dest.SalonName, opt => opt.MapFrom(src => src.Salon.Name));
+                .ForMember(dest => dest.SalonName, opt => opt.MapFrom(src => src.Salon.Name))
+                .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status.ToString()));
 
             CreateMap<Appointments, DtoClientAppointmentShortInfo>()
                 .ForMember(dest => dest.MasterProfileNavigation, opt => opt.MapFrom(src => src.Master))
                 .ForMember(dest => dest.SalonNavigation, opt => opt.MapFrom(src => src.Salon))
                 .ForMember(dest => dest.ServiceName, opt => opt.MapFrom(src => src.Service.Name))
-                .ForMember(dest => dest.Price, opt => opt.MapFrom(src => src.Service.Price));
+                .ForMember(dest => dest.Price, opt => opt.MapFrom(src => src.Service.Price))
+                .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status.ToString()));
 
             CreateMap<DtoCreateAppointment, Appointments>()
                 .ForMember(dest => dest.Id, opt => opt.Ignore())

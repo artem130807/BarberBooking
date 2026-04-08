@@ -43,8 +43,9 @@ namespace BarberBooking.API.CQRS.Appointments.AppointmentsCommands.Handlers
                 return Result.Failure<string>(ex.Message);
             }
          
-            var userMessage = Models.Messages.Create($"Запись на {AppointmentMessageFormatting.FormatForMessage(appointment.AppointmentDate)}, завершена", appointment.ClientId, appointment.Id,
-                Enums.MessageAudience.User, Enums.TypeMessage.CompletedAppointment);
+            var userMessage = Models.Messages.Create($"Запись на {AppointmentMessageFormatting.FormatForMessage(appointment.AppointmentDate)}, завершена, не забудьте оставить отзыв", 
+            appointment.ClientId, appointment.Id,
+            Enums.MessageAudience.User, Enums.TypeMessage.CompletedAppointment);
             var masterMessage = Models.Messages.Create($"Вы завершели запись, {appointment.Client.Name}, {appointment.Service.Name}, {AppointmentMessageFormatting.FormatForMessage(appointment.AppointmentDate)}",
                 appointment.Master.UserId,
                 appointment.Id, Enums.MessageAudience.Master,

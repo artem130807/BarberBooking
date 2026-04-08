@@ -46,6 +46,7 @@ class _MasterTodayScreenState extends State<MasterTodayScreen> {
       filter: MasterAppointmentQueryFilter(
         appointmentFrom: from,
         appointmentTo: to,
+        confirmed: true,
       ),
       pageSize: 100,
     );

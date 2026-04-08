@@ -18,6 +18,7 @@ namespace BarberBooking.API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [Authorize]
     public class AppointmentController : ControllerBase
     {
         private readonly IMediator _mediator;
@@ -25,6 +26,7 @@ namespace BarberBooking.API.Controllers
         {
             _mediator = mediator;
         }
+        [AllowAnonymous]
         [HttpPost("create-appointment")]
         public async Task<IActionResult> CreateAppointment([FromBody] DtoCreateAppointment dtoCreateAppointment)
         {
@@ -34,7 +36,6 @@ namespace BarberBooking.API.Controllers
                 return BadRequest(result.Error);
             return Ok(result.Value);
         }
-        [Authorize]
         [HttpPatch("delete-appointment/{Id}")]
         public async Task<IActionResult> DeleteAppointment(Guid Id)
         {
@@ -44,7 +45,6 @@ namespace BarberBooking.API.Controllers
                 return BadRequest(result.Error);
             return Ok(result.Value);
         }
-        [Authorize]
         [HttpPatch("completed-appointment/{Id}")]
         public async Task<IActionResult> CompletedAppointment(Guid Id)
         {
@@ -54,15 +54,17 @@ namespace BarberBooking.API.Controllers
                 return BadRequest(result.Error);
             return Ok(result.Value);
         }  
-        [HttpPatch("update-appointment{Id}")]
+        [HttpPatch("update-appointment/{Id}")]
         public async Task<IActionResult> UpdateAppointment(Guid Id, [FromBody] DtoUpdateAppointment dtoUpdateAppointment)
         {
             var command = new UpdateAppointmentCommand(Id, dtoUpdateAppointment);
             var result = await _mediator.Send(command);
-            return Ok(result);
+            if (result.IsFailure)
+                return BadRequest(result.Error);
+            return Ok(result.Value);
         }
       
-        [HttpGet("get-appointmentClientById{Id}")]
+        [HttpGet("get-appointmentClientById/{Id}")]
         public async Task<IActionResult> GetClientAppointmentById(Guid Id)
         {
             var query = new GetAppointmentClientByIdHandler(Id);
@@ -71,8 +73,7 @@ namespace BarberBooking.API.Controllers
                 return BadRequest(result.Error);
             return Ok(result.Value);
         }
-        [Authorize]
-        [HttpGet("get-appointmentMasterById{Id}")]
+        [HttpGet("get-appointmentMasterById/{Id}")]
         public async Task<IActionResult> GetMasterAppointmentById(Guid Id)
         {
             var query = new GetAppointmentMasterByIdQuery(Id);
@@ -90,7 +91,6 @@ namespace BarberBooking.API.Controllers
                 return BadRequest(result.Error);
             return Ok(result.Value);
         }
-        [Authorize]
         [HttpGet("get-appointmentsByMasterId")]
         public async Task<IActionResult> GetAppointmentsByMasterId([FromQuery] FilterAppointments filter, [FromQuery] PageParams pageParams)
         {
@@ -137,7 +137,6 @@ namespace BarberBooking.API.Controllers
                 return BadRequest(result.Error);
             return Ok(result.Value);
         }
-        [Authorize]
         [HttpGet("get-appointments-by-timeSlot/{timeSlotId}")]
         public async Task<IActionResult> GetMasterAppointmentByTimeSlot(Guid timeSlotId, [FromQuery] PageParams pageParams, [FromQuery] StatusFilter filter)
         {

@@ -63,7 +63,7 @@ namespace BarberBooking.API.CQRS.AppointmentsCommands.Handlers
             else
             {
                 var toClient = Models.Messages.Create(
-                    $"Мастер отменил запись на {AppointmentMessageFormatting.FormatForMessage(appointment.AppointmentDate)}, {appointment.Service.Name}",
+                    $"Вы отменили запись на {AppointmentMessageFormatting.FormatForMessage(appointment.AppointmentDate)}, {appointment.Service.Name}",
                     appointment.ClientId,
                     appointment.Id,
                     Enums.MessageAudience.User,

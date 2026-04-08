@@ -26,6 +26,11 @@ namespace BarberBooking.API.Repositories
             _context.Messages.RemoveRange(messages);
         }
 
+        public async Task<Messages?> GetMessageByIdAsync(Guid id)
+        {
+            return await _context.Messages.FirstOrDefaultAsync(x => x.Id == id);
+        }
+
         public async Task<List<Messages>> GetMessages(Guid userId)
         {
             return await _context.Messages.Where(x => x.UserId == userId).ToListAsync();
@@ -53,6 +58,11 @@ namespace BarberBooking.API.Repositories
         public async Task SaveChangesAsync()
         {
             await _context.SaveChangesAsync();
+        }
+
+        public async Task Delete(Guid Id)
+        {
+            await _context.Messages.Where(x => x.Id == Id).ExecuteDeleteAsync();
         }
     }
 }

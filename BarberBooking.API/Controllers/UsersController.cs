@@ -10,6 +10,7 @@ using BarberBooking.API.CQRS.Users.QueriesUser;
 using BarberBooking.API.Dto.DtoAuthorization;
 using BarberBooking.API.Dto.DtoUsers;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ActionConstraints;
 using Microsoft.Extensions.Caching.Memory;
@@ -74,6 +75,7 @@ namespace BarberBooking.API.Controllers
             _cookieService.SetAuthCookie(Response, result.Value.Token);
             return Ok(result.Value);
         }
+        [Authorize]
         [HttpPatch("updatePassword")]
         public async Task<IActionResult> UpdatePassword([FromBody] DtoUpdatePassword dtoUpdatePassword)
         {
@@ -83,6 +85,7 @@ namespace BarberBooking.API.Controllers
                 return BadRequest(result.Error);
             return Ok(result.Value);
         }
+        [Authorize]
         [HttpGet("get-user-by-token-id")]
         public async Task<IActionResult> GetUserByTokenId()
         {
@@ -92,6 +95,7 @@ namespace BarberBooking.API.Controllers
                 return BadRequest(result.Error);
             return Ok(result.Value);
         }
+        [Authorize]
         [HttpPatch("updateCity")]
         public async Task<IActionResult> UpdateCity([FromQuery] string city)
         {

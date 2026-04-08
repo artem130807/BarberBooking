@@ -27,8 +27,12 @@ namespace BarberBooking.API.CQRS.Appointments.AppointmentsQueries.Handlers
 
         public async Task<Result<DtoMasterAppointmentShortInfo>> Handle(GetAppointmentsByMasterIdAndDateQuery query, CancellationToken cancellationToken)
         {
+            if (!_userContext.IsAuthenticated || _userContext.UserId == Guid.Empty)
+                return Result.Failure<DtoMasterAppointmentShortInfo>("Требуется авторизация");
             var userId = _userContext.UserId;
             var master = await _masterProfileRepository.GetMasterProfileByUserId(userId);
+            if (master == null)
+                return Result.Failure<DtoMasterAppointmentShortInfo>("Профиль мастера не найден");
             var appointments = await _appointmentsRepository.GetByMasterIdAndDate(master.Id, query.appointmentDateTime, query.startTime);
             if(appointments == null)
                 return Result.Failure<DtoMasterAppointmentShortInfo>("Список ваших записей пуст");

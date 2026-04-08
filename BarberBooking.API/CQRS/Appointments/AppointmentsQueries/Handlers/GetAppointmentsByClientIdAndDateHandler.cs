@@ -20,10 +20,11 @@ namespace BarberBooking.API.CQRS.Appointments.AppointmentsQueries.Handlers
             _mapper = mapper;
             _appointmentsRepository = appointmentsRepository;
             _userContext = userContext;
-            _userContext = userContext;
         }
         public async Task<Result<List<DtoClientAppointmentShortInfo>>> Handle(GetAppointmentsByClientIdAndDateQuery query, CancellationToken cancellationToken)
         {
+            if (!_userContext.IsAuthenticated || _userContext.UserId == Guid.Empty)
+                return Result.Failure<List<DtoClientAppointmentShortInfo>>("Требуется авторизация");
             Guid clientId = _userContext.UserId;
             var appointments = await _appointmentsRepository.GetByClientIdAndDate(clientId, query.appointmentDateTime);
             if(appointments.Count == 0)

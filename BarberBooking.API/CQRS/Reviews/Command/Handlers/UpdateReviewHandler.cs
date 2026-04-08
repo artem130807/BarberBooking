@@ -17,19 +17,27 @@ namespace BarberBooking.API.CQRS.Reviews.Command.Handlers
         private readonly IUnitOfWork _unitOfWork;
         private readonly IReviewRepository _reviewRepository;
         private readonly IUpdateRatingService _updateRatingService;
-        public UpdateReviewHandler(IUpdateReviewService updateReviewService, IUnitOfWork unitOfWork, IReviewRepository reviewRepository, 
-        IUpdateRatingService updateRatingService)
+        private readonly IUserContext _userContext;
+        public UpdateReviewHandler(
+            IUpdateReviewService updateReviewService,
+            IUnitOfWork unitOfWork,
+            IReviewRepository reviewRepository,
+            IUpdateRatingService updateRatingService,
+            IUserContext userContext)
         {
             _updateReviewService = updateReviewService;
             _unitOfWork = unitOfWork;
             _reviewRepository = reviewRepository;
             _updateRatingService = updateRatingService;
+            _userContext = userContext;
         }
         public async Task<Result<string>> Handle(UpdateReviewCommand command, CancellationToken cancellationToken)
         {
             var review = await _reviewRepository.GetReviewById(command.Id);
             if(review == null)
                 return Result.Failure<string>("Ваш отзыв не найден");
+            if (review.ClientId != _userContext.UserId && !_userContext.IsInRole("Admin"))
+                return Result.Failure<string>("Нет доступа");
             try
             {
                 _unitOfWork.BeginTransaction();
