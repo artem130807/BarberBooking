@@ -6,6 +6,7 @@ import 'package:barber_booking_app/providers/auth_providers/auth_provider.dart';
 import 'package:barber_booking_app/providers/appointment_providers/get_appointments_by_client_provider.dart';
 import 'package:barber_booking_app/widgets/loading_indicator.dart';
 import 'package:barber_booking_app/widgets/error_widget.dart';
+import 'package:barber_booking_app/utils/appointment_status_normalize.dart';
 import 'package:barber_booking_app/utils/appointment_status_ru.dart';
 
 class AppointmentsScreen extends StatefulWidget {
@@ -140,11 +141,11 @@ class _AppointmentsScreenState extends State<AppointmentsScreen>
 
     final allAppointments = provider.list ?? [];
 
-    // Пример фильтрации: замените на реальные статусы
-    final upcoming = allAppointments.where((a) =>
-        a.Status == 'Pending' || a.Status == 'Confirmed').toList();
+    final upcoming = allAppointments
+        .where((a) => appointmentStatusIsUpcomingTab(a.Status))
+        .toList();
     final completed = allAppointments
-        .where((a) => a.Status == 'Completed')
+        .where((a) => appointmentStatusIsCompletedTab(a.Status))
         .toList();
 
     return ColoredBox(
@@ -359,7 +360,7 @@ class AppointmentCard extends StatelessWidget {
 
   Color _statusColor(BuildContext context, String? status) {
     final theme = Theme.of(context);
-    switch (status) {
+    switch (normalizeAppointmentStatus(status)) {
       case 'Pending':
       case 'Confirmed':
         return theme.colorScheme.primary;

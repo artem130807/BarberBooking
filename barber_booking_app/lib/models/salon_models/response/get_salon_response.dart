@@ -29,9 +29,7 @@ class GetSalonResponse {
       Address: v('address', 'Address') != null
           ? DtoAddress.fromJson(Map<String, dynamic>.from(v('address', 'Address') as Map))
           : null,
-      Phone: v('phone', 'Phone') != null
-          ? DtoPhone.fromJson(Map<String, dynamic>.from(v('phone', 'Phone') as Map))
-          : null,
+      Phone: _parsePhoneJson(json),
       OpeningTime: ot != null ? ot.toString() : null,
       ClosingTime: ct != null ? ct.toString() : null,
       IsActive: v('isActive', 'IsActive') as bool?,
@@ -48,4 +46,20 @@ class GetSalonResponse {
     return int.tryParse(x.toString());
   }
 
+  static DtoPhone? _parsePhoneJson(Map<String, dynamic> json) {
+    dynamic v(String a, String b) => json[a] ?? json[b];
+    final raw = v('phone', 'Phone') ?? v('phoneNumber', 'PhoneNumber');
+    if (raw == null) return null;
+    if (raw is String) {
+      final t = raw.trim();
+      if (t.isEmpty) return null;
+      return DtoPhone(Number: t);
+    }
+    if (raw is Map) {
+      final p = DtoPhone.fromJson(Map<String, dynamic>.from(raw));
+      if (p.Number.trim().isEmpty) return null;
+      return p;
+    }
+    return null;
+  }
 }

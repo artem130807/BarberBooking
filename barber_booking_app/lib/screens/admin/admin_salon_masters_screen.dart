@@ -5,6 +5,7 @@ import 'package:barber_booking_app/models/master_models/response/master_profile_
 import 'package:barber_booking_app/providers/auth_providers/auth_provider.dart';
 import 'package:barber_booking_app/providers/master_providers/admin_salon_masters_provider.dart';
 import 'package:barber_booking_app/services/media/admin_media_upload_service.dart';
+import 'package:barber_booking_app/utils/api_media_url.dart';
 import 'package:barber_booking_app/widgets/error_widget.dart';
 import 'package:barber_booking_app/widgets/loading_indicator.dart';
 import 'package:flutter/material.dart';
@@ -168,6 +169,7 @@ class _AdminSalonMastersScreenState extends State<AdminSalonMastersScreen> {
                         );
                       }
                       final m = prov.items[i];
+                      final avatarResolved = resolveApiMediaUrl(m.AvatarUrl);
                       return Card(
                         margin: const EdgeInsets.only(bottom: 10),
                         elevation: 0,
@@ -180,11 +182,10 @@ class _AdminSalonMastersScreenState extends State<AdminSalonMastersScreen> {
                         ),
                         child: ListTile(
                           leading: CircleAvatar(
-                            backgroundImage: m.AvatarUrl != null &&
-                                    m.AvatarUrl!.isNotEmpty
-                                ? NetworkImage(m.AvatarUrl!)
+                            backgroundImage: avatarResolved != null
+                                ? NetworkImage(avatarResolved)
                                 : null,
-                            child: m.AvatarUrl == null || m.AvatarUrl!.isEmpty
+                            child: avatarResolved == null
                                 ? Text(
                                     (m.UserName ?? '?').isNotEmpty
                                         ? m.UserName![0].toUpperCase()

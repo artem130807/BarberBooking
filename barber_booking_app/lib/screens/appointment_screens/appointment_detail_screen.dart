@@ -7,6 +7,7 @@ import 'package:barber_booking_app/models/appointment_models/response/get_appoin
 import 'package:barber_booking_app/providers/appointment_providers/delete_appointment_provider.dart';
 import 'package:barber_booking_app/widgets/loading_indicator.dart';
 import 'package:barber_booking_app/widgets/error_widget.dart';
+import 'package:barber_booking_app/utils/appointment_status_normalize.dart';
 import 'package:barber_booking_app/utils/appointment_status_ru.dart';
 
 class AppointmentDetailScreen extends StatefulWidget {
@@ -209,7 +210,8 @@ class _AppointmentDetailScreenState extends State<AppointmentDetailScreen> {
   }
 
   bool _isCancellable(String? status) {
-    return status == 'Confirmed' || status == 'Pending';
+    final n = normalizeAppointmentStatus(status);
+    return n == 'Confirmed' || n == 'Pending';
   }
 
   Future<void> _confirmCancel(String? id) async {
@@ -408,7 +410,7 @@ class _AppointmentDetailScreenState extends State<AppointmentDetailScreen> {
   String _statusText(String? status) => appointmentStatusLabelRu(status);
 
   IconData _statusIcon(String? status) {
-    switch (status) {
+    switch (normalizeAppointmentStatus(status)) {
       case 'Pending':
       case 'Confirmed':
         return Icons.access_time_filled;
@@ -422,7 +424,7 @@ class _AppointmentDetailScreenState extends State<AppointmentDetailScreen> {
   }
 
   Color _statusColor(String? status, ColorScheme cs) {
-    switch (status) {
+    switch (normalizeAppointmentStatus(status)) {
       case 'Pending':
       case 'Confirmed':
         return cs.primary;

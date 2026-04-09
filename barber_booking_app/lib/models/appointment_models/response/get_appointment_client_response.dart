@@ -1,5 +1,6 @@
 import 'package:barber_booking_app/models/master_models/response/master_navigation_response.dart';
 import 'package:barber_booking_app/models/service_models/response/service_navigation_response.dart';
+import 'package:barber_booking_app/utils/appointment_status_normalize.dart';
 
 class GetAppointmentClientResponse {
   String? Id;
@@ -44,7 +45,7 @@ class GetAppointmentClientResponse {
           ? ServiceNavigationResponse.fromJson(
               Map<String, dynamic>.from(sNav as Map))
           : null,
-      Status: v('status', 'Status')?.toString(),
+      Status: normalizeAppointmentStatus(v('status', 'Status')?.toString()),
       StartTime: v('startTime', 'StartTime')?.toString(),
       EndTime: v('endTime', 'EndTime')?.toString(),
       AppointmentDate:

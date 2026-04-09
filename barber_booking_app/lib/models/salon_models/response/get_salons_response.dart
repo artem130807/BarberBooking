@@ -15,17 +15,26 @@ class GetSalonsResponse {
   GetSalonsResponse({this.Id, this.Name, this.MainPhotoUrl, this.Rating, this.RatingCount, this.AvailableSlots, this.Address});
   
    factory GetSalonsResponse.fromJson(Map<String, dynamic> json){
+      dynamic v(String a, String b) => json[a] ?? json[b];
+      final addr = v('address', 'Address');
       return GetSalonsResponse(
-          Id: json['id'],
-          Name: json['name'],
-          MainPhotoUrl: json['mainPhotoUrl'],
-          Rating: json['rating'],
-          RatingCount: json['ratingCount'],
-          AvailableSlots: json['availableSlots'],
-          Address: json['address'] != null
-          ? DtoAddressShort.fromJson(json['address'])
+          Id: v('id', 'Id')?.toString(),
+          Name: v('name', 'Name')?.toString(),
+          MainPhotoUrl: v('mainPhotoUrl', 'MainPhotoUrl')?.toString(),
+          Rating: (v('rating', 'Rating') as num?)?.toDouble(),
+          RatingCount: _parseInt(v('ratingCount', 'RatingCount')),
+          AvailableSlots: _parseInt(v('availableSlots', 'AvailableSlots')),
+          Address: addr != null
+          ? DtoAddressShort.fromJson(Map<String, dynamic>.from(addr as Map))
           : null,
       );
     }
+
+   static int? _parseInt(dynamic x) {
+     if (x == null) return null;
+     if (x is int) return x;
+     if (x is num) return x.toInt();
+     return int.tryParse(x.toString());
+   }
   
 }

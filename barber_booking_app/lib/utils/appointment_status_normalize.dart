@@ -21,3 +21,11 @@ bool appointmentStatusIsConfirmed(String? normalized) =>
 
 bool appointmentStatusIsTerminal(String? normalized) =>
     normalized == 'Completed' || normalized == 'Cancelled';
+
+bool appointmentStatusIsUpcomingTab(String? raw) {
+  final n = normalizeAppointmentStatus(raw);
+  return n == 'Confirmed' || n == 'Pending';
+}
+
+bool appointmentStatusIsCompletedTab(String? raw) =>
+    normalizeAppointmentStatus(raw) == 'Completed';

@@ -1,4 +1,5 @@
 import 'package:barber_booking_app/models/vo_models/dto_price.dart';
+import 'package:barber_booking_app/utils/appointment_status_normalize.dart';
 
 class GetMasterAppointmentsShortResponse {
   String? Id;
@@ -34,7 +35,7 @@ class GetMasterAppointmentsShortResponse {
           ? DtoPrice.fromJson(Map<String, dynamic>.from(price as Map))
           : null,
       AppointmentDate: v('appointmentDate', 'AppointmentDate')?.toString(),
-      Status: v('status', 'Status')?.toString(),
+      Status: normalizeAppointmentStatus(v('status', 'Status')?.toString()),
     );
   }
 }

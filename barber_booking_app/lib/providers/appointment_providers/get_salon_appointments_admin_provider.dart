@@ -1,5 +1,6 @@
 import 'package:barber_booking_app/models/appointment_models/response/salon_appointment_admin_response.dart';
 import 'package:barber_booking_app/models/base/base_provider.dart';
+import 'package:barber_booking_app/utils/appointment_status_normalize.dart';
 import 'package:barber_booking_app/models/params/appointment_params/filter_appointments_params.dart';
 import 'package:barber_booking_app/models/params/page_params.dart';
 import 'package:barber_booking_app/services/appointment_services/get_salon_appointments_admin_service.dart';
@@ -82,13 +83,8 @@ class GetSalonAppointmentsAdminProvider extends BaseProvider {
     return items.where((a) => _isCompleted(a.Status)).length;
   }
 
-  bool _isCompleted(String? status) {
-    if (status == null) return false;
-    final s = status.toLowerCase();
-    if (s == 'completed') return true;
-    if (s == '1') return true;
-    return false;
-  }
+  bool _isCompleted(String? status) =>
+      normalizeAppointmentStatus(status) == 'Completed';
 
   void clearList() {
     _list = null;

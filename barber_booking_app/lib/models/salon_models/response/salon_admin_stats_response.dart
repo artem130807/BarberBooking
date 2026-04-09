@@ -1,6 +1,13 @@
+import 'package:barber_booking_app/models/vo_models/dto_address.dart';
+import 'package:barber_booking_app/models/vo_models/dto_phone.dart';
+
 class SalonAdminStatsResponse {
   String? Id;
   String? Name;
+  String? Description;
+  DtoAddress? Address;
+  DtoPhone? Phone;
+  String? MainPhotoUrl;
   bool? IsActive;
   double? Rating;
   int? RatingCount;
@@ -13,6 +20,10 @@ class SalonAdminStatsResponse {
   SalonAdminStatsResponse({
     this.Id,
     this.Name,
+    this.Description,
+    this.Address,
+    this.Phone,
+    this.MainPhotoUrl,
     this.IsActive,
     this.Rating,
     this.RatingCount,
@@ -24,18 +35,38 @@ class SalonAdminStatsResponse {
   });
 
   factory SalonAdminStatsResponse.fromJson(Map<String, dynamic> json) {
+    dynamic v(String a, String b) => json[a] ?? json[b];
+    final addr = v('address', 'Address');
+    final ph = v('phone', 'Phone');
     return SalonAdminStatsResponse(
-      Id: json['id']?.toString(),
-      Name: json['name']?.toString(),
-      IsActive: json['isActive'] is bool ? json['isActive'] as bool : null,
-      Rating: _toDouble(json['rating']),
-      RatingCount: _toInt(json['ratingCount']),
-      CreatedAt: _parseDt(json['createdAt']),
-      MastersCount: _toInt(json['mastersCount']),
-      ServicesCount: _toInt(json['servicesCount']),
-      AppointmentsCount: _toInt(json['appointmentsCount']),
-      ReviewsCount: _toInt(json['reviewsCount']),
+      Id: v('id', 'Id')?.toString(),
+      Name: v('name', 'Name')?.toString(),
+      Description: v('description', 'Description')?.toString(),
+      Address: addr != null
+          ? DtoAddress.fromJson(Map<String, dynamic>.from(addr as Map))
+          : null,
+      Phone: ph != null
+          ? DtoPhone.fromJson(Map<String, dynamic>.from(ph as Map))
+          : null,
+      MainPhotoUrl: v('mainPhotoUrl', 'MainPhotoUrl')?.toString(),
+      IsActive: _parseBool(v('isActive', 'IsActive')),
+      Rating: _toDouble(v('rating', 'Rating')),
+      RatingCount: _toInt(v('ratingCount', 'RatingCount')),
+      CreatedAt: _parseDt(v('createdAt', 'CreatedAt')),
+      MastersCount: _toInt(v('mastersCount', 'MastersCount')),
+      ServicesCount: _toInt(v('servicesCount', 'ServicesCount')),
+      AppointmentsCount: _toInt(v('appointmentsCount', 'AppointmentsCount')),
+      ReviewsCount: _toInt(v('reviewsCount', 'ReviewsCount')),
     );
+  }
+
+  static bool? _parseBool(dynamic x) {
+    if (x == null) return null;
+    if (x is bool) return x;
+    final s = x.toString().toLowerCase();
+    if (s == 'true') return true;
+    if (s == 'false') return false;
+    return null;
   }
 
   static double? _toDouble(dynamic v) {

@@ -9,6 +9,7 @@ import 'package:barber_booking_app/providers/master_subscription_providers/creat
 import 'package:barber_booking_app/providers/master_subscription_providers/delete_subscription_provider.dart';
 import 'package:barber_booking_app/providers/review_providers/get_reviews_master_provider.dart';
 import 'package:barber_booking_app/screens/user_interfaces/service_screens/service_selection_screen.dart';
+import 'package:barber_booking_app/utils/api_media_url.dart';
 import 'package:barber_booking_app/utils/date_formatter.dart';
 import 'package:barber_booking_app/widgets/loading_indicator.dart';
 import 'package:barber_booking_app/widgets/error_widget.dart';
@@ -109,7 +110,7 @@ class _MasterDetailScreenState extends State<MasterDetailScreen> {
     if (currentState) {
       if (_subscriptionId == null) return;
       final deleteProvider = Provider.of<DeleteSubscriptionProvider>(context, listen: false);
-      final success = await deleteProvider.deleteSubscription(_subscriptionId!);
+      final success = await deleteProvider.deleteSubscription(_subscriptionId!, token);
       if (success && mounted) {
         setState(() {
           _isSubscribed = false;
@@ -342,7 +343,11 @@ class _MasterDetailScreenState extends State<MasterDetailScreen> {
               ),
             ),
             const SizedBox(height: 8),
-            Card(
+            Builder(
+              builder: (context) {
+                final salonNav = master.SalonNavigation!;
+                final salonPhotoResolved = resolveApiMediaUrl(salonNav.MainPhotoUrl);
+                return Card(
               elevation: 2,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(12),
@@ -352,7 +357,7 @@ class _MasterDetailScreenState extends State<MasterDetailScreen> {
                   Navigator.pushNamed(
                     context,
                     '/salon_screen',
-                    arguments: master.SalonNavigation!.Id,
+                    arguments: salonNav.Id,
                   );
                 },
                 borderRadius: BorderRadius.circular(12),
@@ -366,14 +371,14 @@ class _MasterDetailScreenState extends State<MasterDetailScreen> {
                         decoration: BoxDecoration(
                           color: Colors.grey[300],
                           borderRadius: BorderRadius.circular(8),
-                          image: master.SalonNavigation!.MainPhotoUrl != null
+                          image: salonPhotoResolved != null
                               ? DecorationImage(
-                            image: NetworkImage(master.SalonNavigation!.MainPhotoUrl!),
+                            image: NetworkImage(salonPhotoResolved),
                             fit: BoxFit.cover,
                           )
                               : null,
                         ),
-                        child: master.SalonNavigation!.MainPhotoUrl == null
+                        child: salonPhotoResolved == null
                             ? const Icon(Icons.business, color: Colors.grey)
                             : null,
                       ),
@@ -425,6 +430,8 @@ class _MasterDetailScreenState extends State<MasterDetailScreen> {
                   ),
                 ),
               ),
+            );
+              },
             ),
           ],
           const SizedBox(height: 24),

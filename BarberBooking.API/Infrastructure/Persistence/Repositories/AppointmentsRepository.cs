@@ -217,5 +217,15 @@ namespace BarberBooking.API.Repositories
             .Include(x => x.TimeSlot)
             .Where(x => x.TimeSlotId == timeSlotId).ToListAsync();
         }
+
+        public async Task<List<Appointments>> GetAppointmentsByDateTo(DateTime appointmentDateTo)
+        {
+            return await _context.Appointments.Where(x => x.AppointmentDate.Date < appointmentDateTo.Date && x.Status == AppointmentStatusEnum.Confirmed).ToListAsync();
+        }
+
+        public async Task SaveChangesAsync()
+        {
+            await _context.SaveChangesAsync();
+        }
     }
 }

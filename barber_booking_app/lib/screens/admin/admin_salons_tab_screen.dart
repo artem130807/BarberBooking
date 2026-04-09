@@ -4,6 +4,7 @@ import 'package:barber_booking_app/models/salon_models/response/get_salons_respo
 import 'package:barber_booking_app/providers/auth_providers/auth_provider.dart';
 import 'package:barber_booking_app/providers/salon_providers/get_salons_provider.dart';
 import 'package:barber_booking_app/providers/salon_providers/get_salons_search_provider.dart';
+import 'package:barber_booking_app/utils/api_media_url.dart';
 import 'package:barber_booking_app/widgets/error_widget.dart';
 import 'package:barber_booking_app/widgets/loading_indicator.dart';
 import 'package:flutter/material.dart';
@@ -75,7 +76,7 @@ class _AdminSalonsTabScreenState extends State<AdminSalonsTabScreen> {
 
   Widget _buildSalonRow(GetSalonsResponse salon) {
     final theme = Theme.of(context);
-    final photo = salon.MainPhotoUrl;
+    final photo = resolveApiMediaUrl(salon.MainPhotoUrl);
     return Card(
       margin: const EdgeInsets.only(bottom: 8),
       clipBehavior: Clip.antiAlias,

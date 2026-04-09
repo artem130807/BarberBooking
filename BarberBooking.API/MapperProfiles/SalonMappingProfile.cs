@@ -11,7 +11,8 @@ namespace BarberBooking.API.MapperProfiles
         {
             CreateMap<DtoCreateSalon, Salons>();
             CreateMap<DtoUpdateSalon, Salons>();
-            CreateMap<Salons, DtoSalonInfo>();
+            CreateMap<Salons, DtoSalonInfo>()
+                .ForMember(dest => dest.Phone, opt => opt.MapFrom(src => src.PhoneNumber));
             CreateMap<Salons, DtoSalonShortInfo>();
             CreateMap<Salons, DtoSalonUpdateInfo>();
             CreateMap<Salons, DtoSalonCreateInfo>()
@@ -31,6 +32,9 @@ namespace BarberBooking.API.MapperProfiles
                 .ForMember(dest => dest.Count, opt => opt.MapFrom(src => src.Count));
 
             CreateMap<Salons, DtoSalonAdminStats>()
+                .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
+                .ForMember(dest => dest.Address, opt => opt.MapFrom(src => src.Address))
+                .ForMember(dest => dest.Phone, opt => opt.MapFrom(src => src.PhoneNumber))
                 .ForMember(dest => dest.MastersCount, opt => opt.MapFrom(src => src.SalonUsers.Count))
                 .ForMember(dest => dest.ServicesCount, opt => opt.MapFrom(src => src.Services.Count))
                 .ForMember(dest => dest.AppointmentsCount, opt => opt.MapFrom(src => src.Appointments.Count))

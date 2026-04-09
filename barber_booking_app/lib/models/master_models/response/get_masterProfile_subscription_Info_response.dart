@@ -1,5 +1,4 @@
 import 'package:barber_booking_app/models/salon_models/response/salon_navigation_response.dart';
-import 'package:flutter/foundation.dart';
 
 class GetMasterprofileSubscriptionInfoResponse {
   String? Id;
@@ -10,12 +9,18 @@ class GetMasterprofileSubscriptionInfoResponse {
   GetMasterprofileSubscriptionInfoResponse({this.Id, this.MasterName, this.AvatarUrl, this.Rating, this.SalonNavigation});
 
   factory GetMasterprofileSubscriptionInfoResponse.fromJson(Map<String, dynamic> json){
+    final ratingRaw = json['rating'] ?? json['Rating'];
+    final salonNavRaw = json['salonNavigation'] ?? json['SalonNavigation'];
     return GetMasterprofileSubscriptionInfoResponse(
-      Id: json['id'],
-      MasterName: json['masterName'],
-      AvatarUrl: json['avatarUrl'],
-      Rating: json['rating'],
-      SalonNavigation: json['salonNavigation'] != null ? SalonNavigationResponse.fromJson(json['salonNavigation']) : null,
+      Id: json['id']?.toString() ?? json['Id']?.toString(),
+      MasterName: json['masterName'] as String? ?? json['MasterName'] as String?,
+      AvatarUrl: json['avatarUrl'] as String? ?? json['AvatarUrl'] as String?,
+      Rating: ratingRaw is num ? ratingRaw.toDouble() : null,
+      SalonNavigation: salonNavRaw != null
+          ? SalonNavigationResponse.fromJson(
+              Map<String, dynamic>.from(salonNavRaw as Map),
+            )
+          : null,
     );
   }
 }

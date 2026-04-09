@@ -1,16 +1,14 @@
 import 'package:flutter/material.dart';
 
-/// Современная тёмная тема приложения BarberBooking.
-/// Соответствует Material Design 3 и стандартам современных приложений.
+
 class AppTheme {
   AppTheme._();
 
-  // Цветовая палитра
   static const Color _background = Color(0xFF0D0D0D);
   static const Color _surface = Color(0xFF1A1A1A);
   static const Color _surfaceVariant = Color(0xFF252525);
   static const Color _card = Color(0xFF1E1E1E);
-  static const Color _primary = Color(0xFFD4AF37); // Золотой — барбершоп
+  static const Color _primary = Color(0xFFD4AF37); 
   static const Color _primaryVariant = Color(0xFFB8962E);
   static const Color _onPrimary = Color(0xFF1A1A1A);
   static const Color _onBackground = Color(0xFFF5F5F5);
@@ -152,7 +150,6 @@ class AppTheme {
     );
   }
 
-  // Статические цвета для использования в виджетах
   static const Color primary = _primary;
   static const Color surface = _surface;
   static const Color surfaceVariant = _surfaceVariant;

@@ -12,6 +12,7 @@ import 'package:barber_booking_app/widgets/salon_widgets/salon_rating.dart';
 import 'package:barber_booking_app/widgets/review_widgets/salon_review_tile.dart';
 import 'package:barber_booking_app/widgets/loading_indicator.dart';
 import 'package:barber_booking_app/widgets/error_widget.dart';
+import 'package:barber_booking_app/utils/phone_launch.dart';
 import 'package:barber_booking_app/utils/salon_working_hours_label.dart';
 
 class SalonScreen extends StatefulWidget {
@@ -205,18 +206,61 @@ class _SalonScreenState extends State<SalonScreen> {
                     showDistance: true,
                   ),
                 const SizedBox(height: 8),
-                if (salon.phone != null)
-                  Row(
-                    children: [
-                      Icon(Icons.phone, size: 16, color: Theme.of(context).colorScheme.onSurfaceVariant),
-                      const SizedBox(width: 6),
-                      Text(
-                        salon.phone!.Number,
-                        style: TextStyle(fontSize: 14, color: Theme.of(context).colorScheme.onSurfaceVariant),
+                Builder(
+                  builder: (context) {
+                    final phoneText = salon.phone?.Number.trim();
+                    if (phoneText == null || phoneText.isEmpty) {
+                      return const SizedBox.shrink();
+                    }
+                    final cs = Theme.of(context).colorScheme;
+                    return Padding(
+                      padding: const EdgeInsets.only(bottom: 8),
+                      child: Material(
+                        color: Colors.transparent,
+                        child: InkWell(
+                          borderRadius: BorderRadius.circular(8),
+                          onTap: () async {
+                            final ok = await launchPhoneDialer(phoneText);
+                            if (!context.mounted) return;
+                            if (!ok) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text('Не удалось открыть набор номера'),
+                                  behavior: SnackBarBehavior.floating,
+                                ),
+                              );
+                            }
+                          },
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 4),
+                            child: Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Icon(Icons.phone_outlined,
+                                    size: 20, color: cs.primary),
+                                const SizedBox(width: 10),
+                                Expanded(
+                                  child: Text(
+                                    phoneText,
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .bodyMedium
+                                        ?.copyWith(
+                                          color: cs.primary,
+                                          fontWeight: FontWeight.w600,
+                                          decoration: TextDecoration.underline,
+                                          decorationColor: cs.primary,
+                                        ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
                       ),
-                    ],
-                  ),
-                const SizedBox(height: 8),
+                    );
+                  },
+                ),
                 Builder(
                   builder: (context) {
                     final hoursLabel =

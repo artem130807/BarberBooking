@@ -12,7 +12,7 @@ namespace BarberBooking.API.Dto.DtoSalons
         public string Name {get; private set;}
         public string? Description { get; private set; }
         public DtoAddress Address{get; private set;}
-        public DtoPhone Phone {get; private set;}
+        public DtoPhone? Phone {get; private set;}
         public TimeOnly? OpeningTime { get; private set; }
         public TimeOnly? ClosingTime { get; private set; }
         public bool IsActive {get; private set;} 

@@ -60,9 +60,9 @@ namespace BarberBooking.API.Service.Background
                         a.Status == Enums.AppointmentStatusEnum.Completed),
                     CancelledAppointmentsCount = s.Appointments.Count(a =>
                         a.Status == Enums.AppointmentStatusEnum.Cancelled),
-                    SumPrice = s.Appointments.Where(a => 
+                    SumPrice = s.Appointments.Where(a =>
                         a.Status == Enums.AppointmentStatusEnum.Completed)
-                        .Sum(a => a.Service.Price.Value)
+                        .Sum(a => a.Service != null ? a.Service.Price.Value : 0m)
                 })
                 .ToList();
 

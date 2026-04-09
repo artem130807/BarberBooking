@@ -1,4 +1,5 @@
 import 'package:barber_booking_app/models/salon_models/response/salon_navigation_response.dart';
+import 'package:barber_booking_app/utils/api_media_url.dart';
 import 'package:barber_booking_app/providers/auth_providers/auth_provider.dart';
 import 'package:barber_booking_app/providers/master_providers/admin_master_profile_provider.dart';
 import 'package:barber_booking_app/widgets/error_widget.dart';
@@ -124,6 +125,7 @@ class _AdminMasterProfileScreenState extends State<AdminMasterProfileScreen> {
           final createdStr = m.createdAt != null
               ? DateFormat('dd.MM.yyyy, HH:mm').format(m.createdAt!.toLocal())
               : null;
+          final avatarResolved = resolveApiMediaUrl(m.avatarUrl);
 
           return RefreshIndicator(
             onRefresh: _load,
@@ -134,11 +136,10 @@ class _AdminMasterProfileScreenState extends State<AdminMasterProfileScreen> {
                   child: CircleAvatar(
                     radius: 56,
                     backgroundColor: cs.primaryContainer,
-                    backgroundImage: m.avatarUrl != null &&
-                            m.avatarUrl!.isNotEmpty
-                        ? NetworkImage(m.avatarUrl!)
+                    backgroundImage: avatarResolved != null
+                        ? NetworkImage(avatarResolved)
                         : null,
-                    child: m.avatarUrl == null || m.avatarUrl!.isEmpty
+                    child: avatarResolved == null
                         ? Text(
                             _initials(m.userName),
                             style: TextStyle(
@@ -411,6 +412,7 @@ class _SalonNavTile extends StatelessWidget {
     final cs = Theme.of(context).colorScheme;
     final name = nav.SalonName ?? '—';
     final canNavigate = nav.Id != null && nav.Id!.isNotEmpty;
+    final salonPhoto = resolveApiMediaUrl(nav.MainPhotoUrl);
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
@@ -431,6 +433,27 @@ class _SalonNavTile extends StatelessWidget {
                         fontWeight: FontWeight.w600,
                       ),
                 ),
+                if (salonPhoto != null) ...[
+                  const SizedBox(height: 8),
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(10),
+                    child: AspectRatio(
+                      aspectRatio: 16 / 9,
+                      child: Image.network(
+                        salonPhoto,
+                        fit: BoxFit.cover,
+                        errorBuilder: (_, __, ___) => ColoredBox(
+                          color: cs.surfaceContainerHighest,
+                          child: Icon(
+                            Icons.storefront_outlined,
+                            size: 40,
+                            color: cs.onSurfaceVariant,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
                 const SizedBox(height: 6),
                 Material(
                   color: Colors.transparent,

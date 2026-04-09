@@ -33,5 +33,7 @@ namespace BarberBooking.API.Contracts
             TimeOnly endTime);
         Task<PagedResult<Appointments>> GetPagedAppointmentsByTimeSlotId(Guid timeSlotId, PageParams pageParams, StatusFilter filter);
         Task<List<Appointments>> GetAppointmentsByTimeSlotId(Guid timeSlotId);
+        Task<List<Appointments>> GetAppointmentsByDateTo(DateTime appointmentDateTo);
+        Task SaveChangesAsync();
     }
 }

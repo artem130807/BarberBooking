@@ -11,21 +11,23 @@ namespace BarberBooking.API.ExtensionsProject
     {
         public static IQueryable<Salons> SalonFilter(this IQueryable<Salons> query, SalonFilter salonFilter)
         {
-            if(salonFilter.IsActive.HasValue)
-                query = query.Where(x => x.IsActive == salonFilter.IsActive);
-            if(salonFilter.MaxRating.HasValue)
+            if (salonFilter.IsActive == true)
+                query = query.Where(x => x.IsActive);
+            if (salonFilter.MaxRating == true)
                 query = query.OrderByDescending(x => x.Rating);
-            if(salonFilter.Popular.HasValue)
+            if (salonFilter.Popular == true)
                 query = query.OrderByDescending(x => x.RatingCount);
-            if (salonFilter.MinPrice.HasValue)
-                query = query.Select(s => new
-                {
-                    Salon = s,
-                    MinPrice = s.Services.Min(service => service.Price.Value)
-                })
-                .OrderBy(x => x.MinPrice)
-                .Select(x => x.Salon);
-        
+            if (salonFilter.MinPrice == true)
+            {
+                query = query
+                    .Select(s => new
+                    {
+                        Salon = s,
+                        MinPrice = s.Services.Min(service => (decimal?)service.Price.Value),
+                    })
+                    .OrderBy(x => x.MinPrice ?? decimal.MaxValue)
+                    .Select(x => x.Salon);
+            }
             return query;
         }
         public static IQueryable<Salons>  SearchFilter(this IQueryable<Salons> query, SearchFilterParams searchFilterParams)

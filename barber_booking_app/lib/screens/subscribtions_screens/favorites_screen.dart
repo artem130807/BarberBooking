@@ -6,6 +6,7 @@ import 'package:barber_booking_app/providers/master_subscription_providers/delet
 import 'package:barber_booking_app/widgets/loading_indicator.dart';
 import 'package:barber_booking_app/widgets/error_widget.dart';
 import 'package:barber_booking_app/models/master_models/response/get_masterProfile_subscription_Info_response.dart';
+import 'package:barber_booking_app/utils/api_media_url.dart';
 
 class FavoritesScreen extends StatefulWidget {
   const FavoritesScreen({super.key});
@@ -54,8 +55,9 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
   Future<void> _applyDeletions() async {
     if (_markedForDeletionIds.isEmpty) return;
     final deleteProvider = Provider.of<DeleteSubscriptionProvider>(context, listen: false);
+    final token = Provider.of<AuthProvider>(context, listen: false).token;
     for (final id in _markedForDeletionIds) {
-      await deleteProvider.deleteSubscription(id);
+      await deleteProvider.deleteSubscription(id, token);
     }
     _markedForDeletionIds.clear();
     await _loadFavorites();
@@ -205,6 +207,7 @@ class FavoriteMasterCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final master = masterInfo;
+    final avatarUrl = resolveApiMediaUrl(master.AvatarUrl);
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -214,10 +217,10 @@ class FavoriteMasterCard extends StatelessWidget {
           children: [
             CircleAvatar(
               radius: 30,
-              backgroundImage: master.AvatarUrl != null
-                  ? NetworkImage(master.AvatarUrl!)
+              backgroundImage: avatarUrl != null
+                  ? NetworkImage(avatarUrl)
                   : null,
-              child: master.AvatarUrl == null
+              child: avatarUrl == null
                   ? Icon(Icons.person, size: 30, color: Theme.of(context).colorScheme.onSurfaceVariant)
                   : null,
             ),

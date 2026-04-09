@@ -14,14 +14,10 @@ namespace BarberBooking.API.Service.UpdateService
     {
         public async Task UpdateAsync(Salons salon, DtoUpdateSalon? dto)
         {
-            var name = !string.IsNullOrWhiteSpace(dto.Name) ? dto.Name : dto.Name;
+            var name = !string.IsNullOrWhiteSpace(dto.Name) ? dto.Name : salon.Name;
             salon.UpdateName(name);
             var description = !string.IsNullOrWhiteSpace(dto.Description) ? dto.Description : salon.Description;
             salon.UpdateDescription(description);
-            var openingTime = dto.OpeningTime.HasValue ? dto.OpeningTime : salon.OpeningTime;
-            salon.UpdateOpeningTime(openingTime.Value);
-            var closingTime = dto.ClosingTime.HasValue ? dto.ClosingTime : salon.ClosingTime;
-            salon.UpdateOpeningTime(closingTime.Value);
             var mainPhotoUrl = !string.IsNullOrWhiteSpace(dto.MainPhotoUrl) ? dto.MainPhotoUrl : salon.MainPhotoUrl;
             salon.UpdateMainPhotoUrl(mainPhotoUrl);
             await UpdateAddress(salon, dto.Address);
@@ -47,7 +43,11 @@ namespace BarberBooking.API.Service.UpdateService
         private async Task UpdatePhone(Salons salon, DtoUpdatePhone? dtoPhone)
         {
             if(dtoPhone == null) return;
-            var phoneNumber = !string.IsNullOrWhiteSpace(dtoPhone.Number) ? dtoPhone.Number : salon.PhoneNumber.Number;
+            var phoneNumber = !string.IsNullOrWhiteSpace(dtoPhone.Number)
+                ? dtoPhone.Number
+                : salon.PhoneNumber?.Number;
+            if (string.IsNullOrWhiteSpace(phoneNumber))
+                return;
             var phone = PhoneNumber.Create(phoneNumber);
             if(phone.IsFailure)
                 throw new InvalidOperationException($"Телефон: {phone.Error}");

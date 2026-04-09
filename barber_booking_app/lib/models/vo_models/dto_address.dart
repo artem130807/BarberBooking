@@ -6,12 +6,13 @@ class DtoAddress {
 
   DtoAddress({this.City, this.Street, this.HouseNumber, this.Apartment});
 
-  factory  DtoAddress.fromJson(Map<String, dynamic> json){
-      return  DtoAddress(
-          City: json['city'],
-          Street: json['street'],
-          HouseNumber: json['houseNumber'],
-          Apartment: json['apartment'],
-      );
-    }
+  factory DtoAddress.fromJson(Map<String, dynamic> json) {
+    dynamic v(String a, String b) => json[a] ?? json[b];
+    return DtoAddress(
+      City: v('city', 'City')?.toString(),
+      Street: v('street', 'Street')?.toString(),
+      HouseNumber: v('houseNumber', 'HouseNumber')?.toString(),
+      Apartment: v('apartment', 'Apartment')?.toString(),
+    );
+  }
 }

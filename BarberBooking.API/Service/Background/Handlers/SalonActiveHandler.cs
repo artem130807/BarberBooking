@@ -55,10 +55,6 @@ namespace BarberBooking.API.Service.Background
                         {
                             salon.UpdateIsActive(false);
                         }
-                        else
-                        {
-                            salon.UpdateIsActive(false);
-                        }
                         salon.UpdateOpeningTime(minTime);
                         salon.UpdateClosingTime(maxTime);
                         _unitOfWork.Commit();

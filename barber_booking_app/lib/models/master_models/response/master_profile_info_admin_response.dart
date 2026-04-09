@@ -18,14 +18,15 @@ class MasterProfileInfoAdminResponse {
   });
 
   factory MasterProfileInfoAdminResponse.fromJson(Map<String, dynamic> json) {
+    dynamic v(String a, String b) => json[a] ?? json[b];
     return MasterProfileInfoAdminResponse(
-      Id: json['id']?.toString(),
-      UserName: json['userName']?.toString(),
-      Bio: json['bio']?.toString(),
-      Specialization: json['specialization']?.toString(),
-      AvatarUrl: json['avatarUrl']?.toString(),
-      Rating: _toDouble(json['rating']),
-      RatingCount: _toInt(json['ratingCount']),
+      Id: v('id', 'Id')?.toString(),
+      UserName: v('userName', 'UserName')?.toString(),
+      Bio: v('bio', 'Bio')?.toString(),
+      Specialization: v('specialization', 'Specialization')?.toString(),
+      AvatarUrl: v('avatarUrl', 'AvatarUrl')?.toString(),
+      Rating: _toDouble(v('rating', 'Rating')),
+      RatingCount: _toInt(v('ratingCount', 'RatingCount')),
     );
   }
 

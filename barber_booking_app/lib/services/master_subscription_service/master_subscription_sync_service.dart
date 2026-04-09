@@ -4,13 +4,11 @@ import 'package:barber_booking_app/services/master_subscription_service/create_s
 import 'package:barber_booking_app/services/master_subscription_service/delete_subscription_service.dart';
 import 'package:barber_booking_app/services/master_subscription_service/get_subscriptions_service.dart';
 
-/// Синхронизация «избранного» с API при выходе с экрана мастера (одна запись create/delete вместо каждого тапа).
 class MasterSubscriptionSyncService {
   final CreateSubscriptionService _create = CreateSubscriptionService();
   final DeleteSubscriptionService _delete = DeleteSubscriptionService();
   final GetSubscriptionsService _list = GetSubscriptionsService();
 
-  /// Возвращает `true`, если состояние совпадает с сервером или запрос успешен.
   Future<bool> persistIfChanged({
     required bool initialSubscribed,
     required bool draftSubscribed,
@@ -27,7 +25,7 @@ class MasterSubscriptionSyncService {
 
     final subscriptionId = await _findSubscriptionIdForMaster(token, masterId);
     if (subscriptionId == null) return false;
-    final ok = await _delete.deleteSubscription(subscriptionId);
+    final ok = await _delete.deleteSubscription(subscriptionId, token);
     return ok == true;
   }
 

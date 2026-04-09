@@ -14,6 +14,7 @@ using BarberBooking.API.Messaging.Producer;
 using BarberBooking.API.Models;
 using BarberBooking.API.Provider;
 using BarberBooking.API.Service.Background;
+using BarberBooking.API.Service.Background.Handlers;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
@@ -102,6 +103,7 @@ namespace BarberBooking.API
             services.AddHostedService<SalonStatiscticBackgroundService>();
             services.AddHostedService<MasterStatisticBackgroundService>();
             services.AddHostedService<MessageAppointmentBackgroundService>();
+            services.AddHostedService<AutoAppointmentsCancelledBackgroundService>();
             return services;
         }
         public static void InitializingCache(this IApplicationBuilder app)

@@ -1,9 +1,11 @@
 import 'package:barber_booking_app/models/params/page_params.dart';
+import 'package:barber_booking_app/screens/admin/admin_master_profile_screen.dart';
 import 'package:barber_booking_app/models/params/salon_params/salon_filter.dart';
 import 'package:barber_booking_app/utils/admin_last_salon_storage.dart';
 import 'package:barber_booking_app/providers/admin_top_masters_provider.dart';
 import 'package:barber_booking_app/providers/auth_providers/auth_provider.dart';
 import 'package:barber_booking_app/providers/salon_providers/get_salons_provider.dart';
+import 'package:barber_booking_app/utils/api_media_url.dart';
 import 'package:barber_booking_app/widgets/error_widget.dart';
 import 'package:barber_booking_app/widgets/loading_indicator.dart';
 import 'package:flutter/material.dart';
@@ -188,6 +190,10 @@ class _AdminTopMastersScreenState extends State<AdminTopMastersScreen> {
                       }
                       final m = prov.items[i];
                       final rank = i + 1;
+                      final avatarResolved = resolveApiMediaUrl(m.AvatarUrl);
+                      final initials = (m.UserName ?? '?').isNotEmpty
+                          ? m.UserName![0].toUpperCase()
+                          : '?';
                       return Card(
                         margin: const EdgeInsets.only(bottom: 10),
                         elevation: 0,
@@ -203,13 +209,83 @@ class _AdminTopMastersScreenState extends State<AdminTopMastersScreen> {
                             horizontal: 12,
                             vertical: 8,
                           ),
-                          leading: CircleAvatar(
-                            backgroundColor: cs.primaryContainer,
-                            foregroundColor: cs.onPrimaryContainer,
-                            child: Text(
-                              '$rank',
-                              style:
-                                  const TextStyle(fontWeight: FontWeight.w700),
+                          onTap: () {
+                            final id = m.Id;
+                            if (id == null || id.isEmpty) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text('Нет идентификатора мастера'),
+                                  behavior: SnackBarBehavior.floating,
+                                ),
+                              );
+                              return;
+                            }
+                            Navigator.pushNamed(
+                              context,
+                              '/admin_master_profile',
+                              arguments: AdminMasterProfileArgs(
+                                masterId: id,
+                                previewName: m.UserName,
+                              ),
+                            );
+                          },
+                          leading: SizedBox(
+                            width: 56,
+                            height: 56,
+                            child: Stack(
+                              clipBehavior: Clip.none,
+                              children: [
+                                Positioned.fill(
+                                  child: ClipOval(
+                                    child: avatarResolved != null
+                                        ? Image.network(
+                                            avatarResolved,
+                                            fit: BoxFit.cover,
+                                            errorBuilder: (_, __, ___) =>
+                                                ColoredBox(
+                                              color: cs.surfaceContainerHighest,
+                                              child: Center(
+                                                child: Text(
+                                                  initials,
+                                                  style: TextStyle(
+                                                    fontWeight: FontWeight.w600,
+                                                    color: cs.onSurfaceVariant,
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                          )
+                                        : ColoredBox(
+                                            color: cs.surfaceContainerHighest,
+                                            child: Center(
+                                              child: Text(
+                                                initials,
+                                                style: TextStyle(
+                                                  fontWeight: FontWeight.w600,
+                                                  color: cs.onSurfaceVariant,
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                  ),
+                                ),
+                                Positioned(
+                                  left: -2,
+                                  top: -2,
+                                  child: CircleAvatar(
+                                    radius: 12,
+                                    backgroundColor: cs.primary,
+                                    foregroundColor: cs.onPrimary,
+                                    child: Text(
+                                      '$rank',
+                                      style: const TextStyle(
+                                        fontSize: 11,
+                                        fontWeight: FontWeight.w700,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
                           title: Text(

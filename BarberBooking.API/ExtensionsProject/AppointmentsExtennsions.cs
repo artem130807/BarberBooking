@@ -31,13 +31,13 @@ namespace BarberBooking.API.ExtensionsProject
             if (filter.to.HasValue)
                 query = query.Where(x => x.CreatedAt <= filter.to.Value);
 
-            if (filter.Confirmed.HasValue)
+            if (filter.Confirmed == true)
                 query = query.Where(x => x.Status == AppointmentStatusEnum.Confirmed);
 
-            if (filter.Completed.HasValue)
+            if (filter.Completed == true)
                 query = query.Where(x => x.Status == AppointmentStatusEnum.Completed);
 
-            if (filter.Cancelled.HasValue)
+            if (filter.Cancelled == true)
                 query = query.Where(x => x.Status == AppointmentStatusEnum.Cancelled);
 
             if (filter.ThisWeek == true)

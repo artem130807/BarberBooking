@@ -1,9 +1,10 @@
-/// Подписи для статусов записи. С бэка приходят имена enum, как в `AppointmentStatusEnum`.
+import 'package:barber_booking_app/utils/appointment_status_normalize.dart';
+
 String appointmentStatusLabelRu(String? status) {
   if (status == null || status.isEmpty) return '—';
-  final s = status.trim();
-  final lower = s.toLowerCase();
-  switch (lower) {
+  final normalized = normalizeAppointmentStatus(status);
+  if (normalized == null || normalized.isEmpty) return '—';
+  switch (normalized.toLowerCase()) {
     case 'confirmed':
       return 'Подтверждена';
     case 'completed':
@@ -13,18 +14,6 @@ String appointmentStatusLabelRu(String? status) {
     case 'pending':
       return 'Ожидает подтверждения';
     default:
-      // На случай числовой сериализации enum
-      switch (s) {
-        case '0':
-          return 'Ожидает подтверждения';
-        case '1':
-          return 'Подтверждена';
-        case '2':
-          return 'Завершена';
-        case '3':
-          return 'Отменена';
-        default:
-          return s;
-      }
+      return normalized;
   }
 }

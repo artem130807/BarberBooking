@@ -94,6 +94,7 @@ namespace BarberBooking.API.Repositories
             return await _context.Salons
                 .AsSplitQuery()
                 .Include(s => s.Appointments.Where(a => a.AppointmentDate >= start && a.AppointmentDate < end))
+                    .ThenInclude(a => a.Service)
                 .ToListAsync(cancellationToken);
         }
         public async Task<List<Salons>> GetSalonsDayStats(int year, int month, int day,CancellationToken cancellationToken = default)
@@ -104,6 +105,7 @@ namespace BarberBooking.API.Repositories
             return await _context.Salons
                 .AsSplitQuery()
                 .Include(s => s.Appointments.Where(a => a.AppointmentDate >= start && a.AppointmentDate < end))
+                    .ThenInclude(a => a.Service)
                 .ToListAsync(cancellationToken);
         }
 

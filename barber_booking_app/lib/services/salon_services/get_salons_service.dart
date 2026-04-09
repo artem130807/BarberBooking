@@ -10,15 +10,16 @@ class GetSalonsService {
       try {
         print('📦 Получен запрос: параметры ${params.Page}, ${params.PageSize}');
 
+        final qp = <String, String>{
+          'page': '${params.Page ?? 1}',
+          'pageSize': '${params.PageSize ?? 20}',
+        };
+        if (filter.IsActive == true) qp['isActive'] = 'true';
+        if (filter.MaxRating == true) qp['maxRating'] = 'true';
+        if (filter.Popular == true) qp['popular'] = 'true';
+        if (filter.MinPrice == true) qp['minPrice'] = 'true';
         final url = Uri.parse('$kApiBaseUrl/api/Salon/GetSalonsByFilter').replace(
-          queryParameters: {
-            'page': params.Page.toString(),
-            'pageSize': params.PageSize.toString(),
-            'isActive': filter.IsActive.toString(),
-            'maxRating': filter.MaxRating.toString(),
-            'popular': filter.Popular.toString(),
-            'minPrice': filter.MinPrice.toString(),
-          },
+          queryParameters: qp,
         );
         print('🌐 URL: $url');
         

@@ -4,7 +4,7 @@ class MasterCard extends StatelessWidget {
   final String name;
   final String specialty;
   final double rating;
-  final int? ratingCount; // добавили поле
+  final int? ratingCount;
   final String? imageUrl;
   final VoidCallback? onTap;
 
@@ -13,7 +13,7 @@ class MasterCard extends StatelessWidget {
     required this.name,
     required this.specialty,
     required this.rating,
-    this.ratingCount, // добавили в конструктор
+    this.ratingCount,
     this.imageUrl,
     this.onTap,
   });

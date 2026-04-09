@@ -14,6 +14,7 @@ import 'package:provider/provider.dart';
 import 'package:barber_booking_app/widgets/loading_indicator.dart';
 import 'package:barber_booking_app/widgets/error_widget.dart';
 import 'package:barber_booking_app/widgets/section_header.dart';
+import 'package:barber_booking_app/utils/api_media_url.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -515,7 +516,7 @@ class _HomeScreenState extends State<HomeScreen> {
           name: master.UserName ?? 'Без имени',
           specialty: 'Барбер',
           rating: master.Rating ?? 0.0,
-          imageUrl: master.AvatarUrl,
+          imageUrl: resolveApiMediaUrl(master.AvatarUrl),
           onTap: () {
             Navigator.pushNamed(
               context,

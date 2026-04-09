@@ -4,6 +4,7 @@ import 'package:barber_booking_app/models/appointment_models/response/salon_appo
 import 'package:barber_booking_app/models/review_models/response/review_admin_list_item.dart';
 import 'package:barber_booking_app/models/salon_models/response/salon_statistic_period_response.dart';
 import 'package:barber_booking_app/models/salon_models/response/salon_stats_dto.dart';
+import 'package:barber_booking_app/utils/appointment_status_normalize.dart';
 import 'package:barber_booking_app/utils/appointment_status_ru.dart';
 import 'package:barber_booking_app/utils/appointment_time_display.dart';
 import 'package:excel/excel.dart';
@@ -237,11 +238,6 @@ class AdminExcelExportService {
     return s.substring(0, 80);
   }
 
-  static bool _isCompletedStatus(String? status) {
-    if (status == null) return false;
-    final s = status.toLowerCase();
-    if (s == 'completed') return true;
-    if (s == '1') return true;
-    return false;
-  }
+  static bool _isCompletedStatus(String? status) =>
+      normalizeAppointmentStatus(status) == 'Completed';
 }

@@ -1,4 +1,5 @@
 import 'package:barber_booking_app/providers/auth_providers/auth_provider.dart';
+import 'package:barber_booking_app/widgets/auth_widgets/otp_six_digit_fields.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:barber_booking_app/providers/auth_providers/email_verify_provider.dart';
@@ -99,35 +100,10 @@ class _VerifyCodeUpdatePassScreenState extends State<VerifyCodeUpdatePassScreen>
                     style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
                   ),
                   const SizedBox(height: 8),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: List.generate(6, (index) {
-                      return SizedBox(
-                        width: 45,
-                        height: 55,
-                        child: TextField(
-                          controller: _codeControllers[index],
-                          focusNode: _focusNodes[index],
-                          textAlign: TextAlign.center,
-                          keyboardType: TextInputType.number,
-                          maxLength: 1,
-                          enabled: !emailProvider.isLoading,
-                          decoration: InputDecoration(
-                            counterText: '',
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                          ),
-                          onChanged: (value) {
-                            if (value.length == 1 && index < 5) {
-                              _focusNodes[index + 1].requestFocus();
-                            } else if (value.isEmpty && index > 0) {
-                              _focusNodes[index - 1].requestFocus();
-                            }
-                          },
-                        ),
-                      );
-                    }),
+                  OtpSixDigitFields(
+                    controllers: _codeControllers,
+                    focusNodes: _focusNodes,
+                    enabled: !emailProvider.isLoading,
                   ),
                   const SizedBox(height: 24),
                   SizedBox(

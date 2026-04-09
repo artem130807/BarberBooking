@@ -72,7 +72,7 @@ class _SalonsScreenState extends State<SalonsScreen> {
 
   void _applyFilter() {
     final filter = SalonFilter(
-      IsActive: _isActiveOnly,
+      IsActive: _isActiveOnly ? true : null,
       MaxRating: _selectedSort == SortType.rating,
       Popular: _selectedSort == SortType.popular,
       MinPrice: _selectedSort == SortType.price,
