@@ -644,3 +644,4 @@ E:/AAAAA1111222C#/BarberBookingApp/BarberBooking.API/bin/Debug/net9.0/MimeKit.dl
 /home/shade/BarberBooking/BarberBooking.API/bin/Debug/net9.0/Microsoft.NET.StringTools.dll
 /home/shade/BarberBooking/BarberBooking.API/bin/Debug/net9.0/Pipelines.Sockets.Unofficial.dll
 /home/shade/BarberBooking/BarberBooking.API/bin/Debug/net9.0/StackExchange.Redis.dll
+/home/shade/BarberBooking/BarberBooking.API/obj/Debug/net9.0/swae.build.ex.cache
