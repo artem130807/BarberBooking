@@ -13,6 +13,7 @@ class GetMasterAppointmentInfoResponse {
   String? StartTime;
   String? EndTime;
   DateTime? AppointmentDate;
+  bool? CreatedWithoutApp;
 
   GetMasterAppointmentInfoResponse({
     this.Id,
@@ -25,6 +26,7 @@ class GetMasterAppointmentInfoResponse {
     this.StartTime,
     this.EndTime,
     this.AppointmentDate,
+    this.CreatedWithoutApp,
   });
 
   factory GetMasterAppointmentInfoResponse.fromJson(Map<String, dynamic> json) {
@@ -51,6 +53,13 @@ class GetMasterAppointmentInfoResponse {
       StartTime: v('startTime', 'StartTime')?.toString(),
       EndTime: v('endTime', 'EndTime')?.toString(),
       AppointmentDate: ad != null ? DateTime.tryParse(ad.toString()) : null,
+      CreatedWithoutApp: _parseBool(v('createdWithoutApp', 'CreatedWithoutApp')),
     );
+  }
+
+  static bool? _parseBool(dynamic v) {
+    if (v == null) return null;
+    if (v is bool) return v;
+    return v == true || v == 'true';
   }
 }

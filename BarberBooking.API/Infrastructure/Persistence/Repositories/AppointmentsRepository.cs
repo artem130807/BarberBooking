@@ -180,7 +180,8 @@ namespace BarberBooking.API.Repositories
 
         public async Task StatusUpdateRange(Guid timeSlotId, AppointmentStatusEnum status)
         {
-           await _context.Appointments.Where(x => x.TimeSlotId == timeSlotId)
+           await _context.Appointments.Where(x => x.TimeSlotId == timeSlotId 
+           && x.Status == AppointmentStatusEnum.Confirmed)
            .ExecuteUpdateAsync(s => 
            s.SetProperty(s => s.Status, status));
         }

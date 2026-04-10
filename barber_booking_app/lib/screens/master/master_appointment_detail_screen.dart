@@ -187,6 +187,35 @@ class _MasterAppointmentDetailScreenState
               : ListView(
                   padding: const EdgeInsets.all(20),
                   children: [
+                    if (_data!.CreatedWithoutApp == true)
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 16),
+                        child: Material(
+                          color: cs.tertiaryContainer,
+                          borderRadius: BorderRadius.circular(12),
+                          child: Padding(
+                            padding: const EdgeInsets.all(14),
+                            child: Row(
+                              children: [
+                                Icon(
+                                  Icons.phone_in_talk_outlined,
+                                  color: cs.onTertiaryContainer,
+                                ),
+                                const SizedBox(width: 12),
+                                Expanded(
+                                  child: Text(
+                                    'Клиент не записывался через приложение (звонок или другой канал).',
+                                    style: TextStyle(
+                                      color: cs.onTertiaryContainer,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
                     _section(
                       context,
                       'Клиент',
@@ -200,7 +229,10 @@ class _MasterAppointmentDetailScreenState
                               const SizedBox(width: 12),
                               Expanded(
                                 child: Text(
-                                  _data!.dtoUsersNavigation?.Name ?? 'Клиент',
+                                  _data!.CreatedWithoutApp == true
+                                      ? 'Вне приложения'
+                                      : (_data!.dtoUsersNavigation?.Name ??
+                                          'Клиент'),
                                   style: Theme.of(context)
                                       .textTheme
                                       .titleMedium

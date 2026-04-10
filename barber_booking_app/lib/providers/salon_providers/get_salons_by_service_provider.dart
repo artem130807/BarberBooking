@@ -1,9 +1,7 @@
 import 'package:barber_booking_app/models/base/base_provider.dart';
 import 'package:barber_booking_app/models/params/page_params.dart';
 import 'package:barber_booking_app/models/salon_models/response/get_salons_response.dart';
-import 'package:barber_booking_app/services/salon_services/get_salon_service.dart';
 import 'package:barber_booking_app/services/salon_services/get_salons_by_service_service.dart';
-import 'package:barber_booking_app/services/salon_services/get_salons_service.dart';
 
 class GetSalonsByServiceProvider extends BaseProvider{
   final GetSalonsByServiceService _salonService = GetSalonsByServiceService();
@@ -23,7 +21,7 @@ class GetSalonsByServiceProvider extends BaseProvider{
     Page: params.Page,
     PageSize: params.PageSize
   );
-  final response = await _salonService.GetSalons(trimmed, request, token);
+  final response = await _salonService.getSalonsByServiceName(trimmed, request, token);
   if(response != null && response.isNotEmpty){
     _getSalonsResponse = response;
     finishLoading();  
@@ -36,7 +34,7 @@ class GetSalonsByServiceProvider extends BaseProvider{
     return false;
   }
   }catch(e){
-    print(e);
+    handleError(e);
     finishLoading();
     notifyListeners();
     return false;

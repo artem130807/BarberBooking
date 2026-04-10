@@ -137,6 +137,7 @@ builder.Services.AddScoped<IWeeklyTemplateRepository, WeeklyTemplateRepository>(
 builder.Services.AddScoped<ITemplateDayRepository, TemplateDayRepository>();
 builder.Services.AddScoped<IMasterServicesRepository, MasterServicesRepository>();
 builder.Services.AddScoped<IAutoAppointmentsCancelledHandler, AutoAppointmentsCancelledHandler>();
+builder.Services.AddScoped<IAppointmentWithOutUserCreationValidator, AppointmentWithOutUserCreationValidator>();
 var corsOrigins = configuration.GetSection("Cors:AllowedOrigins").Get<string[]>();
 if (corsOrigins is { Length: > 0 })
 {

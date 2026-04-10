@@ -51,7 +51,7 @@ namespace BarberBooking.API.CQRS.AppointmentsCommands.Handlers
             }
             if (isClient)
             {
-                var userMessage = Models.Messages.Create($"Запись на {AppointmentMessageFormatting.FormatForMessage(appointment.AppointmentDate)}, отменена", appointment.ClientId, appointment.Id,
+                var userMessage = Models.Messages.Create($"Запись на {AppointmentMessageFormatting.FormatForMessage(appointment.AppointmentDate)}, отменена", appointment.ClientId.Value, appointment.Id,
                     Enums.MessageAudience.User, Enums.TypeMessage.CancelledAppointment);
                 var masterMessage = Models.Messages.Create($"Пользователь {appointment.Client.Name}, отменил запись к вам {appointment.Service.Name}, запись {AppointmentMessageFormatting.FormatForMessage(appointment.AppointmentDate)}",
                     appointment.Master.UserId,
@@ -64,7 +64,7 @@ namespace BarberBooking.API.CQRS.AppointmentsCommands.Handlers
             {
                 var toClient = Models.Messages.Create(
                     $"Вы отменили запись на {AppointmentMessageFormatting.FormatForMessage(appointment.AppointmentDate)}, {appointment.Service.Name}",
-                    appointment.ClientId,
+                    appointment.ClientId.Value,
                     appointment.Id,
                     Enums.MessageAudience.User,
                     Enums.TypeMessage.CancelledAppointment);

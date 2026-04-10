@@ -1,61 +1,63 @@
 import 'dart:convert';
 
+import 'package:barber_booking_app/config/api_config.dart';
 import 'package:barber_booking_app/models/params/page_params.dart';
 import 'package:barber_booking_app/models/salon_models/response/get_salons_response.dart';
 import 'package:http/http.dart' as http;
-import 'package:barber_booking_app/config/api_config.dart';
+
 class GetSalonsByServiceService {
+  Future<List<GetSalonsResponse>?> getSalonsByServiceName(
+    String? serviceName,
+    PageParams params,
+    String? token,
+  ) async {
+    try {
+      final name = (serviceName ?? '').trim();
+      if (name.isEmpty) {
+        return null;
+      }
+      final page = params.Page ?? 1;
+      final pageSize = params.PageSize ?? 20;
 
-     Future<List<GetSalonsResponse>?> GetSalons(String? serviceName ,PageParams params, String? token) async{
-      try {
-        final name = (serviceName ?? '').trim();
-        if (name.isEmpty) {
-          return null;
-        }
-        final page = params.Page ?? 1;
-        final pageSize = params.PageSize ?? 20;
+      final url = Uri.parse('$kApiBaseUrl/api/Salon/GetSalonsByServiceName').replace(
+        queryParameters: <String, String>{
+          'serviceName': name,
+          'Page': '$page',
+          'PageSize': '$pageSize',
+        },
+      );
 
-        final url = Uri.parse('$kApiBaseUrl/api/Salon/GetSalonsByServiceName').replace(
-          queryParameters: <String, String>{
-            'serviceName': name,
-            'Page': '$page',
-            'PageSize': '$pageSize',
-          },
-        );
-        print('🌐 GetSalonsByServiceName: $url');
-        
-        final response = await http.get(
+      final response = await http.get(
         url,
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': 'Bearer $token',
+          if (token != null && token.isNotEmpty) 'Authorization': 'Bearer $token',
         },
-        );
-        
-        print('📥 Статус: ${response.statusCode}');
-        print('📥 Ответ: ${response.body}');
-        
-        if (response.statusCode == 200) {
-        final Map<String, dynamic> jsonResponse = json.decode(response.body);
-        final List<dynamic> jsonList = jsonResponse['data'];
-        print('📊 Количество салонов: ${jsonList.length}');
-        if (jsonList.isEmpty) {
-          print('⚠️ Сервер вернул пустой список');
+      );
+
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> jsonResponse =
+            json.decode(response.body) as Map<String, dynamic>;
+        final data = jsonResponse['data'];
+        if (data is! List<dynamic>) {
           return [];
         }
-        return jsonList.map((json) => GetSalonsResponse.fromJson(json)).toList();
-        } else {
-        print('❌ Ошибка сервера: ${response.body}');
-        try {
-        final errorJson = json.decode(response.body);
-        throw Exception(errorJson['error'] ?? 'Неизвестная ошибка');
-        } catch (e) {
+        if (data.isEmpty) {
+          return [];
+        }
+        return data
+            .map((e) => GetSalonsResponse.fromJson(Map<String, dynamic>.from(e as Map)))
+            .toList();
+      }
+
+      try {
+        final errorJson = json.decode(response.body) as Map<String, dynamic>?;
+        throw Exception(errorJson?['error'] ?? 'Неизвестная ошибка');
+      } catch (_) {
         throw Exception('Ошибка сервера: ${response.statusCode}');
-        }
-        }
-        } catch(e) {
-        print('🔥 Исключение: $e');
-        return null;
-      } 
+      }
+    } catch (_) {
+      return null;
+    }
   }
 }

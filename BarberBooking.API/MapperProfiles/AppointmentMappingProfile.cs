@@ -50,13 +50,15 @@ namespace BarberBooking.API.MapperProfiles
                 .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status.ToString()))
                 .ForMember(dest => dest.dtoUsersNavigation, opt => opt.MapFrom(src => src.Client))
                 .ForMember(dest => dest.dtoServicesNavigation, opt => opt.MapFrom(src => src.Service))
-                .ForMember(dest => dest.SalonName, opt => opt.MapFrom(src => src.Salon.Name));
+                .ForMember(dest => dest.SalonName, opt => opt.MapFrom(src => src.Salon.Name))
+                .ForMember(dest => dest.CreatedWithoutApp, opt => opt.MapFrom(src => src.ClientId == null));
 
             CreateMap<Appointments, DtoMasterAppointmentShortInfo>()
-                .ForMember(dest => dest.UserName, opt => opt.MapFrom(src => src.Client.Name))
+                .ForMember(dest => dest.UserName, opt => opt.MapFrom(src => src.Client != null ? src.Client.Name : "Запись вне приложения"))
                 .ForMember(dest => dest.ServiceName, opt => opt.MapFrom(src => src.Service.Name))
                 .ForMember(dest => dest.Price, opt => opt.MapFrom(src => src.Service.Price))
-                .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status.ToString()));
+                .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status.ToString()))
+                .ForMember(dest => dest.CreatedWithoutApp, opt => opt.MapFrom(src => src.ClientId == null));
 
             CreateMap<PagedResult<Appointments>, PagedResult<DtoMasterAppointmentShortInfo>>()
                 .ForMember(dest => dest.Data, opt => opt.MapFrom(src => src.Data))

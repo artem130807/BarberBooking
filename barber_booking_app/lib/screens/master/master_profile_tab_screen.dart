@@ -1,5 +1,4 @@
 import 'package:barber_booking_app/models/master_models/response/get_master_response.dart';
-import 'package:barber_booking_app/models/salon_models/response/salon_navigation_response.dart';
 import 'package:barber_booking_app/providers/auth_providers/auth_provider.dart';
 import 'package:barber_booking_app/providers/master_providers/master_session_provider.dart';
 import 'package:barber_booking_app/providers/message_providers/get_count_messages_provider.dart';
@@ -8,7 +7,6 @@ import 'package:barber_booking_app/screens/master/master_my_services_screen.dart
 import 'package:barber_booking_app/screens/master/master_my_reviews_screen.dart';
 import 'package:barber_booking_app/screens/master/master_statistics_screen.dart';
 import 'package:barber_booking_app/widgets/master/master_notification_app_bar_button.dart';
-import 'package:barber_booking_app/widgets/phone_tap_bar.dart';
 import 'package:barber_booking_app/widgets/profile_shell_widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -18,21 +16,6 @@ class MasterProfileTabScreen extends StatelessWidget {
 
   final GetMasterResponse profile;
 
-  String _addressLine(SalonNavigationResponse? s) {
-    final a = s?.Address;
-    if (a == null) return '';
-    final parts = <String>[];
-    final city = a.City;
-    if (city != null && city.isNotEmpty) parts.add(city);
-    final street = a.Street;
-    if (street != null && street.isNotEmpty) parts.add(street);
-    final house = a.HouseNumber;
-    if (house != null && house.isNotEmpty) parts.add('д. $house');
-    final apt = a.Apartment;
-    if (apt != null && apt.isNotEmpty) parts.add('кв. $apt');
-    return parts.join(', ');
-  }
-
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
@@ -40,8 +23,6 @@ class MasterProfileTabScreen extends StatelessWidget {
     final salonName = profile.SalonNavigation?.SalonName ?? 'Салон';
     final rating = profile.Rating;
     final count = profile.RatingCount ?? 0;
-    final addr = _addressLine(profile.SalonNavigation);
-    final phone = profile.MasterPhone;
     final hasAbout = (profile.Specialization != null &&
             profile.Specialization!.trim().isNotEmpty) ||
         (profile.Bio != null && profile.Bio!.trim().isNotEmpty);
@@ -118,55 +99,18 @@ class MasterProfileTabScreen extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 24),
-          ProfileSectionHeading(text: 'Салон и контакты', colorScheme: cs),
+          ProfileSectionHeading(text: 'Салон', colorScheme: cs),
           Card(
             margin: EdgeInsets.zero,
             clipBehavior: Clip.antiAlias,
             shape: profileCardShape(cs),
             child: Padding(
               padding: const EdgeInsets.fromLTRB(16, 4, 16, 4),
-              child: Column(
-                children: [
-                  ProfileLabeledRow(
-                    icon: Icons.storefront_rounded,
-                    title: 'Салон',
-                    value: salonName,
-                    colorScheme: cs,
-                  ),
-                  if (addr.isNotEmpty) ...[
-                    Divider(
-                      height: 1,
-                      color: cs.outlineVariant.withValues(alpha: 0.45),
-                    ),
-                    ProfileLabeledRow(
-                      icon: Icons.place_outlined,
-                      title: 'Адрес',
-                      value: addr,
-                      colorScheme: cs,
-                      valueMaxLines: 4,
-                    ),
-                  ],
-                  if (phone != null && phone.isNotEmpty) ...[
-                    Divider(
-                      height: 1,
-                      color: cs.outlineVariant.withValues(alpha: 0.45),
-                    ),
-                    ProfileLabeledRow(
-                      icon: Icons.phone_outlined,
-                      title: 'Телефон',
-                      value: phone,
-                      colorScheme: cs,
-                      valueWidget: PhoneTapBar(
-                        phone: phone,
-                        showDialIcon: false,
-                        style: tt.bodyLarge?.copyWith(
-                          fontWeight: FontWeight.w600,
-                          color: cs.onSurface,
-                        ),
-                      ),
-                    ),
-                  ],
-                ],
+              child: ProfileLabeledRow(
+                icon: Icons.storefront_rounded,
+                title: 'Салон',
+                value: salonName,
+                colorScheme: cs,
               ),
             ),
           ),

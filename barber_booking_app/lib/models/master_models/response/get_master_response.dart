@@ -3,6 +3,7 @@ import 'package:barber_booking_app/utils/api_media_url.dart';
 
 class GetMasterResponse {
   String? Id;
+  String? SalonId;
   String? UserName;
   SalonNavigationResponse? SalonNavigation;
   String? Bio;
@@ -15,6 +16,7 @@ class GetMasterResponse {
 
   GetMasterResponse({
     this.Id,
+    this.SalonId,
     this.UserName,
     this.SalonNavigation,
     this.Bio,
@@ -31,6 +33,7 @@ class GetMasterResponse {
     final nav = v('salonNavigation', 'SalonNavigation');
     return GetMasterResponse(
       Id: v('id', 'Id')?.toString(),
+      SalonId: v('salonId', 'SalonId')?.toString(),
       UserName: v('userName', 'UserName')?.toString(),
       SalonNavigation: nav != null
           ? SalonNavigationResponse.fromJson(

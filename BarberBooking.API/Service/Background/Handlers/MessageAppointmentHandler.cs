@@ -67,7 +67,7 @@ namespace BarberBooking.API.Service.Background
             if (alreadyExists)
                 return;
 
-            var messageResult = Messages.Create(content, appointment.ClientId, appointment.Id, Enums.MessageAudience.User, Enums.TypeMessage.Reminder);
+            var messageResult = Messages.Create(content, appointment.ClientId.Value, appointment.Id, Enums.MessageAudience.User, Enums.TypeMessage.Reminder);
             if (messageResult.IsFailure)
             {
                 _logger.LogWarning(

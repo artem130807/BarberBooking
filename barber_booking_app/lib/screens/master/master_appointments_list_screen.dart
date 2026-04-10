@@ -1,8 +1,10 @@
 import 'package:barber_booking_app/models/master_interface_models/master_appointment_query_filter.dart';
 import 'package:barber_booking_app/models/master_interface_models/response/get_master_appointments_short_response.dart';
 import 'package:barber_booking_app/providers/auth_providers/auth_provider.dart';
+import 'package:barber_booking_app/providers/master_providers/master_session_provider.dart';
 import 'package:barber_booking_app/screens/master/master_appointment_detail_screen.dart';
 import 'package:barber_booking_app/screens/master/master_calendar_screen.dart';
+import 'package:barber_booking_app/screens/master/master_manual_booking_screen.dart';
 import 'package:barber_booking_app/screens/master/master_navigation.dart';
 import 'package:barber_booking_app/services/master_services/master_appointments_list_service.dart';
 import 'package:barber_booking_app/utils/appointment_time_format.dart';
@@ -135,6 +137,34 @@ class _MasterAppointmentsListScreenState
           const MasterNotificationAppBarButton(),
         ],
       ),
+      floatingActionButton: Consumer<MasterSessionProvider>(
+        builder: (context, session, _) {
+          final p = session.profile;
+          if (p == null) {
+            return const SizedBox.shrink();
+          }
+          return FloatingActionButton.extended(
+            onPressed: () {
+              Navigator.of(context)
+                  .push<bool>(
+                MaterialPageRoute(
+                  builder: (_) => MasterManualBookingScreen(
+                    profile: p,
+                    masterNavTab: MasterNav.appointments,
+                  ),
+                ),
+              )
+                  .then((v) {
+                if (v == true && mounted) {
+                  _load();
+                }
+              });
+            },
+            icon: const Icon(Icons.person_add_alt_1),
+            label: const Text('Вне приложения'),
+          );
+        },
+      ),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
@@ -228,15 +258,39 @@ class _MasterAppointmentsListScreenState
                                         maxLines: 4,
                                       ),
                                       const SizedBox(height: 6),
-                                      Chip(
-                                        visualDensity: VisualDensity.compact,
-                                        label: Text(
-                                          _statusRu(a.Status),
-                                          style: const TextStyle(fontSize: 12),
-                                        ),
-                                        padding: EdgeInsets.zero,
-                                        materialTapTargetSize:
-                                            MaterialTapTargetSize.shrinkWrap,
+                                      Wrap(
+                                        spacing: 6,
+                                        runSpacing: 4,
+                                        children: [
+                                          if (a.CreatedWithoutApp == true)
+                                            Chip(
+                                              avatar: Icon(
+                                                Icons.phone_in_talk_outlined,
+                                                size: 16,
+                                                color: cs.tertiary,
+                                              ),
+                                              label: const Text(
+                                                'Вне приложения',
+                                                style: TextStyle(fontSize: 12),
+                                              ),
+                                              visualDensity:
+                                                  VisualDensity.compact,
+                                              padding: EdgeInsets.zero,
+                                              materialTapTargetSize:
+                                                  MaterialTapTargetSize
+                                                      .shrinkWrap,
+                                            ),
+                                          Chip(
+                                            visualDensity: VisualDensity.compact,
+                                            label: Text(
+                                              _statusRu(a.Status),
+                                              style: const TextStyle(fontSize: 12),
+                                            ),
+                                            padding: EdgeInsets.zero,
+                                            materialTapTargetSize:
+                                                MaterialTapTargetSize.shrinkWrap,
+                                          ),
+                                        ],
                                       ),
                                     ],
                                   ),

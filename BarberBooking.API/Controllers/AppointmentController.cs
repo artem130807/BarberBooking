@@ -26,6 +26,16 @@ namespace BarberBooking.API.Controllers
         {
             _mediator = mediator;
         }
+        [Authorize]
+        [HttpPost("create-appointment-without-user")]
+        public async Task<IActionResult> CreateAppointmentWithoutUser([FromBody] DtoCreateAppointment dtoCreateAppointment)
+        {
+            var command = new CreateAppointmentWithoutUserQuery(dtoCreateAppointment);
+            var result = await _mediator.Send(command);
+            if(result.IsFailure)
+                return BadRequest(result.Error);
+            return Ok(result.Value);
+        }
         [AllowAnonymous]
         [HttpPost("create-appointment")]
         public async Task<IActionResult> CreateAppointment([FromBody] DtoCreateAppointment dtoCreateAppointment)

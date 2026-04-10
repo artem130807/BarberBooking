@@ -71,14 +71,26 @@ class SalonCard extends StatelessWidget {
                     const SizedBox(height: 8),
                     Row(
                       children: [
-                        const Icon(Icons.event_available, size: 14, color: Colors.green),
+                        Icon(
+                          Icons.event_available,
+                          size: 14,
+                          color: salon.AvailableSlots! > 0
+                              ? Colors.green
+                              : Colors.grey,
+                        ),
                         const SizedBox(width: 4),
-                        Text(
-                          'Доступно слотов: ${salon.AvailableSlots}',
-                          style: const TextStyle(
-                            color: Colors.green,
-                            fontSize: 12,
-                            fontWeight: FontWeight.w500,
+                        Expanded(
+                          child: Text(
+                            salon.AvailableSlots! > 0
+                                ? 'Доступно слотов: ${salon.AvailableSlots}'
+                                : 'Нет свободных слотов на сегодня',
+                            style: TextStyle(
+                              color: salon.AvailableSlots! > 0
+                                  ? Colors.green
+                                  : Colors.grey,
+                              fontSize: 12,
+                              fontWeight: FontWeight.w500,
+                            ),
                           ),
                         ),
                       ],

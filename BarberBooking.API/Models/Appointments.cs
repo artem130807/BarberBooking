@@ -11,7 +11,7 @@ namespace BarberBooking.API.Models
     {
         public Guid Id { get; private set; } 
         public Guid SalonId { get; private set; }
-        public Guid ClientId {get; private set;}
+        public Guid? ClientId {get; private set;}
         public Guid MasterId { get; private set; }
         public Guid ServiceId { get; private set; }
         public Guid TimeSlotId { get; private set; }
@@ -23,7 +23,7 @@ namespace BarberBooking.API.Models
         public DateTime CreatedAt { get; private set; } = DateTime.UtcNow;
         public DateTime UpdatedAt { get; private set; } = DateTime.UtcNow;
         public Salons Salon { get; private set; }
-        public Users Client {get; private set;}
+        public Users? Client {get; private set;}
         public MasterProfile Master { get; private set; } 
         public  Services Service { get; private set; }
         public MasterTimeSlot TimeSlot { get; private set; }
@@ -53,6 +53,26 @@ namespace BarberBooking.API.Models
             };
             return appointment;
         }
+        public static Appointments Create(Guid salonId, Guid masterId, Guid serviceId, Guid timeSlotId,  TimeOnly startTime, string clientNotes, TimeOnly endTime, DateTime appointmentDate)
+        {
+            var appointment = new Appointments
+            {
+                Id = Guid.NewGuid(),
+                SalonId = salonId,
+                MasterId = masterId,
+                ServiceId = serviceId,
+                TimeSlotId = timeSlotId,
+                ClientNotes = clientNotes,
+                Status = AppointmentStatusEnum.Confirmed,
+                StartTime = startTime,
+                EndTime = endTime,
+                AppointmentDate = appointmentDate,
+                CreatedAt = DateTime.UtcNow,
+                UpdatedAt = DateTime.UtcNow,
+            };
+            return appointment;
+        }
+
         public static Appointments Create(Appointments appointmentEntity)
         {
             var appointment = new Appointments

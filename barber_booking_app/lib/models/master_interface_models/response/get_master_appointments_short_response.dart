@@ -10,6 +10,7 @@ class GetMasterAppointmentsShortResponse {
   DtoPrice? Price;
   String? AppointmentDate;
   String? Status;
+  bool? CreatedWithoutApp;
 
   GetMasterAppointmentsShortResponse({
     this.Id,
@@ -20,6 +21,7 @@ class GetMasterAppointmentsShortResponse {
     this.Price,
     this.AppointmentDate,
     this.Status,
+    this.CreatedWithoutApp,
   });
 
   factory GetMasterAppointmentsShortResponse.fromJson(Map<String, dynamic> json) {
@@ -36,6 +38,13 @@ class GetMasterAppointmentsShortResponse {
           : null,
       AppointmentDate: v('appointmentDate', 'AppointmentDate')?.toString(),
       Status: normalizeAppointmentStatus(v('status', 'Status')?.toString()),
+      CreatedWithoutApp: _parseBool(v('createdWithoutApp', 'CreatedWithoutApp')),
     );
+  }
+
+  static bool? _parseBool(dynamic v) {
+    if (v == null) return null;
+    if (v is bool) return v;
+    return v == true || v == 'true';
   }
 }

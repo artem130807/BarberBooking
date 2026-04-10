@@ -70,7 +70,7 @@ namespace BarberBooking.API.CQRS.MasterTimeSlotCommands.Handler
 
             foreach (var appointment in appointments)
             {
-                var message = Models.Messages.Create($"Запись на {AppointmentMessageFormatting.FormatForMessage(appointment.AppointmentDate)}, отменена", appointment.ClientId, appointment.Id,
+                var message = Models.Messages.Create($"Запись на {AppointmentMessageFormatting.FormatForMessage(appointment.AppointmentDate)}, отменена", appointment.ClientId.Value, appointment.Id,
                     Enums.MessageAudience.User, Enums.TypeMessage.CancelledAppointment);
                 await _messageService.Send(message.Value);
             }

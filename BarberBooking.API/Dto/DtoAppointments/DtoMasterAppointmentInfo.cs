@@ -19,5 +19,6 @@ namespace BarberBooking.API.Dto.DtoAppointments
         public TimeOnly StartTime { get; private set; }
         public TimeOnly EndTime { get; private set; } 
         public DateTime AppointmentDate {get; private set;} 
+        public bool CreatedWithoutApp { get; private set; }
     }
 }

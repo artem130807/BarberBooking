@@ -16,5 +16,6 @@ namespace BarberBooking.API.Dto.DtoAppointments
         public DtoPrice Price {get; private set;}
         public DateTime AppointmentDate {get; private set;}
         public string Status { get; private set; }
+        public bool CreatedWithoutApp { get; private set; }
     }
 }

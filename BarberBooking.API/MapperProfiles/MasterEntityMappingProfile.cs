@@ -32,6 +32,7 @@ namespace BarberBooking.API.MapperProfiles
 
             CreateMap<MasterProfile, DtoMasterProfileInfo>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+                .ForMember(dest => dest.SalonId, opt => opt.MapFrom(src => src.SalonId))
                 .ForMember(dest => dest.UserName, opt => opt.MapFrom(src => src.User != null ? src.User.Name : string.Empty))
                 .ForMember(dest => dest.SalonNavigation, opt => opt.MapFrom(src => src.Salon))
                 .ForMember(dest => dest.Bio, opt => opt.MapFrom(src => src.Bio))
