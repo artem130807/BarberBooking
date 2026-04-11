@@ -13,8 +13,10 @@ using BarberBooking.API.Filters;
 using BarberBooking.API.Messaging.Producer;
 using BarberBooking.API.Models;
 using BarberBooking.API.Provider;
+using BarberBooking.API.Service.AuthHandler;
 using BarberBooking.API.Service.Background;
 using BarberBooking.API.Service.Background.Handlers;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
@@ -34,7 +36,14 @@ namespace BarberBooking.API
         public static void AddApiAuthentication(this IServiceCollection services, IConfiguration configuration)
         {
             var jwtoptions = configuration.GetSection(nameof(JwtOptions)).Get<JwtOptions>();
-            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(JwtBearerDefaults.AuthenticationScheme, options =>
+            var secretKey = jwtoptions?.SecretKey
+                ?? throw new InvalidOperationException("JwtOptions:SecretKey is missing (check appsettings or environment variables on the server).");
+            services.AddAuthentication(options =>
+                {
+                    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+                })
+                .AddJwtBearer(JwtBearerDefaults.AuthenticationScheme, options =>
             {
                 options.TokenValidationParameters = new()
                 {
@@ -42,7 +51,8 @@ namespace BarberBooking.API
                     ValidateAudience = false,
                     ValidateLifetime = true,
                     ValidateIssuerSigningKey = true,
-                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtoptions.SecretKey))
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey)),
+                    RoleClaimType = System.Security.Claims.ClaimTypes.Role
                 };
                 options.Events = new JwtBearerEvents
                 {
@@ -58,6 +68,8 @@ namespace BarberBooking.API
                         }
 
                         var authHeader = context.Request.Headers.Authorization.FirstOrDefault();
+                        if (string.IsNullOrEmpty(authHeader))
+                            authHeader = context.Request.Headers["Authorization"].FirstOrDefault();
                         if (!string.IsNullOrEmpty(authHeader) &&
                             authHeader.StartsWith("Bearer ", StringComparison.OrdinalIgnoreCase))
                         {
@@ -70,7 +82,8 @@ namespace BarberBooking.API
                     }
                 };
 
-            });
+            })
+                .AddScheme<AuthenticationSchemeOptions, ApiKeyAuthHandler>("ApiKeys", null);
              services.AddScoped<IPermissionService, PermissionsService>();
              services.AddSingleton<IAuthorizationHandler, PermissionHandler>();
              services.AddAuthorization(options =>

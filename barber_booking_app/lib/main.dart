@@ -73,6 +73,7 @@ import 'package:barber_booking_app/screens/admin/admin_shell_screen.dart';
 import 'package:barber_booking_app/screens/admin/admin_appointments_period_screen.dart';
 import 'package:barber_booking_app/screens/admin/admin_reviews_screen.dart';
 import 'package:barber_booking_app/screens/admin/admin_revenue_screen.dart';
+import 'package:barber_booking_app/screens/admin/admin_create_salon_screen.dart';
 import 'package:barber_booking_app/screens/admin/admin_salon_detail_screen.dart';
 import 'package:barber_booking_app/screens/admin/admin_salon_services_screen.dart';
 import 'package:barber_booking_app/screens/admin/admin_salon_masters_screen.dart';
@@ -197,6 +198,10 @@ class MyApp extends StatelessWidget {
           '/admin_top_services': (context) => AdminShellLayout(
                 selectedTab: AdminNav.dashboard,
                 child: const AdminTopServicesScreen(),
+              ),
+          '/admin_create_salon': (context) => AdminShellLayout(
+                selectedTab: AdminNav.salons,
+                child: const AdminCreateSalonScreen(),
               ),
           '/admin_salon_detail': (context) {
             final id =

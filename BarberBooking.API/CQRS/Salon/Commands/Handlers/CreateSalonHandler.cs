@@ -50,6 +50,7 @@ namespace BarberBooking.API.CQRS.Salon.Commands.Handlers
             }catch(Exception ex)
             {
                 _unitOfWork.RollBack();
+                
                 return Result.Failure<DtoSalonCreateInfo>($"Ошибка:{ex.Message}");
             }
             await _ratingCreateSalon.AddRating(salon.Id, cancellationToken);

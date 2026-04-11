@@ -21,8 +21,8 @@ using BarberBooking.API.Service.DataService;
 using BarberBooking.API.Service.EmailServices;
 using BarberBooking.API.Service.UpdateService;
 using BarberBooking.API.Validator;
-using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.CookiePolicy;
+using Microsoft.AspNetCore.HttpOverrides;
 using BarberBooking.API.Service.MessageService;
 using BarberBooking.API.Service.Validator;
 using BarberBooking.API.Hubs;
@@ -40,9 +40,22 @@ using BarberBooking.API.Service.Background.Handlers;
 var builder = WebApplication.CreateBuilder(args);
 var configuration = builder.Configuration;
 builder.WebHost.UseUrls("http://0.0.0.0:5088");
-builder.Services.AddAuthentication("ApiKeys").AddScheme<AuthenticationSchemeOptions, ApiKeyAuthHandler>("ApiKeys", null);
-// Конфигурация JWT 
+// За nginx/Traefik: иначе Request.Scheme остаётся http → UseHttpsRedirection и куки ведут себя не так, как у клиента по HTTPS
+builder.Services.Configure<ForwardedHeadersOptions>(options =>
+{
+    options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
+    options.KnownNetworks.Clear();
+    options.KnownProxies.Clear();
+});
+// Конфигурация JWT (JWT + ApiKeys регистрируются в AddApiAuthentication)
 builder.Services.Configure<JwtOptions>(configuration.GetSection(nameof(JwtOptions)));
+builder.Services.ConfigureApplicationCookie(options =>
+{
+    options.Cookie.SecurePolicy = CookieSecurePolicy.None;
+    options.Cookie.SameSite = SameSiteMode.Lax;
+    options.Cookie.Path = "/";
+    options.Cookie.HttpOnly = true;
+});
 // Add services to the container.
 builder.Services.AddSingleton<IUserIdProvider, SignalRUserIdProvider>();
 var signalRBuilder = builder.Services.AddSignalR();
@@ -154,6 +167,7 @@ if (corsOrigins is { Length: > 0 })
 }
 
 var app = builder.Build();
+app.UseForwardedHeaders();
 app.InitializingCache();
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

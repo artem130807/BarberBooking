@@ -4,6 +4,9 @@ import 'package:barber_booking_app/models/salon_models/response/get_salons_respo
 import 'package:barber_booking_app/providers/auth_providers/auth_provider.dart';
 import 'package:barber_booking_app/providers/salon_providers/get_salons_provider.dart';
 import 'package:barber_booking_app/providers/salon_providers/get_salons_search_provider.dart';
+import 'package:barber_booking_app/screens/admin/admin_create_salon_screen.dart';
+import 'package:barber_booking_app/screens/admin/admin_navigation.dart';
+import 'package:barber_booking_app/screens/admin/admin_shell_layout.dart';
 import 'package:barber_booking_app/utils/api_media_url.dart';
 import 'package:barber_booking_app/widgets/error_widget.dart';
 import 'package:barber_booking_app/widgets/loading_indicator.dart';
@@ -71,6 +74,24 @@ class _AdminSalonsTabScreenState extends State<AdminSalonsTabScreen> {
     } else {
       await Provider.of<GetSalonsProvider>(context, listen: false)
           .getSalons(_pageParams, _filter, token);
+    }
+  }
+
+  Future<void> _openCreateSalon() async {
+    final id = await Navigator.of(context, rootNavigator: true).push<String?>(
+      MaterialPageRoute<String?>(
+        builder: (ctx) => const AdminShellLayout(
+          selectedTab: AdminNav.salons,
+          child: AdminCreateSalonScreen(),
+        ),
+      ),
+    );
+    if (!mounted) return;
+    if (id != null && id.isNotEmpty) {
+      await _onRefresh();
+      if (!mounted) return;
+      Navigator.of(context, rootNavigator: true)
+          .pushNamed('/admin_salon_detail', arguments: id);
     }
   }
 
@@ -166,6 +187,18 @@ class _AdminSalonsTabScreenState extends State<AdminSalonsTabScreen> {
           appBar: AppBar(
             title: const Text('Салоны'),
             automaticallyImplyLeading: false,
+            actions: [
+              IconButton(
+                tooltip: 'Добавить салон',
+                onPressed: _openCreateSalon,
+                icon: const Icon(Icons.add_business_rounded),
+              ),
+            ],
+          ),
+          floatingActionButton: FloatingActionButton.extended(
+            onPressed: _openCreateSalon,
+            icon: const Icon(Icons.add_rounded),
+            label: const Text('Добавить салон'),
           ),
           body: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -211,6 +244,7 @@ class _AdminSalonsTabScreenState extends State<AdminSalonsTabScreen> {
                   list,
                   salonsProvider,
                   showBootstrapLoading,
+                  inSearch,
                 ),
               ),
             ],
@@ -226,6 +260,7 @@ class _AdminSalonsTabScreenState extends State<AdminSalonsTabScreen> {
     List<GetSalonsResponse> list,
     GetSalonsProvider salonsProvider,
     bool showBootstrapLoading,
+    bool inSearch,
   ) {
     if (showBootstrapLoading ||
         (loading && list.isEmpty && !initialError)) {
@@ -240,17 +275,51 @@ class _AdminSalonsTabScreenState extends State<AdminSalonsTabScreen> {
       );
     }
     if (list.isEmpty) {
+      final cs = Theme.of(context).colorScheme;
       return Center(
-        child: Text(
-          'Салоны не найдены',
-          style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 32),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                Icons.storefront_outlined,
+                size: 64,
+                color: cs.onSurfaceVariant.withValues(alpha: 0.6),
+              ),
+              const SizedBox(height: 16),
+              Text(
+                inSearch ? 'Ничего не найдено' : 'Пока нет салонов',
+                style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.w600,
+                    ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 8),
+              Text(
+                inSearch
+                    ? 'Попробуйте другой запрос или сбросьте поиск'
+                    : 'Создайте первый салон — дальше можно добавить услуги и мастеров',
+                style: TextStyle(color: cs.onSurfaceVariant, fontSize: 14),
+                textAlign: TextAlign.center,
+              ),
+              if (!inSearch) ...[
+                const SizedBox(height: 24),
+                FilledButton.icon(
+                  onPressed: _openCreateSalon,
+                  icon: const Icon(Icons.add_business_rounded),
+                  label: const Text('Добавить салон'),
+                ),
+              ],
+            ],
+          ),
         ),
       );
     }
     return RefreshIndicator(
       onRefresh: _onRefresh,
       child: ListView.builder(
-        padding: const EdgeInsets.fromLTRB(12, 0, 12, 16),
+        padding: const EdgeInsets.fromLTRB(12, 0, 12, 88),
         itemCount: list.length,
         itemBuilder: (context, index) => _buildSalonRow(list[index]),
       ),
