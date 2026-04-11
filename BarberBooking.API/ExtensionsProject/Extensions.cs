@@ -56,16 +56,16 @@ namespace BarberBooking.API
                             context.Token = accessToken;
                             return Task.CompletedTask;
                         }
-                        context.Token = context.Request.Cookies["tasty"];
-                        
-                        if (string.IsNullOrEmpty(context.Token))
+
+                        var authHeader = context.Request.Headers.Authorization.FirstOrDefault();
+                        if (!string.IsNullOrEmpty(authHeader) &&
+                            authHeader.StartsWith("Bearer ", StringComparison.OrdinalIgnoreCase))
                         {
-                            var authHeader = context.Request.Headers["Authorization"].FirstOrDefault();
-                            if (!string.IsNullOrEmpty(authHeader) && authHeader.StartsWith("Bearer"))
-                            {
-                                context.Token = authHeader.Substring("Bearer ".Length);
-                            }
+                            context.Token = authHeader["Bearer ".Length..].Trim();
+                            return Task.CompletedTask;
                         }
+
+                        context.Token = context.Request.Cookies["tasty"];
                         return Task.CompletedTask;
                     }
                 };
