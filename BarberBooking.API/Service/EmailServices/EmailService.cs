@@ -10,10 +10,12 @@ namespace BarberBooking.API.Service.EmailServices
     public class EmailService : IEmailService
     {
         private readonly IConfiguration _configuration;
+        private readonly ILogger<EmailService> _logger;
 
-        public EmailService(IConfiguration configuration)
+        public EmailService(IConfiguration configuration, ILogger<EmailService> logger)
         {
             _configuration = configuration;
+            _logger = logger;  
         }
 
         public async Task SendVerificationService(string email, string code)
@@ -33,12 +35,12 @@ namespace BarberBooking.API.Service.EmailServices
             {
                 Text = $"Ваш код подтверждения: {code}. Действует 15 минут."
             };
-
-            using var client = new MailKit.Net.Smtp.SmtpClient();
-            await client.ConnectAsync(smtpHost, smtpPort, SecureSocketOptions.SslOnConnect);
-            await client.AuthenticateAsync(username, password);
-            await client.SendAsync(message);
-            await client.DisconnectAsync(true);
+            _logger.LogInformation($"Ваш код подтверждения: {code}. Действует 15 минут.");
+            // using var client = new MailKit.Net.Smtp.SmtpClient();
+            // await client.ConnectAsync(smtpHost, smtpPort, SecureSocketOptions.SslOnConnect);
+            // await client.AuthenticateAsync(username, password);
+            // await client.SendAsync(message);
+            // await client.DisconnectAsync(true);
         }
     }
 }
