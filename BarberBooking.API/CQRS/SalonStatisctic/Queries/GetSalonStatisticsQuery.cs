@@ -4,7 +4,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using BarberBooking.API.Dto.DtoSalons;
 using BarberBooking.API.Filters.Salon;
-using BarberBooking.API.Migrations;
 using CSharpFunctionalExtensions;
 using MediatR;
 

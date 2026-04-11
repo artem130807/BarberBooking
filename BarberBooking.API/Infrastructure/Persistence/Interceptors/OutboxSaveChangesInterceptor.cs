@@ -4,7 +4,6 @@ using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
 using BarberBooking.API.Domain.SalonStatisticDomain;
-using BarberBooking.API.Migrations;
 using BarberBooking.API.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;

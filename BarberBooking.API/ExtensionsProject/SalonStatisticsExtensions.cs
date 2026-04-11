@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using BarberBooking.API.Filters.Salon;
-using BarberBooking.API.Migrations;
 
 namespace BarberBooking.API.ExtensionsProject
 {
