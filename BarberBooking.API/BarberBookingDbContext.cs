@@ -36,6 +36,8 @@ namespace BarberBooking.API
         public DbSet<OutboxMessage> OutboxMessages {get; set;}
         public DbSet<MasterStatistic> MasterStatistics {get; set;}
         public DbSet<MasterServices> MasterServices {get; set;}
+        public DbSet<SalonsAdmin> SalonsAdmins {get; set;}
+        public DbSet<SalonPhotos> SalonPhotos {get; set;}
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.ApplyConfiguration(new SalonsConfigurations());
@@ -56,6 +58,8 @@ namespace BarberBooking.API
             modelBuilder.ApplyConfiguration(new OutboxMessageConfigurations());
             modelBuilder.ApplyConfiguration(new MasterStatisticConfigurations());
             modelBuilder.ApplyConfiguration(new MasterServicesConfigurations());
+            modelBuilder.ApplyConfiguration(new SalonsAdminConfigurations());
+            modelBuilder.ApplyConfiguration(new SalonPhotosConfigurations());
             base.OnModelCreating(modelBuilder);
         }
         public void BeginTransaction()

@@ -28,6 +28,9 @@ namespace BarberBooking.API.Models
         public ICollection<Services> Services {get; private set;}
         public ICollection<Review> Reviews { get; private set; }
         public ICollection<SalonStatistic> SalonStatistics {get; private set;}
+        public ICollection<SalonsAdmin> SalonsAdmins {get; private set;}
+        public ICollection<SalonPhotos> SalonPhotos {get; private set;}
+        
         private Salons()
         {
             SalonUsers = new List<MasterProfile>();
@@ -35,6 +38,7 @@ namespace BarberBooking.API.Models
             Services = new List<Services>();
             Reviews = new List<Review>();
             SalonStatistics = new List<SalonStatistic>();
+            SalonsAdmins = new List<SalonsAdmin>();
         }
         public static Salons Create(string name, string description, Address address, PhoneNumber? phoneNumber ,TimeOnly? openingTime,  TimeOnly? closingTime , string? mainPhotoUrl)
         {
@@ -87,6 +91,8 @@ namespace BarberBooking.API.Models
             Appointments = new List<Appointments>();
             Services = new List<Services>();
             Reviews = new List<Review>();
+            SalonsAdmins = new List<SalonsAdmin>();
+            SalonPhotos = new List<SalonPhotos>();
         }
         private void Apply(SalonAddRatingEvent @event)
         {

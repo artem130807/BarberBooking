@@ -16,10 +16,12 @@ namespace BarberBooking.API.Models
         public string City { get; set; }
         public ICollection<Roles> Roles { get; set; }
         public ICollection<Messages> Messages {get; set;}
+        public ICollection<SalonsAdmin> SalonsAdmins {get; set;}
 
         public Users()
         {
             Messages = new List<Messages>();
+            SalonsAdmins = new List<SalonsAdmin>();
         }
     }
 }

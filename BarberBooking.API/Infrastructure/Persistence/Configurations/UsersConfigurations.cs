@@ -30,6 +30,7 @@ namespace BarberBooking.API.Configurations
             x => x.HasOne<Users>().WithMany().HasForeignKey(x => x.UserId)
             );
             builder.HasMany(x => x.Messages).WithOne(x => x.User).HasForeignKey(x => x.UserId);
+             builder.HasMany(x => x.SalonsAdmins).WithOne(x => x.User).HasForeignKey(x => x.UserId);
         }
     }
 }

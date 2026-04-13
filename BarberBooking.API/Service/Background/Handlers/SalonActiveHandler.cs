@@ -26,40 +26,43 @@ namespace BarberBooking.API.Service.Background
         public async Task Handle(CancellationToken cancellationToken)
         {
             var salons = await _salonsRepository.GetSalons();
+            var nowDate = DateOnly.FromDateTime(DateTime.Now);
+            var nowTime = TimeOnly.FromDateTime(DateTime.Now);
+
             foreach(var salon in salons)
             {
                 try
                 {
-                    var timeSlots = await _masterTimeSlotRepository.GetTimeSlotsInSalon(salon.Id, DateOnly.FromDateTime(DateTime.Now));
-                    if(timeSlots == null | !timeSlots.Any())
+                    var timeSlots = await _masterTimeSlotRepository.GetTimeSlotsInSalon(salon.Id, nowDate);
+                    if(timeSlots == null || !timeSlots.Any())
                     {
                         _unitOfWork.BeginTransaction();
-                        salon.UpdateOpeningTime(null);
-                        salon.UpdateClosingTime(null);
-                        salon.UpdateIsActive(false);
-                        _unitOfWork.Commit();
-                        _logger.LogInformation($"Салон {salon.Name}: нет слотов на сегодня, установлен неактивным");
-                        continue;
-                    }
-                    if(timeSlots != null)
-                    {
-                        var minTime = timeSlots.Min(x => x.StartTime);
-                        var maxTime = timeSlots.Max(x => x.EndTime);
-                    
-                        _unitOfWork.BeginTransaction();
-                        if(DateTime.Now.Hour >= minTime.Hour || DateTime.Now.Hour <= maxTime.Hour)
+                        if (salon.OpeningTime.HasValue && salon.ClosingTime.HasValue)
                         {
-                            salon.UpdateIsActive(true);
+                            var open = salon.OpeningTime.Value;
+                            var close = salon.ClosingTime.Value;
+                            var active = nowTime >= open && nowTime <= close;
+                            salon.UpdateIsActive(active);
                         }
-                        if(DateTime.Now.Hour <= minTime.Hour || DateTime.Now.Hour >= maxTime.Hour)
+                        else
                         {
                             salon.UpdateIsActive(false);
                         }
-                        salon.UpdateOpeningTime(minTime);
-                        salon.UpdateClosingTime(maxTime);
                         _unitOfWork.Commit();
-                        _logger.LogInformation($"Салон {salon.Name}: время {minTime:HH:mm}-{maxTime:HH:mm}, активен: {salon.IsActive}");
+                        _logger.LogInformation($"Салон {salon.Name}: нет слотов на сегодня, IsActive={salon.IsActive}");
+                        continue;
                     }
+
+                    var minTime = timeSlots.Min(x => x.StartTime);
+                    var maxTime = timeSlots.Max(x => x.EndTime);
+
+                    _unitOfWork.BeginTransaction();
+                    var withinHours = nowTime >= minTime && nowTime <= maxTime;
+                    salon.UpdateIsActive(withinHours);
+                    salon.UpdateOpeningTime(minTime);
+                    salon.UpdateClosingTime(maxTime);
+                    _unitOfWork.Commit();
+                    _logger.LogInformation($"Салон {salon.Name}: время {minTime:HH:mm}-{maxTime:HH:mm}, активен: {salon.IsActive}");
                 }catch(Exception ex)
                 {
                     _unitOfWork.RollBack();

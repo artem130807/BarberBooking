@@ -160,7 +160,7 @@ class _SalonScreenState extends State<SalonScreen> {
       );
     }
 
-    final bool isActive = salon.active?.contains('активен') ?? true;
+    final bool isActive = salon.isActive ?? true;
 
     return SingleChildScrollView(
       child: Column(

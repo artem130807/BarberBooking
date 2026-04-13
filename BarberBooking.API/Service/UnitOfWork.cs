@@ -14,6 +14,8 @@ using BarberBooking.API.Contracts.WeeklyTemplateContracts;
 using BarberBooking.API.Contracts.MasterServicesContracts;
 using BarberBooking.API.Infrastructure.Persistence.Repositories;
 using BarberBooking.API.Repositories;
+using BarberBooking.API.Contracts.SalonsAdminContracts;
+using BarberBooking.API.Contracts.SalonPhotosContracts;
 
 namespace BarberBooking.API.Service
 {
@@ -38,6 +40,8 @@ namespace BarberBooking.API.Service
         private IMasterStatisticRepository _masterStatisticRepository;
         private IWeeklyTemplateRepository _weeklyTemplateRepository;
         private ITemplateDayRepository _templateDayRepository;
+        private ISalonsAdminRepository _salonsAdminRepository;
+        private ISalonPhotosRepository _salonPhotosRepository;
         public UnitOfWork(BarberBookingDbContext dbContext)
         {
             _dbContext = dbContext;
@@ -122,6 +126,18 @@ namespace BarberBooking.API.Service
         {
             get {return _templateDayRepository ??= new TemplateDayRepository(_dbContext);}
         }
+
+        // ISalonsAdminRepository salonsAdminRepository
+        // {
+        //     get {return _salonsAdminRepository ??= new SalonsAdminRepository(_dbContext)}
+        // }
+
+
+        // ISalonPhotosRepository salonPhotosRepository
+        // {
+        //     get {return _salonPhotosRepository ??= new SalonPhotosRepository(_dbContext);}
+        // }
+
         public void BeginTransaction()
         {
             _dbContext.BeginTransaction();

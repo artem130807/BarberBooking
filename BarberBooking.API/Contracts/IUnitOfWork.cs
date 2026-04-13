@@ -11,6 +11,8 @@ using BarberBooking.API.Contracts.SalonsContracts;
 using BarberBooking.API.Contracts.TemplateDayContracts;
 using BarberBooking.API.Contracts.WeeklyTemplateContracts;
 using BarberBooking.API.Contracts.MasterServicesContracts;
+using BarberBooking.API.Contracts.SalonsAdminContracts;
+using BarberBooking.API.Contracts.SalonPhotosContracts;
 
 namespace BarberBooking.API.Contracts
 {
@@ -33,6 +35,7 @@ namespace BarberBooking.API.Contracts
         IMasterStatisticRepository masterStatisticRepository {get;}
         IWeeklyTemplateRepository weeklyTemplateRepository {get;}
         ITemplateDayRepository templateDayRepository {get;}
+        // ISalonsAdminRepository salonsAdminRepository {get;}
         void BeginTransaction();
         void Commit();
         void RollBack();

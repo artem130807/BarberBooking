@@ -65,6 +65,17 @@ namespace BarberBooking.API.Configurations
                 .WithOne(x => x.Salon)
                 .HasForeignKey(x => x.SalonId)
                 .OnDelete(DeleteBehavior.Cascade);
+            
+            builder.HasMany(x => x.SalonsAdmins)
+                .WithOne(x => x.Salon)
+                .HasForeignKey(x => x.SalonId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            builder.HasMany(x => x.SalonPhotos)
+                .WithOne(x => x.Salon)
+                .HasForeignKey(x => x.SalonId)
+                .OnDelete(DeleteBehavior.Cascade);
+
         }
     }
 }

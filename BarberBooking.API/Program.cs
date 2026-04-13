@@ -36,6 +36,7 @@ using BarberBooking.API.Infrastructure.Persistence.Repositories;
 using BarberBooking.API.Contracts.MasterServicesContracts;
 using BarberBooking.API.Contracts.AppointmentContracts;
 using BarberBooking.API.Service.Background.Handlers;
+using BarberBooking.API.Contracts.SalonsAdminContracts;
 
 var builder = WebApplication.CreateBuilder(args);
 var configuration = builder.Configuration;
@@ -151,6 +152,7 @@ builder.Services.AddScoped<ITemplateDayRepository, TemplateDayRepository>();
 builder.Services.AddScoped<IMasterServicesRepository, MasterServicesRepository>();
 builder.Services.AddScoped<IAutoAppointmentsCancelledHandler, AutoAppointmentsCancelledHandler>();
 builder.Services.AddScoped<IAppointmentWithOutUserCreationValidator, AppointmentWithOutUserCreationValidator>();
+builder.Services.AddScoped<ISalonsAdminRepository, SalonsAdminRepository>();
 var corsOrigins = configuration.GetSection("Cors:AllowedOrigins").Get<string[]>();
 if (corsOrigins is { Length: > 0 })
 {

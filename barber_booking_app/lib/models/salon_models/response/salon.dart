@@ -10,7 +10,8 @@ class Salon {
   DtoPhone? phone;
   String? openingTime;
   String? closingTime;
-  String?  active;
+  bool? isActive;
+  String? active;
   String? mainPhotoUrl;
   double? rating;
   int? ratingCount;
@@ -21,9 +22,10 @@ class Salon {
     this.description, 
     this.address, 
     this.phone, 
-    this.openingTime, 
-    this.closingTime, 
-    this.active, 
+    this.openingTime,
+    this.closingTime,
+    this.isActive,
+    this.active,
     this.mainPhotoUrl, 
     this.rating, 
     this.ratingCount
@@ -41,7 +43,8 @@ class Salon {
       mainPhotoUrl: response.MainPhotoUrl,
       rating: response.Rating,
       ratingCount: response.RatingCount,
-      active: response.IsActive == true ? "Ресторан активен" : "Ресторан неактивен"
+      isActive: response.IsActive,
+      active: response.IsActive == true ? "Салон активен" : "Салон неактивен",
     );
   }
 }
