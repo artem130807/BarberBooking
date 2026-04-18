@@ -86,7 +86,7 @@ class _MasterDetailScreenState extends State<MasterDetailScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final auth = Provider.of<AuthProvider>(context, listen: false);
       final masterProvider = Provider.of<GetMasterProvider>(context, listen: false);
-      masterProvider.getMaster(widget.masterId, token: auth.token);
+      masterProvider.getMaster(widget.masterId);
       final reviewsProvider = Provider.of<GetReviewsMasterProvider>(context, listen: false);
       reviewsProvider.getReviewsMaster(widget.masterId, _reviewsPageParams, _reviewSortParams);
     });
@@ -123,8 +123,6 @@ class _MasterDetailScreenState extends State<MasterDetailScreen> {
   }
 
   Future<void> _persistSubscriptionExit({BuildContext? contextForRefresh}) async {
-    final token = _authToken;
-    if (token == null) return;
     if (!_favoriteStateInitialized) return;
     final initial = _initialSubscribed;
     if (initial == null) return;
@@ -134,10 +132,9 @@ class _MasterDetailScreenState extends State<MasterDetailScreen> {
       initialSubscribed: initial,
       draftSubscribed: _draftSubscribed,
       masterId: widget.masterId,
-      token: token,
     );
     if (ok && contextForRefresh != null && contextForRefresh.mounted) {
-      await contextForRefresh.read<GetSubscriptionsProvider>().getSubscriptions(token);
+      await contextForRefresh.read<GetSubscriptionsProvider>().getSubscriptions();
     }
   }
 
@@ -175,10 +172,7 @@ class _MasterDetailScreenState extends State<MasterDetailScreen> {
           return Scaffold(
             body: ErrorWidgetCustom(
               message: masterProvider.errorMessage!,
-              onRetry: () => masterProvider.getMaster(
-                    widget.masterId,
-                    token: Provider.of<AuthProvider>(context, listen: false).token,
-                  ),
+              onRetry: () => masterProvider.getMaster(widget.masterId),
             ),
           );
         }

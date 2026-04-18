@@ -2,6 +2,7 @@ using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using BarberBooking.API.Contracts.SalonsAdminContracts;
 using BarberBooking.API.Contracts.SalonsContracts;
 using BarberBooking.API.Dto.DtoSalonStatistic;
 using CSharpFunctionalExtensions;
@@ -12,12 +13,17 @@ namespace BarberBooking.API.CQRS.SalonStatisctic.Queries.Handlers
     public class GetSalonStatisticsWeekHandler : IRequestHandler<GetSalonStatisticsWeekQuery, Result<DtoSalonStatistic>>
     {
         private readonly ISalonStatisticRepository _salonStatisticRepository;
-        public GetSalonStatisticsWeekHandler(ISalonStatisticRepository salonStatisticRepository)
+        private readonly AdminSalonAccess _adminSalonAccess;
+        public GetSalonStatisticsWeekHandler(ISalonStatisticRepository salonStatisticRepository, AdminSalonAccess adminSalonAccess)
         {
             _salonStatisticRepository = salonStatisticRepository;
+            _adminSalonAccess = adminSalonAccess;
         }
         public async Task<Result<DtoSalonStatistic>> Handle(GetSalonStatisticsWeekQuery query, CancellationToken cancellationToken)
         {
+            var access = await _adminSalonAccess.RequireSalonAsync(query.salonId, cancellationToken);
+            if (access.IsFailure)
+                return Result.Failure<DtoSalonStatistic>(access.Error);
             var salonStatistics = await _salonStatisticRepository.GetSalonStatisticsWeekBySalonId(query.salonId, query.statisticsParams);
             if (salonStatistics.Count == 0)
                 return Result.Failure<DtoSalonStatistic>("Список пуст");

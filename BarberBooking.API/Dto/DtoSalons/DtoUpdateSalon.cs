@@ -11,7 +11,6 @@ namespace BarberBooking.API.Dto.DtoSalons
         public string? Name {get; set;}
         public string? Description { get; set; }
         public DtoUpdateAddress? Address {get; set;}
-        public string? MainPhotoUrl { get; set; }
         public DtoUpdatePhone? PhoneNumber {get; set;}
     }
 }

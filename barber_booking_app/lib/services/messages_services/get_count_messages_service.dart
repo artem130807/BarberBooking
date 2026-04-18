@@ -1,15 +1,17 @@
 import 'dart:convert';
 
-import 'package:http/http.dart' as http;
 import 'package:barber_booking_app/config/api_config.dart';
+import 'package:barber_booking_app/services/auth_services/auth_session_binding.dart';
+import 'package:http/http.dart' as http;
 
 class GetCountMessagesService {
-
-  Future<int> getCountUnreadMessages(String? token) async {
+  Future<int> getCountUnreadMessages() async {
+    final token = await AuthSessionBinding.instance.accessToken();
     if (token == null || token.isEmpty) return 0;
 
     try {
-      final url = Uri.parse('$kApiBaseUrl/api/Message/get-unread-count-messages');
+      final url =
+          Uri.parse('$kApiBaseUrl/api/Message/get-unread-count-messages');
       final response = await http.get(
         url,
         headers: {
@@ -30,6 +32,5 @@ class GetCountMessagesService {
     }
   }
 
-  // Backward-compatible wrapper.
-  Future<int> getCountMessages(String? token) => getCountUnreadMessages(token);
+  Future<int> getCountMessages() => getCountUnreadMessages();
 }

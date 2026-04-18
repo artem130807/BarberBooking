@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import 'package:barber_booking_app/models/user_models/responses/get_user_response.dart';
+import 'package:barber_booking_app/screens/common/sessions_screen.dart';
 import 'package:barber_booking_app/providers/auth_providers/auth_provider.dart';
 import 'package:barber_booking_app/providers/user_providers/get_user_provider.dart';
 import 'package:barber_booking_app/providers/user_providers/get_user_cities_provider.dart';
@@ -34,7 +35,7 @@ class _ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
     final citiesProvider = Provider.of<GetUserCitiesProvider>(context, listen: false);
 
     await Future.wait([
-      userProvider.getUser(token),
+      userProvider.getUser(),
       citiesProvider.loadCities(),
     ]);
   }
@@ -147,6 +148,42 @@ class _ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
                         arguments: user.Email,
                       );
                     },
+                  ),
+                  const SizedBox(height: 28),
+                  _buildSectionTitle('Устройства'),
+                  Card(
+                    elevation: 0,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: ListTile(
+                      contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 20,
+                        vertical: 8,
+                      ),
+                      leading: CircleAvatar(
+                        backgroundColor:
+                            Theme.of(context).colorScheme.surfaceContainerHighest,
+                        child: Icon(
+                          Icons.devices_rounded,
+                          color: Theme.of(context).colorScheme.primary,
+                        ),
+                      ),
+                      title: const Text('Активные сессии'),
+                      subtitle: Text(
+                        'Управление входами на устройствах',
+                        style: TextStyle(
+                          fontSize: 13,
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                        ),
+                      ),
+                      trailing: const Icon(Icons.chevron_right),
+                      onTap: () => Navigator.pushNamed(
+                        context,
+                        '/sessions',
+                        arguments: const SessionsRouteArgs(),
+                      ),
+                    ),
                   ),
                 ],
               ),
@@ -362,10 +399,11 @@ class _CityPickerSheetState extends State<_CityPickerSheet> {
     if (token == null) return;
     final updateProvider = Provider.of<UpdateUserCityProvider>(context, listen: false);
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
-    final updated = await updateProvider.updateCity(token, _selectedCity, authProvider);
+    final updated =
+        await updateProvider.updateCity(_selectedCity, authProvider);
     if (!mounted) return;
     if (updated != null) {
-      await Provider.of<GetUserProvider>(context, listen: false).getUser(authProvider.token);
+      await Provider.of<GetUserProvider>(context, listen: false).getUser();
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(

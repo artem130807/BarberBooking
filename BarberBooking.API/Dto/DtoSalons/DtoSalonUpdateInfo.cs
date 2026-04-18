@@ -13,7 +13,6 @@ namespace BarberBooking.API.Dto.DtoSalons
         public DtoUpdateAddress Address {get; set;}
         public TimeOnly OpeningTime { get; set; }
         public TimeOnly ClosingTime { get; set; }
-        public string MainPhotoUrl { get; set; }
         public DtoUpdatePhone PhoneNumber {get; set;}
     }
 }

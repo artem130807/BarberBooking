@@ -2,24 +2,24 @@ import 'dart:convert';
 
 import 'package:barber_booking_app/config/api_config.dart';
 import 'package:barber_booking_app/models/salon_models/request/update_salon_request.dart';
+import 'package:barber_booking_app/services/auth_services/auth_http_headers.dart';
 import 'package:http/http.dart' as http;
 
 class AdminUpdateSalonService {
-  Map<String, String> _headers(String? token) => {
-        'Content-Type': 'application/json',
-        if (token != null && token.isNotEmpty) 'Authorization': 'Bearer $token',
-      };
-
   Future<({bool ok, String? error})> patch(
     String salonId,
     UpdateSalonRequest body,
-    String? token,
   ) async {
     try {
+      final headers = await AuthHttpHeaders.bearerJson();
+      if (headers == null) {
+        return (ok: false, error: 'Нет авторизации');
+      }
+
       final url = Uri.parse('$kApiBaseUrl/api/Salon/UpdateSalon$salonId');
       final response = await http.patch(
         url,
-        headers: _headers(token),
+        headers: headers,
         body: json.encode(body.toJson()),
       );
       if (response.statusCode == 200) {

@@ -2,24 +2,22 @@ import 'dart:convert';
 
 import 'package:barber_booking_app/config/api_config.dart';
 import 'package:barber_booking_app/models/master_interface_models/response/get_master_appointment_info_response.dart';
+import 'package:barber_booking_app/services/auth_services/auth_http_headers.dart';
 import 'package:http/http.dart' as http;
 
 class MasterAppointmentDetailService {
   Future<GetMasterAppointmentInfoResponse?> fetchById({
-    required String? token,
     required String appointmentId,
   }) async {
-    if (token == null || token.isEmpty) return null;
+    final headers = await AuthHttpHeaders.bearerJson();
+    if (headers == null) return null;
     try {
       final url = Uri.parse(
         '$kApiBaseUrl/api/Appointment/get-appointmentMasterById/$appointmentId',
       );
       final response = await http.get(
         url,
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer $token',
-        },
+        headers: headers,
       );
       if (response.statusCode != 200) return null;
       final map = json.decode(response.body) as Map<String, dynamic>;
@@ -29,12 +27,11 @@ class MasterAppointmentDetailService {
     }
   }
 
-
   Future<({bool ok, String? errorMessage})> completeAppointment({
-    required String? token,
     required String appointmentId,
   }) async {
-    if (token == null || token.isEmpty) {
+    final headers = await AuthHttpHeaders.bearerJson();
+    if (headers == null) {
       return (ok: false, errorMessage: 'Нет авторизации');
     }
     try {
@@ -43,10 +40,7 @@ class MasterAppointmentDetailService {
       );
       final response = await http.patch(
         url,
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer $token',
-        },
+        headers: headers,
       );
       if (response.statusCode == 200) {
         return (ok: true, errorMessage: null);
@@ -71,20 +65,17 @@ class MasterAppointmentDetailService {
   }
 
   Future<bool> cancelAppointment({
-    required String? token,
     required String appointmentId,
   }) async {
-    if (token == null || token.isEmpty) return false;
+    final headers = await AuthHttpHeaders.bearerJson();
+    if (headers == null) return false;
     try {
       final url = Uri.parse(
         '$kApiBaseUrl/api/Appointment/delete-appointment/$appointmentId',
       );
       final response = await http.patch(
         url,
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer $token',
-        },
+        headers: headers,
       );
       return response.statusCode == 200;
     } catch (_) {

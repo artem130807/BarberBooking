@@ -23,6 +23,13 @@ namespace BarberBooking.API.Service.TimeSlotService
         public async Task Handle(Guid timeSlotId, DateOnly date)
         {
             var timeSlot = await _masterTimeSlotRepository.GetByIdAsync(timeSlotId);
+            if (timeSlot?.Master == null)
+            {
+                _logger.LogWarning(
+                    "TimeSlotQualifierBookedService: слот {TimeSlotId} не найден или нет мастера",
+                    timeSlotId);
+                return;
+            }
             var services = await _servicesRepository.GetServicesBySalon(timeSlot.Master.SalonId);
             int count = 0;
             foreach(var service in services)

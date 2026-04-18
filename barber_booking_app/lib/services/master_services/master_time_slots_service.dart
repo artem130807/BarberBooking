@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:barber_booking_app/config/api_config.dart';
 import 'package:barber_booking_app/models/master_interface_models/request/create_time_slot_request.dart';
 import 'package:barber_booking_app/models/master_interface_models/response/get_master_time_slot_response.dart';
+import 'package:barber_booking_app/services/auth_services/auth_session_binding.dart';
 import 'package:http/http.dart' as http;
 
 class MasterTimeSlotsService {
@@ -19,10 +20,10 @@ class MasterTimeSlotsService {
       };
 
   Future<List<GetMasterTimeSlotResponse>?> fetchForDate({
-    required String? token,
     required String masterId,
     required DateTime date,
   }) async {
+    final token = await AuthSessionBinding.instance.accessToken();
     if (token == null || token.isEmpty || masterId.isEmpty) return null;
     try {
       final url = Uri.parse(
@@ -43,9 +44,9 @@ class MasterTimeSlotsService {
   }
 
   Future<GetMasterTimeSlotResponse?> fetchById({
-    required String? token,
     required String slotId,
   }) async {
+    final token = await AuthSessionBinding.instance.accessToken();
     if (token == null || token.isEmpty || slotId.isEmpty) return null;
     try {
       final url = Uri.parse(
@@ -61,9 +62,9 @@ class MasterTimeSlotsService {
   }
 
   Future<bool> deleteSlot({
-    required String? token,
     required String slotId,
   }) async {
+    final token = await AuthSessionBinding.instance.accessToken();
     if (token == null || token.isEmpty || slotId.isEmpty) return false;
     try {
       final url = Uri.parse(
@@ -77,9 +78,9 @@ class MasterTimeSlotsService {
   }
 
   Future<String?> createSlot({
-    required String? token,
     required CreateTimeSlotRequest body,
   }) async {
+    final token = await AuthSessionBinding.instance.accessToken();
     if (token == null || token.isEmpty) return 'Нужна авторизация';
     try {
       final url = Uri.parse('$kApiBaseUrl/api/MasterTimeSlot/create-timeSlot');

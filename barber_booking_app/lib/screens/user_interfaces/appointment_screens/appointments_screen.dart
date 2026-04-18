@@ -58,7 +58,7 @@ class _AppointmentsScreenState extends State<AppointmentsScreen>
       return;
     }
     Provider.of<GetAppointmentsByClientProvider>(context, listen: false)
-        .getAppointments(token);
+        .getAppointments();
   }
 
   void _onNavItemTapped(int index) {

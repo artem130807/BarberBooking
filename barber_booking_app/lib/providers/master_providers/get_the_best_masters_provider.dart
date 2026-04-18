@@ -8,10 +8,10 @@ class GetTheBestMastersProvider extends BaseProvider {
 
   List<GetTheBestMastersResponse>? get getMasterResponse => _getMasterResponse;
 
-  Future<bool> getMasters(int? take, String? token) async{
+  Future<bool> getMasters(int? take) async {
     startLoading();
-    try{
-      final response = await _getTheBestMastersService.getMasters(take, token);
+    try {
+      final response = await _getTheBestMastersService.getMasters(take);
       if(response != null && response.isNotEmpty){
           _getMasterResponse = response;
           finishLoading();  

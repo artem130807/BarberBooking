@@ -56,31 +56,27 @@ class _AdminSalonStatisticsScreenState extends State<AdminSalonStatisticsScreen>
   }
 
   Future<void> _loadInitial() async {
-    final token = context.read<AuthProvider>().token;
     await context.read<SalonStatisticPeriodProvider>().loadWeek(
           widget.salonId,
           _weekAnchor,
-          token,
         );
   }
 
   Future<void> _runLoad() async {
-    final token = context.read<AuthProvider>().token;
     final prov = context.read<SalonStatisticPeriodProvider>();
     switch (_segment) {
       case 0:
-        await prov.loadWeek(widget.salonId, _weekAnchor, token);
+        await prov.loadWeek(widget.salonId, _weekAnchor);
         break;
       case 1:
         await prov.loadMonth(
           widget.salonId,
           _monthAnchor.year,
           _monthAnchor.month,
-          token,
         );
         break;
       case 2:
-        await prov.loadYear(widget.salonId, _year, token);
+        await prov.loadYear(widget.salonId, _year);
         break;
     }
     if (!mounted) return;
@@ -93,12 +89,10 @@ class _AdminSalonStatisticsScreenState extends State<AdminSalonStatisticsScreen>
   }
 
   Future<void> _loadFeed() async {
-    final token = context.read<AuthProvider>().token;
     final filterProv = context.read<SalonStatisticsFilterProvider>();
     await filterProv.load(
       salonId: widget.salonId,
       dayOfMonth: _feedUseDayFilter ? _feedDayOfMonth : null,
-      token: token,
     );
     if (!mounted) return;
     final err = filterProv.errorMessage;

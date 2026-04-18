@@ -29,9 +29,8 @@ class _MasterWeeklyTemplatesScreenState extends State<MasterWeeklyTemplatesScree
   }
 
   Future<void> _load() async {
-    final token = context.read<AuthProvider>().token;
     setState(() => _loading = true);
-    final list = await _service.fetchTemplates(token);
+    final list = await _service.fetchTemplates();
     if (!mounted) return;
     setState(() {
       if (list == null) {

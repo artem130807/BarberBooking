@@ -4,14 +4,10 @@ import 'package:barber_booking_app/config/api_config.dart';
 import 'package:barber_booking_app/models/master_interface_models/request/create_master_service_request.dart';
 import 'package:barber_booking_app/models/master_interface_models/response/master_service_link_response.dart';
 import 'package:barber_booking_app/models/master_interface_models/response/salon_service_catalog_item.dart';
+import 'package:barber_booking_app/services/auth_services/auth_http_headers.dart';
 import 'package:http/http.dart' as http;
 
 class MasterServicesApiService {
-  Map<String, String> _headers(String token) => {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer $token',
-      };
-
   String? _errorFromResponse(http.Response r) {
     if (r.statusCode >= 200 && r.statusCode < 300) return null;
     final raw = r.body;
@@ -25,15 +21,15 @@ class MasterServicesApiService {
   }
 
   Future<List<MasterServiceLinkResponse>?> fetchMasterServices({
-    required String? token,
     required String masterProfileId,
   }) async {
-    if (token == null || token.isEmpty || masterProfileId.isEmpty) return null;
+    final headers = await AuthHttpHeaders.bearerJson();
+    if (headers == null || masterProfileId.isEmpty) return null;
     try {
       final url = Uri.parse(
         '$kApiBaseUrl/api/MasterServices/get-masterService-by-master/$masterProfileId',
       );
-      final response = await http.get(url, headers: _headers(token));
+      final response = await http.get(url, headers: headers);
       if (response.statusCode != 200) return null;
       final decoded = json.decode(response.body);
       if (decoded is! List) return null;
@@ -48,17 +44,16 @@ class MasterServicesApiService {
   }
 
   Future<(List<SalonServiceCatalogItem>? items, String? error)>
-      fetchSalonServicesForMaster({
-    required String? token,
-  }) async {
-    if (token == null || token.isEmpty) {
+      fetchSalonServicesForMaster() async {
+    final headers = await AuthHttpHeaders.bearerJson();
+    if (headers == null) {
       return (null, 'Нужна авторизация');
     }
     try {
       final url = Uri.parse(
         '$kApiBaseUrl/api/Services/get-services-salon-for-Master',
       );
-      final response = await http.get(url, headers: _headers(token));
+      final response = await http.get(url, headers: headers);
       if (response.statusCode == 200) {
         final decoded = json.decode(response.body);
         if (decoded is! List) return (<SalonServiceCatalogItem>[], null);
@@ -77,16 +72,17 @@ class MasterServicesApiService {
   }
 
   Future<String?> addService({
-    required String? token,
     required String serviceId,
   }) async {
-    if (token == null || token.isEmpty) return 'Нужна авторизация';
+    final headers = await AuthHttpHeaders.bearerJson();
+    if (headers == null) return 'Нужна авторизация';
     try {
       final url = Uri.parse('$kApiBaseUrl/api/MasterServices/create-masterService');
       final response = await http.post(
         url,
-        headers: _headers(token),
-        body: json.encode(CreateMasterServiceRequest(serviceId: serviceId).toJson()),
+        headers: headers,
+        body: json.encode(
+            CreateMasterServiceRequest(serviceId: serviceId).toJson()),
       );
       if (response.statusCode == 200) return null;
       return _errorFromResponse(response) ?? 'Не удалось добавить услугу';
@@ -96,15 +92,15 @@ class MasterServicesApiService {
   }
 
   Future<String?> removeService({
-    required String? token,
     required String masterServiceLinkId,
   }) async {
-    if (token == null || token.isEmpty) return 'Нужна авторизация';
+    final headers = await AuthHttpHeaders.bearerJson();
+    if (headers == null) return 'Нужна авторизация';
     try {
       final url = Uri.parse(
         '$kApiBaseUrl/api/MasterServices/delete-masterService/$masterServiceLinkId',
       );
-      final response = await http.delete(url, headers: _headers(token));
+      final response = await http.delete(url, headers: headers);
       if (response.statusCode == 200) return null;
       return _errorFromResponse(response) ?? 'Не удалось удалить';
     } catch (_) {

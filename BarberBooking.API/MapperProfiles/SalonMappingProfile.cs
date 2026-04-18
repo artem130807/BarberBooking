@@ -23,7 +23,9 @@ namespace BarberBooking.API.MapperProfiles
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
                 .ForMember(dest => dest.SalonName, opt => opt.MapFrom(src => src.Name))
                 .ForMember(dest => dest.Address, opt => opt.MapFrom(src => src.Address))
-                .ForMember(dest => dest.MainPhotoUrl, opt => opt.MapFrom(src => src.MainPhotoUrl))
+                .ForMember(dest => dest.MainPhotoUrl, opt => opt.MapFrom(src => 
+                src.SalonPhotos == null ? null : 
+                src.SalonPhotos.FirstOrDefault() != null ? src.SalonPhotos.First().PhotoUrl : null))
                 .ForMember(dest => dest.Rating, opt => opt.MapFrom(src => src.Rating))
                 .ForMember(dest => dest.RatingCount, opt => opt.MapFrom(src => src.RatingCount));
 

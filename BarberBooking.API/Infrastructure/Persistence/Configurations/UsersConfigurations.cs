@@ -27,10 +27,11 @@ namespace BarberBooking.API.Configurations
             builder.Property(x => x.City).IsRequired();
             builder.HasMany(x => x.Roles).WithMany(x => x.Users).UsingEntity<UserRoles>
             (x => x.HasOne<Roles>().WithMany().HasForeignKey(x => x.RoleId),
-            x => x.HasOne<Users>().WithMany().HasForeignKey(x => x.UserId)
-            );
+            x => x.HasOne<Users>().WithMany().HasForeignKey(x => x.UserId));
             builder.HasMany(x => x.Messages).WithOne(x => x.User).HasForeignKey(x => x.UserId);
-             builder.HasMany(x => x.SalonsAdmins).WithOne(x => x.User).HasForeignKey(x => x.UserId);
+            builder.HasMany(x => x.SalonsAdmins).WithOne(x => x.User).HasForeignKey(x => x.UserId);
+            builder.HasMany(x => x.UserFcmTokens).WithOne(x => x.User).HasForeignKey(x => x.UserId);
+            builder.HasMany(x => x.RefreshTokens).WithOne(x => x.User).HasForeignKey(x => x.UserId);
         }
     }
 }

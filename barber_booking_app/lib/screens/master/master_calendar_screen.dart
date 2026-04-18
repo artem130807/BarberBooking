@@ -77,7 +77,6 @@ class _MasterCalendarScreenState extends State<MasterCalendarScreen>
     }
 
     final page = await _service.fetchPage(
-      token: token,
       filter: MasterAppointmentQueryFilter(
         appointmentFrom: fromD,
         appointmentTo: toD,

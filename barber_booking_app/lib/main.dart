@@ -21,6 +21,7 @@ import 'package:barber_booking_app/providers/review_providers/get_reviews_user_p
 import 'package:barber_booking_app/providers/review_providers/get_reviews_admin_provider.dart';
 import 'package:barber_booking_app/providers/review_providers/update_review_user_provider.dart';
 import 'package:barber_booking_app/providers/salon_providers/get_salon_provider.dart';
+import 'package:barber_booking_app/providers/salon_providers/get_salons_admin_provider.dart';
 import 'package:barber_booking_app/providers/salon_providers/get_salons_provider.dart';
 import 'package:barber_booking_app/providers/salon_providers/get_salons_by_service_provider.dart';
 import 'package:barber_booking_app/providers/salon_providers/get_salons_search_provider.dart';
@@ -51,6 +52,7 @@ import 'package:barber_booking_app/screens/user_interfaces/salon_screens/search_
 import 'package:barber_booking_app/screens/user_interfaces/service_screens/search_services_screen.dart';
 import 'package:barber_booking_app/screens/user_interfaces/subscribtions_screens/favorites_screen.dart';
 import 'package:barber_booking_app/screens/user_interfaces/user_screens/profile_screen.dart';
+import 'package:barber_booking_app/screens/common/sessions_screen.dart';
 import 'package:barber_booking_app/screens/user_interfaces/user_screens/profile_settings_screen.dart';
 import 'package:barber_booking_app/screens/user_interfaces/user_screens/user_reviews_screen.dart';
 import 'package:flutter/material.dart';
@@ -86,22 +88,47 @@ import 'package:provider/provider.dart';
 import 'package:barber_booking_app/providers/auth_providers/auth_provider.dart';
 import 'package:barber_booking_app/providers/auth_providers/email_verify_provider.dart';
 import 'package:barber_booking_app/providers/notification_providers/notification_toast_controller.dart';
+import 'package:barber_booking_app/services/push/fcm_background_handler.dart';
+import 'package:barber_booking_app/services/push/notification_service.dart';
 import 'package:barber_booking_app/services/realtime/signalr_notification_service.dart';
 import 'package:barber_booking_app/widgets/notifications/auth_signal_r_bootstrap.dart';
 import 'package:barber_booking_app/widgets/notifications/notification_toast_overlay.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:barber_booking_app/firebase_options.dart';
+import 'package:barber_booking_app/navigation/role_routes.dart';
 
-void main() {
-  runApp(const MyApp());
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await _initFirebaseAndPush();
+  final authProvider = AuthProvider();
+  await authProvider.restoreFromStorage();
+  await NotificationService.instance.syncFcmRegistrationWithBackend();
+  runApp(MyApp(authProvider: authProvider));
+}
+
+Future<void> _initFirebaseAndPush() async {
+  try {
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
+    FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
+    await NotificationService.instance.initialize();
+  } catch (e) {
+    debugPrint('Firebase/FCM: $e');
+  }
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  final AuthProvider authProvider;
+
+  const MyApp({super.key, required this.authProvider});
 
   @override
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
-        ChangeNotifierProvider(create: (_) => AuthProvider()),
+        ChangeNotifierProvider.value(value: authProvider),
         ChangeNotifierProvider(create: (_) => NotificationToastController()),
         Provider<SignalRNotificationService>(
           create: (context) => SignalRNotificationService(
@@ -111,6 +138,7 @@ class MyApp extends StatelessWidget {
         ),
         ChangeNotifierProvider(create: (_) => EmailVerifyProvider()),
         ChangeNotifierProvider(create: (_) => GetSalonsProvider()),
+        ChangeNotifierProvider(create: (_) => GetSalonsAdminProvider()),
         ChangeNotifierProvider(create: (_) => GetSalonsSearchProvider()),
         ChangeNotifierProvider(create: (_) => GetSalonsByServiceProvider()),
         ChangeNotifierProvider(create: (_) => GetSalonProvider()),
@@ -157,19 +185,24 @@ class MyApp extends StatelessWidget {
       child: MaterialApp(
         title: 'BarberBooking',
         theme: AppTheme.darkTheme,
-        initialRoute: '/login',
+        home: const SessionStartGate(),
         builder: (context, child) {
           final bg = Theme.of(context).scaffoldBackgroundColor;
+          final content = child ?? const SizedBox.shrink();
           return Stack(
+            fit: StackFit.expand,
             clipBehavior: Clip.hardEdge,
             children: [
               Positioned.fill(
-                child: ColoredBox(
-                  color: bg,
-                  child: AuthSignalRBootstrap(
-                    child: child ?? const SizedBox.shrink(),
+                child: IgnorePointer(
+                  child: DecoratedBox(
+                    decoration: BoxDecoration(color: bg),
+                    child: const SizedBox.expand(),
                   ),
                 ),
+              ),
+              Positioned.fill(
+                child: AuthSignalRBootstrap(child: content),
               ),
               const NotificationToastOverlay(),
             ],
@@ -301,6 +334,12 @@ class MyApp extends StatelessWidget {
           '/search_screen': (context) => const SearchServicesScreen(),
           '/profile': (context) => const ProfileScreen(),
           '/profile_settings': (context) => const ProfileSettingsScreen(),
+          '/sessions': (context) {
+            final args = ModalRoute.of(context)!.settings.arguments;
+            final uid =
+                args is SessionsRouteArgs ? args.adminUserId : null;
+            return SessionsScreen(adminUserId: uid);
+          },
           '/user_reviews': (context) => const UserReviewsScreen(),
           '/master_reviews': (context) {
             final masterId =
@@ -336,6 +375,35 @@ class MyApp extends StatelessWidget {
           },
         },
       ),
+    );
+  }
+}
+
+class SessionStartGate extends StatefulWidget {
+  const SessionStartGate({super.key});
+
+  @override
+  State<SessionStartGate> createState() => _SessionStartGateState();
+}
+
+class _SessionStartGateState extends State<SessionStartGate> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      final auth = context.read<AuthProvider>();
+      final next = auth.isAuthenticated
+          ? RoleRoutes.homeRouteForRole(auth.roleInterface)
+          : '/login';
+      Navigator.of(context).pushReplacementNamed(next);
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return const Scaffold(
+      body: Center(child: CircularProgressIndicator()),
     );
   }
 }

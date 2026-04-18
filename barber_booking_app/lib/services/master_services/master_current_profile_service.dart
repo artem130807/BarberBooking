@@ -2,10 +2,12 @@ import 'dart:convert';
 
 import 'package:barber_booking_app/config/api_config.dart';
 import 'package:barber_booking_app/models/master_models/response/get_master_response.dart';
+import 'package:barber_booking_app/services/auth_services/auth_session_binding.dart';
 import 'package:http/http.dart' as http;
 
 class MasterCurrentProfileService {
-  Future<GetMasterResponse?> fetch(String? token) async {
+  Future<GetMasterResponse?> fetch() async {
+    final token = await AuthSessionBinding.instance.accessToken();
     if (token == null || token.isEmpty) return null;
     try {
       final url = Uri.parse(

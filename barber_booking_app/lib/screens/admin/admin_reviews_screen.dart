@@ -1,12 +1,10 @@
 import 'package:barber_booking_app/utils/admin_last_salon_storage.dart';
 import 'package:barber_booking_app/services/admin_export/admin_excel_export_service.dart';
 import 'package:barber_booking_app/services/review_services/get_reviews_admin_service.dart';
-import 'package:barber_booking_app/models/params/page_params.dart';
 import 'package:barber_booking_app/models/params/review_params/review_admin_filter.dart';
-import 'package:barber_booking_app/models/params/salon_params/salon_filter.dart';
 import 'package:barber_booking_app/providers/auth_providers/auth_provider.dart';
 import 'package:barber_booking_app/providers/review_providers/get_reviews_admin_provider.dart';
-import 'package:barber_booking_app/providers/salon_providers/get_salons_provider.dart';
+import 'package:barber_booking_app/providers/salon_providers/get_salons_admin_provider.dart';
 import 'package:barber_booking_app/widgets/admin_widgets/admin_reviews_filter_panel.dart';
 import 'package:barber_booking_app/widgets/error_widget.dart';
 import 'package:barber_booking_app/widgets/loading_indicator.dart';
@@ -25,8 +23,6 @@ class AdminReviewsScreen extends StatefulWidget {
 }
 
 class _AdminReviewsScreenState extends State<AdminReviewsScreen> {
-  final SalonFilter _salonListFilter = SalonFilter();
-
   @override
   void initState() {
     super.initState();
@@ -41,7 +37,7 @@ class _AdminReviewsScreenState extends State<AdminReviewsScreen> {
       } else {
         final saved = await AdminLastSalonStorage.read();
         if (!mounted) return;
-        final list = context.read<GetSalonsProvider>().getSalonsResponse ?? [];
+        final list = context.read<GetSalonsAdminProvider>().asSalonListItems;
         if (saved != null &&
             saved.isNotEmpty &&
             list.any((e) => e.Id == saved)) {
@@ -55,23 +51,17 @@ class _AdminReviewsScreenState extends State<AdminReviewsScreen> {
   }
 
   Future<void> _loadSalons() async {
-    final token = context.read<AuthProvider>().token;
-    await context.read<GetSalonsProvider>().getSalons(
-          PageParams(Page: 1, PageSize: 200),
-          _salonListFilter,
-          token,
-        );
+    await context.read<GetSalonsAdminProvider>().load();
   }
 
   Future<void> _reloadList() async {
-    final token = context.read<AuthProvider>().token;
-    await context.read<GetReviewsAdminProvider>().refresh(token);
+    await context.read<GetReviewsAdminProvider>().refresh();
   }
 
   Future<void> _openFilterSheet() async {
-    final salonsProv = context.read<GetSalonsProvider>();
+    final salonsProv = context.read<GetSalonsAdminProvider>();
     final reviewsProv = context.read<GetReviewsAdminProvider>();
-    final salons = salonsProv.getSalonsResponse ?? [];
+    final salons = salonsProv.asSalonListItems;
     await showAdminReviewsFilterSheet(
       context,
       initialDraft: reviewsProv.activeFilter,
@@ -99,7 +89,6 @@ class _AdminReviewsScreenState extends State<AdminReviewsScreen> {
   }
 
   Future<void> _exportToExcel() async {
-    final token = context.read<AuthProvider>().token;
     final filter = context.read<GetReviewsAdminProvider>().activeFilter;
     showDialog<void>(
       context: context,
@@ -109,7 +98,6 @@ class _AdminReviewsScreenState extends State<AdminReviewsScreen> {
     try {
       final rows = await GetReviewsAdminService().fetchAllPages(
         filter,
-        token,
       );
       if (!mounted) return;
       Navigator.of(context).pop();
@@ -155,9 +143,9 @@ class _AdminReviewsScreenState extends State<AdminReviewsScreen> {
       ),
       body: Column(
         children: [
-          Consumer2<GetSalonsProvider, GetReviewsAdminProvider>(
+          Consumer2<GetSalonsAdminProvider, GetReviewsAdminProvider>(
             builder: (context, salonsProv, reviewsProv, _) {
-              final salons = salonsProv.getSalonsResponse ?? [];
+              final salons = salonsProv.asSalonListItems;
               return AdminReviewsFilterSummaryBar(
                 applied: reviewsProv.activeFilter,
                 salons: salons,
@@ -248,10 +236,7 @@ class _AdminReviewsScreenState extends State<AdminReviewsScreen> {
                                       ? const CircularProgressIndicator()
                                       : FilledButton.tonal(
                                           onPressed: () async {
-                                            final t = context
-                                                .read<AuthProvider>()
-                                                .token;
-                                            await prov.loadMore(t);
+                                            await prov.loadMore();
                                           },
                                           child: const Text('Загрузить ещё'),
                                         ),

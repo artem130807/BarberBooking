@@ -34,7 +34,7 @@ class _ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
     final citiesProvider = Provider.of<GetUserCitiesProvider>(context, listen: false);
 
     await Future.wait([
-      userProvider.getUser(token),
+      userProvider.getUser(),
       citiesProvider.loadCities(),
     ]);
   }
@@ -362,10 +362,11 @@ class _CityPickerSheetState extends State<_CityPickerSheet> {
     if (token == null) return;
     final updateProvider = Provider.of<UpdateUserCityProvider>(context, listen: false);
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
-    final updated = await updateProvider.updateCity(token, _selectedCity, authProvider);
+    final updated =
+        await updateProvider.updateCity(_selectedCity, authProvider);
     if (!mounted) return;
     if (updated != null) {
-      await Provider.of<GetUserProvider>(context, listen: false).getUser(authProvider.token);
+      await Provider.of<GetUserProvider>(context, listen: false).getUser();
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(

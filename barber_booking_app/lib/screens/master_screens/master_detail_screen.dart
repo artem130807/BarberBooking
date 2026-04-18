@@ -95,7 +95,7 @@ class _MasterDetailScreenState extends State<MasterDetailScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final auth = Provider.of<AuthProvider>(context, listen: false);
       final masterProvider = Provider.of<GetMasterProvider>(context, listen: false);
-      masterProvider.getMaster(widget.masterId, token: auth.token);
+      masterProvider.getMaster(widget.masterId);
       final reviewsProvider = Provider.of<GetReviewsMasterProvider>(context, listen: false);
       reviewsProvider.getReviewsMaster(widget.masterId, _reviewsPageParams, _reviewSortParams);
     });
@@ -105,12 +105,11 @@ class _MasterDetailScreenState extends State<MasterDetailScreen> {
     BuildContext context,
     bool currentState,
     String masterId,
-    String token,
   ) async {
     if (currentState) {
       if (_subscriptionId == null) return;
       final deleteProvider = Provider.of<DeleteSubscriptionProvider>(context, listen: false);
-      final success = await deleteProvider.deleteSubscription(_subscriptionId!, token);
+      final success = await deleteProvider.deleteSubscription(_subscriptionId!);
       if (success && mounted) {
         setState(() {
           _isSubscribed = false;
@@ -127,7 +126,7 @@ class _MasterDetailScreenState extends State<MasterDetailScreen> {
     } else {
       final createProvider = Provider.of<CreateSubscriptionProvider>(context, listen: false);
       final request = CreateSubscriptionRequest(MasterId: masterId);
-      final success = await createProvider.createSubscription(request, token);
+      final success = await createProvider.createSubscription(request);
       if (success && mounted) {
         setState(() {
           _isSubscribed = true;
@@ -163,10 +162,7 @@ class _MasterDetailScreenState extends State<MasterDetailScreen> {
           return Scaffold(
             body: ErrorWidgetCustom(
               message: masterProvider.errorMessage!,
-              onRetry: () => masterProvider.getMaster(
-                    widget.masterId,
-                    token: Provider.of<AuthProvider>(context, listen: false).token,
-                  ),
+              onRetry: () => masterProvider.getMaster(widget.masterId),
             ),
           );
         }
@@ -190,7 +186,7 @@ class _MasterDetailScreenState extends State<MasterDetailScreen> {
                 ),
                 onPressed: token == null
                     ? null
-                    : () => _toggleSubscription(context, _isSubscribed, widget.masterId, token),
+                    : () => _toggleSubscription(context, _isSubscribed, widget.masterId),
               ),
             ],
           ),

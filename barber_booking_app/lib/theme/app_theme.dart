@@ -40,6 +40,7 @@ class AppTheme {
         outline: _outline,
       ),
       scaffoldBackgroundColor: _background,
+      canvasColor: _background,
       appBarTheme: const AppBarTheme(
         backgroundColor: _background,
         foregroundColor: _onBackground,

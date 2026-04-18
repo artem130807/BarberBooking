@@ -8,10 +8,10 @@ class GetAppointmentClientProvider extends BaseProvider {
   GetAppointmentClientResponse? _appointment;
   GetAppointmentClientResponse? get appointment => _appointment;
 
-  Future<bool> getAppointment(String appointmentId, String token) async {
+  Future<bool> getAppointment(String appointmentId) async {
     startLoading();
     try {
-      final response = await _service.getAppointmentById(appointmentId, token);
+      final response = await _service.getAppointmentById(appointmentId);
       if (response != null) {
         _appointment = response;
         finishLoading();

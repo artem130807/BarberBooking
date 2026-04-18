@@ -65,7 +65,6 @@ class _MasterAppointmentsListScreenState
     final token = context.read<AuthProvider>().token;
     setState(() => _loading = true);
     final page = await _service.fetchPage(
-      token: token,
       filter: _filterForScope(),
       pageSize: 100,
     );

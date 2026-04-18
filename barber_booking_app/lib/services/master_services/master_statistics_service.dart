@@ -2,17 +2,16 @@ import 'dart:convert';
 
 import 'package:barber_booking_app/config/api_config.dart';
 import 'package:barber_booking_app/models/master_models/response/master_statistic_response.dart';
+import 'package:barber_booking_app/services/auth_services/auth_http_headers.dart';
 import 'package:http/http.dart' as http;
 
 class MasterStatisticsService {
   Future<MasterStatisticResponse?> fetchWeek({
-    required String? token,
     required int month,
     required int week,
     required DateTime anchorDate,
   }) async {
     return _get(
-      token,
       Uri.parse('$kApiBaseUrl/api/MasterStatistics/GetMyStatisticWeek').replace(
         queryParameters: {
           'Mounth': '$month',
@@ -24,12 +23,10 @@ class MasterStatisticsService {
   }
 
   Future<MasterStatisticResponse?> fetchMonth({
-    required String? token,
     required int month,
     required DateTime anchorDate,
   }) async {
     return _get(
-      token,
       Uri.parse('$kApiBaseUrl/api/MasterStatistics/GetMyStatisticMounth').replace(
         queryParameters: {
           'mounth': '$month',
@@ -40,11 +37,9 @@ class MasterStatisticsService {
   }
 
   Future<MasterStatisticResponse?> fetchYear({
-    required String? token,
     required DateTime anchorDate,
   }) async {
     return _get(
-      token,
       Uri.parse('$kApiBaseUrl/api/MasterStatistics/GetMyStatisticYear').replace(
         queryParameters: {
           'date': _dateOnly(anchorDate),
@@ -61,15 +56,13 @@ class MasterStatisticsService {
     return '$y-$m-$day';
   }
 
-  Future<MasterStatisticResponse?> _get(String? token, Uri url) async {
-    if (token == null || token.isEmpty) return null;
+  Future<MasterStatisticResponse?> _get(Uri url) async {
+    final headers = await AuthHttpHeaders.bearerJson();
+    if (headers == null) return null;
     try {
       final response = await http.get(
         url,
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer $token',
-        },
+        headers: headers,
       );
       if (response.statusCode != 200) return null;
       final decoded = json.decode(response.body);

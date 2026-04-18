@@ -53,7 +53,7 @@ class _SearchServicesScreenState extends State<SearchServicesScreen> {
       return;
     }
     final provider = Provider.of<GetServiceSearchProvider>(context, listen: false);
-    final success = await provider.getServices(token);
+    final success = await provider.getServices();
     if (success == true && mounted) {
       setState(() {
         _allServices = provider.list ?? [];

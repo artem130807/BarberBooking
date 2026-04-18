@@ -73,7 +73,7 @@ class _SearchResultsScreenState extends State<SearchResultsScreen> {
   void _performSearch() {
     final token = Provider.of<AuthProvider>(context, listen: false).token;
     Provider.of<GetSalonsSearchProvider>(context, listen: false)
-        .getSalons(widget.query, _pageParams, token);
+        .getSalons(widget.query, _pageParams);
   }
 
   @override

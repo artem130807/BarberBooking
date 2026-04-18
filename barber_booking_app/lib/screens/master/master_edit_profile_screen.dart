@@ -71,7 +71,6 @@ class _MasterEditProfileScreenState extends State<MasterEditProfileScreen> {
     String? avatarUrl = widget.profile.AvatarUrl;
     if (_pickedAvatar != null) {
       final up = await _upload.uploadImage(
-        token: token,
         filePath: _pickedAvatar!.path,
       );
       if (!mounted) return;
@@ -89,7 +88,7 @@ class _MasterEditProfileScreenState extends State<MasterEditProfileScreen> {
       Specialization: _spec.text.trim().isEmpty ? null : _spec.text.trim(),
       AvatarUrl: avatarUrl,
     );
-    final r = await _service.patch(token: token, masterId: id, body: body);
+    final r = await _service.patch(masterId: id, body: body);
     if (!mounted) return;
     setState(() => _saving = false);
     if (r == null) {
@@ -98,7 +97,7 @@ class _MasterEditProfileScreenState extends State<MasterEditProfileScreen> {
       );
       return;
     }
-    await context.read<MasterSessionProvider>().load(token);
+    await context.read<MasterSessionProvider>().load();
     if (!mounted) return;
     Navigator.of(context).pop(true);
   }

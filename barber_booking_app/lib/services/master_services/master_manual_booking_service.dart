@@ -3,14 +3,15 @@ import 'dart:convert';
 import 'package:barber_booking_app/config/api_config.dart';
 import 'package:barber_booking_app/models/appointment_models/request/create_appointment_request.dart';
 import 'package:barber_booking_app/models/master_interface_models/response/master_service_for_booking.dart';
+import 'package:barber_booking_app/services/auth_services/auth_http_headers.dart';
 import 'package:http/http.dart' as http;
 
 class MasterManualBookingService {
   Future<List<MasterServiceForBooking>?> fetchServicesForBooking({
-    required String? token,
     required String masterProfileId,
   }) async {
-    if (token == null || token.isEmpty || masterProfileId.isEmpty) {
+    final headers = await AuthHttpHeaders.bearerJson();
+    if (headers == null || masterProfileId.isEmpty) {
       return null;
     }
     try {
@@ -19,10 +20,7 @@ class MasterManualBookingService {
       );
       final response = await http.get(
         url,
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer $token',
-        },
+        headers: headers,
       );
       if (response.statusCode != 200) {
         return null;
@@ -43,21 +41,19 @@ class MasterManualBookingService {
   }
 
   Future<String?> createWithoutAppUser({
-    required String? token,
     required CreateAppointmentRequest request,
   }) async {
-    if (token == null || token.isEmpty || request.SalonId == null) {
+    final headers = await AuthHttpHeaders.bearerJson();
+    if (headers == null || request.SalonId == null) {
       return 'Нужна авторизация';
     }
     try {
-      final url =
-          Uri.parse('$kApiBaseUrl/api/Appointment/create-appointment-without-user');
+      final url = Uri.parse(
+        '$kApiBaseUrl/api/Appointment/create-appointment-without-user',
+      );
       final response = await http.post(
         url,
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer $token',
-        },
+        headers: headers,
         body: jsonEncode(request.toJson()),
       );
       if (response.statusCode == 200) {

@@ -84,7 +84,7 @@ class _SalonsScreenState extends State<SalonsScreen> {
     final token = Provider.of<AuthProvider>(context, listen: false).token;
     final effectiveFilter = filter ?? SalonFilter();
     Provider.of<GetSalonsProvider>(context, listen: false)
-        .getSalons(_pageParams, effectiveFilter, token);
+        .getSalons(_pageParams, effectiveFilter);
   }
 
   @override

@@ -1,5 +1,4 @@
 import 'package:barber_booking_app/models/master_interface_models/response/get_master_time_slot_response.dart';
-import 'package:barber_booking_app/providers/auth_providers/auth_provider.dart';
 import 'package:barber_booking_app/screens/master/master_navigation.dart';
 import 'package:barber_booking_app/screens/master/master_slot_appointments_screen.dart';
 import 'package:barber_booking_app/services/master_services/master_time_slots_service.dart';
@@ -8,7 +7,6 @@ import 'package:barber_booking_app/utils/slot_status_label.dart';
 import 'package:barber_booking_app/widgets/loading_indicator.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:provider/provider.dart';
 
 class MasterTimeSlotDetailScreen extends StatefulWidget {
   const MasterTimeSlotDetailScreen({super.key, required this.slotId});
@@ -33,9 +31,8 @@ class _MasterTimeSlotDetailScreenState extends State<MasterTimeSlotDetailScreen>
   }
 
   Future<void> _load() async {
-    final token = context.read<AuthProvider>().token;
     setState(() => _loading = true);
-    final r = await _service.fetchById(token: token, slotId: widget.slotId);
+    final r = await _service.fetchById(slotId: widget.slotId);
     if (!mounted) return;
     setState(() {
       _data = r;
@@ -105,10 +102,8 @@ class _MasterTimeSlotDetailScreenState extends State<MasterTimeSlotDetailScreen>
       ),
     );
     if (ok != true || !mounted) return;
-    final token = context.read<AuthProvider>().token;
     setState(() => _deleting = true);
     final success = await _service.deleteSlot(
-      token: token,
       slotId: widget.slotId,
     );
     if (!mounted) return;

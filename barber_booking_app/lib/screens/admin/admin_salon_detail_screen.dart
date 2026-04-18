@@ -1,10 +1,13 @@
 import 'package:barber_booking_app/utils/api_media_url.dart';
 import 'package:barber_booking_app/models/salon_models/request/update_salon_request.dart';
+import 'package:barber_booking_app/models/salon_models/response/salon_photo_dto.dart';
 import 'package:barber_booking_app/models/salon_models/response/salon_admin_stats_response.dart';
 import 'package:barber_booking_app/models/vo_models/dto_address.dart';
 import 'package:barber_booking_app/providers/auth_providers/auth_provider.dart';
 import 'package:barber_booking_app/providers/salon_providers/get_salon_admin_stats_provider.dart';
 import 'package:barber_booking_app/services/media/admin_media_upload_service.dart';
+import 'package:barber_booking_app/services/salon_services/salon_photos_service.dart';
+import 'package:barber_booking_app/widgets/salon_widgets/salon_photo_carousel.dart';
 import 'package:barber_booking_app/widgets/error_widget.dart';
 import 'package:barber_booking_app/widgets/loading_indicator.dart';
 import 'package:flutter/material.dart';
@@ -36,7 +39,12 @@ class AdminSalonDetailScreen extends StatefulWidget {
 class _AdminSalonDetailScreenState extends State<AdminSalonDetailScreen> {
   final ImagePicker _picker = ImagePicker();
   final AdminMediaUploadService _upload = AdminMediaUploadService();
+  final SalonPhotosService _salonPhotosService = SalonPhotosService();
+  List<SalonPhotoDto> _photos = [];
+  bool _loadingPhotos = true;
+  int _carouselIndex = 0;
   bool _photoBusy = false;
+  static const int _maxSalonPhotos = 5;
 
   @override
   void initState() {
@@ -44,12 +52,41 @@ class _AdminSalonDetailScreenState extends State<AdminSalonDetailScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) => _load());
   }
 
-  Future<void> _load() async {
-    final token = context.read<AuthProvider>().token;
-    await context.read<GetSalonAdminStatsProvider>().load(widget.salonId, token);
+  List<String> _resolvedPhotoUrls() {
+    return _photos
+        .map((p) => resolveApiMediaUrl(p.photoUrl))
+        .whereType<String>()
+        .toList();
   }
 
-  Future<void> _changeSalonPhoto() async {
+  Future<void> _loadPhotos() async {
+    setState(() => _loadingPhotos = true);
+    final r = await _salonPhotosService.getPhotos(widget.salonId);
+    if (!mounted) return;
+    setState(() {
+      _loadingPhotos = false;
+      _photos = r?.items ?? [];
+      if (_carouselIndex >= _photos.length) {
+        _carouselIndex = _photos.isEmpty ? 0 : _photos.length - 1;
+      }
+    });
+  }
+
+  Future<void> _load() async {
+    await Future.wait([
+      context.read<GetSalonAdminStatsProvider>().load(widget.salonId),
+      _loadPhotos(),
+    ]);
+  }
+
+  Future<void> _addSalonPhoto() async {
+    if (_photos.length >= _maxSalonPhotos) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Нельзя добавить больше 5 фотографий')),
+      );
+      return;
+    }
     final token = context.read<AuthProvider>().token;
     if (token == null || token.isEmpty) {
       if (!mounted) return;
@@ -66,7 +103,7 @@ class _AdminSalonDetailScreenState extends State<AdminSalonDetailScreen> {
     );
     if (x == null || !mounted) return;
     setState(() => _photoBusy = true);
-    final up = await _upload.uploadImage(token: token, filePath: x.path);
+    final up = await _upload.uploadImage(filePath: x.path);
     if (!mounted) return;
     if (up.url == null) {
       setState(() => _photoBusy = false);
@@ -75,16 +112,74 @@ class _AdminSalonDetailScreenState extends State<AdminSalonDetailScreen> {
       );
       return;
     }
-    final prov = context.read<GetSalonAdminStatsProvider>();
-    final ok = await prov.updateMainPhotoUrl(widget.salonId, up.url!, token);
+    final r = await _salonPhotosService.createPhoto(
+      salonId: widget.salonId,
+      photoUrl: up.url!,
+    );
     if (!mounted) return;
     setState(() => _photoBusy = false);
-    if (ok) {
+    if (r.ok) {
+      await _loadPhotos();
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Фото салона сохранено'),
+          content: Text('Фото добавлено'),
           behavior: SnackBarBehavior.floating,
         ),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(r.error ?? 'Не удалось сохранить фото')),
+      );
+    }
+  }
+
+  Future<void> _deleteCurrentPhoto() async {
+    if (_photos.isEmpty) return;
+    final i = _carouselIndex.clamp(0, _photos.length - 1);
+    final photo = _photos[i];
+    final token = context.read<AuthProvider>().token;
+    if (token == null || token.isEmpty) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Нужна авторизация')),
+      );
+      return;
+    }
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Удалить фото?'),
+        content: const Text('Это действие нельзя отменить.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('Отмена'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            child: const Text('Удалить'),
+          ),
+        ],
+      ),
+    );
+    if (ok != true || !mounted) return;
+    setState(() => _photoBusy = true);
+    final r = await _salonPhotosService.deletePhoto(photoId: photo.id);
+    if (!mounted) return;
+    setState(() => _photoBusy = false);
+    if (r.ok) {
+      await _loadPhotos();
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Фото удалено'),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(r.error ?? 'Не удалось удалить фото')),
       );
     }
   }
@@ -155,52 +250,67 @@ class _AdminSalonDetailScreenState extends State<AdminSalonDetailScreen> {
             return const Center(child: Text('Нет данных'));
           }
 
-          final salonPhoto = resolveApiMediaUrl(s.MainPhotoUrl);
+          final urls = _resolvedPhotoUrls();
+          final atLimit = _photos.length >= _maxSalonPhotos;
+          final carouselH =
+              (MediaQuery.sizeOf(context).width - 32) * 9 / 16;
 
           return RefreshIndicator(
             onRefresh: _load,
             child: ListView(
               padding: const EdgeInsets.all(16),
               children: [
-                Text(
-                  'Фото салона',
-                  style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                        fontWeight: FontWeight.w600,
-                        color: cs.onSurfaceVariant,
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    Expanded(
+                      child: Text(
+                        'Фото салона',
+                        style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                              fontWeight: FontWeight.w600,
+                              color: cs.onSurfaceVariant,
+                            ),
                       ),
+                    ),
+                    if (_photos.isNotEmpty)
+                      Text(
+                        '${_photos.length}/$_maxSalonPhotos',
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                              color: cs.onSurfaceVariant,
+                            ),
+                      ),
+                  ],
                 ),
                 const SizedBox(height: 8),
                 ClipRRect(
                   borderRadius: BorderRadius.circular(12),
-                  child: AspectRatio(
-                    aspectRatio: 16 / 9,
-                    child: Stack(
-                      fit: StackFit.expand,
-                      children: [
-                        if (salonPhoto != null)
-                          Image.network(
-                            salonPhoto,
-                            fit: BoxFit.cover,
-                            errorBuilder: (_, __, ___) => ColoredBox(
-                              color: cs.surfaceContainerHighest,
-                              child: Icon(
-                                Icons.storefront_outlined,
-                                size: 48,
-                                color: cs.onSurfaceVariant,
+                  child: Stack(
+                    alignment: Alignment.center,
+                    children: [
+                      if (_loadingPhotos && _photos.isEmpty)
+                        SizedBox(
+                          height: carouselH,
+                          width: double.infinity,
+                          child: ColoredBox(
+                            color: cs.surfaceContainerHighest,
+                            child: Center(
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                color: cs.primary,
                               ),
                             ),
-                          )
-                        else
-                          ColoredBox(
-                            color: cs.surfaceContainerHighest,
-                            child: Icon(
-                              Icons.add_photo_alternate_outlined,
-                              size: 56,
-                              color: cs.onSurfaceVariant,
-                            ),
                           ),
-                        if (_photoBusy)
-                          ColoredBox(
+                        )
+                      else
+                        SalonPhotoCarousel(
+                          imageUrls: urls,
+                          height: carouselH,
+                          borderRadius: BorderRadius.zero,
+                          onPageChanged: (i) => setState(() => _carouselIndex = i),
+                        ),
+                      if (_photoBusy)
+                        Positioned.fill(
+                          child: ColoredBox(
                             color: Colors.black38,
                             child: Center(
                               child: CircularProgressIndicator(
@@ -209,17 +319,31 @@ class _AdminSalonDetailScreenState extends State<AdminSalonDetailScreen> {
                               ),
                             ),
                           ),
-                      ],
-                    ),
+                        ),
+                      if (!_loadingPhotos && urls.isNotEmpty)
+                        Positioned(
+                          top: 8,
+                          right: 8,
+                          child: Material(
+                            color: Colors.black45,
+                            shape: const CircleBorder(),
+                            child: IconButton(
+                              onPressed: _photoBusy ? null : _deleteCurrentPhoto,
+                              icon: const Icon(Icons.delete_outline, color: Colors.white),
+                              tooltip: 'Удалить текущее фото',
+                            ),
+                          ),
+                        ),
+                    ],
                   ),
                 ),
                 const SizedBox(height: 10),
                 OutlinedButton.icon(
-                  onPressed: _photoBusy ? null : _changeSalonPhoto,
-                  icon: const Icon(Icons.photo_library_outlined),
+                  onPressed: (_photoBusy || atLimit) ? null : _addSalonPhoto,
+                  icon: const Icon(Icons.add_photo_alternate_outlined),
                   label: Text(
-                    salonPhoto != null
-                        ? 'Заменить из галереи'
+                    atLimit
+                        ? 'Достигнут лимит (5 фото)'
                         : 'Добавить из галереи',
                   ),
                 ),
@@ -596,8 +720,8 @@ class _SalonEditDialogState extends State<_SalonEditDialog> {
 
   Future<void> _submit() async {
     if (!_formKey.currentState!.validate()) return;
-    final token = context.read<AuthProvider>().token;
-    if (token == null || token.isEmpty) {
+    final auth = context.read<AuthProvider>();
+    if (await auth.ensureValidAccessToken() == null) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Нужна авторизация')),
@@ -620,7 +744,7 @@ class _SalonEditDialogState extends State<_SalonEditDialog> {
           ? null
           : UpdateSalonPhoneRequest(number: _phone.text.trim()),
     );
-    final ok = await prov.updateSalon(widget.salonId, body, token);
+    final ok = await prov.updateSalon(widget.salonId, body);
     if (!mounted) return;
     setState(() => _saving = false);
     if (ok) {

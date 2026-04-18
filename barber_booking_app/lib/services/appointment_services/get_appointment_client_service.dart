@@ -1,18 +1,23 @@
 import 'dart:convert';
-import 'package:barber_booking_app/models/appointment_models/response/get_appointment_client_response.dart';
-import 'package:http/http.dart' as http;
+
 import 'package:barber_booking_app/config/api_config.dart';
+import 'package:barber_booking_app/models/appointment_models/response/get_appointment_client_response.dart';
+import 'package:barber_booking_app/services/auth_services/auth_http_headers.dart';
+import 'package:http/http.dart' as http;
 
 class GetAppointmentClientService {
-
-  Future<GetAppointmentClientResponse?> getAppointmentById(String appointmentId, String token) async {
+  Future<GetAppointmentClientResponse?> getAppointmentById(
+    String appointmentId,
+  ) async {
     try {
-      final url = Uri.parse('$kApiBaseUrl/api/Appointment/get-appointmentClientById/$appointmentId');
+      final headers = await AuthHttpHeaders.bearerJson();
+      if (headers == null) return null;
 
-      final response = await http.get(url, headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer $token',
-      });
+      final url = Uri.parse(
+        '$kApiBaseUrl/api/Appointment/get-appointmentClientById/$appointmentId',
+      );
+
+      final response = await http.get(url, headers: headers);
 
       print('📥 Статус: ${response.statusCode}');
       print('📥 Ответ: ${response.body}');

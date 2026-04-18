@@ -45,7 +45,6 @@ class _MasterAppointmentDetailScreenState
     final token = context.read<AuthProvider>().token;
     setState(() => _loading = true);
     final r = await _service.fetchById(
-      token: token,
       appointmentId: widget.appointmentId,
     );
     if (!mounted) return;
@@ -94,7 +93,6 @@ class _MasterAppointmentDetailScreenState
     final token = context.read<AuthProvider>().token;
     setState(() => _completing = true);
     final result = await _service.completeAppointment(
-      token: token,
       appointmentId: widget.appointmentId,
     );
     if (!mounted) return;
@@ -137,7 +135,6 @@ class _MasterAppointmentDetailScreenState
     final token = context.read<AuthProvider>().token;
     setState(() => _cancelling = true);
     final success = await _service.cancelAppointment(
-      token: token,
       appointmentId: widget.appointmentId,
     );
     if (!mounted) return;

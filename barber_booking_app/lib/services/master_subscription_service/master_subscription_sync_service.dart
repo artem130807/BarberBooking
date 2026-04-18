@@ -13,24 +13,23 @@ class MasterSubscriptionSyncService {
     required bool initialSubscribed,
     required bool draftSubscribed,
     required String masterId,
-    required String token,
   }) async {
     if (draftSubscribed == initialSubscribed) return true;
 
     if (draftSubscribed) {
       final req = CreateSubscriptionRequest(MasterId: masterId);
-      final id = await _create.createSubscription(req, token);
+      final id = await _create.createSubscription(req);
       return id != null;
     }
 
-    final subscriptionId = await _findSubscriptionIdForMaster(token, masterId);
+    final subscriptionId = await _findSubscriptionIdForMaster(masterId);
     if (subscriptionId == null) return false;
-    final ok = await _delete.deleteSubscription(subscriptionId, token);
+    final ok = await _delete.deleteSubscription(subscriptionId);
     return ok == true;
   }
 
-  Future<String?> _findSubscriptionIdForMaster(String token, String masterId) async {
-    final List<GetSubscriptionsResponse>? items = await _list.getSubscriptions(token);
+  Future<String?> _findSubscriptionIdForMaster(String masterId) async {
+    final List<GetSubscriptionsResponse>? items = await _list.getSubscriptions();
     if (items == null) return null;
     for (final item in items) {
       final mid = item.masterNavigation?.Id;

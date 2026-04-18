@@ -1,4 +1,4 @@
-import 'package:barber_booking_app/providers/auth_providers/auth_provider.dart';
+import 'package:barber_booking_app/screens/common/sessions_screen.dart';
 import 'package:barber_booking_app/providers/user_providers/get_user_profile_by_id_provider.dart';
 import 'package:barber_booking_app/widgets/error_widget.dart';
 import 'package:barber_booking_app/widgets/loading_indicator.dart';
@@ -40,8 +40,7 @@ class _AdminClientProfileScreenState extends State<AdminClientProfileScreen> {
   }
 
   Future<void> _load() async {
-    final token = context.read<AuthProvider>().token;
-    await context.read<GetUserProfileByIdProvider>().load(widget.userId, token);
+    await context.read<GetUserProfileByIdProvider>().load(widget.userId);
   }
 
   void _copy(BuildContext context, String label, String value) {
@@ -155,6 +154,19 @@ class _AdminClientProfileScreenState extends State<AdminClientProfileScreen> {
                             : null,
                       ),
                     ],
+                  ),
+                ),
+                const SizedBox(height: 20),
+                SizedBox(
+                  width: double.infinity,
+                  child: OutlinedButton.icon(
+                    onPressed: () => Navigator.pushNamed(
+                      context,
+                      '/sessions',
+                      arguments: SessionsRouteArgs(adminUserId: widget.userId),
+                    ),
+                    icon: const Icon(Icons.devices_rounded),
+                    label: const Text('Активные сессии'),
                   ),
                 ),
               ],

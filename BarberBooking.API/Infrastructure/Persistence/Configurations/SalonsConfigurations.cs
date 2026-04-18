@@ -32,8 +32,6 @@ namespace BarberBooking.API.Configurations
                c.IsRequired();
                c.Property(c => c.Number).HasColumnName("Phone").HasMaxLength(100);
             });
-             builder.Property(x => x.MainPhotoUrl)
-            .HasMaxLength(500);
             
             builder.Property(x => x.Rating)
                 .HasPrecision(3, 2);

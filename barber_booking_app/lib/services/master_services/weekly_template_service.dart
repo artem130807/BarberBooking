@@ -2,19 +2,15 @@ import 'dart:convert';
 
 import 'package:barber_booking_app/config/api_config.dart';
 import 'package:barber_booking_app/models/master_interface_models/request/create_template_day_request.dart';
-import 'package:barber_booking_app/models/master_interface_models/request/update_template_day_request.dart';
 import 'package:barber_booking_app/models/master_interface_models/request/create_weekly_template_request.dart';
+import 'package:barber_booking_app/models/master_interface_models/request/update_template_day_request.dart';
 import 'package:barber_booking_app/models/master_interface_models/response/template_day_info.dart';
 import 'package:barber_booking_app/models/master_interface_models/response/weekly_template_info.dart';
 import 'package:barber_booking_app/models/master_interface_models/response/weekly_template_short_info.dart';
+import 'package:barber_booking_app/services/auth_services/auth_http_headers.dart';
 import 'package:http/http.dart' as http;
 
 class WeeklyTemplateService {
-  Map<String, String> _headers(String token) => {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer $token',
-      };
-
   String _dateIso(DateTime d) {
     final y = d.year.toString().padLeft(4, '0');
     final m = d.month.toString().padLeft(2, '0');
@@ -34,11 +30,13 @@ class WeeklyTemplateService {
     return raw.length > 220 ? 'Ошибка ${r.statusCode}' : raw;
   }
 
-  Future<List<WeeklyTemplateShortInfo>?> fetchTemplates(String? token) async {
-    if (token == null || token.isEmpty) return null;
+  Future<List<WeeklyTemplateShortInfo>?> fetchTemplates() async {
+    final h = await AuthHttpHeaders.bearerJson();
+    if (h == null) return null;
     try {
-      final url = Uri.parse('$kApiBaseUrl/api/WeeklyTemplate/get-weekly-templates');
-      final response = await http.get(url, headers: _headers(token));
+      final url =
+          Uri.parse('$kApiBaseUrl/api/WeeklyTemplate/get-weekly-templates');
+      final response = await http.get(url, headers: h);
       if (response.statusCode != 200) return null;
       final decoded = json.decode(response.body);
       if (decoded is! List) return null;
@@ -52,11 +50,13 @@ class WeeklyTemplateService {
     }
   }
 
-  Future<WeeklyTemplateInfo?> fetchTemplateById(String? token, String id) async {
-    if (token == null || token.isEmpty || id.isEmpty) return null;
+  Future<WeeklyTemplateInfo?> fetchTemplateById(String id) async {
+    final h = await AuthHttpHeaders.bearerJson();
+    if (h == null || id.isEmpty) return null;
     try {
-      final url = Uri.parse('$kApiBaseUrl/api/WeeklyTemplate/get-weekly-template/$id');
-      final response = await http.get(url, headers: _headers(token));
+      final url =
+          Uri.parse('$kApiBaseUrl/api/WeeklyTemplate/get-weekly-template/$id');
+      final response = await http.get(url, headers: h);
       if (response.statusCode != 200) return null;
       final map = json.decode(response.body) as Map<String, dynamic>;
       return WeeklyTemplateInfo.fromJson(map);
@@ -66,15 +66,16 @@ class WeeklyTemplateService {
   }
 
   Future<(String? id, String? error)> createTemplate({
-    required String? token,
     required CreateWeeklyTemplateRequest body,
   }) async {
-    if (token == null || token.isEmpty) return (null, 'Нужна авторизация');
+    final h = await AuthHttpHeaders.bearerJson();
+    if (h == null) return (null, 'Нужна авторизация');
     try {
-      final url = Uri.parse('$kApiBaseUrl/api/WeeklyTemplate/create-weekly-templates');
+      final url =
+          Uri.parse('$kApiBaseUrl/api/WeeklyTemplate/create-weekly-templates');
       final response = await http.post(
         url,
-        headers: _headers(token),
+        headers: h,
         body: json.encode(body.toJson()),
       );
       if (response.statusCode == 200) {
@@ -95,13 +96,15 @@ class WeeklyTemplateService {
   }
 
   Future<String?> deleteTemplate({
-    required String? token,
     required String id,
   }) async {
-    if (token == null || token.isEmpty) return 'Нужна авторизация';
+    final h = await AuthHttpHeaders.bearerJson();
+    if (h == null) return 'Нужна авторизация';
     try {
-      final url = Uri.parse('$kApiBaseUrl/api/WeeklyTemplate/delete-weekly-templates/$id');
-      final response = await http.delete(url, headers: _headers(token));
+      final url = Uri.parse(
+        '$kApiBaseUrl/api/WeeklyTemplate/delete-weekly-templates/$id',
+      );
+      final response = await http.delete(url, headers: h);
       if (response.statusCode == 200) return null;
       return _errorFromResponse(response) ?? 'Не удалось удалить';
     } catch (_) {
@@ -109,13 +112,14 @@ class WeeklyTemplateService {
     }
   }
 
-  Future<List<TemplateDayInfo>?> fetchTemplateDays(String? token, String weeklyTemplateId) async {
-    if (token == null || token.isEmpty || weeklyTemplateId.isEmpty) return null;
+  Future<List<TemplateDayInfo>?> fetchTemplateDays(String weeklyTemplateId) async {
+    final h = await AuthHttpHeaders.bearerJson();
+    if (h == null || weeklyTemplateId.isEmpty) return null;
     try {
       final url = Uri.parse(
         '$kApiBaseUrl/api/TemplateDay/get-template-days/$weeklyTemplateId',
       );
-      final response = await http.get(url, headers: _headers(token));
+      final response = await http.get(url, headers: h);
       if (response.statusCode != 200) return null;
       final decoded = json.decode(response.body);
       if (decoded is! List) return null;
@@ -130,15 +134,15 @@ class WeeklyTemplateService {
   }
 
   Future<String?> createTemplateDay({
-    required String? token,
     required CreateTemplateDayRequest body,
   }) async {
-    if (token == null || token.isEmpty) return 'Нужна авторизация';
+    final h = await AuthHttpHeaders.bearerJson();
+    if (h == null) return 'Нужна авторизация';
     try {
       final url = Uri.parse('$kApiBaseUrl/api/TemplateDay/create-template-day');
       final response = await http.post(
         url,
-        headers: _headers(token),
+        headers: h,
         body: json.encode(body.toJson()),
       );
       if (response.statusCode == 200) return null;
@@ -149,16 +153,18 @@ class WeeklyTemplateService {
   }
 
   Future<String?> updateTemplateDay({
-    required String? token,
     required String templateDayId,
     required UpdateTemplateDayRequest body,
   }) async {
-    if (token == null || token.isEmpty) return 'Нужна авторизация';
+    final h = await AuthHttpHeaders.bearerJson();
+    if (h == null) return 'Нужна авторизация';
     try {
-      final url = Uri.parse('$kApiBaseUrl/api/TemplateDay/update-template-day/$templateDayId');
+      final url = Uri.parse(
+        '$kApiBaseUrl/api/TemplateDay/update-template-day/$templateDayId',
+      );
       final response = await http.patch(
         url,
-        headers: _headers(token),
+        headers: h,
         body: json.encode(body.toJson()),
       );
       if (response.statusCode == 200) return null;
@@ -169,13 +175,14 @@ class WeeklyTemplateService {
   }
 
   Future<String?> deleteTemplateDay({
-    required String? token,
     required String id,
   }) async {
-    if (token == null || token.isEmpty) return 'Нужна авторизация';
+    final h = await AuthHttpHeaders.bearerJson();
+    if (h == null) return 'Нужна авторизация';
     try {
-      final url = Uri.parse('$kApiBaseUrl/api/TemplateDay/delete-template-day/$id');
-      final response = await http.delete(url, headers: _headers(token));
+      final url =
+          Uri.parse('$kApiBaseUrl/api/TemplateDay/delete-template-day/$id');
+      final response = await http.delete(url, headers: h);
       if (response.statusCode == 200) return null;
       return _errorFromResponse(response) ?? 'Не удалось удалить';
     } catch (_) {
@@ -184,12 +191,12 @@ class WeeklyTemplateService {
   }
 
   Future<(String? message, String? error)> createSlotsFromWeeklyTemplate({
-    required String? token,
     required String weeklyTemplateId,
     required DateTime dateFrom,
     required DateTime dateTo,
   }) async {
-    if (token == null || token.isEmpty) return (null, 'Нужна авторизация');
+    final h = await AuthHttpHeaders.bearerJson();
+    if (h == null) return (null, 'Нужна авторизация');
     final from = DateTime(dateFrom.year, dateFrom.month, dateFrom.day);
     final to = DateTime(dateTo.year, dateTo.month, dateTo.day);
     if (from.isAfter(to)) return (null, 'Дата «с» позже даты «по»');
@@ -200,7 +207,7 @@ class WeeklyTemplateService {
         'dateFrom': _dateIso(from),
         'dateTo': _dateIso(to),
       });
-      final response = await http.post(uri, headers: _headers(token));
+      final response = await http.post(uri, headers: h);
       if (response.statusCode == 200) {
         final raw = response.body;
         if (raw.isEmpty) return ('Готово', null);

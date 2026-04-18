@@ -1,22 +1,20 @@
 import 'dart:convert';
 
-import 'package:barber_booking_app/models/messages_models/response/get_messages_user_response.dart';
-import 'package:http/http.dart' as http;
 import 'package:barber_booking_app/config/api_config.dart';
+import 'package:barber_booking_app/models/messages_models/response/get_messages_user_response.dart';
+import 'package:barber_booking_app/services/auth_services/auth_http_headers.dart';
+import 'package:http/http.dart' as http;
 
 class GetMessageUserService {
-
-  Future<List<GetMessagesUserResponse>?> getMessages(String? token) async {
-    if (token == null || token.isEmpty) return null;
+  Future<List<GetMessagesUserResponse>?> getMessages() async {
+    final headers = await AuthHttpHeaders.bearerJson();
+    if (headers == null) return null;
 
     try {
       final url = Uri.parse('$kApiBaseUrl/api/Message/get-messages');
       final response = await http.get(
         url,
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer $token',
-        },
+        headers: headers,
       );
 
       if (response.statusCode == 200) {
@@ -26,7 +24,6 @@ class GetMessageUserService {
             .toList();
       }
 
-      // Backend returns 400 when the list is empty.
       if (response.statusCode == 400) {
         return [];
       }

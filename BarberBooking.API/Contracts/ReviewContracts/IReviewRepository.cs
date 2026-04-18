@@ -23,5 +23,7 @@ namespace BarberBooking.API.Contracts.ReviewContracts
         Task<PagedResult<Review>> GetReviewsByClientId(Guid clientId, PageParams pageParams);
         Task<PagedResult<Review>> GetAllReviews(FilterReviews filterReviews, PageParams pageParams);
         Task<PagedResult<Review>> GetLowRatingReviewsPaged(Guid? salonId, PageParams pageParams);
+        Task<PagedResult<Review>> GetAllReviewsForSalonIds(FilterReviews filterReviews, PageParams pageParams, IReadOnlyList<Guid> salonIds);
+        Task<PagedResult<Review>> GetLowRatingReviewsPagedForSalonIds(Guid? salonId, PageParams pageParams, IReadOnlyList<Guid> salonIds);
     }
 }

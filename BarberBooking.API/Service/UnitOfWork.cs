@@ -16,6 +16,7 @@ using BarberBooking.API.Infrastructure.Persistence.Repositories;
 using BarberBooking.API.Repositories;
 using BarberBooking.API.Contracts.SalonsAdminContracts;
 using BarberBooking.API.Contracts.SalonPhotosContracts;
+using System.Data;
 
 namespace BarberBooking.API.Service
 {
@@ -42,6 +43,7 @@ namespace BarberBooking.API.Service
         private ITemplateDayRepository _templateDayRepository;
         private ISalonsAdminRepository _salonsAdminRepository;
         private ISalonPhotosRepository _salonPhotosRepository;
+        private IRefreshTokenRepository _refreshTokenRepository;
         public UnitOfWork(BarberBookingDbContext dbContext)
         {
             _dbContext = dbContext;
@@ -127,16 +129,20 @@ namespace BarberBooking.API.Service
             get {return _templateDayRepository ??= new TemplateDayRepository(_dbContext);}
         }
 
-        // ISalonsAdminRepository salonsAdminRepository
-        // {
-        //     get {return _salonsAdminRepository ??= new SalonsAdminRepository(_dbContext)}
-        // }
+        public ISalonsAdminRepository salonsAdminRepository
+        {
+            get {return _salonsAdminRepository ??= new SalonsAdminRepository(_dbContext);}
+        }
 
+        public ISalonPhotosRepository salonPhotosRepository  
+        {
+            get {return _salonPhotosRepository ??= new SalonPhotosRepository(_dbContext);}
+        }
 
-        // ISalonPhotosRepository salonPhotosRepository
-        // {
-        //     get {return _salonPhotosRepository ??= new SalonPhotosRepository(_dbContext);}
-        // }
+        public IRefreshTokenRepository refreshTokenRepository
+        {
+            get {return _refreshTokenRepository ??= new RefreshTokenRepository(_dbContext);}
+        }
 
         public void BeginTransaction()
         {

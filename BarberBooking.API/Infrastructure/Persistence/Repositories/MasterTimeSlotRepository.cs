@@ -311,6 +311,7 @@ namespace BarberBooking.API.Repositories
         public async Task<MasterTimeSlot?> GetByIdAsync(Guid id)
         {
             return await _context.MasterTimeSlots
+            .Include(x => x.Master)
             .Include(x => x.Appointments)
             .FirstOrDefaultAsync(x => x.Id == id);
         }

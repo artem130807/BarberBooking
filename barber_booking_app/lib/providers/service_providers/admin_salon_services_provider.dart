@@ -19,33 +19,33 @@ class AdminSalonServicesProvider extends BaseProvider {
   bool get hasMore => _hasMore;
   String? get salonId => _salonId;
 
-  Future<void> load(String salonId, String? token) async {
+  Future<void> load(String salonId) async {
     _salonId = salonId;
     _items.clear();
     _page = 1;
     startLoading();
     try {
-      await _fetchPage(token, reset: true);
+      await _fetchPage(reset: true);
     } finally {
       finishLoading();
     }
   }
 
-  Future<void> loadMore(String? token) async {
+  Future<void> loadMore() async {
     if (!_hasMore || isLoading) return;
     startLoading();
     try {
-      await _fetchPage(token, reset: false);
+      await _fetchPage(reset: false);
     } finally {
       finishLoading();
     }
   }
 
-  Future<void> _fetchPage(String? token, {required bool reset}) async {
+  Future<void> _fetchPage({required bool reset}) async {
     final sid = _salonId;
     if (sid == null || sid.isEmpty) return;
     final params = PageParams(Page: reset ? 1 : _page, PageSize: _pageSize);
-    final map = await _api.getPaged(sid, params, token);
+    final map = await _api.getPaged(sid, params);
     if (map == null) {
       setError('Не удалось загрузить услуги');
       _hasMore = false;
@@ -67,17 +67,17 @@ class AdminSalonServicesProvider extends BaseProvider {
     notifyListeners();
   }
 
-  Future<bool> createService(CreateServiceRequest body, String? token) async {
+  Future<bool> createService(CreateServiceRequest body) async {
     startLoading();
     try {
-      final ok = await _api.create(body, token);
+      final ok = await _api.create(body);
       if (!ok) {
         setError('Не удалось создать услугу');
         finishLoading();
         return false;
       }
       finishLoading();
-      if (_salonId != null) await load(_salonId!, token);
+      if (_salonId != null) await load(_salonId!);
       return true;
     } catch (e) {
       handleError(e);
@@ -88,18 +88,17 @@ class AdminSalonServicesProvider extends BaseProvider {
   Future<bool> updateService(
     String id,
     UpdateServiceRequest body,
-    String? token,
   ) async {
     startLoading();
     try {
-      final ok = await _api.update(id, body, token);
+      final ok = await _api.update(id, body);
       if (!ok) {
         setError('Не удалось обновить услугу');
         finishLoading();
         return false;
       }
       finishLoading();
-      if (_salonId != null) await load(_salonId!, token);
+      if (_salonId != null) await load(_salonId!);
       return true;
     } catch (e) {
       handleError(e);
@@ -107,17 +106,17 @@ class AdminSalonServicesProvider extends BaseProvider {
     }
   }
 
-  Future<bool> deleteService(String id, String? token) async {
+  Future<bool> deleteService(String id) async {
     startLoading();
     try {
-      final ok = await _api.delete(id, token);
+      final ok = await _api.delete(id);
       if (!ok) {
         setError('Не удалось удалить услугу');
         finishLoading();
         return false;
       }
       finishLoading();
-      if (_salonId != null) await load(_salonId!, token);
+      if (_salonId != null) await load(_salonId!);
       return true;
     } catch (e) {
       handleError(e);

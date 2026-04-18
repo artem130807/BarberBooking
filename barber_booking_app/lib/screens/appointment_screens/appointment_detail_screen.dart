@@ -30,7 +30,7 @@ class _AppointmentDetailScreenState extends State<AppointmentDetailScreen> {
     final token = Provider.of<AuthProvider>(context, listen: false).token;
     if (token == null) return;
     Provider.of<GetAppointmentClientProvider>(context, listen: false)
-        .getAppointment(widget.appointmentId, token);
+        .getAppointment(widget.appointmentId);
   }
 
   @override

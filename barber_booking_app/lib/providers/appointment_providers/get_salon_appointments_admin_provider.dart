@@ -17,7 +17,6 @@ class GetSalonAppointmentsAdminProvider extends BaseProvider {
   Future<bool> load({
     required String salonId,
     required PageParams pageParams,
-    String? token,
     FilterAppointmentsParams? filter,
   }) async {
     startLoading();
@@ -25,7 +24,6 @@ class GetSalonAppointmentsAdminProvider extends BaseProvider {
       final map = await _service.getPaged(
         salonId,
         pageParams,
-        token,
         filter: filter,
       );
       if (map == null) {
@@ -45,7 +43,6 @@ class GetSalonAppointmentsAdminProvider extends BaseProvider {
 
   Future<void> loadAllPagesForRevenue({
     required String salonId,
-    String? token,
     int pageSize = 100,
     FilterAppointmentsParams? filter,
   }) async {
@@ -53,7 +50,6 @@ class GetSalonAppointmentsAdminProvider extends BaseProvider {
     try {
       final all = await _service.fetchAllPages(
         salonId,
-        token,
         filter: filter,
         pageSize: pageSize,
       );

@@ -89,10 +89,8 @@ class _MasterEditTemplateDayScreenState extends State<MasterEditTemplateDayScree
     }
     final id = widget.day.id;
     if (id == null || id.isEmpty) return;
-    final token = context.read<AuthProvider>().token;
     setState(() => _saving = true);
     final err = await _service.updateTemplateDay(
-      token: token,
       templateDayId: id,
       body: UpdateTemplateDayRequest(
         workStartTime: _timeIso(_start),

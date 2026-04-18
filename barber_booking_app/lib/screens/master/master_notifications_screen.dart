@@ -31,13 +31,13 @@ class _MasterNotificationsScreenState extends State<MasterNotificationsScreen> {
     final token = context.read<AuthProvider>().token;
     final p = context.read<GetMessageUserProvider>();
     setState(() => _loadError = false);
-    final ok = await p.loadMessages(token);
+    final ok = await p.loadMessages();
     if (!mounted) return;
     if (!ok) {
       setState(() => _loadError = true);
       return;
     }
-    await context.read<GetCountMessagesProvider>().loadCount(token);
+    await context.read<GetCountMessagesProvider>().loadCount();
   }
 
   String _formatWhen(DateTime d) {
@@ -157,7 +157,7 @@ class _MasterNotificationsScreenState extends State<MasterNotificationsScreen> {
                     final token = context.read<AuthProvider>().token;
                     final messenger = ScaffoldMessenger.maybeOf(context);
                     final err =
-                        await provider.deleteMessage(token, m.id);
+                        await provider.deleteMessage(m.id);
                     if (!context.mounted) return false;
                     if (err != null) {
                       HapticFeedback.mediumImpact();
@@ -173,7 +173,7 @@ class _MasterNotificationsScreenState extends State<MasterNotificationsScreen> {
                     HapticFeedback.lightImpact();
                     await context
                         .read<GetCountMessagesProvider>()
-                        .loadCount(token);
+                        .loadCount();
                     return true;
                   },
                   child: Card(

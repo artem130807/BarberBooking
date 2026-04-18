@@ -34,10 +34,8 @@ class _MasterCreateWeeklyTemplateScreenState
       );
       return;
     }
-    final token = context.read<AuthProvider>().token;
     setState(() => _saving = true);
     final (id, err) = await _service.createTemplate(
-      token: token,
       body: CreateWeeklyTemplateRequest(name: name, isActive: _active),
     );
     if (!mounted) return;

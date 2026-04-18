@@ -5,6 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using AutoMapper;
 using BarberBooking.API.Contracts;
+using BarberBooking.API.Contracts.SalonPhotosContracts;
 using BarberBooking.API.Contracts.SalonsContracts;
 using BarberBooking.API.Dto.DtoSalons;
 using BarberBooking.API.Filters;
@@ -20,13 +21,15 @@ namespace BarberBooking.API.CQRS.Salon.Queries.Handlers
         private readonly IUserContext _userContext;
         private readonly IMasterTimeSlotRepository _masterTimeSlotRepository;
         private readonly ILogger<GetSalonsNameStartWithHandler> _logger;
-        public GetSalonsNameStartWithHandler(ISalonsRepository salonsRepository, IMapper mapper, IUserContext userContext, IMasterTimeSlotRepository masterTimeSlotRepository, ILogger<GetSalonsNameStartWithHandler> logger)
+        private readonly ISalonPhotosRepository _salonPhotosRepository;
+        public GetSalonsNameStartWithHandler(ISalonsRepository salonsRepository, IMapper mapper, IUserContext userContext, IMasterTimeSlotRepository masterTimeSlotRepository, ILogger<GetSalonsNameStartWithHandler> logger, ISalonPhotosRepository salonPhotosRepository)
         {
             _salonsRepository = salonsRepository;
             _mapper = mapper;
             _userContext = userContext;
             _masterTimeSlotRepository = masterTimeSlotRepository;
             _logger = logger;
+            _salonPhotosRepository = salonPhotosRepository;
         }
         public async Task<Result<List<DtoSalonShortInfo>>> Handle(GetSalonsNameStartWithQuery query, CancellationToken cancellationToken)
         {
@@ -51,7 +54,10 @@ namespace BarberBooking.API.CQRS.Salon.Queries.Handlers
             {
                 dto.AvailableSlots = slotCounts.TryGetValue(dto.Id, out var c) ? c : 0;
             }
-
+            foreach (var s in dtoList)
+            {
+                s.MainPhotoUrl = await _salonPhotosRepository.GetFirstPhotoUrlAsync(s.Id, cancellationToken) ?? string.Empty;
+            }
             return Result.Success(dtoList);
         }
     }

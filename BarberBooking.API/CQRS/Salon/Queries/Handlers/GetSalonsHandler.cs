@@ -5,6 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using AutoMapper;
 using BarberBooking.API.Contracts;
+using BarberBooking.API.Contracts.SalonPhotosContracts;
 using BarberBooking.API.Contracts.SalonsContracts;
 using BarberBooking.API.Dto.DtoSalons;
 using CSharpFunctionalExtensions;
@@ -18,12 +19,14 @@ namespace BarberBooking.API.CQRS.Salon.Queries.Handlers
         private readonly IMapper _mapper;
         private readonly IUserContext _userContext;
         private readonly IMasterTimeSlotRepository _masterTimeSlotRepository;
-        public GetSalonsHandler(ISalonsRepository salonsRepository, IMapper mapper, IUserContext userContext, IMasterTimeSlotRepository masterTimeSlotRepository)
+        private readonly ISalonPhotosRepository _salonPhotosRepository;
+        public GetSalonsHandler(ISalonsRepository salonsRepository, IMapper mapper, IUserContext userContext, IMasterTimeSlotRepository masterTimeSlotRepository, ISalonPhotosRepository salonPhotosRepository)
         {
             _salonsRepository = salonsRepository;
             _mapper = mapper;
             _userContext = userContext;
             _masterTimeSlotRepository = masterTimeSlotRepository;
+            _salonPhotosRepository = salonPhotosRepository;
         }
         public async Task<Result<List<DtoSalonShortInfo>>> Handle(GetSalonsQuery query, CancellationToken cancellationToken)
         {
@@ -41,7 +44,10 @@ namespace BarberBooking.API.CQRS.Salon.Queries.Handlers
             {
                 dto.AvailableSlots = slotCounts.TryGetValue(dto.Id, out var c) ? c : 0;
             }
-
+            foreach (var s in dtoList)
+            {
+                s.MainPhotoUrl = await _salonPhotosRepository.GetFirstPhotoUrlAsync(s.Id, cancellationToken) ?? string.Empty;
+            }
             return Result.Success(dtoList);
         }
     }

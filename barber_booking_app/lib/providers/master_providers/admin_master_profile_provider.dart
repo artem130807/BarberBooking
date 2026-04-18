@@ -10,11 +10,11 @@ class AdminMasterProfileProvider extends BaseProvider {
 
   MasterProfileInfoForAdminResponse? get master => _master;
 
-  Future<bool> load(String masterId, String? token) async {
+  Future<bool> load(String masterId) async {
     _master = null;
     startLoading();
     try {
-      final response = await _service.getProfile(masterId, token);
+      final response = await _service.getProfile(masterId);
       if (response == null) {
         setError('Не удалось загрузить профиль мастера');
         finishLoading();

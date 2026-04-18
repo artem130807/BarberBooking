@@ -119,7 +119,7 @@ class _DateTimeSelectionScreenState extends State<DateTimeSelectionScreen> {
     );
 
     final createProvider = Provider.of<CreateAppointmentProvider>(context, listen: false);
-    final success = await createProvider.createAppointment(request, token);
+    final success = await createProvider.createAppointment(request);
 
     if (success && mounted) {
       ScaffoldMessenger.of(context).showSnackBar(

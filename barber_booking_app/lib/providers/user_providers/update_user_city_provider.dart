@@ -5,12 +5,7 @@ import 'package:barber_booking_app/services/user_services/update_user_city_servi
 class UpdateUserCityProvider extends BaseProvider {
   final UpdateUserCityService _service = UpdateUserCityService();
 
-  /// [authProvider] — для сохранения нового токена после смены города (салоны будут по новому городу).
-  Future<String?> updateCity(String? token, String city, [AuthProvider? authProvider]) async {
-    if (token == null || token.isEmpty) {
-      setError('Необходима авторизация');
-      return null;
-    }
+  Future<String?> updateCity(String city, [AuthProvider? authProvider]) async {
     if (city.trim().isEmpty) {
       setError('Укажите город');
       return null;
@@ -18,11 +13,11 @@ class UpdateUserCityProvider extends BaseProvider {
     startLoading();
     clearError();
     try {
-      final result = await _service.updateCity(token, city);
+      final result = await _service.updateCity(city);
       finishLoading();
       if (result != null) {
         if (result.token != null && result.token!.isNotEmpty && authProvider != null) {
-          authProvider.updateToken(result.token!);
+          await authProvider.updateToken(result.token!);
         }
         notifyListeners();
         return result.city;

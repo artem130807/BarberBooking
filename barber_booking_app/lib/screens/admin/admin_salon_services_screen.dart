@@ -32,8 +32,7 @@ class _AdminSalonServicesScreenState extends State<AdminSalonServicesScreen> {
   }
 
   Future<void> _load() async {
-    final token = context.read<AuthProvider>().token;
-    await context.read<AdminSalonServicesProvider>().load(widget.salonId, token);
+    await context.read<AdminSalonServicesProvider>().load(widget.salonId);
   }
 
   Future<void> _openCreate() async {
@@ -82,9 +81,8 @@ class _AdminSalonServicesScreenState extends State<AdminSalonServicesScreen> {
       ),
     );
     if (go != true || !mounted) return;
-    final token = context.read<AuthProvider>().token;
     final prov = context.read<AdminSalonServicesProvider>();
-    final ok = await prov.deleteService(id, token);
+    final ok = await prov.deleteService(id);
     if (mounted && !ok && prov.errorMessage != null) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(prov.errorMessage!)),
@@ -173,10 +171,7 @@ class _AdminSalonServicesScreenState extends State<AdminSalonServicesScreen> {
                                 ? const CircularProgressIndicator()
                                 : TextButton(
                                     onPressed: () async {
-                                      final t = context
-                                          .read<AuthProvider>()
-                                          .token;
-                                      await prov.loadMore(t);
+                                      await prov.loadMore();
                                     },
                                     child: const Text('Ещё'),
                                   ),
@@ -353,8 +348,7 @@ class _ServiceFormDialogState extends State<_ServiceFormDialog> {
 
   Future<void> _submit() async {
     if (!_formKey.currentState!.validate()) return;
-    final token = Provider.of<AuthProvider>(widget.hostContext, listen: false)
-        .token;
+    final auth = Provider.of<AuthProvider>(widget.hostContext, listen: false);
     final prov = Provider.of<AdminSalonServicesProvider>(
       widget.hostContext,
       listen: false,
@@ -366,7 +360,7 @@ class _ServiceFormDialogState extends State<_ServiceFormDialog> {
 
     String? photoUrl;
     if (_pickedPhoto != null) {
-      if (token == null || token.isEmpty) {
+      if (await auth.ensureValidAccessToken() == null) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text('Нужна авторизация')),
@@ -375,7 +369,6 @@ class _ServiceFormDialogState extends State<_ServiceFormDialog> {
         return;
       }
       final up = await _upload.uploadImage(
-        token: token,
         filePath: _pickedPhoto!.path,
       );
       if (up.url == null) {
@@ -403,7 +396,7 @@ class _ServiceFormDialogState extends State<_ServiceFormDialog> {
         photo: photoUrl,
         isActive: _isActive,
       );
-      final ok = await prov.updateService(existing!.Id!, body, token);
+      final ok = await prov.updateService(existing!.Id!, body);
       if (mounted) Navigator.pop(context, ok);
       return;
     }
@@ -416,7 +409,7 @@ class _ServiceFormDialogState extends State<_ServiceFormDialog> {
       priceValue: price,
       photoUrl: photoUrl,
     );
-    final ok = await prov.createService(body, token);
+    final ok = await prov.createService(body);
     if (mounted) Navigator.pop(context, ok);
   }
 

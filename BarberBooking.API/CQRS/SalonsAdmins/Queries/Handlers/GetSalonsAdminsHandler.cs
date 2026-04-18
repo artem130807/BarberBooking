@@ -27,7 +27,7 @@ namespace BarberBooking.API.CQRS.SalonsAdmins.Queries.Handlers
             var userId = _userContext.UserId;
             var salonsAdmin = await _salonsAdminRepository.GetSalonsAdmin(userId);
             if(salonsAdmin.Count == 0)
-                return Result.Failure<List<DtoGetSalonAdmin>>("У пользователя нету салонов");
+                return Result.Success(new List<DtoGetSalonAdmin>());
             var result = _mapper.Map<List<DtoGetSalonAdmin>>(salonsAdmin);
             return Result.Success(result);
         }

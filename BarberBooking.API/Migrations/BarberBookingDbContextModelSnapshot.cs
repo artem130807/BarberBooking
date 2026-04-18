@@ -417,6 +417,36 @@ namespace BarberBooking.API.Migrations
                         });
                 });
 
+            modelBuilder.Entity("BarberBooking.API.Models.RefreshToken", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Devices")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("ExpiresAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsRevoked")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("TokenHash")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("RefreshToken", (string)null);
+                });
+
             modelBuilder.Entity("BarberBooking.API.Models.Review", b =>
                 {
                     b.Property<Guid>("Id")
@@ -558,6 +588,28 @@ namespace BarberBooking.API.Migrations
                         });
                 });
 
+            modelBuilder.Entity("BarberBooking.API.Models.SalonPhotos", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("PhotoUrl")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid>("SalonId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("SalonId");
+
+                    b.ToTable("SalonPhotos", (string)null);
+                });
+
             modelBuilder.Entity("BarberBooking.API.Models.SalonStatistic", b =>
                 {
                     b.Property<Guid>("Id")
@@ -613,10 +665,6 @@ namespace BarberBooking.API.Migrations
 
                     b.Property<bool>("IsActive")
                         .HasColumnType("bit");
-
-                    b.Property<string>("MainPhotoUrl")
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -774,6 +822,33 @@ namespace BarberBooking.API.Migrations
                         .IsUnique();
 
                     b.ToTable("TemplateDays", (string)null);
+                });
+
+            modelBuilder.Entity("BarberBooking.API.Models.UserFcmToken", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Token")
+                        .IsRequired()
+                        .HasMaxLength(512)
+                        .HasColumnType("nvarchar(512)");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Token")
+                        .IsUnique();
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("UserFcmTokens", (string)null);
                 });
 
             modelBuilder.Entity("BarberBooking.API.Models.UserRoles", b =>
@@ -995,6 +1070,17 @@ namespace BarberBooking.API.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("BarberBooking.API.Models.RefreshToken", b =>
+                {
+                    b.HasOne("BarberBooking.API.Models.Users", "User")
+                        .WithMany("RefreshTokens")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("BarberBooking.API.Models.Review", b =>
                 {
                     b.HasOne("BarberBooking.API.Models.Appointments", "Appointment")
@@ -1042,6 +1128,17 @@ namespace BarberBooking.API.Migrations
                         .HasForeignKey("RoleId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("BarberBooking.API.Models.SalonPhotos", b =>
+                {
+                    b.HasOne("BarberBooking.API.Models.Salons", "Salon")
+                        .WithMany("SalonPhotos")
+                        .HasForeignKey("SalonId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Salon");
                 });
 
             modelBuilder.Entity("BarberBooking.API.Models.SalonStatistic", b =>
@@ -1094,6 +1191,17 @@ namespace BarberBooking.API.Migrations
                         .IsRequired();
 
                     b.Navigation("WeeklyTemplate");
+                });
+
+            modelBuilder.Entity("BarberBooking.API.Models.UserFcmToken", b =>
+                {
+                    b.HasOne("BarberBooking.API.Models.Users", "User")
+                        .WithMany("UserFcmTokens")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("BarberBooking.API.Models.UserRoles", b =>
@@ -1155,6 +1263,8 @@ namespace BarberBooking.API.Migrations
 
                     b.Navigation("Reviews");
 
+                    b.Navigation("SalonPhotos");
+
                     b.Navigation("SalonStatistics");
 
                     b.Navigation("SalonUsers");
@@ -1175,7 +1285,11 @@ namespace BarberBooking.API.Migrations
                 {
                     b.Navigation("Messages");
 
+                    b.Navigation("RefreshTokens");
+
                     b.Navigation("SalonsAdmins");
+
+                    b.Navigation("UserFcmTokens");
                 });
 
             modelBuilder.Entity("BarberBooking.API.Models.WeeklyTemplate", b =>

@@ -1,9 +1,7 @@
 import 'package:barber_booking_app/models/params/appointment_params/filter_appointments_params.dart';
-import 'package:barber_booking_app/models/params/page_params.dart';
-import 'package:barber_booking_app/models/params/salon_params/salon_filter.dart';
 import 'package:barber_booking_app/providers/appointment_providers/get_salon_appointments_admin_provider.dart';
 import 'package:barber_booking_app/providers/auth_providers/auth_provider.dart';
-import 'package:barber_booking_app/providers/salon_providers/get_salons_provider.dart';
+import 'package:barber_booking_app/providers/salon_providers/get_salons_admin_provider.dart';
 import 'package:barber_booking_app/utils/admin_last_salon_storage.dart';
 import 'package:barber_booking_app/services/admin_export/admin_excel_export_service.dart';
 import 'package:barber_booking_app/services/appointment_services/get_salon_appointments_admin_service.dart';
@@ -32,8 +30,6 @@ class _AdminRevenueScreenState extends State<AdminRevenueScreen> {
   DateTime? _from;
   DateTime? _to;
   _RevenueDatePreset _datePreset = _RevenueDatePreset.all;
-  final SalonFilter _filter = SalonFilter();
-
   FilterAppointmentsParams _buildFilter() {
     switch (_datePreset) {
       case _RevenueDatePreset.all:
@@ -62,15 +58,14 @@ class _AdminRevenueScreenState extends State<AdminRevenueScreen> {
   }
 
   Future<void> _loadSalons() async {
-    final token = Provider.of<AuthProvider>(context, listen: false).token;
-    await Provider.of<GetSalonsProvider>(context, listen: false)
-        .getSalons(PageParams(Page: 1, PageSize: 200), _filter, token);
+    await Provider.of<GetSalonsAdminProvider>(context, listen: false)
+        .load();
     if (!mounted) return;
     final saved = await AdminLastSalonStorage.read();
     if (!mounted) return;
     final list =
-        Provider.of<GetSalonsProvider>(context, listen: false).getSalonsResponse ??
-            [];
+        Provider.of<GetSalonsAdminProvider>(context, listen: false)
+            .asSalonListItems;
     if (saved != null &&
         saved.isNotEmpty &&
         list.any((e) => e.Id == saved)) {
@@ -104,11 +99,9 @@ class _AdminRevenueScreenState extends State<AdminRevenueScreen> {
 
   Future<void> _calc() async {
     if (_salonId == null || _salonId!.isEmpty) return;
-    final token = Provider.of<AuthProvider>(context, listen: false).token;
     await Provider.of<GetSalonAppointmentsAdminProvider>(context, listen: false)
         .loadAllPagesForRevenue(
       salonId: _salonId!,
-      token: token,
       filter: _buildFilter(),
     );
   }
@@ -144,7 +137,6 @@ class _AdminRevenueScreenState extends State<AdminRevenueScreen> {
 
   Future<void> _exportToExcel() async {
     if (_salonId == null || _salonId!.isEmpty) return;
-    final token = Provider.of<AuthProvider>(context, listen: false).token;
     showDialog<void>(
       context: context,
       barrierDismissible: false,
@@ -153,7 +145,6 @@ class _AdminRevenueScreenState extends State<AdminRevenueScreen> {
     try {
       final rows = await GetSalonAppointmentsAdminService().fetchAllPages(
         _salonId!,
-        token,
         filter: _buildFilter(),
       );
       if (!mounted) return;
@@ -200,9 +191,9 @@ class _AdminRevenueScreenState extends State<AdminRevenueScreen> {
         children: [
           Padding(
             padding: const EdgeInsets.all(16),
-            child: Consumer<GetSalonsProvider>(
+            child: Consumer<GetSalonsAdminProvider>(
               builder: (context, salons, _) {
-                final list = salons.getSalonsResponse ?? [];
+                final list = salons.asSalonListItems;
                 return DropdownButtonFormField<String>(
                   value: _salonId != null &&
                           list.any((e) => e.Id == _salonId)

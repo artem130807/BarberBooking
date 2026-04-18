@@ -62,7 +62,6 @@ class _MasterSlotAppointmentsScreenState
     final token = context.read<AuthProvider>().token;
     setState(() => _loading = true);
     final page = await _service.fetchByTimeSlot(
-      token: token,
       timeSlotId: widget.timeSlotId,
       statusFilter: _filterForScope(),
     );

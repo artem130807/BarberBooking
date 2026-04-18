@@ -62,14 +62,13 @@ class _HomeScreenState extends State<HomeScreen> {
       Provider.of<GetSalonsProvider>(context, listen: false).getSalons(
         PageParams(Page: 1, PageSize: _homeSalonPageSize),
         filter,
-        token,
       );
       Provider.of<GetTheBestMastersProvider>(context, listen: false)
-          .getMasters(4, token);
+          .getMasters(4);
       Provider.of<GetCountMessagesProvider>(context, listen: false)
-          .loadCount(token);
+          .loadCount();
       if (token != null) {
-        Provider.of<GetUserProvider>(context, listen: false).getUser(token);
+        Provider.of<GetUserProvider>(context, listen: false).getUser();
       }
     });
   }
@@ -90,19 +89,20 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Future<void> _onRefreshHome() async {
     final token = Provider.of<AuthProvider>(context, listen: false).token;
-    if (token == null) return;
-    await Future.wait([
+    final futures = <Future<dynamic>>[
       Provider.of<GetSalonsProvider>(context, listen: false).getSalons(
         PageParams(Page: 1, PageSize: _homeSalonPageSize),
         filter,
-        token,
       ),
       Provider.of<GetTheBestMastersProvider>(context, listen: false)
-          .getMasters(4, token),
+          .getMasters(4),
       Provider.of<GetCountMessagesProvider>(context, listen: false)
-          .loadCount(token),
-      Provider.of<GetUserProvider>(context, listen: false).getUser(token),
-    ]);
+          .loadCount(),
+    ];
+    if (token != null) {
+      futures.add(Provider.of<GetUserProvider>(context, listen: false).getUser());
+    }
+    await Future.wait(futures);
   }
 
   String _greetingText(AuthProvider auth, GetUserProvider user) {
@@ -186,7 +186,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                   .token;
                           Provider.of<GetCountMessagesProvider>(context,
                                   listen: false)
-                              .loadCount(token);
+                              .loadCount();
                         },
                       ),
                       if (messageCountProvider.count > 0)
@@ -426,7 +426,6 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildSalonsList(GetSalonsProvider provider) {
-    final token = Provider.of<AuthProvider>(context, listen: false).token;
     if (provider.isLoading && provider.getSalonsResponse == null) {
       return const LoadingIndicator(message: 'Загрузка салонов...');
     }
@@ -437,7 +436,6 @@ class _HomeScreenState extends State<HomeScreen> {
         onRetry: () => provider.getSalons(
           PageParams(Page: 1, PageSize: _homeSalonPageSize),
           filter,
-          token,
         ),
       );
     }
@@ -484,7 +482,6 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildBestMastersList(GetTheBestMastersProvider provider) {
-    final token = Provider.of<AuthProvider>(context, listen: false).token;
     if (provider.isLoading && provider.getMasterResponse == null) {
       return const LoadingIndicator(message: 'Загрузка мастеров...');
     }
@@ -492,7 +489,7 @@ class _HomeScreenState extends State<HomeScreen> {
     if (provider.errorMessage != null) {
       return ErrorWidgetCustom(
         message: provider.errorMessage!,
-        onRetry: () => provider.getMasters(4, token),
+        onRetry: () => provider.getMasters(4),
       );
     }
 

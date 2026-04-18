@@ -7,10 +7,10 @@ class GetCountMessagesProvider extends BaseProvider {
   int _count = 0;
   int get count => _count;
 
-  Future<bool> loadCount(String? token) async {
+  Future<bool> loadCount() async {
     startLoading();
     try {
-      _count = await _service.getCountUnreadMessages(token);
+      _count = await _service.getCountUnreadMessages();
       finishLoading();
       notifyListeners();
       return true;

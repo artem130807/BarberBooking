@@ -3,36 +3,37 @@ import 'package:barber_booking_app/models/salon_models/response/get_salons_respo
 import 'package:barber_booking_app/models/base/base_provider.dart';
 import 'package:barber_booking_app/services/salon_services/get_salons_search_service.dart';
 
-class GetSalonsSearchProvider extends BaseProvider{
- final GetSalonsSearchService _getSalonsSearchService = GetSalonsSearchService();
- List<GetSalonsResponse>? _getSalonsResponse;
- String? _lastSearchQuery;
- List<GetSalonsResponse>? get getSalonsResponse => _getSalonsResponse;
- String? get lastSearchQuery => _lastSearchQuery;
- Future<bool> getSalons(String? name ,PageParams params, String? token) async{
-  startLoading();
-  _lastSearchQuery = name;
-  try{
-  final request = PageParams(
-    Page: params.Page,
-    PageSize: params.PageSize
-  );
-  final response = await _getSalonsSearchService.GetSalons(name, request, token);
-  if(response != null && response.isNotEmpty){
-    _getSalonsResponse = response;
-    finishLoading();  
-    notifyListeners();
-    return true;
-  }else{
-    _getSalonsResponse = [];
-    finishLoading();
-    return false;
+class GetSalonsSearchProvider extends BaseProvider {
+  final GetSalonsSearchService _getSalonsSearchService = GetSalonsSearchService();
+  List<GetSalonsResponse>? _getSalonsResponse;
+  String? _lastSearchQuery;
+  List<GetSalonsResponse>? get getSalonsResponse => _getSalonsResponse;
+  String? get lastSearchQuery => _lastSearchQuery;
+  Future<bool> getSalons(String? name, PageParams params) async {
+    startLoading();
+    _lastSearchQuery = name;
+    try {
+      final request = PageParams(
+        Page: params.Page,
+        PageSize: params.PageSize,
+      );
+      final response = await _getSalonsSearchService.getSalons(name, request);
+      if (response != null && response.isNotEmpty) {
+        _getSalonsResponse = response;
+        finishLoading();
+        notifyListeners();
+        return true;
+      } else {
+        _getSalonsResponse = [];
+        finishLoading();
+        return false;
+      }
+    } catch (e) {
+      print(e);
+      return false;
+    }
   }
-  }catch(e){
-    print(e);
-    return false;
-  }
-  }
+
   void clearResults() {
     _getSalonsResponse = null;
     _lastSearchQuery = null;

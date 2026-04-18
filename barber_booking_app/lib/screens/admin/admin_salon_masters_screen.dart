@@ -32,8 +32,7 @@ class _AdminSalonMastersScreenState extends State<AdminSalonMastersScreen> {
   }
 
   Future<void> _load() async {
-    final token = context.read<AuthProvider>().token;
-    await context.read<AdminSalonMastersProvider>().load(widget.salonId, token);
+    await context.read<AdminSalonMastersProvider>().load(widget.salonId);
   }
 
   Future<void> _openCreate() async {
@@ -70,9 +69,8 @@ class _AdminSalonMastersScreenState extends State<AdminSalonMastersScreen> {
       ),
     );
     if (go != true || !mounted) return;
-    final token = context.read<AuthProvider>().token;
     final prov = context.read<AdminSalonMastersProvider>();
-    final err = await prov.deleteMaster(id, token);
+    final err = await prov.deleteMaster(id);
     if (mounted && err != null) {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(err)));
     }
@@ -158,10 +156,7 @@ class _AdminSalonMastersScreenState extends State<AdminSalonMastersScreen> {
                                 ? const CircularProgressIndicator()
                                 : TextButton(
                                     onPressed: () async {
-                                      final t = context
-                                          .read<AuthProvider>()
-                                          .token;
-                                      await prov.loadMore(t);
+                                      await prov.loadMore();
                                     },
                                     child: const Text('Ещё'),
                                   ),
@@ -272,15 +267,14 @@ class _CreateMasterDialogState extends State<_CreateMasterDialog> {
 
   Future<void> _submit() async {
     if (!_formKey.currentState!.validate()) return;
-    final token = Provider.of<AuthProvider>(widget.hostContext, listen: false)
-        .token;
+    final auth = Provider.of<AuthProvider>(widget.hostContext, listen: false);
     final prov = Provider.of<AdminSalonMastersProvider>(
       widget.hostContext,
       listen: false,
     );
     String? avatarUrl;
     if (_pickedAvatar != null) {
-      if (token == null || token.isEmpty) {
+      if (await auth.ensureValidAccessToken() == null) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text('Нужна авторизация')),
@@ -289,7 +283,6 @@ class _CreateMasterDialogState extends State<_CreateMasterDialog> {
         return;
       }
       final up = await _upload.uploadImage(
-        token: token,
         filePath: _pickedAvatar!.path,
       );
       if (up.url == null) {
@@ -311,7 +304,7 @@ class _CreateMasterDialogState extends State<_CreateMasterDialog> {
       specialization: _spec.text.trim().isEmpty ? null : _spec.text.trim(),
       avatarUrl: avatarUrl,
     );
-    final err = await prov.createMaster(body, token);
+    final err = await prov.createMaster(body);
     if (!mounted) return;
     if (err == null) {
       Navigator.pop(context, true);

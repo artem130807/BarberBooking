@@ -49,7 +49,7 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
     final token = authProvider.token;
     if (token == null) return;
     await Provider.of<GetSubscriptionsProvider>(context, listen: false)
-        .getSubscriptions(token);
+        .getSubscriptions();
   }
 
   Future<void> _applyDeletions() async {
@@ -57,7 +57,7 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
     final deleteProvider = Provider.of<DeleteSubscriptionProvider>(context, listen: false);
     final token = Provider.of<AuthProvider>(context, listen: false).token;
     for (final id in _markedForDeletionIds) {
-      await deleteProvider.deleteSubscription(id, token);
+      await deleteProvider.deleteSubscription(id);
     }
     _markedForDeletionIds.clear();
     await _loadFavorites();

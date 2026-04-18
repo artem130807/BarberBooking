@@ -2,6 +2,7 @@ import 'package:barber_booking_app/models/master_models/response/get_master_resp
 import 'package:barber_booking_app/providers/auth_providers/auth_provider.dart';
 import 'package:barber_booking_app/providers/master_providers/master_session_provider.dart';
 import 'package:barber_booking_app/providers/message_providers/get_count_messages_provider.dart';
+import 'package:barber_booking_app/screens/common/sessions_screen.dart';
 import 'package:barber_booking_app/screens/master/master_edit_profile_screen.dart';
 import 'package:barber_booking_app/screens/master/master_my_services_screen.dart';
 import 'package:barber_booking_app/screens/master/master_my_reviews_screen.dart';
@@ -358,8 +359,7 @@ class MasterProfileTabScreen extends StatelessWidget {
                   onTap: () async {
                     await Navigator.pushNamed(context, '/master_notifications');
                     if (!context.mounted) return;
-                    final token = context.read<AuthProvider>().token;
-                    await context.read<GetCountMessagesProvider>().loadCount(token);
+                    await context.read<GetCountMessagesProvider>().loadCount();
                   },
                 ),
                 Divider(
@@ -390,6 +390,33 @@ class MasterProfileTabScreen extends StatelessWidget {
                       ),
                     );
                   },
+                ),
+                Divider(
+                  height: 1,
+                  indent: 56,
+                  color: cs.outlineVariant.withValues(alpha: 0.45),
+                ),
+                ListTile(
+                  contentPadding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                  leading: Icon(Icons.devices_rounded, color: cs.primary),
+                  title: const Text('Активные сессии'),
+                  subtitle: Text(
+                    'Управление входами на устройствах',
+                    style: TextStyle(
+                      fontSize: 13,
+                      color: cs.onSurfaceVariant,
+                    ),
+                  ),
+                  trailing: Icon(
+                    Icons.chevron_right_rounded,
+                    color: cs.onSurfaceVariant.withValues(alpha: 0.7),
+                  ),
+                  onTap: () => Navigator.pushNamed(
+                    context,
+                    '/sessions',
+                    arguments: const SessionsRouteArgs(),
+                  ),
                 ),
               ],
             ),

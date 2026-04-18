@@ -1,5 +1,5 @@
 name: barber_booking_app
-description: "Приложение для записи в барбершопы"
+description: "Приложение для записи в салоны"
 publish_to: 'none'
 version: 1.0.0+1
 
@@ -22,6 +22,10 @@ dependencies:
   share_plus: ^12.0.1
   signalr_netcore: ^1.4.4
   url_launcher: ^6.3.1
+  firebase_core: ^4.7.0
+  firebase_messaging: ^16.2.0
+  flutter_local_notifications: ^21.0.0
+  flutter_secure_storage: ^9.0.0
 
 dev_dependencies:
   flutter_test:

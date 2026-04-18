@@ -82,7 +82,6 @@ class _WeekBodyState extends State<_WeekBody> {
     final token = context.read<AuthProvider>().token;
     setState(() => _loading = true);
     final r = await _service.fetchWeek(
-      token: token,
       month: _anchor.month,
       week: 1,
       anchorDate: _anchor,
@@ -131,7 +130,6 @@ class _MonthBodyState extends State<_MonthBody> {
     final n = DateTime.now();
     setState(() => _loading = true);
     final r = await _service.fetchMonth(
-      token: token,
       month: n.month,
       anchorDate: DateTime(n.year, n.month, 1),
     );
@@ -178,7 +176,6 @@ class _YearBodyState extends State<_YearBody> {
     final n = DateTime.now();
     setState(() => _loading = true);
     final r = await _service.fetchYear(
-      token: token,
       anchorDate: DateTime(n.year, 6, 15),
     );
     if (!mounted) return;

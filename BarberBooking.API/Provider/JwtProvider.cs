@@ -22,12 +22,13 @@ namespace BarberBooking.API.Provider
             _jwtOptions = jwtOptions.Value;
             _userRolesRepository = userRolesRepository;
         }
-        public async Task<string> GenerateToken(Users users)
+        public async Task<string> GenerateToken(Users users, string devices)
         {
             var claims = new List<Claim> 
             {
                 new Claim("userId", users.Id.ToString()),
                 new Claim("userCity", users.City.ToString()),
+                new Claim("devices", devices.ToString()),
                 new Claim(ClaimTypes.NameIdentifier, users.Id.ToString())
             };
             
@@ -45,7 +46,7 @@ namespace BarberBooking.API.Provider
             var token = new JwtSecurityToken(
                 claims: claims,
                 signingCredentials: signingCredentials,
-                expires: DateTime.UtcNow.AddHours(_jwtOptions.ExpiresHours)
+                expires: DateTime.UtcNow.AddMinutes(_jwtOptions.ExpiresMinutes)
             );
             var tokenvalue = new JwtSecurityTokenHandler().WriteToken(token);
             return tokenvalue;

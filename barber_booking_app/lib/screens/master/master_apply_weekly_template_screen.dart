@@ -68,10 +68,8 @@ class _MasterApplyWeeklyTemplateScreenState
   }
 
   Future<void> _submit() async {
-    final token = context.read<AuthProvider>().token;
     setState(() => _saving = true);
     final (msg, err) = await _service.createSlotsFromWeeklyTemplate(
-      token: token,
       weeklyTemplateId: widget.templateId,
       dateFrom: _from,
       dateTo: _to,

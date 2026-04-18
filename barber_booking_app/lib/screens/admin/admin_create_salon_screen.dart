@@ -20,7 +20,6 @@ class _AdminCreateSalonScreenState extends State<AdminCreateSalonScreen> {
   final _house = TextEditingController();
   final _apt = TextEditingController();
   final _phone = TextEditingController();
-  final _photoUrl = TextEditingController();
   final _service = AdminCreateSalonService();
   bool _saving = false;
 
@@ -39,14 +38,13 @@ class _AdminCreateSalonScreenState extends State<AdminCreateSalonScreen> {
     _house.dispose();
     _apt.dispose();
     _phone.dispose();
-    _photoUrl.dispose();
     super.dispose();
   }
 
   Future<void> _submit() async {
     if (!_formKey.currentState!.validate()) return;
-    final token = context.read<AuthProvider>().token;
-    if (token == null || token.isEmpty) {
+    final auth = context.read<AuthProvider>();
+    if (await auth.ensureValidAccessToken() == null) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Нужна авторизация')),
@@ -58,7 +56,6 @@ class _AdminCreateSalonScreenState extends State<AdminCreateSalonScreen> {
     final body = CreateSalonRequest(
       name: _name.text.trim(),
       description: _desc.text.trim(),
-      mainPhotoUrl: _photoUrl.text.trim(),
       dtoAddress: CreateSalonAddressDto(
         city: _city.text.trim(),
         street: _street.text.trim(),
@@ -67,7 +64,7 @@ class _AdminCreateSalonScreenState extends State<AdminCreateSalonScreen> {
       ),
       phone: CreateSalonPhoneDto(number: _phone.text.trim()),
     );
-    final r = await _service.create(body, token);
+    final r = await _service.create(body);
     if (!mounted) return;
     setState(() => _saving = false);
     if (r.ok && r.data?.id != null && r.data!.id!.isNotEmpty) {
@@ -188,16 +185,6 @@ class _AdminCreateSalonScreenState extends State<AdminCreateSalonScreen> {
                 }
                 return null;
               },
-            ),
-            const SizedBox(height: _gap),
-            TextFormField(
-              controller: _photoUrl,
-              decoration: const InputDecoration(
-                labelText: 'Ссылка на фото (необязательно)',
-                border: OutlineInputBorder(),
-                helperText: 'Можно оставить пустым и загрузить фото позже',
-              ),
-              keyboardType: TextInputType.url,
             ),
             const SizedBox(height: 28),
             FilledButton(

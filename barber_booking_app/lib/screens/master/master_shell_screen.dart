@@ -37,9 +37,8 @@ class _MasterShellScreenState extends State<MasterShellScreen> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      final token = context.read<AuthProvider>().token;
-      context.read<MasterSessionProvider>().load(token);
-      context.read<GetCountMessagesProvider>().loadCount(token);
+      context.read<MasterSessionProvider>().load();
+      context.read<GetCountMessagesProvider>().loadCount();
     });
   }
 
@@ -78,8 +77,7 @@ class _MasterShellScreenState extends State<MasterShellScreen> {
                     const SizedBox(height: 24),
                     FilledButton(
                       onPressed: () {
-                        final token = context.read<AuthProvider>().token;
-                        session.load(token);
+                        session.load();
                       },
                       child: const Text('Повторить'),
                     ),

@@ -38,6 +38,10 @@ namespace BarberBooking.API
         public DbSet<MasterServices> MasterServices {get; set;}
         public DbSet<SalonsAdmin> SalonsAdmins {get; set;}
         public DbSet<SalonPhotos> SalonPhotos {get; set;}
+        public DbSet<UserFcmToken> UserFcmTokens { get; set; }
+        public DbSet<RefreshToken> RefreshTokens {get; set;}
+        public DbSet<Conversations> Conversations {get; set;}
+        public DbSet<ConversationMessages> ConversationMessages {get; set;}
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.ApplyConfiguration(new SalonsConfigurations());
@@ -60,6 +64,10 @@ namespace BarberBooking.API
             modelBuilder.ApplyConfiguration(new MasterServicesConfigurations());
             modelBuilder.ApplyConfiguration(new SalonsAdminConfigurations());
             modelBuilder.ApplyConfiguration(new SalonPhotosConfigurations());
+            modelBuilder.ApplyConfiguration(new UserFcmTokenConfigurations());
+            modelBuilder.ApplyConfiguration(new RefreshTokenConfigurations());
+            modelBuilder.ApplyConfiguration(new ConversationsConfigurations());
+            modelBuilder.ApplyConfiguration(new ConversationMessagesConfigurations());
             base.OnModelCreating(modelBuilder);
         }
         public void BeginTransaction()

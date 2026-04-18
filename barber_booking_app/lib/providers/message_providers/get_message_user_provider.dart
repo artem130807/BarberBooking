@@ -10,10 +10,10 @@ class GetMessageUserProvider extends BaseProvider {
   List<GetMessagesUserResponse> _messages = [];
   List<GetMessagesUserResponse> get messages => _messages;
 
-  Future<bool> loadMessages(String? token) async {
+  Future<bool> loadMessages() async {
     startLoading();
     try {
-      final response = await _service.getMessages(token);
+      final response = await _service.getMessages();
       _messages = response ?? [];
       finishLoading();
       notifyListeners();
@@ -24,8 +24,8 @@ class GetMessageUserProvider extends BaseProvider {
     }
   }
 
-  Future<String?> deleteMessage(String? token, String messageId) async {
-    final error = await _deleteService.deleteMessage(token, messageId);
+  Future<String?> deleteMessage(String messageId) async {
+    final error = await _deleteService.deleteMessage(messageId);
     if (error == null) {
       _messages.removeWhere((m) => m.id == messageId);
       notifyListeners();

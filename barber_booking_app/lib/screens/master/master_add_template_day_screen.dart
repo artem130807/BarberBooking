@@ -78,10 +78,8 @@ class _MasterAddTemplateDayScreenState extends State<MasterAddTemplateDayScreen>
       );
       return;
     }
-    final token = context.read<AuthProvider>().token;
     setState(() => _saving = true);
     final err = await _service.createTemplateDay(
-      token: token,
       body: CreateTemplateDayRequest(
         weeklyTemplateId: widget.weeklyTemplateId,
         dayOfWeek: _day,

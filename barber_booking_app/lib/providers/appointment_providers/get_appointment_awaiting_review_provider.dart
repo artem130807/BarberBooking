@@ -4,34 +4,37 @@ import 'package:barber_booking_app/models/params/page_params.dart';
 import 'package:barber_booking_app/services/appointment_services/get_appointment_awaiting_review_service.dart';
 
 class GetAppointmentAwaitingReviewProvider extends BaseProvider {
-final GetAppointmentAwaitingReviewService _getAppointmentAwaitingReviewService = GetAppointmentAwaitingReviewService();
-List<GetAppointmentAwaitingReviewResponse>? _list;
-List<GetAppointmentAwaitingReviewResponse>? get list => _list;
+  final GetAppointmentAwaitingReviewService _getAppointmentAwaitingReviewService =
+      GetAppointmentAwaitingReviewService();
+  List<GetAppointmentAwaitingReviewResponse>? _list;
+  List<GetAppointmentAwaitingReviewResponse>? get list => _list;
 
-Future<bool?> getAwaitingAppointments(String? token, PageParams pageParams) async{
-  startLoading();
-  try{
-     final response = await _getAppointmentAwaitingReviewService.getAppointments(token, pageParams);
-      if(response != null && response.isNotEmpty){
-       _list = response;
-      finishLoading();  
-      notifyListeners();
-      return true;
-      }else{
+  Future<bool?> getAwaitingAppointments(PageParams pageParams) async {
+    startLoading();
+    try {
+      final response =
+          await _getAppointmentAwaitingReviewService.getAppointments(pageParams);
+      if (response != null && response.isNotEmpty) {
+        _list = response;
+        finishLoading();
+        notifyListeners();
+        return true;
+      } else {
         _list = [];
         finishLoading();
         notifyListeners();
         return false;
       }
-  }catch(e){
-    print(e);
-    setError(e.toString());
-    finishLoading();
-    return false;
+    } catch (e) {
+      print(e);
+      setError(e.toString());
+      finishLoading();
+      return false;
+    }
   }
-}
-void clearList() {
-  _list = null;
-  notifyListeners();
-}
+
+  void clearList() {
+    _list = null;
+    notifyListeners();
+  }
 }

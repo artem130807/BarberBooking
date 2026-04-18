@@ -1,12 +1,10 @@
 import 'package:barber_booking_app/models/master_interface_models/response/master_service_link_response.dart';
 import 'package:barber_booking_app/screens/master/master_navigation.dart';
 import 'package:barber_booking_app/models/master_interface_models/response/salon_service_catalog_item.dart';
-import 'package:barber_booking_app/providers/auth_providers/auth_provider.dart';
 import 'package:barber_booking_app/services/master_services/master_services_api_service.dart';
 import 'package:barber_booking_app/widgets/loading_indicator.dart';
 import 'package:barber_booking_app/widgets/profile_shell_widgets.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 
 class MasterMyServicesScreen extends StatefulWidget {
   const MasterMyServicesScreen({
@@ -37,7 +35,6 @@ class _MasterMyServicesScreenState extends State<MasterMyServicesScreen> {
   }
 
   Future<void> _load() async {
-    final token = context.read<AuthProvider>().token;
     if (widget.masterProfileId.isEmpty) {
       setState(() {
         _loading = false;
@@ -51,10 +48,9 @@ class _MasterMyServicesScreenState extends State<MasterMyServicesScreen> {
       _catalogError = null;
     });
     final mine = await _api.fetchMasterServices(
-      token: token,
       masterProfileId: widget.masterProfileId,
     );
-    final (rawCatalog, catErr) = await _api.fetchSalonServicesForMaster(token: token);
+    final (rawCatalog, catErr) = await _api.fetchSalonServicesForMaster();
     if (!mounted) return;
     if (mine == null) {
       setState(() {
@@ -87,9 +83,8 @@ class _MasterMyServicesScreenState extends State<MasterMyServicesScreen> {
   }
 
   Future<void> _add(SalonServiceCatalogItem s) async {
-    final token = context.read<AuthProvider>().token;
     setState(() => _adding.add(s.id));
-    final err = await _api.addService(token: token, serviceId: s.id);
+    final err = await _api.addService(serviceId: s.id);
     if (!mounted) return;
     setState(() => _adding.remove(s.id));
     if (err != null) {
@@ -128,9 +123,8 @@ class _MasterMyServicesScreenState extends State<MasterMyServicesScreen> {
       ),
     );
     if (ok != true || !mounted) return;
-    final token = context.read<AuthProvider>().token;
     setState(() => _removing.add(id));
-    final err = await _api.removeService(token: token, masterServiceLinkId: id);
+    final err = await _api.removeService(masterServiceLinkId: id);
     if (!mounted) return;
     setState(() => _removing.remove(id));
     if (err != null) {

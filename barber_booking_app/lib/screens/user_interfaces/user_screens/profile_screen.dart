@@ -51,7 +51,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
     final token = authProvider.token;
     if (token == null) return;
-    await Provider.of<GetUserProvider>(context, listen: false).getUser(token);
+    await Provider.of<GetUserProvider>(context, listen: false).getUser();
   }
 
   Future<void> _onRefreshProfile() async {

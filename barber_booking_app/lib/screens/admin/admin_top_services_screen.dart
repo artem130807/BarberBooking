@@ -1,9 +1,7 @@
-import 'package:barber_booking_app/models/params/page_params.dart';
-import 'package:barber_booking_app/models/params/salon_params/salon_filter.dart';
 import 'package:barber_booking_app/utils/admin_last_salon_storage.dart';
 import 'package:barber_booking_app/providers/admin_top_services_provider.dart';
 import 'package:barber_booking_app/providers/auth_providers/auth_provider.dart';
-import 'package:barber_booking_app/providers/salon_providers/get_salons_provider.dart';
+import 'package:barber_booking_app/providers/salon_providers/get_salons_admin_provider.dart';
 import 'package:barber_booking_app/widgets/error_widget.dart';
 import 'package:barber_booking_app/widgets/loading_indicator.dart';
 import 'package:flutter/material.dart';
@@ -18,7 +16,6 @@ class AdminTopServicesScreen extends StatefulWidget {
 
 class _AdminTopServicesScreenState extends State<AdminTopServicesScreen> {
   String? _salonId;
-  final SalonFilter _filter = SalonFilter();
 
   @override
   void initState() {
@@ -30,16 +27,11 @@ class _AdminTopServicesScreenState extends State<AdminTopServicesScreen> {
   }
 
   Future<void> _loadSalons() async {
-    final token = context.read<AuthProvider>().token;
-    await context.read<GetSalonsProvider>().getSalons(
-          PageParams(Page: 1, PageSize: 200),
-          _filter,
-          token,
-        );
+    await context.read<GetSalonsAdminProvider>().load();
     if (!mounted) return;
     final saved = await AdminLastSalonStorage.read();
     if (!mounted) return;
-    final list = context.read<GetSalonsProvider>().getSalonsResponse ?? [];
+    final list = context.read<GetSalonsAdminProvider>().asSalonListItems;
     if (saved != null &&
         saved.isNotEmpty &&
         list.any((e) => e.Id == saved)) {
@@ -54,8 +46,7 @@ class _AdminTopServicesScreenState extends State<AdminTopServicesScreen> {
     await AdminLastSalonStorage.write(id);
     if (id == null || id.isEmpty) return;
     if (!mounted) return;
-    final token = context.read<AuthProvider>().token;
-    await context.read<AdminTopServicesProvider>().load(id, token);
+    await context.read<AdminTopServicesProvider>().load(id);
   }
 
   @override
@@ -81,9 +72,9 @@ class _AdminTopServicesScreenState extends State<AdminTopServicesScreen> {
                       ),
                 ),
                 const SizedBox(height: 12),
-                Consumer<GetSalonsProvider>(
+                Consumer<GetSalonsAdminProvider>(
                   builder: (context, salons, _) {
-                    final list = salons.getSalonsResponse ?? [];
+                    final list = salons.asSalonListItems;
                     return DropdownButtonFormField<String>(
                       value: _salonId != null &&
                               list.any((e) => e.Id == _salonId)
@@ -176,10 +167,7 @@ class _AdminTopServicesScreenState extends State<AdminTopServicesScreen> {
                                 ? const CircularProgressIndicator()
                                 : TextButton(
                                     onPressed: () async {
-                                      final t = context
-                                          .read<AuthProvider>()
-                                          .token;
-                                      await prov.loadMore(t);
+                                      await prov.loadMore();
                                     },
                                     child: const Text('Загрузить ещё'),
                                   ),

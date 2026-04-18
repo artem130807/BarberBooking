@@ -14,16 +14,15 @@ class GetSalonAdminStatsProvider extends BaseProvider {
   Future<bool> updateSalon(
     String salonId,
     UpdateSalonRequest body,
-    String? token,
   ) async {
     try {
-      final r = await _updateSalon.patch(salonId, body, token);
+      final r = await _updateSalon.patch(salonId, body);
       if (!r.ok) {
         setError(r.error ?? 'Не удалось сохранить');
         return false;
       }
       clearError();
-      _stats = await _service.getStats(salonId, token);
+      _stats = await _service.getStats(salonId);
       if (_stats == null) {
         setError('Не удалось загрузить данные салона');
         return false;
@@ -39,19 +38,17 @@ class GetSalonAdminStatsProvider extends BaseProvider {
   Future<bool> updateMainPhotoUrl(
     String salonId,
     String mainPhotoUrl,
-    String? token,
   ) async {
     return updateSalon(
       salonId,
       UpdateSalonRequest(mainPhotoUrl: mainPhotoUrl),
-      token,
     );
   }
 
-  Future<void> load(String salonId, String? token) async {
+  Future<void> load(String salonId) async {
     startLoading();
     try {
-      _stats = await _service.getStats(salonId, token);
+      _stats = await _service.getStats(salonId);
       if (_stats == null) {
         setError('Не удалось загрузить данные салона');
       }

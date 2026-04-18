@@ -82,7 +82,6 @@ class _MasterManualBookingScreenState extends State<MasterManualBookingScreen> {
       _servicesError = null;
     });
     final list = await _api.fetchServicesForBooking(
-      token: token,
       masterProfileId: mid,
     );
     if (!mounted) return;
@@ -196,7 +195,7 @@ class _MasterManualBookingScreenState extends State<MasterManualBookingScreen> {
       ),
     );
     setState(() => _submitting = true);
-    final err = await _api.createWithoutAppUser(token: token, request: request);
+    final err = await _api.createWithoutAppUser(request: request);
     if (!mounted) return;
     setState(() => _submitting = false);
     if (err != null) {

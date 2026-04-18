@@ -16,33 +16,33 @@ class AdminTopMastersProvider extends BaseProvider {
   int get serverCount => _serverCount;
   bool get hasMore => _hasMore;
 
-  Future<void> load(String salonId, String? token) async {
+  Future<void> load(String salonId) async {
     _salonId = salonId;
     _items.clear();
     _page = 1;
     startLoading();
     try {
-      await _fetchPage(token, reset: true);
+      await _fetchPage(reset: true);
     } finally {
       finishLoading();
     }
   }
 
-  Future<void> loadMore(String? token) async {
+  Future<void> loadMore() async {
     if (!_hasMore || isLoading) return;
     startLoading();
     try {
-      await _fetchPage(token, reset: false);
+      await _fetchPage(reset: false);
     } finally {
       finishLoading();
     }
   }
 
-  Future<void> _fetchPage(String? token, {required bool reset}) async {
+  Future<void> _fetchPage({required bool reset}) async {
     final sid = _salonId;
     if (sid == null || sid.isEmpty) return;
     final params = PageParams(Page: reset ? 1 : _page, PageSize: _pageSize);
-    final map = await _api.getTopMastersPaged(sid, params, token);
+    final map = await _api.getTopMastersPaged(sid, params);
     if (map == null) {
       setError('Не удалось загрузить рейтинг мастеров');
       _hasMore = false;

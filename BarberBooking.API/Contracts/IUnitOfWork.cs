@@ -35,7 +35,9 @@ namespace BarberBooking.API.Contracts
         IMasterStatisticRepository masterStatisticRepository {get;}
         IWeeklyTemplateRepository weeklyTemplateRepository {get;}
         ITemplateDayRepository templateDayRepository {get;}
-        // ISalonsAdminRepository salonsAdminRepository {get;}
+        ISalonsAdminRepository salonsAdminRepository {get;}
+        ISalonPhotosRepository salonPhotosRepository {get;}
+        IRefreshTokenRepository refreshTokenRepository {get;}
         void BeginTransaction();
         void Commit();
         void RollBack();

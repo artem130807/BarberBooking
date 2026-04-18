@@ -19,11 +19,11 @@ class _MessagesScreenState extends State<MessagesScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       final token = Provider.of<AuthProvider>(context, listen: false).token;
       await Provider.of<GetMessageUserProvider>(context, listen: false)
-          .loadMessages(token);
+          .loadMessages();
 
       if (mounted) {
         await Provider.of<GetCountMessagesProvider>(context, listen: false)
-            .loadCount(token);
+            .loadCount();
       }
     });
   }
@@ -99,7 +99,7 @@ class _MessagesScreenState extends State<MessagesScreen> {
                             ).token;
                             final messenger = ScaffoldMessenger.maybeOf(context);
                             final err =
-                                await provider.deleteMessage(token, message.id);
+                                await provider.deleteMessage(message.id);
                             if (!context.mounted) return false;
                             if (err != null) {
                               HapticFeedback.mediumImpact();
@@ -123,7 +123,7 @@ class _MessagesScreenState extends State<MessagesScreen> {
                               context,
                               listen: false,
                             );
-                            await countProvider.loadCount(token);
+                            await countProvider.loadCount();
                             return true;
                           },
                           child: Card(

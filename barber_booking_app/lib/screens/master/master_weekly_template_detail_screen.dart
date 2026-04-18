@@ -39,10 +39,9 @@ class _MasterWeeklyTemplateDetailScreenState
   }
 
   Future<void> _load() async {
-    final token = context.read<AuthProvider>().token;
     setState(() => _loading = true);
-    final info = await _service.fetchTemplateById(token, widget.templateId);
-    final days = await _service.fetchTemplateDays(token, widget.templateId);
+    final info = await _service.fetchTemplateById(widget.templateId);
+    final days = await _service.fetchTemplateDays(widget.templateId);
     if (!mounted) return;
     if (info == null) {
       setState(() {
@@ -99,8 +98,7 @@ class _MasterWeeklyTemplateDetailScreenState
       ),
     );
     if (ok != true || !mounted) return;
-    final token = context.read<AuthProvider>().token;
-    final err = await _service.deleteTemplate(token: token, id: widget.templateId);
+    final err = await _service.deleteTemplate(id: widget.templateId);
     if (!mounted) return;
     if (err != null) {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(err)));
@@ -131,8 +129,7 @@ class _MasterWeeklyTemplateDetailScreenState
       ),
     );
     if (ok != true || !mounted) return;
-    final token = context.read<AuthProvider>().token;
-    final err = await _service.deleteTemplateDay(token: token, id: id);
+    final err = await _service.deleteTemplateDay(id: id);
     if (!mounted) return;
     if (err != null) {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(err)));

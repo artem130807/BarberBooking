@@ -7,10 +7,10 @@ class GetUserProvider extends BaseProvider {
   GetUserResponse? _userResponse;
   GetUserResponse? get userResponse => _userResponse;
 
-  Future<bool?> getUser(String? token) async{
+  Future<bool?> getUser() async {
     startLoading();
-    try{
-   final response = await _getUserService.getUser(token);
+    try {
+      final response = await _getUserService.getUser();
     if(response != null){
       _userResponse = response;
       finishLoading();

@@ -7,7 +7,8 @@ namespace BarberBooking.API.Dto
 {
     public class AuthDto
     {
-        public string Token { get; set; }
+        public string AccessToken { get; set; }
+        public byte[]? RefreshToken {get; set;}
         public string Message { get; set; }
         public int RoleInterface {get; set;}
     }

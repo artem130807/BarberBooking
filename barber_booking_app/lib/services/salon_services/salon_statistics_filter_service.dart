@@ -2,29 +2,30 @@ import 'dart:convert';
 
 import 'package:barber_booking_app/config/api_config.dart';
 import 'package:barber_booking_app/models/salon_models/response/salon_stats_dto.dart';
+import 'package:barber_booking_app/services/auth_services/auth_http_headers.dart';
 import 'package:http/http.dart' as http;
 
-/// GET GetSalonStatistics — фильтр по салону и (опционально) дню месяца (1–31), плюс город из профиля на API.
 class SalonStatisticsFilterService {
   Future<({List<SalonStatsDto>? data, String? error})> fetch({
     required String salonId,
     int? dayOfMonth,
-    required String? token,
   }) async {
     final params = <String, String>{'salonId': salonId};
     if (dayOfMonth != null) {
       params['day'] = '$dayOfMonth';
     }
-    final uri = Uri.parse('$kApiBaseUrl/api/SalonStatistics/GetSalonStatistics').replace(
+    final uri =
+        Uri.parse('$kApiBaseUrl/api/SalonStatistics/GetSalonStatistics').replace(
       queryParameters: params,
     );
     try {
+      final headers = await AuthHttpHeaders.bearerJson();
+      if (headers == null) {
+        return (data: null, error: 'Нет авторизации');
+      }
       final response = await http.get(
         uri,
-        headers: {
-          'Content-Type': 'application/json',
-          if (token != null && token.isNotEmpty) 'Authorization': 'Bearer $token',
-        },
+        headers: headers,
       );
       if (response.statusCode == 200) {
         final decoded = json.decode(response.body);

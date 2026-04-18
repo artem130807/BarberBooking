@@ -2,24 +2,28 @@ class CreateSalonRequest {
   CreateSalonRequest({
     required this.name,
     required this.description,
-    required this.mainPhotoUrl,
+    this.mainPhotoUrl,
     required this.dtoAddress,
     required this.phone,
   });
 
   final String name;
   final String description;
-  final String mainPhotoUrl;
+  final String? mainPhotoUrl;
   final CreateSalonAddressDto dtoAddress;
   final CreateSalonPhoneDto phone;
 
-  Map<String, dynamic> toJson() => {
-        'name': name,
-        'description': description,
-        'mainPhotoUrl': mainPhotoUrl,
-        'dtoAddress': dtoAddress.toJson(),
-        'phone': phone.toJson(),
-      };
+  Map<String, dynamic> toJson() {
+    final m = <String, dynamic>{
+      'name': name,
+      'description': description,
+      'dtoAddress': dtoAddress.toJson(),
+      'phone': phone.toJson(),
+    };
+    final p = mainPhotoUrl?.trim();
+    if (p != null && p.isNotEmpty) m['mainPhotoUrl'] = p;
+    return m;
+  }
 }
 
 class CreateSalonAddressDto {

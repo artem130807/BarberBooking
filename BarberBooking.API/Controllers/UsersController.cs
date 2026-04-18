@@ -61,18 +61,18 @@ namespace BarberBooking.API.Controllers
             var result = await _mediator.Send(comamnd);
             if (result.IsFailure)
                 return BadRequest(new { error = result.Error });
-            _cookieService.SetAuthCookie(Response, result.Value.Token);
+            _cookieService.SetAuthCookie(Response, result.Value.AccessToken);
             await _verificationService.DeleteEmailVerificate(comamnd.dtoCreateUser.Email);         
             return Ok(result.Value);
         }
         [HttpPost("LoginUser")]
         public async Task<IActionResult> Login([FromBody] DtoLoginUser login)
         {
-            var query = new LoginUserQuery(login.Email, login.PasswordHash);
+            var query = new LoginUserQuery(login.Email, login.PasswordHash, login.Devices);
             var result = await _mediator.Send(query);
             if (result.IsFailure)
                 return BadRequest(new { error = result.Error });
-            _cookieService.SetAuthCookie(Response, result.Value.Token);
+            _cookieService.SetAuthCookie(Response, result.Value.AccessToken);
             return Ok(result.Value);
         }
         [Authorize]
@@ -97,9 +97,9 @@ namespace BarberBooking.API.Controllers
         }
         [Authorize]
         [HttpPatch("updateCity")]
-        public async Task<IActionResult> UpdateCity([FromQuery] string city)
+        public async Task<IActionResult> UpdateCity([FromQuery] string city, [FromQuery] string devices)
         {
-            var command = new UpdateCityCommand(city);     
+            var command = new UpdateCityCommand(city, devices);     
             var result = await _mediator.Send(command);
             if (result.IsFailure)
                 return BadRequest(result.Error);

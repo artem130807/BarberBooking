@@ -3,11 +3,14 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:barber_booking_app/models/params/page_params.dart';
 import 'package:barber_booking_app/models/salon_models/response/salon.dart';
+import 'package:barber_booking_app/models/salon_models/response/salon_photo_dto.dart';
+import 'package:barber_booking_app/services/salon_services/salon_photos_service.dart';
+import 'package:barber_booking_app/utils/api_media_url.dart';
+import 'package:barber_booking_app/widgets/salon_widgets/salon_photo_carousel.dart';
 import 'package:barber_booking_app/providers/salon_providers/get_salon_provider.dart';
 import 'package:barber_booking_app/providers/review_providers/get_reviews_salon_provider.dart';
 import 'package:barber_booking_app/widgets/booking_button.dart';
 import 'package:barber_booking_app/widgets/salon_widgets/salon_full_address.dart';
-import 'package:barber_booking_app/widgets/salon_widgets/salon_image.dart';
 import 'package:barber_booking_app/widgets/salon_widgets/salon_rating.dart';
 import 'package:barber_booking_app/widgets/review_widgets/salon_review_tile.dart';
 import 'package:barber_booking_app/widgets/loading_indicator.dart';
@@ -27,6 +30,9 @@ class SalonScreen extends StatefulWidget {
 class _SalonScreenState extends State<SalonScreen> {
   final PageParams _reviewsPageParams =  PageParams(Page: 1, PageSize: 5);
   final ReviewSortParams _reviewSortParams = ReviewSortParams();
+  final SalonPhotosService _salonPhotosService = SalonPhotosService();
+  List<SalonPhotoDto> _salonPhotos = [];
+  bool _loadingPhotos = true;
   int _selectedNavIndex = 0;
 
   GetSalonProvider? _salonForApiErrors;
@@ -86,6 +92,23 @@ class _SalonScreenState extends State<SalonScreen> {
     }
   }
 
+  List<String> _resolvedSalonPhotoUrls() {
+    return _salonPhotos
+        .map((p) => resolveApiMediaUrl(p.photoUrl))
+        .whereType<String>()
+        .toList();
+  }
+
+  Future<void> _loadSalonPhotos() async {
+    setState(() => _loadingPhotos = true);
+    final r = await _salonPhotosService.getPhotos(widget.salonId);
+    if (!mounted) return;
+    setState(() {
+      _loadingPhotos = false;
+      _salonPhotos = r?.items ?? [];
+    });
+  }
+
   @override
   void initState() {
     super.initState();
@@ -95,6 +118,7 @@ class _SalonScreenState extends State<SalonScreen> {
 
       final reviewsProvider = Provider.of<GetReviewsSalonProvider>(context, listen: false);
       reviewsProvider.getReviewsSalon(widget.salonId, _reviewsPageParams, _reviewSortParams);
+      _loadSalonPhotos();
     });
   }
 
@@ -166,12 +190,23 @@ class _SalonScreenState extends State<SalonScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          SalonImage(
-            imageUrl: salon.mainPhotoUrl,
-            height: 220,
-            width: double.infinity,
-            fit: BoxFit.cover,
-          ),
+          if (_loadingPhotos)
+            const SizedBox(
+              height: 220,
+              width: double.infinity,
+              child: Center(
+                child: CircularProgressIndicator(strokeWidth: 2),
+              ),
+            )
+          else
+            ClipRRect(
+              borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
+              child: SalonPhotoCarousel(
+                imageUrls: _resolvedSalonPhotoUrls(),
+                height: 220,
+                borderRadius: BorderRadius.zero,
+              ),
+            ),
           const SizedBox(height: 16),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),

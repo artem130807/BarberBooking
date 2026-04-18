@@ -18,5 +18,7 @@ namespace BarberBooking.API.Dto.DtoUsers
         public string PasswordHash { get; set; }
         [Required]
         public string City { get; set; }
+        [Required]
+        public string Devices {get; set;}
     }
 }

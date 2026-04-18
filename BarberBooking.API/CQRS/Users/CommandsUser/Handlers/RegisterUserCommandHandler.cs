@@ -29,6 +29,7 @@ namespace BarberBooking.API.CQRS.Commands.Handlers
         private readonly IDnsEmailValidator _emailValidator;
         private readonly IUserValidatorService _userValidator;
         private readonly IUserRolesRepository _userRolesRepository;
+        private readonly IRefreshTokenService _refreshTokenService;
         public RegisterUserCommandHandler(
             IUserRepository usersRepository,
             IPasswordHasher passwordHasher,
@@ -38,7 +39,8 @@ namespace BarberBooking.API.CQRS.Commands.Handlers
             IUserRolesRepository roleRepository, IMemoryCache memoryCache,
             IDnsEmailValidator emailValidator,
             IUserValidatorService userValidator,
-            IUserRolesRepository userRolesRepository
+            IUserRolesRepository userRolesRepository,
+            IRefreshTokenService refreshTokenService
         )
         {
             _emailValidator = emailValidator;
@@ -51,6 +53,7 @@ namespace BarberBooking.API.CQRS.Commands.Handlers
             _memoryCache = memoryCache;
             _userValidator = userValidator;
             _userRolesRepository = userRolesRepository;
+            _refreshTokenService = refreshTokenService;
         }
         public async Task<Result<AuthDto>> Handle(RegisterUserCommand command, CancellationToken cancellationToken)
         {
@@ -92,10 +95,12 @@ namespace BarberBooking.API.CQRS.Commands.Handlers
                 Roles = role
             };
             await _usersRepository.Register(newuser);
-            var token = await _jwtProvider.GenerateToken(newuser);
+            
+            var refreshToken = await _refreshTokenService.CreateToken(newuser.Id, command.dtoCreateUser.Devices);
+            var token = await _jwtProvider.GenerateToken(newuser, command.dtoCreateUser.Devices);
             var roleInterface = await _userRolesRepository.GetMaxRole(newuser.Id);
             _memoryCache.Remove(cacheKey);
-            return Result.Success(new AuthDto { Token = token, Message = "Вы успешно зарегистрировались", RoleInterface = roleInterface });
+            return Result.Success(new AuthDto { AccessToken = token, RefreshToken = refreshToken ,Message = "Вы успешно зарегистрировались", RoleInterface = roleInterface });
         }
         
     }

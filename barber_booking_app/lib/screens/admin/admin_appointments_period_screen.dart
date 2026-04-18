@@ -2,13 +2,12 @@ import 'package:barber_booking_app/utils/appointment_status_ru.dart';
 import 'package:barber_booking_app/utils/appointment_time_display.dart';
 import 'package:barber_booking_app/models/params/appointment_params/filter_appointments_params.dart';
 import 'package:barber_booking_app/models/params/page_params.dart';
-import 'package:barber_booking_app/models/params/salon_params/salon_filter.dart';
 import 'package:barber_booking_app/utils/admin_last_salon_storage.dart';
 import 'package:barber_booking_app/services/admin_export/admin_excel_export_service.dart';
 import 'package:barber_booking_app/services/appointment_services/get_salon_appointments_admin_service.dart';
 import 'package:barber_booking_app/providers/appointment_providers/get_salon_appointments_admin_provider.dart';
 import 'package:barber_booking_app/providers/auth_providers/auth_provider.dart';
-import 'package:barber_booking_app/providers/salon_providers/get_salons_provider.dart';
+import 'package:barber_booking_app/providers/salon_providers/get_salons_admin_provider.dart';
 import 'package:barber_booking_app/widgets/error_widget.dart';
 import 'package:barber_booking_app/screens/admin/admin_client_profile_screen.dart';
 import 'package:barber_booking_app/screens/admin/admin_master_profile_screen.dart';
@@ -67,7 +66,6 @@ class _AdminAppointmentsPeriodScreenState
   _AdminApptStatusFilter _statusFilter = _AdminApptStatusFilter.all;
   _AdminDatePreset _datePreset = _AdminDatePreset.all;
   final PageParams _pageParams = PageParams(Page: 1, PageSize: 50);
-  final SalonFilter _filter = SalonFilter();
 
   static const _chipDensity = VisualDensity(
     horizontal: VisualDensity.minimumDensity,
@@ -120,9 +118,8 @@ class _AdminAppointmentsPeriodScreenState
       } else {
         final saved = await AdminLastSalonStorage.read();
         if (!mounted) return;
-        final list = Provider.of<GetSalonsProvider>(context, listen: false)
-                .getSalonsResponse ??
-            [];
+        final list = Provider.of<GetSalonsAdminProvider>(context, listen: false)
+            .asSalonListItems;
         if (saved != null &&
             saved.isNotEmpty &&
             list.any((e) => e.Id == saved)) {
@@ -134,9 +131,8 @@ class _AdminAppointmentsPeriodScreenState
   }
 
   Future<void> _loadSalons() async {
-    final token = Provider.of<AuthProvider>(context, listen: false).token;
-    await Provider.of<GetSalonsProvider>(context, listen: false)
-        .getSalons(PageParams(Page: 1, PageSize: 200), _filter, token);
+    await Provider.of<GetSalonsAdminProvider>(context, listen: false)
+        .load();
     if (mounted) setState(() {});
   }
 
@@ -164,12 +160,10 @@ class _AdminAppointmentsPeriodScreenState
 
   Future<void> _fetch() async {
     if (_salonId == null || _salonId!.isEmpty) return;
-    final token = Provider.of<AuthProvider>(context, listen: false).token;
     await Provider.of<GetSalonAppointmentsAdminProvider>(context, listen: false)
         .load(
       salonId: _salonId!,
       pageParams: _pageParams,
-      token: token,
       filter: _buildFilter(),
     );
   }
@@ -196,7 +190,6 @@ class _AdminAppointmentsPeriodScreenState
 
   Future<void> _exportToExcel() async {
     if (_salonId == null || _salonId!.isEmpty) return;
-    final token = Provider.of<AuthProvider>(context, listen: false).token;
     showDialog<void>(
       context: context,
       barrierDismissible: false,
@@ -205,7 +198,6 @@ class _AdminAppointmentsPeriodScreenState
     try {
       final rows = await GetSalonAppointmentsAdminService().fetchAllPages(
         _salonId!,
-        token,
         filter: _buildFilter(),
       );
       if (!mounted) return;
@@ -419,9 +411,9 @@ class _AdminAppointmentsPeriodScreenState
             color: cs.surfaceContainerLow,
             child: Padding(
               padding: const EdgeInsets.fromLTRB(12, 8, 12, 10),
-              child: Consumer<GetSalonsProvider>(
+              child: Consumer<GetSalonsAdminProvider>(
                 builder: (context, salons, _) {
-                  final list = salons.getSalonsResponse ?? [];
+                  final list = salons.asSalonListItems;
                   return Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [

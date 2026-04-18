@@ -19,14 +19,13 @@ class SalonStatisticPeriodProvider extends BaseProvider {
     resetState();
   }
 
-  Future<void> loadWeek(String salonId, DateTime anchorInWeek, String? token) async {
+  Future<void> loadWeek(String salonId, DateTime anchorInWeek) async {
     startLoading();
     _lastKind = SalonStatisticPeriodKind.week;
     try {
       final r = await _service.fetchWeek(
         salonId: salonId,
         anchorInWeek: anchorInWeek,
-        token: token,
       );
       if (r.error != null) {
         setError(r.error!);
@@ -42,7 +41,7 @@ class SalonStatisticPeriodProvider extends BaseProvider {
     }
   }
 
-  Future<void> loadMonth(String salonId, int year, int month, String? token) async {
+  Future<void> loadMonth(String salonId, int year, int month) async {
     startLoading();
     _lastKind = SalonStatisticPeriodKind.month;
     try {
@@ -50,7 +49,6 @@ class SalonStatisticPeriodProvider extends BaseProvider {
         salonId: salonId,
         year: year,
         month: month,
-        token: token,
       );
       if (r.error != null) {
         setError(r.error!);
@@ -66,14 +64,13 @@ class SalonStatisticPeriodProvider extends BaseProvider {
     }
   }
 
-  Future<void> loadYear(String salonId, int year, String? token) async {
+  Future<void> loadYear(String salonId, int year) async {
     startLoading();
     _lastKind = SalonStatisticPeriodKind.year;
     try {
       final r = await _service.fetchYear(
         salonId: salonId,
         year: year,
-        token: token,
       );
       if (r.error != null) {
         setError(r.error!);

@@ -1,18 +1,22 @@
 import 'dart:convert';
+
+import 'package:barber_booking_app/config/api_config.dart';
 import 'package:barber_booking_app/models/appointment_models/response/salon_appointment_admin_response.dart';
 import 'package:barber_booking_app/models/params/appointment_params/filter_appointments_params.dart';
 import 'package:barber_booking_app/models/params/page_params.dart';
+import 'package:barber_booking_app/services/auth_services/auth_http_headers.dart';
 import 'package:http/http.dart' as http;
-import 'package:barber_booking_app/config/api_config.dart';
 
 class GetSalonAppointmentsAdminService {
   Future<Map<String, dynamic>?> getPaged(
     String salonId,
-    PageParams params,
-    String? token, {
+    PageParams params, {
     FilterAppointmentsParams? filter,
   }) async {
     try {
+      final headers = await AuthHttpHeaders.bearerJson();
+      if (headers == null) return null;
+
       final qp = <String, String>{
         'page': params.Page.toString(),
         'pageSize': params.PageSize.toString(),
@@ -23,10 +27,7 @@ class GetSalonAppointmentsAdminService {
       ).replace(queryParameters: qp);
       final response = await http.get(
         url,
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer $token',
-        },
+        headers: headers,
       );
       if (response.statusCode == 200) {
         return json.decode(response.body) as Map<String, dynamic>;
@@ -71,8 +72,7 @@ class GetSalonAppointmentsAdminService {
   }
 
   Future<List<SalonAppointmentAdminResponse>> fetchAllPages(
-    String salonId,
-    String? token, {
+    String salonId, {
     FilterAppointmentsParams? filter,
     int pageSize = 100,
   }) async {
@@ -82,7 +82,6 @@ class GetSalonAppointmentsAdminService {
       final map = await getPaged(
         salonId,
         PageParams(Page: page, PageSize: pageSize),
-        token,
         filter: filter,
       );
       if (map == null) break;
@@ -93,5 +92,4 @@ class GetSalonAppointmentsAdminService {
     }
     return all;
   }
-
 }

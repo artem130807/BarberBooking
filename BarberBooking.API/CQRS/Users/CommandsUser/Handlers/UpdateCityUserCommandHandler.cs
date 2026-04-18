@@ -40,7 +40,7 @@ namespace BarberBooking.API.CQRS.Commands.Handlers
             if (user == null)
                 return Result.Failure<DtoUpdateCityResponse>("Пользователь не найден");
 
-            var token = await _jwtProvider.GenerateToken(user);
+            var token = await _jwtProvider.GenerateToken(user, command.devices);
             return Result.Success(new DtoUpdateCityResponse { City = updatedCity, Token = token });
         }
     }

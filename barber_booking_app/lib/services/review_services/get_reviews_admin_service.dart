@@ -1,18 +1,21 @@
 import 'dart:convert';
+
+import 'package:barber_booking_app/config/api_config.dart';
 import 'package:barber_booking_app/models/params/page_params.dart';
 import 'package:barber_booking_app/models/params/review_params/review_admin_filter.dart';
 import 'package:barber_booking_app/models/review_models/response/review_admin_list_item.dart';
+import 'package:barber_booking_app/services/auth_services/auth_http_headers.dart';
 import 'package:http/http.dart' as http;
-import 'package:barber_booking_app/config/api_config.dart';
 
 class GetReviewsAdminService {
-
   Future<Map<String, dynamic>?> getAll({
     required PageParams pageParams,
     required ReviewAdminFilter filter,
-    String? token,
   }) async {
     try {
+      final headers = await AuthHttpHeaders.bearerJson();
+      if (headers == null) return null;
+
       final qp = <String, String>{
         'Page': '${pageParams.Page ?? 1}',
         'PageSize': '${pageParams.PageSize ?? 20}',
@@ -34,10 +37,7 @@ class GetReviewsAdminService {
           .replace(queryParameters: qp);
       final response = await http.get(
         url,
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer $token',
-        },
+        headers: headers,
       );
       if (response.statusCode == 200) {
         return json.decode(response.body) as Map<String, dynamic>;
@@ -65,8 +65,7 @@ class GetReviewsAdminService {
   }
 
   Future<List<ReviewAdminListItem>> fetchAllPages(
-    ReviewAdminFilter filter,
-    String? token, {
+    ReviewAdminFilter filter, {
     int pageSize = 50,
   }) async {
     final all = <ReviewAdminListItem>[];
@@ -75,7 +74,6 @@ class GetReviewsAdminService {
       final map = await getAll(
         pageParams: PageParams(Page: page, PageSize: pageSize),
         filter: filter,
-        token: token,
       );
       if (map == null) break;
       final chunk = parseData(map) ?? [];

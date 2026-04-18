@@ -18,8 +18,6 @@ namespace BarberBooking.API.Service.UpdateService
             salon.UpdateName(name);
             var description = !string.IsNullOrWhiteSpace(dto.Description) ? dto.Description : salon.Description;
             salon.UpdateDescription(description);
-            var mainPhotoUrl = !string.IsNullOrWhiteSpace(dto.MainPhotoUrl) ? dto.MainPhotoUrl : salon.MainPhotoUrl;
-            salon.UpdateMainPhotoUrl(mainPhotoUrl);
             await UpdateAddress(salon, dto.Address);
             await UpdatePhone(salon, dto.PhoneNumber);
         }

@@ -43,7 +43,6 @@ class _MasterTodayScreenState extends State<MasterTodayScreen> {
     final from = DateTime(l.year, l.month, l.day);
     final to = DateTime(l.year, l.month, l.day);
     final page = await _service.fetchPage(
-      token: token,
       filter: MasterAppointmentQueryFilter(
         appointmentFrom: from,
         appointmentTo: to,

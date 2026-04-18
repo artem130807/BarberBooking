@@ -2,21 +2,23 @@ import 'package:barber_booking_app/models/appointment_models/request/create_appo
 import 'package:barber_booking_app/models/base/base_provider.dart';
 import 'package:barber_booking_app/services/appointment_services/%D1%81reate_appointment_service.dart';
 
-class CreateAppointmentProvider extends BaseProvider{
-  final CreateAppointmentService _createAppointmentService = CreateAppointmentService();
-  Future<bool> createAppointment(CreateAppointmentRequest? request, String? token) async{
+class CreateAppointmentProvider extends BaseProvider {
+  final CreateAppointmentService _createAppointmentService =
+      CreateAppointmentService();
+
+  Future<bool> createAppointment(CreateAppointmentRequest? request) async {
     startLoading();
-    try{
-      var response = await _createAppointmentService.createAppointment(request, token);
-      if(response == true){
-        finishLoading();  
+    try {
+      final response = await _createAppointmentService.createAppointment(request);
+      if (response == true) {
+        finishLoading();
         notifyListeners();
         return true;
-      }else{
-        finishLoading();  
+      } else {
+        finishLoading();
         return false;
       }
-    }catch(e){
+    } catch (e) {
       print(e);
       finishLoading();
       return false;

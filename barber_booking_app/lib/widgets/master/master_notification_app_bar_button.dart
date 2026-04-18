@@ -21,7 +21,7 @@ class MasterNotificationAppBarButton extends StatelessWidget {
                 await Navigator.pushNamed(context, '/master_notifications');
                 if (!context.mounted) return;
                 final token = context.read<AuthProvider>().token;
-                await context.read<GetCountMessagesProvider>().loadCount(token);
+                await context.read<GetCountMessagesProvider>().loadCount();
               },
             ),
             if (countProv.count > 0)

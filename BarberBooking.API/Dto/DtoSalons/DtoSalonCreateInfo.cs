@@ -13,6 +13,5 @@ namespace BarberBooking.API.Dto.DtoSalons
         public string Description { get; set; }
         public DtoAddress DtoAddress {get; set;}
         public DtoPhone Phone {get ; set;}
-        public string MainPhotoUrl { get; set; }
     }
 }

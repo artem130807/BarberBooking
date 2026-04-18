@@ -3,25 +3,23 @@ import 'dart:convert';
 import 'package:barber_booking_app/config/api_config.dart';
 import 'package:barber_booking_app/models/master_interface_models/request/update_master_profile_request.dart';
 import 'package:barber_booking_app/models/master_models/response/get_master_response.dart';
+import 'package:barber_booking_app/services/auth_services/auth_http_headers.dart';
 import 'package:http/http.dart' as http;
 
 class MasterProfileUpdateService {
   Future<GetMasterResponse?> patch({
-    required String? token,
     required String masterId,
     required UpdateMasterProfileRequest body,
   }) async {
-    if (token == null || token.isEmpty) return null;
+    final headers = await AuthHttpHeaders.bearerJson();
+    if (headers == null) return null;
     try {
       final url = Uri.parse(
         '$kApiBaseUrl/api/MasterProfile/UpdateMasterProfile$masterId',
       );
       final response = await http.patch(
         url,
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer $token',
-        },
+        headers: headers,
         body: json.encode(body.toJson()),
       );
       if (response.statusCode != 200) return null;

@@ -40,7 +40,7 @@ namespace BarberBooking.API.Repositories
         {
             return await _context.Reviews
             .Include(x => x.MasterProfile)
-                .ThenInclude(m => m.User)
+            .ThenInclude(m => m.User)
             .FirstOrDefaultAsync(x => x.Id == Id);
         }
 
@@ -49,7 +49,7 @@ namespace BarberBooking.API.Repositories
             return await _context.Reviews
             .Include(x => x.Client)
             .Include(x => x.MasterProfile)
-                .ThenInclude(m => m.User)
+            .ThenInclude(m => m.User)
             .Where(x => x.SalonId == salonId)
             .OrderByDescending(x => x.CreatedAt)
             .ToPagedAsync(pageParams);
@@ -59,7 +59,7 @@ namespace BarberBooking.API.Repositories
             return await _context.Reviews
             .Include(x => x.Client)
             .Include(x => x.MasterProfile)
-                .ThenInclude(m => m.User)
+            .ThenInclude(m => m.User)
             .Where(x => x.MasterProfileId == masterId)
             .OrderByDescending(x => x.CreatedAt)
             .ToPagedAsync(pageParams);
@@ -70,7 +70,7 @@ namespace BarberBooking.API.Repositories
             return await _context.Reviews
             .Include(x => x.Client)
             .Include(x => x.MasterProfile)
-                .ThenInclude(m => m.User)
+            .ThenInclude(m => m.User)
             .Where(x => x.SalonId == salonId)
             .ToListAsync();
         }
@@ -79,7 +79,7 @@ namespace BarberBooking.API.Repositories
             return await _context.Reviews
             .Include(x => x.Client)
             .Include(x => x.MasterProfile)
-                .ThenInclude(m => m.User)
+            .ThenInclude(m => m.User)
             .Include(x => x.Salon)
             .Where(x => x.MasterProfileId == masterId)
             .ToListAsync();
@@ -89,7 +89,7 @@ namespace BarberBooking.API.Repositories
             return await _context.Reviews
             .Include(x => x.Client)
             .Include(x => x.MasterProfile)
-                .ThenInclude(m => m.User)
+            .ThenInclude(m => m.User)
             .Where(x => x.SalonId == salonId)
             .FilterReviewSalon(sort)
             .ToPagedAsync(pageParams);
@@ -100,7 +100,7 @@ namespace BarberBooking.API.Repositories
             return await _context.Reviews
             .Include(x => x.Client)
             .Include(x => x.MasterProfile)
-                .ThenInclude(m => m.User)
+            .ThenInclude(m => m.User)
             .Where(x => x.MasterProfileId == masterId)
             .FilterReviewMaster(sort)
             .ToPagedAsync(pageParams);
@@ -112,7 +112,7 @@ namespace BarberBooking.API.Repositories
             .Include(x => x.Appointment)
             .ThenInclude(x => x.Service)
             .Include(x => x.MasterProfile)
-                .ThenInclude(m => m.User)
+            .ThenInclude(m => m.User)
             .Include(x => x.Client)
             .Where(x => x.ClientId == clientId)
             .ToPagedAsync(pageParams);
@@ -125,7 +125,7 @@ namespace BarberBooking.API.Repositories
             .Include(x => x.Appointment)
             .ThenInclude(x => x.Service)
             .Include(x => x.MasterProfile)
-                .ThenInclude(m => m.User)
+            .ThenInclude(m => m.User)
             .Include(x => x.Client)
             .ToFilterReview(filterReviews)
             .ToPagedAsync(pageParams);
@@ -139,7 +139,7 @@ namespace BarberBooking.API.Repositories
                 .Include(x => x.Appointment)
                 .ThenInclude(x => x.Service)
                 .Include(x => x.MasterProfile)
-                    .ThenInclude(m => m.User)
+                .ThenInclude(m => m.User)
                 .Include(x => x.Client)
                 .AsQueryable();
 
@@ -147,9 +147,45 @@ namespace BarberBooking.API.Repositories
                 query = query.Where(x => x.SalonId == salonId.Value);
 
             query = query
+            .OrderBy(x => x.SalonRating)
+            .ThenBy(x => x.MasterRating ?? 6);
+
+            return await query.ToPagedAsync(pageParams);
+        }
+
+        public async Task<PagedResult<Review>> GetAllReviewsForSalonIds(FilterReviews filterReviews, PageParams pageParams, IReadOnlyList<Guid> salonIds)
+        {
+            if (salonIds == null || salonIds.Count == 0)
+                return new PagedResult<Review>(new List<Review>(), 0);
+            var query = _context.Reviews
+                .Include(x => x.Salon)
+                .Include(x => x.Appointment)
+                .ThenInclude(x => x.Service)
+                .Include(x => x.MasterProfile)
+                .ThenInclude(m => m.User)
+                .Include(x => x.Client)
+                .Where(x => salonIds.Contains(x.SalonId));
+            return await query.ToFilterReview(filterReviews).ToPagedAsync(pageParams);
+        }
+
+        public async Task<PagedResult<Review>> GetLowRatingReviewsPagedForSalonIds(Guid? salonId, PageParams pageParams, IReadOnlyList<Guid> salonIds)
+        {
+            if (salonIds == null || salonIds.Count == 0)
+                return new PagedResult<Review>(new List<Review>(), 0);
+            var query = _context.Reviews
+            .AsNoTracking()
+            .Include(x => x.Salon)
+            .Include(x => x.Appointment)
+            .ThenInclude(x => x.Service)
+            .Include(x => x.MasterProfile)
+            .ThenInclude(m => m.User)
+            .Include(x => x.Client)
+            .Where(x => salonIds.Contains(x.SalonId));
+            if (salonId.HasValue)
+                query = query.Where(x => x.SalonId == salonId.Value);
+            query = query
                 .OrderBy(x => x.SalonRating)
                 .ThenBy(x => x.MasterRating ?? 6);
-
             return await query.ToPagedAsync(pageParams);
         }
     }

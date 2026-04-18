@@ -1,5 +1,4 @@
 import 'package:barber_booking_app/models/master_interface_models/response/get_master_time_slot_response.dart';
-import 'package:barber_booking_app/providers/auth_providers/auth_provider.dart';
 import 'package:barber_booking_app/screens/master/master_create_time_slot_screen.dart';
 import 'package:barber_booking_app/screens/master/master_time_slot_detail_screen.dart';
 import 'package:barber_booking_app/screens/master/master_weekly_templates_screen.dart';
@@ -10,7 +9,6 @@ import 'package:barber_booking_app/widgets/loading_indicator.dart';
 import 'package:barber_booking_app/widgets/master/master_notification_app_bar_button.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:provider/provider.dart';
 
 class MasterSlotsScreen extends StatefulWidget {
   const MasterSlotsScreen({super.key, required this.masterId});
@@ -36,14 +34,12 @@ class _MasterSlotsScreenState extends State<MasterSlotsScreen> {
   }
 
   Future<void> _load() async {
-    final token = context.read<AuthProvider>().token;
     if (widget.masterId.isEmpty) {
       if (mounted) setState(() => _loading = false);
       return;
     }
     setState(() => _loading = true);
     final list = await _service.fetchForDate(
-      token: token,
       masterId: widget.masterId,
       date: _date,
     );

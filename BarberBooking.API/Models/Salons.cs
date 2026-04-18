@@ -20,7 +20,6 @@ namespace BarberBooking.API.Models
         public TimeOnly? OpeningTime { get; private set; }
         public TimeOnly? ClosingTime { get; private set; }
         public bool IsActive {get; private set;} = true;
-        public string? MainPhotoUrl { get; private set; }
         public decimal Rating {get; private set;}
         public int RatingCount {get; private set;}
         public ICollection<MasterProfile> SalonUsers {get; private set;}
@@ -39,8 +38,9 @@ namespace BarberBooking.API.Models
             Reviews = new List<Review>();
             SalonStatistics = new List<SalonStatistic>();
             SalonsAdmins = new List<SalonsAdmin>();
+            SalonPhotos = new List<SalonPhotos>();
         }
-        public static Salons Create(string name, string description, Address address, PhoneNumber? phoneNumber ,TimeOnly? openingTime,  TimeOnly? closingTime , string? mainPhotoUrl)
+        public static Salons Create(string name, string description, Address address, PhoneNumber? phoneNumber ,TimeOnly? openingTime,  TimeOnly? closingTime)
         {
            var salon = new Salons();
             salon.ApplyChange(new SalonCreatedEvent(
@@ -50,8 +50,7 @@ namespace BarberBooking.API.Models
                 address,
                 phoneNumber,
                 openingTime,
-                closingTime,
-                mainPhotoUrl
+                closingTime
             ));
             
             return salon;
@@ -62,7 +61,6 @@ namespace BarberBooking.API.Models
         public void UpdateClosingTime(TimeOnly? closingTime) => ClosingTime = closingTime;
         public void UpdateAddress(Address address) => Address = address;
         public void UpdatePhoneNumber(PhoneNumber phoneNumber) => PhoneNumber = phoneNumber;
-        public void UpdateMainPhotoUrl(string mainPhotoUrl) => MainPhotoUrl = mainPhotoUrl;
         public void UpdateIsActive(bool isActive) => IsActive = isActive;
         public void AddRating(decimal rating, int ratingCount)
         {
@@ -81,12 +79,10 @@ namespace BarberBooking.API.Models
             PhoneNumber = @event.PhoneNumber;
             OpeningTime = @event.OpeningTime;
             ClosingTime = @event.ClosingTime;
-            MainPhotoUrl = @event.MainPhotoUrl;
             IsActive = true;
             Rating = 0;
             RatingCount = 0;
             CreatedAt = DateTime.UtcNow;
-            
             SalonUsers = new List<MasterProfile>();
             Appointments = new List<Appointments>();
             Services = new List<Services>();

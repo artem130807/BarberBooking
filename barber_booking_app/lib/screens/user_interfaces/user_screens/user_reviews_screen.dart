@@ -82,7 +82,7 @@ class _UserReviewsScreenState extends State<UserReviewsScreen> with SingleTicker
     final token = authProvider.token;
     if (token == null) return;
     await Provider.of<GetReviewsUserProvider>(context, listen: false)
-        .getReviews(token, _pageParams);
+        .getReviews(_pageParams);
   }
 
   Future<void> _loadAwaiting() async {
@@ -90,7 +90,7 @@ class _UserReviewsScreenState extends State<UserReviewsScreen> with SingleTicker
     final token = authProvider.token;
     if (token == null) return;
     await Provider.of<GetAppointmentAwaitingReviewProvider>(context, listen: false)
-        .getAwaitingAppointments(token, _awaitingPageParams);
+        .getAwaitingAppointments(_awaitingPageParams);
   }
 
   void _onNavItemTapped(int index) {

@@ -8,6 +8,6 @@ namespace BarberBooking.API.Provider
 {
     public interface IJwtProvider
     {
-        Task<string> GenerateToken(Users users);
+        Task<string> GenerateToken(Users users, string devices);
     }
 }

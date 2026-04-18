@@ -1,23 +1,22 @@
 import 'dart:convert';
+
+import 'package:barber_booking_app/config/api_config.dart';
 import 'package:barber_booking_app/models/master_models/request/create_master_profile_admin_request.dart';
 import 'package:barber_booking_app/models/master_models/response/master_profile_info_admin_response.dart';
 import 'package:barber_booking_app/models/params/page_params.dart';
+import 'package:barber_booking_app/services/auth_services/auth_http_headers.dart';
 import 'package:http/http.dart' as http;
-import 'package:barber_booking_app/config/api_config.dart';
 
 class AdminSalonMastersApiService {
-
-  Map<String, String> _headers(String? token) => {
-        'Content-Type': 'application/json',
-        if (token != null && token.isNotEmpty) 'Authorization': 'Bearer $token',
-      };
+  Future<Map<String, String>?> _headers() => AuthHttpHeaders.bearerJson();
 
   Future<Map<String, dynamic>?> getPaged(
     String salonId,
     PageParams pageParams,
-    String? token,
   ) async {
     try {
+      final h = await _headers();
+      if (h == null) return null;
       final qp = <String, String>{
         'Page': '${pageParams.Page ?? 1}',
         'PageSize': '${pageParams.PageSize ?? 30}',
@@ -25,7 +24,7 @@ class AdminSalonMastersApiService {
       final url = Uri.parse(
         '$kApiBaseUrl/api/MasterProfile/GetMastersBySalonPaged/$salonId',
       ).replace(queryParameters: qp);
-      final response = await http.get(url, headers: _headers(token));
+      final response = await http.get(url, headers: h);
       if (response.statusCode == 200) {
         return json.decode(response.body) as Map<String, dynamic>;
       }
@@ -44,9 +43,10 @@ class AdminSalonMastersApiService {
   Future<Map<String, dynamic>?> getTopMastersPaged(
     String salonId,
     PageParams pageParams,
-    String? token,
   ) async {
     try {
+      final h = await _headers();
+      if (h == null) return null;
       final qp = <String, String>{
         'Page': '${pageParams.Page ?? 1}',
         'PageSize': '${pageParams.PageSize ?? 30}',
@@ -54,7 +54,7 @@ class AdminSalonMastersApiService {
       final url = Uri.parse(
         '$kApiBaseUrl/api/MasterProfile/GetTopMastersBySalon/$salonId',
       ).replace(queryParameters: qp);
-      final response = await http.get(url, headers: _headers(token));
+      final response = await http.get(url, headers: h);
       if (response.statusCode == 200) {
         return json.decode(response.body) as Map<String, dynamic>;
       }
@@ -89,13 +89,14 @@ class AdminSalonMastersApiService {
 
   Future<String?> createErrorMessage(
     CreateMasterProfileAdminRequest body,
-    String? token,
   ) async {
     try {
+      final h = await _headers();
+      if (h == null) return 'Нет авторизации';
       final url = Uri.parse('$kApiBaseUrl/api/MasterProfile/CreateMasterProfile');
       final response = await http.post(
         url,
-        headers: _headers(token),
+        headers: h,
         body: json.encode(body.toJson()),
       );
       if (response.statusCode == 200) return null;
@@ -111,12 +112,14 @@ class AdminSalonMastersApiService {
     }
   }
 
-  Future<String?> deleteMaster(String masterProfileId, String? token) async {
+  Future<String?> deleteMaster(String masterProfileId) async {
     try {
+      final h = await _headers();
+      if (h == null) return 'Нет авторизации';
       final url = Uri.parse(
         '$kApiBaseUrl/api/MasterProfile/DeleteMasterProfile$masterProfileId',
       );
-      final response = await http.delete(url, headers: _headers(token));
+      final response = await http.delete(url, headers: h);
       if (response.statusCode == 200) return null;
       try {
         final err = json.decode(response.body);

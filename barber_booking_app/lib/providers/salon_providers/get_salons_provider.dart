@@ -9,23 +9,23 @@ class GetSalonsProvider extends BaseProvider {
   List<GetSalonsResponse>? _getSalonsResponse;
 
   List<GetSalonsResponse>? get getSalonsResponse => _getSalonsResponse;
-  Future<bool> getSalons(PageParams params, SalonFilter filter, String? token) async{
-  startLoading();
-  try{
-  final response = await _salonService.getSalons(params, filter, token);
-  if(response != null && response.isNotEmpty){
-    _getSalonsResponse = response;
-    finishLoading();  
-    notifyListeners();
-    return true;
-  }else{
-    _getSalonsResponse = [];
-    finishLoading();
-    return false;
-  }
-  } catch (e) {
-    handleError(e);
-    return false;
-  }
+  Future<bool> getSalons(PageParams params, SalonFilter filter) async {
+    startLoading();
+    try {
+      final response = await _salonService.getSalons(params, filter);
+      if (response != null && response.isNotEmpty) {
+        _getSalonsResponse = response;
+        finishLoading();
+        notifyListeners();
+        return true;
+      } else {
+        _getSalonsResponse = [];
+        finishLoading();
+        return false;
+      }
+    } catch (e) {
+      handleError(e);
+      return false;
+    }
   }
 }

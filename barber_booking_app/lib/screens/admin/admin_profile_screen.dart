@@ -1,3 +1,4 @@
+import 'package:barber_booking_app/screens/common/sessions_screen.dart';
 import 'package:barber_booking_app/providers/auth_providers/auth_provider.dart';
 import 'package:barber_booking_app/providers/user_providers/get_user_provider.dart';
 import 'package:barber_booking_app/widgets/error_widget.dart';
@@ -24,7 +25,7 @@ class _AdminProfileScreenState extends State<AdminProfileScreen> {
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
     final token = authProvider.token;
     if (token == null) return;
-    await Provider.of<GetUserProvider>(context, listen: false).getUser(token);
+    await Provider.of<GetUserProvider>(context, listen: false).getUser();
   }
 
   Future<void> _onRefresh() async {
@@ -207,6 +208,33 @@ class _AdminProfileScreenState extends State<AdminProfileScreen> {
                   ),
                   onTap: () =>
                       Navigator.pushNamed(context, '/profile_settings'),
+                ),
+                Divider(
+                  height: 1,
+                  indent: 56,
+                  color: cs.outlineVariant.withValues(alpha: 0.45),
+                ),
+                ListTile(
+                  contentPadding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                  leading: Icon(Icons.devices_rounded, color: cs.primary),
+                  title: const Text('Активные сессии'),
+                  subtitle: Text(
+                    'Устройства, с которых выполнен вход',
+                    style: TextStyle(
+                      fontSize: 13,
+                      color: cs.onSurfaceVariant,
+                    ),
+                  ),
+                  trailing: Icon(
+                    Icons.chevron_right_rounded,
+                    color: cs.onSurfaceVariant.withValues(alpha: 0.7),
+                  ),
+                  onTap: () => Navigator.pushNamed(
+                    context,
+                    '/sessions',
+                    arguments: const SessionsRouteArgs(),
+                  ),
                 ),
               ],
             ),

@@ -73,7 +73,7 @@ class _SalonsByServiceScreenState extends State<SalonsByServiceScreen> {
   void _loadSalons() {
     final token = Provider.of<AuthProvider>(context, listen: false).token;
     Provider.of<GetSalonsByServiceProvider>(context, listen: false)
-        .getSalons(widget.serviceName, _pageParams, token);
+        .getSalons(widget.serviceName, _pageParams);
   }
 
   @override

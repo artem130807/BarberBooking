@@ -8,11 +8,11 @@ class GetUserProfileByIdProvider extends BaseProvider {
 
   UserProfileByIdResponse? get profile => _profile;
 
-  Future<bool> load(String userId, String? token) async {
+  Future<bool> load(String userId) async {
     _profile = null;
     startLoading();
     try {
-      _profile = await _service.getProfile(userId, token);
+      _profile = await _service.getProfile(userId);
       if (_profile == null) {
         setError('Не удалось загрузить профиль');
         finishLoading();

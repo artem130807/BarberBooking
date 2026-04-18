@@ -13,11 +13,11 @@ class MasterSessionProvider extends BaseProvider {
 
   String? get masterId => _profile?.Id;
 
-  Future<void> load(String? token) async {
+  Future<void> load() async {
     startLoading();
     clearError();
     try {
-      final r = await _service.fetch(token);
+      final r = await _service.fetch();
       if (r == null) {
         setError('Не удалось загрузить профиль мастера');
         _profile = null;

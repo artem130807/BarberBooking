@@ -1,11 +1,13 @@
 import 'dart:convert';
 
 import 'package:barber_booking_app/config/api_config.dart';
+import 'package:barber_booking_app/services/auth_services/auth_http_headers.dart';
 import 'package:http/http.dart' as http;
 
 class DeleteMessageService {
-  Future<String?> deleteMessage(String? token, String messageId) async {
-    if (token == null || token.isEmpty) {
+  Future<String?> deleteMessage(String messageId) async {
+    final headers = await AuthHttpHeaders.bearerJson();
+    if (headers == null) {
       return 'Требуется авторизация';
     }
     try {
@@ -13,10 +15,7 @@ class DeleteMessageService {
           Uri.parse('$kApiBaseUrl/api/Message/delete-message/$messageId');
       final response = await http.delete(
         url,
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer $token',
-        },
+        headers: headers,
       );
 
       if (response.statusCode == 200) {

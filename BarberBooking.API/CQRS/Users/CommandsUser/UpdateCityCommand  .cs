@@ -4,5 +4,5 @@ using MediatR;
 
 namespace BarberBooking.API.CQRS.Commands
 {
-    public record UpdateCityCommand(string City) : IRequest<Result<DtoUpdateCityResponse>>;
+    public record UpdateCityCommand(string City, string devices) : IRequest<Result<DtoUpdateCityResponse>>;
 }

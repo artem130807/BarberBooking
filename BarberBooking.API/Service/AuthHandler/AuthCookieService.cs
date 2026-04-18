@@ -3,12 +3,20 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using BarberBooking.API.Contracts;
+using BarberBooking.API.Provider;
+using Microsoft.Extensions.Options;
 
 namespace BarberBooking.API.Service.AuthHandler
 {
     public class AuthCookieService : IAuthCookieService
     {
+        private readonly JwtOptions _jwtOptions;
         private const string CookieName = "tasty";
+
+        public AuthCookieService(IOptions<JwtOptions> jwtOptions)
+        {
+            _jwtOptions = jwtOptions.Value;
+        }
         public string? GetAuthCookie(HttpRequest request)
         {
             return request.Cookies[CookieName];
@@ -26,7 +34,7 @@ namespace BarberBooking.API.Service.AuthHandler
                 HttpOnly = true,
                 Secure = true,
                 SameSite = SameSiteMode.Strict,
-                Expires = DateTime.UtcNow.AddHours(12),
+                Expires = DateTime.UtcNow.AddMinutes(_jwtOptions.ExpiresMinutes),
                 Path = "/", 
                 Domain = null 
             }; 

@@ -11,14 +11,12 @@ class SalonStatisticsFilterProvider extends BaseProvider {
   Future<void> load({
     required String salonId,
     int? dayOfMonth,
-    required String? token,
   }) async {
     startLoading();
     try {
       final r = await _service.fetch(
         salonId: salonId,
         dayOfMonth: dayOfMonth,
-        token: token,
       );
       if (r.error != null) {
         setError(r.error!);

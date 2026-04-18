@@ -45,7 +45,7 @@ class _AdminMasterProfileScreenState extends State<AdminMasterProfileScreen> {
 
   Future<void> _load() async {
     final token = context.read<AuthProvider>().token;
-    await context.read<AdminMasterProfileProvider>().load(widget.masterId, token);
+    await context.read<AdminMasterProfileProvider>().load(widget.masterId);
   }
 
   void _copy(BuildContext context, String label, String value) {

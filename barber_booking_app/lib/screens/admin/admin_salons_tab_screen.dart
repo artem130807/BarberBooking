@@ -1,9 +1,6 @@
-import 'package:barber_booking_app/models/params/page_params.dart';
-import 'package:barber_booking_app/models/params/salon_params/salon_filter.dart';
-import 'package:barber_booking_app/models/salon_models/response/get_salons_response.dart';
+import 'package:barber_booking_app/models/salon_models/response/get_salon_admin_response.dart';
 import 'package:barber_booking_app/providers/auth_providers/auth_provider.dart';
-import 'package:barber_booking_app/providers/salon_providers/get_salons_provider.dart';
-import 'package:barber_booking_app/providers/salon_providers/get_salons_search_provider.dart';
+import 'package:barber_booking_app/providers/salon_providers/get_salons_admin_provider.dart';
 import 'package:barber_booking_app/screens/admin/admin_create_salon_screen.dart';
 import 'package:barber_booking_app/screens/admin/admin_navigation.dart';
 import 'package:barber_booking_app/screens/admin/admin_shell_layout.dart';
@@ -23,8 +20,6 @@ class AdminSalonsTabScreen extends StatefulWidget {
 class _AdminSalonsTabScreenState extends State<AdminSalonsTabScreen> {
   final TextEditingController _searchController = TextEditingController();
   final FocusNode _searchFocusNode = FocusNode();
-  final PageParams _pageParams = PageParams(Page: 1, PageSize: 50);
-  final SalonFilter _filter = SalonFilter();
   String? _activeSearchQuery;
   bool _initializing = true;
 
@@ -42,39 +37,36 @@ class _AdminSalonsTabScreenState extends State<AdminSalonsTabScreen> {
   }
 
   Future<void> _loadAll() async {
-    final token = Provider.of<AuthProvider>(context, listen: false).token;
     setState(() => _activeSearchQuery = null);
     _searchController.clear();
-    Provider.of<GetSalonsSearchProvider>(context, listen: false).clearResults();
-    await Provider.of<GetSalonsProvider>(context, listen: false)
-        .getSalons(_pageParams, _filter, token);
+    await Provider.of<GetSalonsAdminProvider>(context, listen: false)
+        .load();
     if (mounted) setState(() => _initializing = false);
   }
 
-  Future<void> _onSubmittedSearch(String raw) async {
-    final query = raw.trim();
-    final token = Provider.of<AuthProvider>(context, listen: false).token;
-    final search = Provider.of<GetSalonsSearchProvider>(context, listen: false);
-    if (query.isEmpty) {
-      setState(() => _activeSearchQuery = null);
-      search.clearResults();
-      await Provider.of<GetSalonsProvider>(context, listen: false)
-          .getSalons(_pageParams, _filter, token);
-      return;
-    }
-    setState(() => _activeSearchQuery = query);
-    await search.getSalons(query, _pageParams, token);
+  void _onSubmittedSearch(String raw) {
+    final q = raw.trim();
+    setState(() => _activeSearchQuery = q.isEmpty ? null : q);
   }
 
   Future<void> _onRefresh() async {
-    final token = Provider.of<AuthProvider>(context, listen: false).token;
-    if (_activeSearchQuery != null && _activeSearchQuery!.isNotEmpty) {
-      await Provider.of<GetSalonsSearchProvider>(context, listen: false)
-          .getSalons(_activeSearchQuery, _pageParams, token);
-    } else {
-      await Provider.of<GetSalonsProvider>(context, listen: false)
-          .getSalons(_pageParams, _filter, token);
-    }
+    await Provider.of<GetSalonsAdminProvider>(context, listen: false)
+        .load();
+  }
+
+  List<GetSalonAdminResponse> _filteredList(
+    List<GetSalonAdminResponse> raw,
+  ) {
+    final q = _activeSearchQuery?.trim().toLowerCase();
+    if (q == null || q.isEmpty) return raw;
+    return raw.where((e) {
+      final name = (e.navigation?.SalonName ?? '').toLowerCase();
+      final street = (e.navigation?.Address?.Street ?? '').toLowerCase();
+      final city = (e.navigation?.Address?.City ?? '').toLowerCase();
+      return name.contains(q) ||
+          street.contains(q) ||
+          city.contains(q);
+    }).toList();
   }
 
   Future<void> _openCreateSalon() async {
@@ -95,93 +87,97 @@ class _AdminSalonsTabScreenState extends State<AdminSalonsTabScreen> {
     }
   }
 
-  Widget _buildSalonRow(GetSalonsResponse salon) {
+  Widget _buildSalonRow(GetSalonAdminResponse item) {
+    final row = item.toGetSalonsResponse();
     final theme = Theme.of(context);
-    final photo = resolveApiMediaUrl(salon.MainPhotoUrl);
+    final photo = resolveApiMediaUrl(row.MainPhotoUrl);
+    final salonId = item.salonId ?? row.Id;
     return Card(
       margin: const EdgeInsets.only(bottom: 8),
       clipBehavior: Clip.antiAlias,
       child: InkWell(
         onTap: () {
-          final id = salon.Id;
-          if (id == null || id.isEmpty) return;
-          Navigator.pushNamed(context, '/admin_salon_detail', arguments: id);
+          if (salonId == null || salonId.isEmpty) return;
+          Navigator.pushNamed(context, '/admin_salon_detail', arguments: salonId);
         },
         child: ListTile(
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        leading: ClipRRect(
-          borderRadius: BorderRadius.circular(8),
-          child: SizedBox(
-            width: 56,
-            height: 56,
-            child: photo != null && photo.isNotEmpty
-                ? Image.network(
-                    photo,
-                    fit: BoxFit.cover,
-                    errorBuilder: (_, __, ___) => ColoredBox(
+          contentPadding:
+              const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          leading: ClipRRect(
+            borderRadius: BorderRadius.circular(8),
+            child: SizedBox(
+              width: 56,
+              height: 56,
+              child: photo != null && photo.isNotEmpty
+                  ? Image.network(
+                      photo,
+                      fit: BoxFit.cover,
+                      errorBuilder: (_, __, ___) => ColoredBox(
+                        color: theme.colorScheme.surfaceContainerHighest,
+                        child: Icon(Icons.store,
+                            color: theme.colorScheme.onSurfaceVariant),
+                      ),
+                    )
+                  : ColoredBox(
                       color: theme.colorScheme.surfaceContainerHighest,
-                      child: Icon(Icons.store, color: theme.colorScheme.onSurfaceVariant),
+                      child: Icon(Icons.store,
+                          color: theme.colorScheme.onSurfaceVariant),
                     ),
-                  )
-                : ColoredBox(
-                    color: theme.colorScheme.surfaceContainerHighest,
-                    child: Icon(Icons.store, color: theme.colorScheme.onSurfaceVariant),
-                  ),
+            ),
           ),
-        ),
-        title: Text(
-          salon.Name ?? '—',
-          style: const TextStyle(fontWeight: FontWeight.w600),
-        ),
-        subtitle: Text(
-          salon.Address?.Street ?? '',
-          maxLines: 2,
-          overflow: TextOverflow.ellipsis,
-          style: TextStyle(color: theme.colorScheme.onSurfaceVariant, fontSize: 13),
-        ),
-        trailing: salon.Rating != null
-            ? Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(Icons.star, size: 18, color: theme.colorScheme.primary),
-                  const SizedBox(width: 4),
-                  Text(
-                    salon.Rating!.toStringAsFixed(1),
-                    style: TextStyle(
-                      fontWeight: FontWeight.w600,
-                      color: theme.colorScheme.onSurface,
+          title: Text(
+            row.Name ?? '—',
+            style: const TextStyle(fontWeight: FontWeight.w600),
+          ),
+          subtitle: Text(
+            row.Address?.Street ?? '',
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+            style: TextStyle(
+              color: theme.colorScheme.onSurfaceVariant,
+              fontSize: 13,
+            ),
+          ),
+          trailing: row.Rating != null
+              ? Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(Icons.star, size: 18, color: theme.colorScheme.primary),
+                    const SizedBox(width: 4),
+                    Text(
+                      row.Rating!.toStringAsFixed(1),
+                      style: TextStyle(
+                        fontWeight: FontWeight.w600,
+                        color: theme.colorScheme.onSurface,
+                      ),
                     ),
-                  ),
-                ],
-              )
-            : null,
-      ),
+                  ],
+                )
+              : null,
+        ),
       ),
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    return Consumer2<GetSalonsProvider, GetSalonsSearchProvider>(
-      builder: (context, salonsProvider, searchProvider, _) {
+    return Consumer<GetSalonsAdminProvider>(
+      builder: (context, salonsProvider, _) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
           if (salonsProvider.errorMessage != null && mounted) {
             salonsProvider.showApiError(context, salonsProvider.errorMessage);
           }
         });
 
-        final inSearch = _activeSearchQuery != null && _activeSearchQuery!.isNotEmpty;
-        final loading = inSearch
-            ? searchProvider.isLoading
-            : salonsProvider.isLoading;
-        final list = inSearch
-            ? (searchProvider.getSalonsResponse ?? [])
-            : (salonsProvider.getSalonsResponse ?? []);
-        final initialError = !inSearch &&
-            salonsProvider.errorMessage != null &&
-            salonsProvider.getSalonsResponse == null;
+        final inSearch =
+            _activeSearchQuery != null && _activeSearchQuery!.isNotEmpty;
+        final loading = salonsProvider.isLoading;
+        final raw = salonsProvider.items ?? [];
+        final list = _filteredList(raw);
+        final initialError = salonsProvider.errorMessage != null &&
+            salonsProvider.items == null;
         final showBootstrapLoading =
-            !inSearch && _initializing && !salonsProvider.isLoading;
+            _initializing && !salonsProvider.isLoading;
 
         return Scaffold(
           appBar: AppBar(
@@ -210,7 +206,10 @@ class _AdminSalonsTabScreenState extends State<AdminSalonsTabScreen> {
                     color: Theme.of(context).colorScheme.surfaceContainerHighest,
                     borderRadius: BorderRadius.circular(12),
                     border: Border.all(
-                      color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.3),
+                      color: Theme.of(context)
+                          .colorScheme
+                          .outline
+                          .withValues(alpha: 0.3),
                     ),
                   ),
                   child: TextField(
@@ -218,7 +217,7 @@ class _AdminSalonsTabScreenState extends State<AdminSalonsTabScreen> {
                     focusNode: _searchFocusNode,
                     textInputAction: TextInputAction.search,
                     decoration: InputDecoration(
-                      hintText: 'Поиск салона....',
+                      hintText: 'Поиск среди ваших салонов…',
                       prefixIcon: const Icon(Icons.search),
                       suffixIcon: _searchController.text.isNotEmpty
                           ? IconButton(
@@ -257,8 +256,8 @@ class _AdminSalonsTabScreenState extends State<AdminSalonsTabScreen> {
   Widget _buildBody(
     bool loading,
     bool initialError,
-    List<GetSalonsResponse> list,
-    GetSalonsProvider salonsProvider,
+    List<GetSalonAdminResponse> list,
+    GetSalonsAdminProvider salonsProvider,
     bool showBootstrapLoading,
     bool inSearch,
   ) {
@@ -289,7 +288,7 @@ class _AdminSalonsTabScreenState extends State<AdminSalonsTabScreen> {
               ),
               const SizedBox(height: 16),
               Text(
-                inSearch ? 'Ничего не найдено' : 'Пока нет салонов',
+                inSearch ? 'Ничего не найдено' : 'У вас пока нет салонов',
                 style: Theme.of(context).textTheme.titleMedium?.copyWith(
                       fontWeight: FontWeight.w600,
                     ),
@@ -299,7 +298,7 @@ class _AdminSalonsTabScreenState extends State<AdminSalonsTabScreen> {
               Text(
                 inSearch
                     ? 'Попробуйте другой запрос или сбросьте поиск'
-                    : 'Создайте первый салон — дальше можно добавить услуги и мастеров',
+                    : 'Создайте салон — затем добавьте услуги и мастеров в карточке',
                 style: TextStyle(color: cs.onSurfaceVariant, fontSize: 14),
                 textAlign: TextAlign.center,
               ),

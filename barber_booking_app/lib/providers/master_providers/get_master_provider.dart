@@ -9,25 +9,25 @@ class GetMasterProvider extends BaseProvider {
   GetMasterResponse? get getMasterResponse => _getMasterResponse;
   GetMasterService? get masterService => _masterService;
 
-  Future<bool> getMaster(String id, {String? token}) async{
-  startLoading();
-  try{
-    final response = await _masterService.getMaster(id, token: token);
-    if(response != null){
-      _getMasterResponse = response;
+  Future<bool> getMaster(String id) async {
+    startLoading();
+    try {
+      final response = await _masterService.getMaster(id);
+      if (response != null) {
+        _getMasterResponse = response;
+        finishLoading();
+        notifyListeners();
+        return true;
+      } else {
+        print("Мастер не найден");
+        setError("Мастер не найден");
+        finishLoading();
+        return false;
+      }
+    } catch (e) {
       finishLoading();
-      notifyListeners();
-      return true;
-    }else{
-      print("Мастер не найден");
-      setError("Мастер не найден");
-      finishLoading();
+      setError(e.toString());
       return false;
     }
-  }catch(e){
-    finishLoading();
-    setError(e.toString());
-    return false;
-  }
   }
 }

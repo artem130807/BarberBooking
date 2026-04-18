@@ -1,10 +1,8 @@
 import 'package:barber_booking_app/models/master_interface_models/request/create_time_slot_request.dart';
 import 'package:barber_booking_app/screens/master/master_navigation.dart';
-import 'package:barber_booking_app/providers/auth_providers/auth_provider.dart';
 import 'package:barber_booking_app/services/master_services/master_time_slots_service.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:provider/provider.dart';
 
 class MasterCreateTimeSlotScreen extends StatefulWidget {
   const MasterCreateTimeSlotScreen({super.key, required this.initialDate});
@@ -108,10 +106,8 @@ class _MasterCreateTimeSlotScreenState extends State<MasterCreateTimeSlotScreen>
       );
       return;
     }
-    final token = context.read<AuthProvider>().token;
     setState(() => _saving = true);
     final err = await _service.createSlot(
-      token: token,
       body: CreateTimeSlotRequest(
         ScheduleDate: _dateOnlyIso(_date),
         StartTime: _timeIso(_start),

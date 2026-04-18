@@ -23,34 +23,33 @@ class GetReviewsAdminProvider extends BaseProvider {
     notifyListeners();
   }
 
-  Future<void> refresh(String? token) async {
+  Future<void> refresh() async {
     startLoading();
     _items.clear();
     _page = 1;
     _hasMore = true;
     try {
-      await _fetchPage(token, reset: true);
+      await _fetchPage(reset: true);
     } finally {
       finishLoading();
     }
   }
 
-  Future<void> loadMore(String? token) async {
+  Future<void> loadMore() async {
     if (!_hasMore || isLoading) return;
     startLoading();
     try {
-      await _fetchPage(token, reset: false);
+      await _fetchPage(reset: false);
     } finally {
       finishLoading();
     }
   }
 
-  Future<void> _fetchPage(String? token, {required bool reset}) async {
+  Future<void> _fetchPage({required bool reset}) async {
     final params = PageParams(Page: reset ? 1 : _page, PageSize: _pageSize);
     final map = await _service.getAll(
       pageParams: params,
       filter: _filter,
-      token: token,
     );
     if (map == null) {
       setError('Не удалось загрузить отзывы');

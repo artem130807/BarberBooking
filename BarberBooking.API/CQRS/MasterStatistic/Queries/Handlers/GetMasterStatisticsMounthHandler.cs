@@ -3,6 +3,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using BarberBooking.API.Contracts.MasterProfileContracts;
+using BarberBooking.API.Contracts.SalonsAdminContracts;
 using BarberBooking.API.CQRS.MasterStatistic.Queries;
 using BarberBooking.API.Dto.DtoMasterStatistic;
 using CSharpFunctionalExtensions;
@@ -13,16 +14,29 @@ namespace BarberBooking.API.CQRS.MasterStatistic.Queries.Handlers
     public class GetMasterStatisticsMounthHandler : IRequestHandler<GetMasterStatisticsMounthQuery, Result<DtoMasterStatistic>>
     {
         private readonly IMasterStatisticRepository _masterStatisticRepository;
+        private readonly IMasterProfileRepository _masterProfileRepository;
+        private readonly AdminSalonAccess _adminSalonAccess;
 
-        public GetMasterStatisticsMounthHandler(IMasterStatisticRepository masterStatisticRepository)
+        public GetMasterStatisticsMounthHandler(
+            IMasterStatisticRepository masterStatisticRepository,
+            IMasterProfileRepository masterProfileRepository,
+            AdminSalonAccess adminSalonAccess)
         {
             _masterStatisticRepository = masterStatisticRepository;
+            _masterProfileRepository = masterProfileRepository;
+            _adminSalonAccess = adminSalonAccess;
         }
 
         public async Task<Result<DtoMasterStatistic>> Handle(
             GetMasterStatisticsMounthQuery query,
             CancellationToken cancellationToken)
         {
+            var master = await _masterProfileRepository.GetMasterProfileById(query.masterProfileId);
+            if (master == null)
+                return Result.Failure<DtoMasterStatistic>("Мастер не найден");
+            var access = await _adminSalonAccess.RequireSalonAsync(master.SalonId, cancellationToken);
+            if (access.IsFailure)
+                return Result.Failure<DtoMasterStatistic>(access.Error);
             var statistics = await _masterStatisticRepository.GetMasterStatisticsMounthByMasterProfileId(
                 query.masterProfileId,
                 query.mounth,

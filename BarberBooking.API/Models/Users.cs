@@ -17,11 +17,18 @@ namespace BarberBooking.API.Models
         public ICollection<Roles> Roles { get; set; }
         public ICollection<Messages> Messages {get; set;}
         public ICollection<SalonsAdmin> SalonsAdmins {get; set;}
-
+        public ICollection<UserFcmToken> UserFcmTokens { get; set; }
+        public ICollection<RefreshToken> RefreshTokens {get; set;}
+        public ICollection<Conversations> ConversationsAsParticipant1 { get; set; }
+        public ICollection<Conversations> ConversationsAsParticipant2 { get; set; }
         public Users()
         {
             Messages = new List<Messages>();
             SalonsAdmins = new List<SalonsAdmin>();
+            UserFcmTokens = new List<UserFcmToken>();
+            RefreshTokens = new List<RefreshToken>();
+            ConversationsAsParticipant1 = new List<Conversations>();
+            ConversationsAsParticipant2 = new List<Conversations>();
         }
     }
 }

@@ -3,11 +3,13 @@ import 'package:barber_booking_app/models/review_models/request/create_review_re
 import 'package:barber_booking_app/services/review_services/create_review_user_service.dart';
 
 class CreateReviewUserProvider extends BaseProvider {
-  final CreateReviewUserService _createReviewUserService = CreateReviewUserService();
-  Future<bool> createReview(CreateReviewRequest request, String? token) async{
+  final CreateReviewUserService _createReviewUserService =
+      CreateReviewUserService();
+
+  Future<bool> createReview(CreateReviewRequest request) async {
     startLoading();
     try {
-      final response = await _createReviewUserService.createReview(request, token);
+      final response = await _createReviewUserService.createReview(request);
       finishLoading();
       return response == true;
     } catch (e) {
