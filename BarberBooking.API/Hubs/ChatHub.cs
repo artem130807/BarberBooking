@@ -9,25 +9,15 @@ using Microsoft.AspNetCore.SignalR;
 
 namespace BarberBooking.API.Hubs
 {
-    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     public class ChatHub:Hub
     {
-        public override async Task OnConnectedAsync()
+        public async Task JoinToChat(string chatName)
         {
-            var userId = Context.User?.FindFirstValue("userId")
-                ?? Context.User?.FindFirstValue(ClaimTypes.NameIdentifier);
-            if (string.IsNullOrEmpty(userId))
-            {
-                Context.Abort();
-                return;
-            }
-
-            await base.OnConnectedAsync();
+            await Groups.AddToGroupAsync(Context.ConnectionId, chatName);
         }
-
-        public override Task OnDisconnectedAsync(Exception? exception)
+        public async Task SendMessage(string chatName, string user, string message)
         {
-            return base.OnDisconnectedAsync(exception);
+            
         }
     }
 }

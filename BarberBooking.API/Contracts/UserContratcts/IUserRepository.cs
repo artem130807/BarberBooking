@@ -17,5 +17,6 @@ namespace BarberBooking.API.Contracts
         Task UpdatePasswordHash(string email, string password);
         Task<string> UpdateCity(Guid Id, string City);
         Task<Users> GetUserById(Guid Id);
+        Task<Dictionary<Guid, string>> GetUsersByIds(IEnumerable<Guid> userIds);
     }
 }

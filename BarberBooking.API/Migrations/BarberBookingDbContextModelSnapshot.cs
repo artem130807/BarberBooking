@@ -83,6 +83,75 @@ namespace BarberBooking.API.Migrations
                     b.ToTable("Appointments", (string)null);
                 });
 
+            modelBuilder.Entity("BarberBooking.API.Models.ConversationMessages", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Content")
+                        .IsRequired()
+                        .HasMaxLength(8000)
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid>("ConversationsId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsRead")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime?>("ReadAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("ReceiverId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("SenderId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ConversationsId");
+
+                    b.HasIndex("CreatedAt");
+
+                    b.HasIndex("ReceiverId");
+
+                    b.HasIndex("SenderId");
+
+                    b.ToTable("ConversationMessages", (string)null);
+                });
+
+            modelBuilder.Entity("BarberBooking.API.Models.Conversations", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("LastMessageAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("Participant1Id")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("Participant2Id")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Participant1Id");
+
+                    b.HasIndex("Participant2Id");
+
+                    b.ToTable("Conversations", (string)null);
+                });
+
             modelBuilder.Entity("BarberBooking.API.Models.EmailVerification", b =>
                 {
                     b.Property<Guid>("Id")
@@ -973,6 +1042,52 @@ namespace BarberBooking.API.Migrations
                     b.Navigation("TimeSlot");
                 });
 
+            modelBuilder.Entity("BarberBooking.API.Models.ConversationMessages", b =>
+                {
+                    b.HasOne("BarberBooking.API.Models.Conversations", "Conversation")
+                        .WithMany("ConversationMessages")
+                        .HasForeignKey("ConversationsId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("BarberBooking.API.Models.Users", "Receiver")
+                        .WithMany()
+                        .HasForeignKey("ReceiverId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("BarberBooking.API.Models.Users", "Sender")
+                        .WithMany()
+                        .HasForeignKey("SenderId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Conversation");
+
+                    b.Navigation("Receiver");
+
+                    b.Navigation("Sender");
+                });
+
+            modelBuilder.Entity("BarberBooking.API.Models.Conversations", b =>
+                {
+                    b.HasOne("BarberBooking.API.Models.Users", "Participant1")
+                        .WithMany("ConversationsAsParticipant1")
+                        .HasForeignKey("Participant1Id")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("BarberBooking.API.Models.Users", "Participant2")
+                        .WithMany("ConversationsAsParticipant2")
+                        .HasForeignKey("Participant2Id")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Participant1");
+
+                    b.Navigation("Participant2");
+                });
+
             modelBuilder.Entity("BarberBooking.API.Models.MasterProfile", b =>
                 {
                     b.HasOne("BarberBooking.API.Models.Salons", "Salon")
@@ -1235,6 +1350,11 @@ namespace BarberBooking.API.Migrations
                     b.Navigation("Messages");
                 });
 
+            modelBuilder.Entity("BarberBooking.API.Models.Conversations", b =>
+                {
+                    b.Navigation("ConversationMessages");
+                });
+
             modelBuilder.Entity("BarberBooking.API.Models.MasterProfile", b =>
                 {
                     b.Navigation("Appointments");
@@ -1283,6 +1403,10 @@ namespace BarberBooking.API.Migrations
 
             modelBuilder.Entity("BarberBooking.API.Models.Users", b =>
                 {
+                    b.Navigation("ConversationsAsParticipant1");
+
+                    b.Navigation("ConversationsAsParticipant2");
+
                     b.Navigation("Messages");
 
                     b.Navigation("RefreshTokens");

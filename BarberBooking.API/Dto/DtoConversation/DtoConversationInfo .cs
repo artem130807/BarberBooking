@@ -7,6 +7,7 @@ namespace BarberBooking.API.Dto.DtoConversation
 {
     public class DtoConversationInfo 
     {
-        
+        public Guid Id {get; set;}
+        public string UserName {get; set;}
     }
 }

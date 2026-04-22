@@ -17,6 +17,8 @@ using BarberBooking.API.Repositories;
 using BarberBooking.API.Contracts.SalonsAdminContracts;
 using BarberBooking.API.Contracts.SalonPhotosContracts;
 using System.Data;
+using BarberBooking.API.Contracts.ConversationsContracts;
+using BarberBooking.API.Contracts.ConversationMessagesContracts;
 
 namespace BarberBooking.API.Service
 {
@@ -44,6 +46,8 @@ namespace BarberBooking.API.Service
         private ISalonsAdminRepository _salonsAdminRepository;
         private ISalonPhotosRepository _salonPhotosRepository;
         private IRefreshTokenRepository _refreshTokenRepository;
+        private IConversationsRepository _conversationsRepository;
+        private IConversationMessagesRepository _conversationMessagesRepository;
         public UnitOfWork(BarberBookingDbContext dbContext)
         {
             _dbContext = dbContext;
@@ -142,6 +146,16 @@ namespace BarberBooking.API.Service
         public IRefreshTokenRepository refreshTokenRepository
         {
             get {return _refreshTokenRepository ??= new RefreshTokenRepository(_dbContext);}
+        }
+
+        public IConversationsRepository conversationsRepository
+        {
+            get {return _conversationsRepository ?? new ConversationsRepository(_dbContext);}
+        }
+
+        public IConversationMessagesRepository conversationMessagesRepository
+        {
+            get {return _conversationMessagesRepository ?? new ConversationMessagesRepository(_dbContext);}
         }
 
         public void BeginTransaction()

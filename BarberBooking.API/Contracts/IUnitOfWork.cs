@@ -13,6 +13,8 @@ using BarberBooking.API.Contracts.WeeklyTemplateContracts;
 using BarberBooking.API.Contracts.MasterServicesContracts;
 using BarberBooking.API.Contracts.SalonsAdminContracts;
 using BarberBooking.API.Contracts.SalonPhotosContracts;
+using BarberBooking.API.Contracts.ConversationsContracts;
+using BarberBooking.API.Contracts.ConversationMessagesContracts;
 
 namespace BarberBooking.API.Contracts
 {
@@ -38,6 +40,8 @@ namespace BarberBooking.API.Contracts
         ISalonsAdminRepository salonsAdminRepository {get;}
         ISalonPhotosRepository salonPhotosRepository {get;}
         IRefreshTokenRepository refreshTokenRepository {get;}
+        IConversationsRepository conversationsRepository {get;}
+        IConversationMessagesRepository conversationMessagesRepository {get;}
         void BeginTransaction();
         void Commit();
         void RollBack();

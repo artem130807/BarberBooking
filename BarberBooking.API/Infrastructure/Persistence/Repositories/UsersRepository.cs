@@ -63,5 +63,11 @@ namespace BarberBooking.API.Repositories
         {
             return await _context.Users.FirstOrDefaultAsync(x => x.Email == email);
         }
+        public async Task<Dictionary<Guid, string>> GetUsersByIds(IEnumerable<Guid> userIds)
+        {
+            return await _context.Users
+                .Where(u => userIds.Contains(u.Id))
+                .ToDictionaryAsync(u => u.Id, u => u.Name);
+        }
     }
 }
