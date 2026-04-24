@@ -27,11 +27,19 @@ namespace BarberBooking.API.Infrastructure.Persistence.Repositories
             await _context.ConversationMessages.Where(x => x.Id == Id).ExecuteDeleteAsync();
         }
 
+        public async Task<ConversationMessages> GetLastMessageInConversation(Guid conversationId)
+        {
+            return await _context.ConversationMessages.FirstOrDefaultAsync(x => x.ConversationsId == conversationId);
+        }
+
         public async Task<ConversationMessages> GetMessage(Guid Id)
         {
             return await _context.ConversationMessages.FirstOrDefaultAsync(x => x.Id == Id);
         }
-
+        public async Task<ConversationMessages> GetMessageByNotId(Guid Id, Guid conversationId)
+        {
+            return await _context.ConversationMessages.FirstOrDefaultAsync(x => x.Id != Id && x.ConversationsId == conversationId);
+        }
         public async Task<PagedResult<ConversationMessages>> GetMessages(Guid conversationId, PageParams pageParams)
         {
             return await _context.ConversationMessages.Where(x => x.ConversationsId == conversationId).ToPagedAsync(pageParams);

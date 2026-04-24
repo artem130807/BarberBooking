@@ -18,11 +18,13 @@ namespace BarberBooking.API.CQRS.Conversations.Queries.Handlers
         private readonly IConversationsRepository _conversationsRepository;
         private readonly IUserRepository _userRepository;
         private readonly IUserContext _userContext;
-        public GetConversationsHandler(IConversationsRepository conversationsRepository, IUserRepository userRepository, IUserContext userContext)
+        private readonly IConversationMessagesRepository _conversationMessagesRepository;
+        public GetConversationsHandler(IConversationsRepository conversationsRepository, IUserRepository userRepository, IUserContext userContext, IConversationMessagesRepository conversationMessagesRepository)
         {
             _conversationsRepository = conversationsRepository;
             _userRepository = userRepository;
             _userContext = userContext;
+            _conversationMessagesRepository = conversationMessagesRepository;
         }
         public async Task<Result<PagedResult<DtoConversationShortInfo>>> Handle(GetConversationsQuery query, CancellationToken cancellationToken)
         {
@@ -37,7 +39,8 @@ namespace BarberBooking.API.CQRS.Conversations.Queries.Handlers
             .ToList();
             var users = await _userRepository.GetUsersByIds(otherUserIds); 
             var userNames = users.ToDictionary(u => u.Key, u => u.Value);
-
+            
+            // var lastMessage = await _conversationMessagesRepository.GetLastMessageInConversation()
             var result = conversations.Data.Select(с => 
             {
                 var otherUserId = с.Participant1Id == userId ? с.Participant2Id : с.Participant1Id;
