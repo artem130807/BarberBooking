@@ -1,5 +1,19 @@
 version: "2.1"
 services:
+  postgres:
+    image: postgres:16
+    hostname: postgres
+    restart: always
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: secret
+      POSTGRES_DB: barberdb
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - barber-net
   rabbitmq:
     image: rabbitmq:3.10.7-management
     hostname: rabbitmq
