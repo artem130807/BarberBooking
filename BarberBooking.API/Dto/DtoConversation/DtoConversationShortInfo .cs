@@ -10,7 +10,7 @@ namespace BarberBooking.API.Dto.DtoConversation
         public Guid Id {get; set;}
         public string UserName {get; set;}
         public int CountUreadMessages {get; set;}
-        public string LastMessageContent {get; set;}
+        public string? LastMessageContent {get; set;}
         public DateTime? LastMessageAt { get; set; }
     }
 } 

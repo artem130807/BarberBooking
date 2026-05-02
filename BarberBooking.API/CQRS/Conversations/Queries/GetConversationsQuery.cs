@@ -9,5 +9,5 @@ using MediatR;
 
 namespace BarberBooking.API.CQRS.Conversations.Queries
 {
-    public record GetConversationsQuery(Guid userId, PageParams pageParams):IRequest<Result<PagedResult<DtoConversationShortInfo>>>;
+    public record GetConversationsQuery(PageParams pageParams):IRequest<Result<PagedResult<DtoConversationShortInfo>>>;
 }

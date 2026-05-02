@@ -46,6 +46,7 @@ namespace BarberBooking.API.CQRS.Conversations.Queries.Handlers
                     Id = с.Id,
                     UserName = userNames.GetValueOrDefault(otherUserId, "Пустое имя"),
                     CountUreadMessages = с.ConversationMessages.Count(x => x.ReceiverId == userId && x.ConversationsId == с.Id),
+                    LastMessageContent = с.ConversationMessages.Where(x => x.ConversationsId == с.Id).Select(x => x.Content).FirstOrDefault(),
                     LastMessageAt = с.LastMessageAt,
                 };
               

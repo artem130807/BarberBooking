@@ -29,7 +29,7 @@ namespace BarberBooking.API.CQRS.Conversations.Queries.Handlers
         public async Task<Result<PagedResult<DtoConversationShortInfo>>> Handle(GetConversationsQuery query, CancellationToken cancellationToken)
         {
             var userId = _userContext.UserId;
-            var conversations = await _conversationsRepository.GetPagedResultAsync(query.userId, query.pageParams);
+            var conversations = await _conversationsRepository.GetPagedResultAsync(userId, query.pageParams);
             if(conversations.Count == 0)
                 return Result.Failure<PagedResult<DtoConversationShortInfo>>("Список даилогов пуст");
             var otherUserIds = conversations.Data
@@ -39,8 +39,7 @@ namespace BarberBooking.API.CQRS.Conversations.Queries.Handlers
             .ToList();
             var users = await _userRepository.GetUsersByIds(otherUserIds); 
             var userNames = users.ToDictionary(u => u.Key, u => u.Value);
-            
-            // var lastMessage = await _conversationMessagesRepository.GetLastMessageInConversation()
+
             var result = conversations.Data.Select(с => 
             {
                 var otherUserId = с.Participant1Id == userId ? с.Participant2Id : с.Participant1Id;
@@ -49,6 +48,7 @@ namespace BarberBooking.API.CQRS.Conversations.Queries.Handlers
                     Id = с.Id,
                     UserName = userNames.GetValueOrDefault(otherUserId, "Пустое имя"),
                     CountUreadMessages = с.ConversationMessages.Count(x => x.ReceiverId == userId && x.ConversationsId == с.Id),
+                    LastMessageContent = с.ConversationMessages.Where(x => x.ConversationsId == с.Id).Select(x => x.Content).FirstOrDefault(),
                     LastMessageAt = с.LastMessageAt,
                 };
               

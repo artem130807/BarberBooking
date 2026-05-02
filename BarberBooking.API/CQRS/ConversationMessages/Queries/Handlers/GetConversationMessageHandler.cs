@@ -18,7 +18,18 @@ namespace BarberBooking.API.CQRS.ConversationMessages.Queries.Handlers
         }
         public async Task<Result<DtoConversationMessageInfo>> Handle(GetConversationMessageQuery query, CancellationToken cancellationToken)
         {
-            throw new NotImplementedException();
+            var message = await _conversationMessagesRepository.GetMessage(query.Id);
+            if(message == null)
+                return Result.Failure<DtoConversationMessageInfo>("Не удалось получить сообщение");
+            var result = new DtoConversationMessageInfo
+            {
+                Id = message.Id,
+                SenderName = message.Sender.Name,
+                Content = message.Content,
+                IsRead = message.IsRead,
+                SendTime = message.CreatedAt
+            };
+            return Result.Success(result);
         }
     }
 }

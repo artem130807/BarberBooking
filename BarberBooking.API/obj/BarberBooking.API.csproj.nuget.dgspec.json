@@ -118,6 +118,14 @@
               "target": "Package",
               "version": "[13.0.4, )"
             },
+            "Npgsql.EntityFrameworkCore.PostgreSQL": {
+              "target": "Package",
+              "version": "[9.0.4, )"
+            },
+            "RabbitMQ.Client": {
+              "target": "Package",
+              "version": "[7.2.1, )"
+            },
             "SendGrid": {
               "target": "Package",
               "version": "[9.29.3, )"

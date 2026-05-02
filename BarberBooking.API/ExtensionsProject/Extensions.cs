@@ -30,7 +30,7 @@ namespace BarberBooking.API
         {
             services.AddDbContext<BarberBookingDbContext>(options =>
             {
-                options.UseSqlServer(configuration.GetConnectionString("DefaultConnection"));
+                options.UseNpgsql(configuration.GetConnectionString("DefaultConnection"));
             });
         }
         public static void AddApiAuthentication(this IServiceCollection services, IConfiguration configuration)

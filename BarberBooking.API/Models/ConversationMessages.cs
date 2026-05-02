@@ -41,5 +41,6 @@ namespace BarberBooking.API.Models
             return Result.Success(message);
         }
         public void UpdateContent(string content) => Content = content;
+        public void UpdateIsRead() => IsRead = true;
     }
 }

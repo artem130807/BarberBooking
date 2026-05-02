@@ -45,14 +45,18 @@ namespace BarberBooking.API.Infrastructure.Persistence.Repositories
             return await _context.ConversationMessages.Where(x => x.ConversationsId == conversationId).ToPagedAsync(pageParams);
         }
 
-        public async Task<int> GetUnreadMessagesByConversation(Guid receiverId, Guid conversationId)
+        public async Task<List<ConversationMessages>> GetUnreadMessagesByConversation(Guid receiverId, Guid conversationId)
         {
-            return await _context.ConversationMessages.Where(x => x.ReceiverId == receiverId && x.ConversationsId == conversationId).CountAsync();
+            return await _context.ConversationMessages.Where(x => x.ReceiverId == receiverId && x.ConversationsId == conversationId).ToListAsync();
         }
-
         public async Task<int> GetUnreadMessagesByUser(Guid receiverId)
         {
             return await _context.ConversationMessages.Where(x => x.ReceiverId == receiverId).CountAsync();
+        }
+
+        public async Task SaveChangesAsync()
+        {
+            await _context.SaveChangesAsync();
         }
     }
 }

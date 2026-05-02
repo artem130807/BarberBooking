@@ -14,8 +14,9 @@ namespace BarberBooking.API.Contracts.ConversationMessagesContracts
         Task<ConversationMessages> GetMessage(Guid Id);
         Task<PagedResult<ConversationMessages>> GetMessages(Guid conversationId,PageParams pageParams);
         Task<int> GetUnreadMessagesByUser(Guid receiverId);
-        Task<int> GetUnreadMessagesByConversation(Guid receiverId, Guid conversationId);
+        Task<List<ConversationMessages>> GetUnreadMessagesByConversation(Guid receiverId, Guid conversationId);
         Task<ConversationMessages> GetMessageByNotId(Guid Id, Guid conversationId);
         Task<ConversationMessages> GetLastMessageInConversation(Guid conversationId);
+        Task SaveChangesAsync();
     }
 }

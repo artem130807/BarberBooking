@@ -893,3 +893,6 @@ E:\AAAAA1111222C#\BarberBookingApp\BarberBooking.API\obj\Debug\net9.0\refint\Bar
 E:\AAAAA1111222C#\BarberBookingApp\BarberBooking.API\obj\Debug\net9.0\BarberBooking.API.pdb
 E:\AAAAA1111222C#\BarberBookingApp\BarberBooking.API\obj\Debug\net9.0\BarberBooking.API.genruntimeconfig.cache
 E:\AAAAA1111222C#\BarberBookingApp\BarberBooking.API\obj\Debug\net9.0\ref\BarberBooking.API.dll
+E:\AAAAA1111222C#\BarberBookingApp\BarberBooking.API\bin\Debug\net9.0\Npgsql.dll
+E:\AAAAA1111222C#\BarberBookingApp\BarberBooking.API\bin\Debug\net9.0\Npgsql.EntityFrameworkCore.PostgreSQL.dll
+E:\AAAAA1111222C#\BarberBookingApp\BarberBooking.API\bin\Debug\net9.0\RabbitMQ.Client.dll

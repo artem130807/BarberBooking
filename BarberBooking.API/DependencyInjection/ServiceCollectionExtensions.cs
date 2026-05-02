@@ -37,6 +37,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using BarberBooking.API.Contracts.ConversationMessagesContracts;
 using BarberBooking.API.Contracts.ConversationsContracts;
+using MessagePack.Resolvers;
+using BarberBooking.API.Messaging.RabbitMq.Producers;
 
 namespace BarberBooking.API.DependencyInjection;
 
@@ -120,6 +122,8 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IGenerateByteArrayService, GenerateByteArrayService>();
         services.AddScoped<IConversationMessagesRepository, ConversationMessagesRepository>();
         services.AddScoped<IConversationsRepository, ConversationsRepository>();
+        services.AddScoped<IUpdateUreadMessagesService, UpdateUreadMessagesService>();
+        services.AddScoped<IRabbitMqService, RabbitMqService>(); 
         return services;
     }
 }
