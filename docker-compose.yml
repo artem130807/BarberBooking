@@ -1,8 +1,22 @@
 version: "2.1"
 services:
-  postgres:
+  dev_postgres:
     image: postgres:16
-    hostname: postgres
+    hostname: dev_postgres
+    restart: always
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: secret
+      POSTGRES_DB: barberdb
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - barber-net
+  prod_postgres:
+    image: postgres:16
+    hostname: prod_postgres
     restart: always
     environment:
       POSTGRES_USER: admin
@@ -33,7 +47,7 @@ services:
       - ASPNETCORE_ENVIRONMENT=Development
       - ConnectionStrings__DefaultConnection=Host=postgres;Port=5432;Database=barberdb;Username=admin;Password=secret
     depends_on:
-      - postgres
+      - dev_postgres
       - rabbitmq
     networks:
       - barber-net
@@ -47,7 +61,7 @@ services:
       - ASPNETCORE_ENVIRONMENT=Production
       - ConnectionStrings__DefaultConnection=Host=postgres;Port=5432;Database=barberdb;Username=admin;Password=secret
     depends_on:
-      - postgres
+      - prod_postgres
       - rabbitmq
     networks:
       - barber-net
