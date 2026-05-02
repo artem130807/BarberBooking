@@ -19,7 +19,7 @@ namespace BarberBooking.API.Service.Background.Handlers
         }
         public async Task Handle(CancellationToken cancellationToken)
         {
-            var appointments = await _appointmentsRepository.GetAppointmentsByDateTo(DateTime.Now);
+            var appointments = await _appointmentsRepository.GetAppointmentsByDateTo(DateTime.UtcNow);
             _logger.LogInformation($"Количество записей для отмены {appointments.Count}");
             if(appointments.Count != 0)
             {

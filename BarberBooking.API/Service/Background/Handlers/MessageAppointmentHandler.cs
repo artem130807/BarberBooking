@@ -30,7 +30,7 @@ namespace BarberBooking.API.Service.Background
 
         public async Task Handle(CancellationToken cancellationToken)
         {
-            var now = DateTime.Now;
+            var now = DateTime.UtcNow;
             var upperBound = now.AddHours(24).AddMinutes(1);
 
             var appointments = await _appointmentsRepository

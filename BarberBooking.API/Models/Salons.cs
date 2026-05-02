@@ -16,7 +16,7 @@ namespace BarberBooking.API.Models
         public string? Description { get; private set; }
         public Address Address {get; private set;}
         public PhoneNumber? PhoneNumber {get; private set;}
-        public DateTime CreatedAt {get; private set;} = DateTime.Now;
+        public DateTime CreatedAt {get; private set;} = DateTime.UtcNow;
         public TimeOnly? OpeningTime { get; private set; }
         public TimeOnly? ClosingTime { get; private set; }
         public bool IsActive {get; private set;} = true;

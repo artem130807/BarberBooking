@@ -26,8 +26,8 @@ namespace BarberBooking.API.Service.Background
         public async Task Handle(CancellationToken cancellationToken)
         {
             var salons = await _salonsRepository.GetSalons();
-            var nowDate = DateOnly.FromDateTime(DateTime.Now);
-            var nowTime = TimeOnly.FromDateTime(DateTime.Now);
+            var nowDate = DateOnly.FromDateTime(DateTime.UtcNow);
+            var nowTime = TimeOnly.FromDateTime(DateTime.UtcNow);
 
             foreach(var salon in salons)
             {

@@ -49,7 +49,7 @@ namespace BarberBooking.API.Repositories
 
         public async Task<List<EmailVerification>> GetVerifications()
         {
-            var cutoffTime = DateTime.Now.AddMinutes(-15);
+            var cutoffTime = DateTime.UtcNow.AddMinutes(-15);
             return await _context.EmailVerifications
             .Where(x => x.LastSentAt <= cutoffTime)
             .ToListAsync();

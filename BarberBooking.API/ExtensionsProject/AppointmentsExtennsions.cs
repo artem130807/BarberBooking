@@ -42,7 +42,7 @@ namespace BarberBooking.API.ExtensionsProject
 
             if (filter.ThisWeek == true)
             {
-                var today = DateTime.Today;
+                var today = DateTime.UtcNow.Date;
                 var daysFromMonday = (7 + (today.DayOfWeek - DayOfWeek.Monday)) % 7;
                 var weekStart = today.AddDays(-daysFromMonday).Date;
                 var weekEndExclusive = weekStart.AddDays(7);
@@ -51,13 +51,13 @@ namespace BarberBooking.API.ExtensionsProject
 
             if (filter.ThisDay == true)
             {
-                var start = DateTime.Today;
+                var start = DateTime.UtcNow.Date;
                 var end = start.AddDays(1);
                 query = query.Where(x => x.CreatedAt >= start && x.CreatedAt < end);
             }
             if (filter.ThisMounth == true)
             {
-                var start = new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1);
+                var start = new DateTime(DateTime.UtcNow.Date.Year, DateTime.UtcNow.Date.Month, 1);
                 var end = start.AddMonths(1);
                 query = query.Where(x => x.CreatedAt >= start && x.CreatedAt < end);
             }

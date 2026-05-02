@@ -39,7 +39,7 @@ namespace BarberBooking.API.CQRS.RefreshTokens.Commands.Handlers
                 return Result.Failure<AuthDto>("Сессия недействительна");
             if (refreshToken.IsRevoked)
                 return Result.Failure<AuthDto>("Сессия отозвана");
-            if (refreshToken.ExpiresAt < DateTime.Now)
+            if (refreshToken.ExpiresAt < DateTime.UtcNow)
                 return Result.Failure<AuthDto>("Сессия истекла");
             if (!string.Equals(refreshToken.Devices, command.Devices, StringComparison.Ordinal))
                 return Result.Failure<AuthDto>("Несоответствие устройства");

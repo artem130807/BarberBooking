@@ -34,7 +34,7 @@ namespace BarberBooking.API.CQRS.Salon.Queries.Handlers
             var salons = await _salonsRepository.GetSalonsByCity(userCity, query.pageParams);
             if(salons.Count == 0)
                 return Result.Failure<List<DtoSalonShortInfo>>("Салоны в вашем городе не найдены");
-            var date = DateOnly.FromDateTime(DateTime.Now);
+            var date = DateOnly.FromDateTime(DateTime.UtcNow);
             var dtoList = salons.Data.Select(s => _mapper.Map<DtoSalonShortInfo>(s)).ToList();
             var slotCounts = await _masterTimeSlotRepository.GetAvailableSlotsCountBySalonIdsAsync(
                 dtoList.Select(d => d.Id).ToList(),

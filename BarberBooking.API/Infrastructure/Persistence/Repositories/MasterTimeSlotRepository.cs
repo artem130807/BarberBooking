@@ -62,8 +62,8 @@ namespace BarberBooking.API.Repositories
             if (slots.Count == 0)
                 return new List<MasterTimeSlot>();
 
-            var today = DateOnly.FromDateTime(DateTime.Now);
-            var currentTime = RoundUpToMinute(TimeOnly.FromDateTime(DateTime.Now));
+            var today = DateOnly.FromDateTime(DateTime.UtcNow);
+            var currentTime = RoundUpToMinute(TimeOnly.FromDateTime(DateTime.UtcNow));
             var earliestStartToday = currentTime.Add(MinLeadTime);
             var freeSegments = new List<(Guid SourceSlotId, TimeOnly Start, TimeOnly End)>();
 
@@ -132,8 +132,8 @@ namespace BarberBooking.API.Repositories
             DateOnly date,
             TimeSpan serviceDuration)
         {
-            var today = DateOnly.FromDateTime(DateTime.Now);
-            var currentTime = RoundUpToMinute(TimeOnly.FromDateTime(DateTime.Now));
+            var today = DateOnly.FromDateTime(DateTime.UtcNow);
+            var currentTime = RoundUpToMinute(TimeOnly.FromDateTime(DateTime.UtcNow));
             var earliestStartToday = currentTime.Add(MinLeadTime);
             var freeSegments = new List<(Guid SourceSlotId, TimeOnly Start, TimeOnly End)>();
 

@@ -46,7 +46,7 @@ namespace BarberBooking.API.CQRS.Salon.Queries.Handlers
                 return Result.Failure<PagedResult<DtoSalonShortInfo>>("Салоны с такой услугой не найдены");
 
             var dtoList = _mapper.Map<PagedResult<DtoSalonShortInfo>>(salons);
-            var date = DateOnly.FromDateTime(DateTime.Now);
+            var date = DateOnly.FromDateTime(DateTime.UtcNow);
             var slotCounts = await _masterTimeSlotRepository.GetAvailableSlotsCountBySalonIdsAsync(
                 dtoList.Data.Select(d => d.Id).ToList(),
                 date,

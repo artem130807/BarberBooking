@@ -27,7 +27,7 @@ namespace BarberBooking.API.Models
                 Id = Guid.NewGuid(),
                 TokenHash = refreshToken,
                 UserId = userId,
-                ExpiresAt = DateTime.Now.AddDays(180),
+                ExpiresAt = DateTime.UtcNow.AddDays(180),
                 IsRevoked = false,
                 Devices = devices
             };

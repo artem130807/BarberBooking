@@ -21,7 +21,7 @@ namespace BarberBooking.API.Models
                 Id = Guid.NewGuid(),
                 PhotoUrl = photoUrl,
                 SalonId = salonId,
-                CreatedAt = DateTime.Now
+                CreatedAt = DateTime.UtcNow
             }; 
             return Result.Success(photo);
         }
