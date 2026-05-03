@@ -35,7 +35,9 @@ jobs:
           git clean -fd
           git pull origin develop
           docker build -t barber-api:dev -f BarberBooking.API/Dockerfile .
-          docker-compose down dev_api && docker-compose up -d dev_api
+          docker-compose down --remove-orphans
+          docker network prune -f
+          docker-compose up -d --force-recreate --renew-anon-volumes
 
   deploy-prod:
     needs: test-and-build
@@ -49,4 +51,6 @@ jobs:
           git clean -fd
           git pull origin main
           docker build -t barber-api:prod -f BarberBooking.API/Dockerfile .
-          docker-compose down prod_api && docker-compose up -d prod_api
+          docker-compose down --remove-orphans
+          docker network prune -f
+          docker-compose up -d --force-recreate --renew-anon-volumes
