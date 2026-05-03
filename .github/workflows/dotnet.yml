@@ -30,13 +30,13 @@ jobs:
     steps:
       - name: Deploy to Dev VM
         run: |
-          ssh -p ${{ secrets.VM_PORT }} ${{ secrets.VM_USER }}@${{ secrets.VM_HOST }} << 'EOF'
-            cd ~/project/BarberBooking
-            git pull origin develop
-            docker build -t barber-api:dev -f BarberBooking.API/Dockerfile .
-            docker-compose down dev_api && docker-compose up -d dev_api
-          EOF
-
+          run: |
+            ssh -p ${{ secrets.VM_PORT }} ${{ secrets.VM_USER }}@${{ secrets.VM_HOST }} << EOF
+              cd ~/project/BarberBooking
+              git pull origin develop
+              docker build -t barber-api:dev -f BarberBooking.API/Dockerfile .
+              docker-compose down dev_api && docker-compose up -d dev_api
+            EOF
   deploy-prod:
     needs: test-and-build
     if: github.ref_name == 'main' && github.event_name == 'push'
