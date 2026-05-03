@@ -28,24 +28,21 @@ jobs:
     if: github.ref_name == 'develop' && github.event_name == 'push'
     runs-on: self-hosted
     steps:
-      - name: Deploy to Dev VM
+      - name: Deploy to Dev
         run: |
-            ssh -p ${{ secrets.VM_PORT }} ${{ secrets.VM_USER }}@${{ secrets.VM_HOST }} << EOF
-              cd ~/project/BarberBooking
-              git pull origin develop
-              docker build -t barber-api:dev -f BarberBooking.API/Dockerfile .
-              docker-compose down dev_api && docker-compose up -d dev_api
-            EOF
+          cd ~/project/BarberBooking
+          git pull origin develop
+          docker build -t barber-api:dev -f BarberBooking.API/Dockerfile .
+          docker-compose down dev_api && docker-compose up -d dev_api
+
   deploy-prod:
     needs: test-and-build
     if: github.ref_name == 'main' && github.event_name == 'push'
     runs-on: self-hosted
     steps:
-      - name: Deploy to Prod VM
+      - name: Deploy to Prod
         run: |
-          ssh -p ${{ secrets.VM_PORT }} ${{ secrets.VM_USER }}@${{ secrets.VM_HOST }} << 'EOF'
-            cd ~/project/BarberBooking
-            git pull origin main
-            docker build -t barber-api:prod -f BarberBooking.API/Dockerfile .
-            docker-compose down prod_api && docker-compose up -d prod_api
-          EOF
+          cd ~/project/BarberBooking
+          git pull origin main
+          docker build -t barber-api:prod -f BarberBooking.API/Dockerfile .
+          docker-compose down prod_api && docker-compose up -d prod_api
