@@ -31,6 +31,8 @@ jobs:
       - name: Deploy to Dev
         run: |
           cd ~/project/BarberBooking
+          git reset --hard HEAD
+          git clean -fd
           git pull origin develop
           docker build -t barber-api:dev -f BarberBooking.API/Dockerfile .
           docker-compose down dev_api && docker-compose up -d dev_api
@@ -43,6 +45,8 @@ jobs:
       - name: Deploy to Prod
         run: |
           cd ~/project/BarberBooking
+          git reset --hard HEAD
+          git clean -fd
           git pull origin main
           docker build -t barber-api:prod -f BarberBooking.API/Dockerfile .
           docker-compose down prod_api && docker-compose up -d prod_api
