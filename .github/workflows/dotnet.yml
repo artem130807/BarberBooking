@@ -30,7 +30,6 @@ jobs:
     steps:
       - name: Deploy to Dev VM
         run: |
-          run: |
             ssh -p ${{ secrets.VM_PORT }} ${{ secrets.VM_USER }}@${{ secrets.VM_HOST }} << EOF
               cd ~/project/BarberBooking
               git pull origin develop
