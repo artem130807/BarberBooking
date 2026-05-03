@@ -1,14 +1,9 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using BarberBooking.API.Models;
+﻿using IdentityService.Models;
 
-namespace BarberBooking.API.Contracts
+namespace IdentityService.Contracts;
+
+public interface IOutboxMessageRepository
 {
-    public interface  IOutboxMessageRepository
-    {
-        Task Add(OutboxMessage message);
-        Task Remove(Guid Id);
-    }
+    Task Add(OutboxMessage message);
+    Task Remove(Guid id);
 }

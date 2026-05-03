@@ -11,6 +11,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NotifyService", "NotifyServ
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BarberBooking.Tests", "BarberBooking.Tests\BarberBooking.Tests.csproj", "{74C7F2FD-E291-48A7-A4F4-C43265EBB337}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BarberBooking.Contracts", "BarberBooking.Contracts\BarberBooking.Contracts.csproj", "{3EE829EC-49C4-4BA2-AD5D-0C37B26DFDEB}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -69,6 +71,18 @@ Global
 		{74C7F2FD-E291-48A7-A4F4-C43265EBB337}.Release|x64.Build.0 = Release|Any CPU
 		{74C7F2FD-E291-48A7-A4F4-C43265EBB337}.Release|x86.ActiveCfg = Release|Any CPU
 		{74C7F2FD-E291-48A7-A4F4-C43265EBB337}.Release|x86.Build.0 = Release|Any CPU
+		{3EE829EC-49C4-4BA2-AD5D-0C37B26DFDEB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3EE829EC-49C4-4BA2-AD5D-0C37B26DFDEB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3EE829EC-49C4-4BA2-AD5D-0C37B26DFDEB}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{3EE829EC-49C4-4BA2-AD5D-0C37B26DFDEB}.Debug|x64.Build.0 = Debug|Any CPU
+		{3EE829EC-49C4-4BA2-AD5D-0C37B26DFDEB}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{3EE829EC-49C4-4BA2-AD5D-0C37B26DFDEB}.Debug|x86.Build.0 = Debug|Any CPU
+		{3EE829EC-49C4-4BA2-AD5D-0C37B26DFDEB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3EE829EC-49C4-4BA2-AD5D-0C37B26DFDEB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3EE829EC-49C4-4BA2-AD5D-0C37B26DFDEB}.Release|x64.ActiveCfg = Release|Any CPU
+		{3EE829EC-49C4-4BA2-AD5D-0C37B26DFDEB}.Release|x64.Build.0 = Release|Any CPU
+		{3EE829EC-49C4-4BA2-AD5D-0C37B26DFDEB}.Release|x86.ActiveCfg = Release|Any CPU
+		{3EE829EC-49C4-4BA2-AD5D-0C37B26DFDEB}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

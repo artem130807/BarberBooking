@@ -1,20 +1,15 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using IdentityService.Models;
+﻿using IdentityService.Models;
 
-namespace BarberBooking.API.Contracts
+namespace IdentityService.Contracts;
+
+public interface IRefreshTokenRepository
 {
-    public interface IRefreshTokenRepository
-    {
-        Task Add(RefreshToken refreshToken);
-        Task Delete(Guid Id);
-        Task<RefreshToken> GetRefreshTokenByDevices(Guid userId, string devices);
-        Task<RefreshToken> GetRefreshTokenByToken(string token);
-        Task<RefreshToken> GetRefreshToken(Guid Id);
-        Task<List<RefreshToken>> GetRefreshTokens(Guid userId);
-        Task<List<RefreshToken>> GetRefreshRevokedTokens(Guid userId);
-        Task SaveChangesAsync();
-    }
+    Task Add(RefreshToken refreshToken);
+    Task Delete(Guid id);
+    Task<RefreshToken?> GetRefreshTokenByDevices(Guid userId, string devices);
+    Task<RefreshToken?> GetRefreshTokenByToken(string token);
+    Task<RefreshToken?> GetRefreshToken(Guid id);
+    Task<List<RefreshToken>> GetRefreshTokens(Guid userId);
+    Task<List<RefreshToken>> GetRefreshRevokedTokens(Guid userId);
+    Task SaveChangesAsync();
 }

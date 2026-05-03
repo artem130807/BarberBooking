@@ -1,43 +1,36 @@
-using System;
-using System.Buffers.Text;
-using System.Collections.Generic;
-using System.Linq;
-using System.Security.Cryptography;
-using System.Threading.Tasks;
-using CSharpFunctionalExtensions;
-using IdentityService.Models;
+﻿using CSharpFunctionalExtensions;
 
-namespace IdentityService.Models
+namespace IdentityService.Models;
+
+public class RefreshToken
 {
-    public class RefreshToken
-    {
-        public Guid Id {get; private set;}
-        public string TokenHash {get; private set;}
-        public Guid UserId {get; private set;}
-        public Users User {get; private set;}
-        public DateTime ExpiresAt {get; private set;}
-        public bool IsRevoked {get; private set;}
-        public string Devices {get; private set;}
+    public Guid Id { get; private set; }
+    public string TokenHash { get; private set; }
+    public Guid UserId { get; private set; }
+    public Users User { get; private set; }
+    public DateTime ExpiresAt { get; private set; }
+    public bool IsRevoked { get; private set; }
+    public string Devices { get; private set; }
 
-        public static Result<RefreshToken> Create(Guid userId, byte[] array ,string devices)
+    public static Result<RefreshToken> Create(Guid userId, byte[] array, string devices)
+    {
+        var refreshToken = GenerateRefreshToken(array);
+        var result = new RefreshToken
         {
-            var refreshToken = GenerateRefreshToken(array);
-            var resfreshToken = new RefreshToken
-            {
-                Id = Guid.NewGuid(),
-                TokenHash = refreshToken,
-                UserId = userId,
-                ExpiresAt = DateTime.Now.AddDays(180),
-                IsRevoked = false,
-                Devices = devices
-            };
-            return resfreshToken;
-        }
-        public void RevokedToken() => IsRevoked = true;
-       
-        private static string GenerateRefreshToken(byte[] array)
-        {
-            return Convert.ToBase64String(array);
-        }
+            Id = Guid.NewGuid(),
+            TokenHash = refreshToken,
+            UserId = userId,
+            ExpiresAt = DateTime.UtcNow.AddDays(180),
+            IsRevoked = false,
+            Devices = devices
+        };
+        return result;
+    }
+
+    public void RevokedToken() => IsRevoked = true;
+
+    private static string GenerateRefreshToken(byte[] array)
+    {
+        return Convert.ToBase64String(array);
     }
 }
