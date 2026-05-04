@@ -1,0 +1,17 @@
+syntax = "proto3";
+
+option csharp_namespace = "BarberBooking.Contracts";
+
+service IdentityService {
+  rpc TokenValidation (TokenValidationRequest) returns (TokenValidationResponse);
+}
+
+message TokenValidationRequest {
+  string token = 1;
+}
+message TokenValidationResponse {
+    bool isValid = 1;
+    string userId = 2;
+    string email = 3;
+    string role = 4;
+}

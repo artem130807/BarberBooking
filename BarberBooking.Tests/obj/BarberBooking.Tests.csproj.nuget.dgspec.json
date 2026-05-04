@@ -70,6 +70,14 @@
               "target": "Package",
               "version": "[3.5.0, )"
             },
+            "Google.Protobuf": {
+              "target": "Package",
+              "version": "[3.34.1, )"
+            },
+            "Grpc.AspNetCore": {
+              "target": "Package",
+              "version": "[2.80.0, )"
+            },
             "MailKit": {
               "target": "Package",
               "version": "[4.15.1, )"

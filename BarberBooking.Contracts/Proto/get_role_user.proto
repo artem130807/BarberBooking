@@ -1,0 +1,14 @@
+syntax = "proto3";
+
+option csharp_namespace = "BarberBooking.Contracts";
+
+service IdentityService {
+  rpc GetRoleUser(GetRoleRequest) returns (GetRoleResponse);
+}
+
+message GetRoleRequest {
+  string token = 1;
+}
+message GetRoleResponse {
+    string role = 2;
+}

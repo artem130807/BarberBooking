@@ -1,0 +1,15 @@
+syntax = "proto3";
+
+option csharp_namespace = "BarberBooking.Contracts";
+
+service IdentityService {
+  rpc Authorize (AuthorizeRequest) returns (AuthorizeResponse);
+}
+
+message AuthorizeRequest {
+  string token = 1;
+}
+message AuthorizeResponse {
+    bool  isAuthorize = 1;
+    string role = 2;
+}

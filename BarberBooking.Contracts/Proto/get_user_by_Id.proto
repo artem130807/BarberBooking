@@ -9,8 +9,10 @@ service IdentityService {
 message GetUserRequest {
   string user_id = 1;
 }
-
 message UserResponse {
   string user_id = 1;
   string email = 2;
+  string number = 3;
+  string city = 4;
+  string role = 5;
 }
