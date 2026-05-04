@@ -79,7 +79,7 @@ namespace BarberBooking.API
         {
             Database.CommitTransaction();
         }
-
+        
         public void RollbackTransaction()
         {
             Database.RollbackTransaction();

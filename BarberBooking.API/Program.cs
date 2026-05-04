@@ -12,6 +12,7 @@ using MediatR;
 using Microsoft.AspNetCore.CookiePolicy;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.SignalR;
+using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 var configuration = builder.Configuration;
@@ -22,7 +23,6 @@ builder.Services.Configure<ForwardedHeadersOptions>(options =>
     options.KnownNetworks.Clear();
     options.KnownProxies.Clear();
 });
-// Конфигурация JWT (JWT + ApiKeys регистрируются в AddApiAuthentication)
 builder.Services.Configure<JwtOptions>(configuration.GetSection(nameof(JwtOptions)));
 builder.Services.ConfigureApplicationCookie(options =>
 {
@@ -33,14 +33,7 @@ builder.Services.ConfigureApplicationCookie(options =>
 });
 builder.Services.AddSingleton<IUserIdProvider, SignalRUserIdProvider>();
 var signalRBuilder = builder.Services.AddSignalR();
-// var redisConnection = configuration["SignalR:Redis"] ?? configuration.GetConnectionString("Redis");
-// if (!string.IsNullOrWhiteSpace(redisConnection))
-// {
-//     signalRBuilder.AddStackExchangeRedis(redisConnection, options =>
-//     {
-//         options.Configuration.ChannelPrefix = "BarberBooking";
-//     });
-// }
+
 builder.Services.AddDb(configuration);
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddControllers().ConfigureApiBehaviorOptions(options =>
@@ -90,8 +83,20 @@ if (!string.IsNullOrWhiteSpace(credentialPath))
 }
 
 var app = builder.Build();
+
+if (Environment.GetEnvironmentVariable("RUN_MIGRATIONS") == "true")
+{
+    using (var scope = app.Services.CreateScope())
+    {
+        var dbContext = scope.ServiceProvider.GetRequiredService<BarberBookingDbContext>();
+        await dbContext.Database.MigrateAsync();
+    }
+}
+
+
 app.UseForwardedHeaders();
 app.InitializingCache();
+
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
