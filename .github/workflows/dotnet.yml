@@ -39,7 +39,7 @@ jobs:
           docker network prune -f
           docker-compose up -d --force-recreate --renew-anon-volumes
 
-  deploy-prod:
+  deploy-prod1:
     needs: test-and-build
     if: github.ref_name == 'main' && github.event_name == 'push'
     runs-on: self-hosted
@@ -50,7 +50,9 @@ jobs:
           git reset --hard HEAD
           git clean -fd
           git pull origin main
-          docker build -t barber-api:prod -f BarberBooking.API/Dockerfile .
+          docker build -t barber-api:prod1 -f BarberBooking.API/Dockerfile .
+          docker build -t barber-api:prod2 -f BarberBooking.API/Dockerfile .
+          docker build -t barber-api:prod3 -f BarberBooking.API/Dockerfile .
           docker-compose down --remove-orphans
           docker network prune -f
           docker-compose up -d --force-recreate --renew-anon-volumes
