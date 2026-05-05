@@ -16,7 +16,10 @@ using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 var configuration = builder.Configuration;
-builder.WebHost.UseUrls("http://0.0.0.0:5088");
+builder.WebHost.ConfigureKestrel(options =>
+{
+    options.ListenAnyIP(5088);
+});
 builder.Services.Configure<ForwardedHeadersOptions>(options =>
 {
     options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
