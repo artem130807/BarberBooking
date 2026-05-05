@@ -2,7 +2,7 @@ syntax = "proto3";
 
 option csharp_namespace = "BarberBooking.Contracts";
 
-service IdentityService {
+service TokenValidationService {
   rpc TokenValidation (TokenValidationRequest) returns (TokenValidationResponse);
 }
 

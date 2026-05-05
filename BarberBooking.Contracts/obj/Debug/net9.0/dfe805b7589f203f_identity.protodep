@@ -1,2 +1,0 @@
-obj\Debug\net9.0\Proto/Identity.cs \
-obj\Debug\net9.0\Proto/IdentityGrpc.cs: Proto/identity.proto

@@ -14,4 +14,4 @@ RUN dotnet publish "BarberBooking.API.csproj" -c Release -o /app/publish
 FROM base AS final
 WORKDIR /app
 COPY --from=build /app/publish .
-ENTRYPOINT ["dotnet", "BarberBooking.API.dll"]
+ENTRYPOINT ["dotnet", "BarberBooking.API.dll"] 

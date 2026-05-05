@@ -6,10 +6,13 @@
   <ItemGroup>
     <PackageReference Include="Grpc.AspNetCore" Version="2.60.0" />
     <PackageReference Include="Google.Protobuf" Version="3.25.0" />
-    <PackageReference Include="Grpc.Tools" Version="2.60.0" PrivateAssets="all" />
+    <PackageReference Include="Grpc.Tools" Version="2.65.0" PrivateAssets="all"/>
   </ItemGroup>
 
   <ItemGroup>
-    <Protobuf Include="Proto\identity.proto" GrpcServices="Both" />
+    <Protobuf Include="Proto\authorize.proto" GrpcServices="Both" />
+    <Protobuf Include="Proto\get_role_user.proto" GrpcServices="Both" />
+    <Protobuf Include="Proto\get_user_by_id.proto" GrpcServices="Both" />
+    <Protobuf Include="Proto\token_validation.proto" GrpcServices="Both" />
   </ItemGroup>
 </Project>

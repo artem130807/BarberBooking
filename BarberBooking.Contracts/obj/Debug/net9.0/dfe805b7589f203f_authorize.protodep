@@ -1,0 +1,2 @@
+obj\Debug\net9.0\Proto/Authorize.cs \
+obj\Debug\net9.0\Proto/AuthorizeGrpc.cs: Proto/authorize.proto

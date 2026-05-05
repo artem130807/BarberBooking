@@ -1,0 +1,2 @@
+obj\Debug\net9.0\Proto/TokenValidation.cs \
+obj\Debug\net9.0\Proto/TokenValidationGrpc.cs: Proto/token_validation.proto

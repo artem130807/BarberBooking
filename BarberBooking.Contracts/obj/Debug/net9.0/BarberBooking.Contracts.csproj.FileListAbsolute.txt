@@ -1,0 +1,13 @@
+E:\AAAAA1111222C#\BarberBookingApp\BarberBooking.Contracts\obj\Debug\net9.0\BarberBooking.Contracts.csproj.AssemblyReference.cache
+E:\AAAAA1111222C#\BarberBookingApp\BarberBooking.Contracts\obj\Debug\net9.0\BarberBooking.Contracts.GeneratedMSBuildEditorConfig.editorconfig
+E:\AAAAA1111222C#\BarberBookingApp\BarberBooking.Contracts\obj\Debug\net9.0\BarberBooking.Contracts.AssemblyInfoInputs.cache
+E:\AAAAA1111222C#\BarberBookingApp\BarberBooking.Contracts\obj\Debug\net9.0\BarberBooking.Contracts.AssemblyInfo.cs
+E:\AAAAA1111222C#\BarberBookingApp\BarberBooking.Contracts\obj\Debug\net9.0\BarberBooking.Contracts.csproj.CoreCompileInputs.cache
+E:\AAAAA1111222C#\BarberBookingApp\BarberBooking.Contracts\obj\Debug\net9.0\BarberBooking.Contracts.sourcelink.json
+E:\AAAAA1111222C#\BarberBookingApp\BarberBooking.Contracts\bin\Debug\net9.0\BarberBooking.Contracts.deps.json
+E:\AAAAA1111222C#\BarberBookingApp\BarberBooking.Contracts\bin\Debug\net9.0\BarberBooking.Contracts.dll
+E:\AAAAA1111222C#\BarberBookingApp\BarberBooking.Contracts\bin\Debug\net9.0\BarberBooking.Contracts.pdb
+E:\AAAAA1111222C#\BarberBookingApp\BarberBooking.Contracts\obj\Debug\net9.0\BarberBooking.Contracts.dll
+E:\AAAAA1111222C#\BarberBookingApp\BarberBooking.Contracts\obj\Debug\net9.0\refint\BarberBooking.Contracts.dll
+E:\AAAAA1111222C#\BarberBookingApp\BarberBooking.Contracts\obj\Debug\net9.0\BarberBooking.Contracts.pdb
+E:\AAAAA1111222C#\BarberBookingApp\BarberBooking.Contracts\obj\Debug\net9.0\ref\BarberBooking.Contracts.dll

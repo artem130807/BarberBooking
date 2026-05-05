@@ -1,0 +1,2 @@
+obj\Debug\net9.0\Proto/GetUserById.cs \
+obj\Debug\net9.0\Proto/GetUserByIdGrpc.cs: Proto/get_user_by_id.proto

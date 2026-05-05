@@ -1,0 +1,2 @@
+obj\Debug\net9.0\Proto/GetRoleUser.cs \
+obj\Debug\net9.0\Proto/GetRoleUserGrpc.cs: Proto/get_role_user.proto
