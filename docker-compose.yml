@@ -50,6 +50,7 @@ services:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ConnectionStrings__DefaultConnection=Host=dev_postgres;Port=5432;Database=barberdb;Username=admin;Password=secret
+      - RUN_MIGRATIONS=true
     depends_on:
       - dev_postgres
       - rabbitmq
@@ -63,6 +64,7 @@ services:
     environment:
       - ASPNETCORE_ENVIRONMENT=Production
       - ConnectionStrings__DefaultConnection=Host=prod_postgres;Port=5432;Database=barberdb;Username=admin;Password=secret
+      - RUN_MIGRATIONS=true
     depends_on:
       - prod_postgres
       - rabbitmq
@@ -76,6 +78,7 @@ services:
     environment:
       - ASPNETCORE_ENVIRONMENT=Production
       - ConnectionStrings__DefaultConnection=Host=prod_postgres;Port=5432;Database=barberdb;Username=admin;Password=secret
+      - RUN_MIGRATIONS=true
     depends_on:
       - prod_postgres
       - rabbitmq
@@ -89,6 +92,7 @@ services:
     environment:
       - ASPNETCORE_ENVIRONMENT=Production
       - ConnectionStrings__DefaultConnection=Host=prod_postgres;Port=5432;Database=barberdb;Username=admin;Password=secret
+      - RUN_MIGRATIONS=true
     depends_on:
       - prod_postgres
       - rabbitmq

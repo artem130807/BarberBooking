@@ -39,7 +39,7 @@ jobs:
           docker network prune -f
           docker-compose up -d --force-recreate --renew-anon-volumes
 
-  deploy-prod1:
+  deploy-prod:
     needs: test-and-build
     if: github.ref_name == 'main' && github.event_name == 'push'
     runs-on: self-hosted
