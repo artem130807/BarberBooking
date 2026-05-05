@@ -1,0 +1,12 @@
+E:\AAAAA1111222C#\BarberBookingApp\NotifyService\NotifyService.Domain\bin\Debug\net9.0\NotifyService.Domain.deps.json
+E:\AAAAA1111222C#\BarberBookingApp\NotifyService\NotifyService.Domain\bin\Debug\net9.0\NotifyService.Domain.dll
+E:\AAAAA1111222C#\BarberBookingApp\NotifyService\NotifyService.Domain\bin\Debug\net9.0\NotifyService.Domain.pdb
+E:\AAAAA1111222C#\BarberBookingApp\NotifyService\NotifyService.Domain\obj\Debug\net9.0\NotifyService.Domain.GeneratedMSBuildEditorConfig.editorconfig
+E:\AAAAA1111222C#\BarberBookingApp\NotifyService\NotifyService.Domain\obj\Debug\net9.0\NotifyService.Domain.AssemblyInfoInputs.cache
+E:\AAAAA1111222C#\BarberBookingApp\NotifyService\NotifyService.Domain\obj\Debug\net9.0\NotifyService.Domain.AssemblyInfo.cs
+E:\AAAAA1111222C#\BarberBookingApp\NotifyService\NotifyService.Domain\obj\Debug\net9.0\NotifyService.Domain.csproj.CoreCompileInputs.cache
+E:\AAAAA1111222C#\BarberBookingApp\NotifyService\NotifyService.Domain\obj\Debug\net9.0\NotifyService.Domain.sourcelink.json
+E:\AAAAA1111222C#\BarberBookingApp\NotifyService\NotifyService.Domain\obj\Debug\net9.0\NotifyService.Domain.dll
+E:\AAAAA1111222C#\BarberBookingApp\NotifyService\NotifyService.Domain\obj\Debug\net9.0\refint\NotifyService.Domain.dll
+E:\AAAAA1111222C#\BarberBookingApp\NotifyService\NotifyService.Domain\obj\Debug\net9.0\NotifyService.Domain.pdb
+E:\AAAAA1111222C#\BarberBookingApp\NotifyService\NotifyService.Domain\obj\Debug\net9.0\ref\NotifyService.Domain.dll

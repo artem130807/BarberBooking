@@ -18,7 +18,7 @@ var builder = WebApplication.CreateBuilder(args);
 var configuration = builder.Configuration;
 builder.WebHost.ConfigureKestrel(options =>
 {
-    options.ListenAnyIP(5088);
+    options.ListenAnyIP(8080);
 });
 builder.Services.Configure<ForwardedHeadersOptions>(options =>
 {

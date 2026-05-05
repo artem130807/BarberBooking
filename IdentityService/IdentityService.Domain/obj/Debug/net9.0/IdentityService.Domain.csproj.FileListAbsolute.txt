@@ -1,0 +1,13 @@
+E:\AAAAA1111222C#\BarberBookingApp\IdentityService\IdentityService.Domain\obj\Debug\net9.0\IdentityService.Domain.csproj.AssemblyReference.cache
+E:\AAAAA1111222C#\BarberBookingApp\IdentityService\IdentityService.Domain\obj\Debug\net9.0\IdentityService.Domain.GeneratedMSBuildEditorConfig.editorconfig
+E:\AAAAA1111222C#\BarberBookingApp\IdentityService\IdentityService.Domain\obj\Debug\net9.0\IdentityService.Domain.AssemblyInfoInputs.cache
+E:\AAAAA1111222C#\BarberBookingApp\IdentityService\IdentityService.Domain\obj\Debug\net9.0\IdentityService.Domain.AssemblyInfo.cs
+E:\AAAAA1111222C#\BarberBookingApp\IdentityService\IdentityService.Domain\obj\Debug\net9.0\IdentityService.Domain.csproj.CoreCompileInputs.cache
+E:\AAAAA1111222C#\BarberBookingApp\IdentityService\IdentityService.Domain\obj\Debug\net9.0\IdentityService.Domain.sourcelink.json
+E:\AAAAA1111222C#\BarberBookingApp\IdentityService\IdentityService.Domain\bin\Debug\net9.0\IdentityService.Domain.deps.json
+E:\AAAAA1111222C#\BarberBookingApp\IdentityService\IdentityService.Domain\bin\Debug\net9.0\IdentityService.Domain.dll
+E:\AAAAA1111222C#\BarberBookingApp\IdentityService\IdentityService.Domain\bin\Debug\net9.0\IdentityService.Domain.pdb
+E:\AAAAA1111222C#\BarberBookingApp\IdentityService\IdentityService.Domain\obj\Debug\net9.0\IdentityService.Domain.dll
+E:\AAAAA1111222C#\BarberBookingApp\IdentityService\IdentityService.Domain\obj\Debug\net9.0\refint\IdentityService.Domain.dll
+E:\AAAAA1111222C#\BarberBookingApp\IdentityService\IdentityService.Domain\obj\Debug\net9.0\IdentityService.Domain.pdb
+E:\AAAAA1111222C#\BarberBookingApp\IdentityService\IdentityService.Domain\obj\Debug\net9.0\ref\IdentityService.Domain.dll

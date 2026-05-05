@@ -1,0 +1,16 @@
+E:\AAAAA1111222C#\BarberBookingApp\NotifyService\NotifyService.Application\bin\Debug\net9.0\NotifyService.Application.deps.json
+E:\AAAAA1111222C#\BarberBookingApp\NotifyService\NotifyService.Application\bin\Debug\net9.0\NotifyService.Application.dll
+E:\AAAAA1111222C#\BarberBookingApp\NotifyService\NotifyService.Application\bin\Debug\net9.0\NotifyService.Application.pdb
+E:\AAAAA1111222C#\BarberBookingApp\NotifyService\NotifyService.Application\bin\Debug\net9.0\NotifyService.Domain.dll
+E:\AAAAA1111222C#\BarberBookingApp\NotifyService\NotifyService.Application\bin\Debug\net9.0\NotifyService.Domain.pdb
+E:\AAAAA1111222C#\BarberBookingApp\NotifyService\NotifyService.Application\obj\Debug\net9.0\NotifyService.Application.csproj.AssemblyReference.cache
+E:\AAAAA1111222C#\BarberBookingApp\NotifyService\NotifyService.Application\obj\Debug\net9.0\NotifyService.Application.GeneratedMSBuildEditorConfig.editorconfig
+E:\AAAAA1111222C#\BarberBookingApp\NotifyService\NotifyService.Application\obj\Debug\net9.0\NotifyService.Application.AssemblyInfoInputs.cache
+E:\AAAAA1111222C#\BarberBookingApp\NotifyService\NotifyService.Application\obj\Debug\net9.0\NotifyService.Application.AssemblyInfo.cs
+E:\AAAAA1111222C#\BarberBookingApp\NotifyService\NotifyService.Application\obj\Debug\net9.0\NotifyService.Application.csproj.CoreCompileInputs.cache
+E:\AAAAA1111222C#\BarberBookingApp\NotifyService\NotifyService.Application\obj\Debug\net9.0\NotifyService.Application.sourcelink.json
+E:\AAAAA1111222C#\BarberBookingApp\NotifyService\NotifyService.Application\obj\Debug\net9.0\NotifySe.B27BCEF1.Up2Date
+E:\AAAAA1111222C#\BarberBookingApp\NotifyService\NotifyService.Application\obj\Debug\net9.0\NotifyService.Application.dll
+E:\AAAAA1111222C#\BarberBookingApp\NotifyService\NotifyService.Application\obj\Debug\net9.0\refint\NotifyService.Application.dll
+E:\AAAAA1111222C#\BarberBookingApp\NotifyService\NotifyService.Application\obj\Debug\net9.0\NotifyService.Application.pdb
+E:\AAAAA1111222C#\BarberBookingApp\NotifyService\NotifyService.Application\obj\Debug\net9.0\ref\NotifyService.Application.dll
