@@ -10,9 +10,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Protobuf Include="Proto\authorize.proto" GrpcServices="Both" />
-    <Protobuf Include="Proto\get_role_user.proto" GrpcServices="Both" />
-    <Protobuf Include="Proto\get_user_by_id.proto" GrpcServices="Both" />
-    <Protobuf Include="Proto\token_validation.proto" GrpcServices="Both" />
+    <Protobuf Include="Proto\*.proto" GrpcServices="Both"/>
   </ItemGroup>
 </Project>
