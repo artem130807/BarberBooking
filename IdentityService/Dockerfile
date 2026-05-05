@@ -6,7 +6,7 @@ ENV ASPNETCORE_URLS=http://+:8080
 FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
 WORKDIR /src
 COPY ["IdentityService/IdentityService.csproj", "IdentityService/"]
-RUN dotnet restore "BarberBooking.API/BarberBooking.API.csproj"
+RUN dotnet restore "IdentityService/IdentityService.csproj"
 COPY . .
 WORKDIR "/src/IdentityService"
 RUN dotnet publish "IdentityService.csproj" -c Release -o /app/publish
