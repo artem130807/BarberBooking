@@ -46,8 +46,8 @@ services:
       - test-net
 
   notify_dev_api:
-    image: identity-api:dev
-    hostname: notify_sdev_api
+    image: notify-api:dev
+    hostname: notify_dev_api
     restart: always
     ports:
       - "8086:8080"
