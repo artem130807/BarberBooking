@@ -22,6 +22,8 @@ services:
       - ASPNETCORE_ENVIRONMENT=Production
       - ConnectionStrings__DefaultConnection=Host=prod_postgres;Port=5432;Database=barberdb;Username=admin;Password=secret
       - RUN_MIGRATIONS=true
+      - EnableSwagger=true
+      
     ports:
       - "8080:8080"
     depends_on:
