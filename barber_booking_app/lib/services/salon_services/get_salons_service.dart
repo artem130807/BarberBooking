@@ -33,10 +33,12 @@ class GetSalonsService {
       final requestBody = json.encode(params.toJson());
       print('📤 Отправляю: $requestBody');
 
-      final response = await http.get(
+      final response = await http
+          .get(
         url,
         headers: headers,
-      );
+      )
+          .timeout(const Duration(seconds: 25));
 
       print('📥 Статус: ${response.statusCode}');
       print('📥 Ответ: ${response.body}');

@@ -12,7 +12,7 @@ class RefreshAccessTokenService {
       final uri = Uri.parse(
         '$kApiBaseUrl/api/RefreshTokens/IsRevokedRefreshToken?token=${Uri.encodeQueryComponent(refreshToken)}',
       );
-      final res = await http.get(uri);
+      final res = await http.get(uri).timeout(const Duration(seconds: 12));
       if (res.statusCode != 200) return null;
       final decoded = json.decode(res.body);
       if (decoded is bool) return decoded;
@@ -28,14 +28,16 @@ class RefreshAccessTokenService {
   ) async {
     try {
       final uri = Uri.parse('$kApiBaseUrl/api/RefreshTokens/RefreshAccessToken');
-      final res = await http.post(
+      final res = await http
+          .post(
         uri,
         headers: {'Content-Type': 'application/json'},
         body: json.encode({
           'refreshToken': refreshToken,
           'devices': devices,
         }),
-      );
+      )
+          .timeout(const Duration(seconds: 15));
       if (res.statusCode != 200) return null;
       final map = json.decode(res.body);
       if (map is! Map<String, dynamic>) return null;

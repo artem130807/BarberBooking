@@ -333,7 +333,7 @@ namespace BarberBooking.API.Repositories
         {
             return await _context.MasterTimeSlots
                 .FromSqlInterpolated(
-                    $"SELECT * FROM MasterTimeSlots WITH (UPDLOCK, ROWLOCK) WHERE Id = {timeSlotId}")
+                    $"""SELECT * FROM "MasterTimeSlots" AS m WHERE m."Id" = {timeSlotId} FOR UPDATE""")
                 .AsTracking()
                 .FirstAsync();
         }

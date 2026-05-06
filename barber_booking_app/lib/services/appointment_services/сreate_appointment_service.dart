@@ -2,38 +2,43 @@ import 'dart:convert';
 
 import 'package:barber_booking_app/config/api_config.dart';
 import 'package:barber_booking_app/models/appointment_models/request/create_appointment_request.dart';
-import 'package:barber_booking_app/services/auth_services/auth_http_headers.dart';
 import 'package:http/http.dart' as http;
 
+typedef CreateAppointmentOutcome = ({bool ok, String? errorMessage});
+
 class CreateAppointmentService {
-  Future<bool> createAppointment(CreateAppointmentRequest? request) async {
-    if (request == null) {
-      return false;
-    }
-    final headers = await AuthHttpHeaders.bearerJson();
-    if (headers == null) {
-      return false;
+  static const Duration _requestTimeout = Duration(seconds: 30);
+
+  Future<CreateAppointmentOutcome> createAppointment(
+      CreateAppointmentRequest? request, String? token) async {
+    if (request == null || token == null || token.isEmpty) {
+      return (ok: false, errorMessage: 'Не переданы данные записи или токен авторизации');
     }
 
     try {
-      final url = Uri.parse('$kApiBaseUrl/api/Appointment/create-appointment');
-      final response = await http.post(
+      final root = kApiBaseUrl.endsWith('/')
+          ? kApiBaseUrl.substring(0, kApiBaseUrl.length - 1)
+          : kApiBaseUrl;
+      final url = Uri.parse('$root/api/Appointment/create-appointment');
+      final response = await http
+          .post(
         url,
-        headers: headers,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
         body: jsonEncode(request.toJson()),
-      );
-      print('📥 Статус: ${response.statusCode}');
-      print('📥 Ответ: ${response.body}');
-
+      )
+          .timeout(_requestTimeout);
       if (response.statusCode == 200) {
-        return true;
-      } else {
-        print('❌ Ошибка сервера: ${response.body}');
-        return false;
+        return (ok: true, errorMessage: null);
       }
+      final detail = response.body.isNotEmpty
+          ? response.body
+          : 'Код ответа: ${response.statusCode}';
+      return (ok: false, errorMessage: detail);
     } catch (e) {
-      print(e);
-      return false;
+      return (ok: false, errorMessage: e.toString());
     }
   }
 }

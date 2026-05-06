@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:barber_booking_app/services/auth_services/auth_session_binding.dart';
 import 'package:barber_booking_app/services/push/fcm_token_registration_service.dart';
 import 'package:barber_booking_app/services/storages/token_storage.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
@@ -94,7 +93,7 @@ class NotificationService {
   }
 
   Future<void> syncFcmRegistrationWithBackend() async {
-    final access = await AuthSessionBinding.instance.accessToken();
+    final access = await _tokenStorage.getAccessToken();
     if (access == null || access.isEmpty) {
       return;
     }
@@ -106,17 +105,20 @@ class NotificationService {
     if (last == null || last.isEmpty) {
       return;
     }
-    final access = await AuthSessionBinding.instance.accessToken();
+    final access = await _tokenStorage.getAccessToken();
     if (access == null || access.isEmpty) {
       await _tokenStorage.clearLastRegisteredFcmToken();
       return;
     }
-    await FcmTokenRegistrationService.unregister(last);
+    await FcmTokenRegistrationService.unregister(
+      last,
+      bearerAccessToken: access,
+    );
     await _tokenStorage.clearLastRegisteredFcmToken();
   }
 
   Future<void> _syncRegistrationWithBackend() async {
-    final access = await AuthSessionBinding.instance.accessToken();
+    final access = await _tokenStorage.getAccessToken();
     if (access == null || access.isEmpty) {
       return;
     }
@@ -135,13 +137,16 @@ class NotificationService {
   }
 
   Future<void> _onFcmTokenRefreshed(String newToken) async {
-    final access = await AuthSessionBinding.instance.accessToken();
+    final access = await _tokenStorage.getAccessToken();
     if (access == null || access.isEmpty) {
       return;
     }
     final old = await _tokenStorage.getLastRegisteredFcmToken();
     if (old != null && old.isNotEmpty && old != newToken) {
-      await FcmTokenRegistrationService.unregister(old);
+      await FcmTokenRegistrationService.unregister(
+        old,
+        bearerAccessToken: access,
+      );
     }
     final ok = await FcmTokenRegistrationService.register(newToken);
     if (ok == true) {

@@ -15,27 +15,44 @@ class FcmTokenRegistrationService {
     try {
       final headers = await AuthHttpHeaders.bearerJson();
       if (headers == null) return null;
-      final res = await http.post(
+      final res = await http
+          .post(
         _endpoint,
         headers: headers,
         body: json.encode({'token': token}),
-      );
+      )
+          .timeout(const Duration(seconds: 15));
       return res.statusCode == 200;
     } catch (_) {
       return null;
     }
   }
 
-  static Future<bool?> unregister(String token) async {
+  /// [bearerAccessToken] — при вызове из [AuthProvider.logout] во время refresh
+  /// нельзя ждать [AuthHttpHeaders.bearerJson] (deadlock на `_refreshInFlight`).
+  static Future<bool?> unregister(
+    String token, {
+    String? bearerAccessToken,
+  }) async {
     if (token.isEmpty) return false;
     try {
-      final headers = await AuthHttpHeaders.bearerJson();
+      Map<String, String>? headers;
+      if (bearerAccessToken != null && bearerAccessToken.isNotEmpty) {
+        headers = {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $bearerAccessToken',
+        };
+      } else {
+        headers = await AuthHttpHeaders.bearerJson();
+      }
       if (headers == null) return null;
-      final res = await http.delete(
+      final res = await http
+          .delete(
         _endpoint,
         headers: headers,
         body: json.encode({'token': token}),
-      );
+      )
+          .timeout(const Duration(seconds: 15));
       return res.statusCode == 200;
     } catch (_) {
       return null;

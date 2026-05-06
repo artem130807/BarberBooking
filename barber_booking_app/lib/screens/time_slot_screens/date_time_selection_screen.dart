@@ -106,7 +106,14 @@ class _DateTimeSelectionScreenState extends State<DateTimeSelectionScreen> {
   Future<void> _createAppointment() async {
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
     final token = authProvider.token;
-    if (token == null) return;
+    if (token == null || token.isEmpty) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Войдите в аккаунт, чтобы записаться')),
+        );
+      }
+      return;
+    }
 
     final request = CreateAppointmentRequest(
       SalonId: widget.salonId,
@@ -119,7 +126,7 @@ class _DateTimeSelectionScreenState extends State<DateTimeSelectionScreen> {
     );
 
     final createProvider = Provider.of<CreateAppointmentProvider>(context, listen: false);
-    final success = await createProvider.createAppointment(request);
+    final success = await createProvider.createAppointment(request, token);
 
     if (success && mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -394,10 +401,6 @@ class WeekCalendar extends StatelessWidget {
     final endOfWeek = startOfWeek.add(const Duration(days: 6));
     final endOfWeekDate = DateTime(endOfWeek.year, endOfWeek.month, endOfWeek.day);
     return endOfWeekDate.isBefore(todayDate);
-  }
-
-  bool _isSameDay(DateTime a, DateTime b) {
-    return a.year == b.year && a.month == b.month && a.day == b.day;
   }
 }
 

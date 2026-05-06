@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:barber_booking_app/providers/appointment_providers/%D1%81reate_appointment_provider.dart';
 import 'package:barber_booking_app/providers/appointment_providers/delete_appointment_provider.dart';
 import 'package:barber_booking_app/providers/appointment_providers/get_appointment_awaiting_review_provider.dart';
@@ -100,22 +102,45 @@ import 'package:barber_booking_app/navigation/role_routes.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await _initFirebaseAndPush();
+  await _bootstrapFirebaseCore();
   final authProvider = AuthProvider();
   await authProvider.restoreFromStorage();
-  await NotificationService.instance.syncFcmRegistrationWithBackend();
   runApp(MyApp(authProvider: authProvider));
+  _schedulePostFrameBootstrap();
 }
 
-Future<void> _initFirebaseAndPush() async {
+/// Минимальная синхронная часть Firebase: не блокировать первый кадр тяжёлым FCM/HTTP.
+Future<void> _bootstrapFirebaseCore() async {
   try {
     await Firebase.initializeApp(
       options: DefaultFirebaseOptions.currentPlatform,
-    );
+    ).timeout(const Duration(seconds: 25));
     FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
-    await NotificationService.instance.initialize();
-  } catch (e) {
-    debugPrint('Firebase/FCM: $e');
+  } catch (e, st) {
+    debugPrint('Firebase core: $e\n$st');
+  }
+}
+
+void _schedulePostFrameBootstrap() {
+  WidgetsBinding.instance.addPostFrameCallback((_) {
+    unawaited(_bootstrapNotificationsAndPush());
+  });
+}
+
+Future<void> _bootstrapNotificationsAndPush() async {
+  try {
+    await NotificationService.instance
+        .initialize()
+        .timeout(const Duration(seconds: 35));
+  } catch (e, st) {
+    debugPrint('NotificationService init: $e\n$st');
+  }
+  try {
+    await NotificationService.instance
+        .syncFcmRegistrationWithBackend()
+        .timeout(const Duration(seconds: 18));
+  } catch (e, st) {
+    debugPrint('FCM backend sync: $e\n$st');
   }
 }
 
@@ -188,7 +213,7 @@ class MyApp extends StatelessWidget {
         home: const SessionStartGate(),
         builder: (context, child) {
           final bg = Theme.of(context).scaffoldBackgroundColor;
-          final content = child ?? const SizedBox.shrink();
+          final content = child ?? const _NavigatorMissingFallback();
           return Stack(
             fit: StackFit.expand,
             clipBehavior: Clip.hardEdge,
@@ -206,6 +231,13 @@ class MyApp extends StatelessWidget {
               ),
               const NotificationToastOverlay(),
             ],
+          );
+        },
+        onUnknownRoute: (settings) {
+          debugPrint('Unknown route: ${settings.name}');
+          return MaterialPageRoute<void>(
+            builder: (context) => const LoginScreen(),
+            settings: settings,
           );
         },
         routes: {
@@ -379,6 +411,22 @@ class MyApp extends StatelessWidget {
   }
 }
 
+/// Если у [MaterialApp.builder] временно нет `child`, без этого остаётся только фон — на тёмной теме это выглядит как «чёрный экран».
+class _NavigatorMissingFallback extends StatelessWidget {
+  const _NavigatorMissingFallback();
+
+  @override
+  Widget build(BuildContext context) {
+    final bg = Theme.of(context).scaffoldBackgroundColor;
+    return Material(
+      color: bg,
+      child: const Center(
+        child: CircularProgressIndicator(),
+      ),
+    );
+  }
+}
+
 class SessionStartGate extends StatefulWidget {
   const SessionStartGate({super.key});
 
@@ -396,7 +444,14 @@ class _SessionStartGateState extends State<SessionStartGate> {
       final next = auth.isAuthenticated
           ? RoleRoutes.homeRouteForRole(auth.roleInterface)
           : '/login';
-      Navigator.of(context).pushReplacementNamed(next);
+      final nav = Navigator.of(context);
+      try {
+        nav.pushReplacementNamed(next);
+      } catch (e, st) {
+        debugPrint('SessionStartGate navigation: $e\n$st');
+        if (!mounted) return;
+        nav.pushReplacementNamed('/login');
+      }
     });
   }
 
