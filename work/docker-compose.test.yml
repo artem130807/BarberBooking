@@ -6,11 +6,11 @@ services:
     environment:
       POSTGRES_USER: admin
       POSTGRES_PASSWORD: secret
-      POSTGRES_DB: barberdb
+      POSTGRES_DB: identitydb
     ports:
-      - "5434:5433"
+      - "5434:5432"
     volumes:
-      - dev_postgres_data:/var/lib/postgresql/data
+      - identity_dev_postgres_data:/var/lib/postgresql/data
     networks:
       - test-net
 
@@ -21,11 +21,11 @@ services:
     environment:
       POSTGRES_USER: admin
       POSTGRES_PASSWORD: secret
-      POSTGRES_DB: barberdb
+      POSTGRES_DB: notifydb
     ports:
-      - "5435:5433"
+      - "5435:5432"
     volumes:
-      - prod_postgres_data:/var/lib/postgresql/data
+      - notify_dev_postgres_data:/var/lib/postgresql/data
     networks:
       - test-net
 
@@ -37,10 +37,10 @@ services:
       - "8085:8080"
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
-      - ConnectionStrings__DefaultConnection=Host=identity_dev_postgres;Port=5433;Database=identitydb;Username=admin;Password=secret
+      - ConnectionStrings__DefaultConnection=Host=identity_dev_postgres;Port=5432;Database=identitydb;Username=admin;Password=secret
       - RUN_MIGRATIONS=true
     depends_on:
-      - dev_postgres
+      - identity_dev_postgres
       - rabbitmq
     networks:
       - test-net
@@ -53,14 +53,13 @@ services:
       - "8086:8080"
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
-      - ConnectionStrings__DefaultConnection=Host=notify_dev_postgres;Port=5433;Database=notifydb;Username=admin;Password=secret
+      - ConnectionStrings__DefaultConnection=Host=notify_dev_postgres;Port=5432;Database=notifydb;Username=admin;Password=secret
       - RUN_MIGRATIONS=true
     depends_on:
-      - dev_postgres
+      - notify_dev_postgres
       - rabbitmq
     networks:
       - test-net
-
 
   rabbitmq:
     image: rabbitmq:3.10.7-management
@@ -74,6 +73,10 @@ services:
     networks:
       - test-net
 
-  networks:
-    test-net:
-      driver: bridge
+networks:
+  test-net:
+    driver: bridge
+
+volumes:
+  identity_dev_postgres_data:
+  notify_dev_postgres_data:
