@@ -152,16 +152,26 @@ namespace BarberBooking.API.Repositories
             TimeOnly startTime,
             TimeOnly endTime)
         {
-            var day = appointmentDate.Date;
-            var nextDay = day.AddDays(1);
+            // Npgsql: параметры для timestamptz должны быть UTC; .Date даёт Kind=Unspecified.
+            var utc = appointmentDate.Kind switch
+            {
+                DateTimeKind.Utc => appointmentDate,
+                DateTimeKind.Local => appointmentDate.ToUniversalTime(),
+                _ => DateTime.SpecifyKind(appointmentDate, DateTimeKind.Utc),
+            };
+            var dayStart = new DateTime(utc.Year, utc.Month, utc.Day, 0, 0, 0, DateTimeKind.Utc);
+            var nextDayStart = dayStart.AddDays(1);
 
-            return await _context.Appointments.FirstOrDefaultAsync(x =>
-                x.TimeSlotId == timeSlotId &&
-                x.Status == AppointmentStatusEnum.Confirmed &&
-                x.AppointmentDate >= day &&
-                x.AppointmentDate < nextDay &&
-                x.StartTime < endTime &&
-                startTime < x.EndTime);
+            return await _context.Appointments
+                .Where(x =>
+                    x.TimeSlotId == timeSlotId &&
+                    x.Status == AppointmentStatusEnum.Confirmed &&
+                    x.AppointmentDate >= dayStart &&
+                    x.AppointmentDate < nextDayStart &&
+                    x.StartTime < endTime &&
+                    startTime < x.EndTime)
+                .OrderBy(x => x.StartTime)
+                .FirstOrDefaultAsync();
         }
 
         public async Task<List<Appointments>> GetConfirmedAppointmentsCreatedSince(DateTime sinceUtc)
