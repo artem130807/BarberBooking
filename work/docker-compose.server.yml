@@ -1,0 +1,39 @@
+services:
+  prod_postgres:
+    image: postgres:16
+    hostname: prod_postgres
+    restart: always
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: secret
+      POSTGRES_DB: barberdb
+    ports:
+      - "5432:5432"
+    volumes:
+      - prod_postgres_data:/var/lib/postgresql/data
+    networks:
+      - barber-net
+
+  prod_api1:
+    image: barber-api:prod
+    hostname: prod_api1
+    restart: always
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ConnectionStrings__DefaultConnection=Host=prod_postgres;Port=5432;Database=barberdb;Username=admin;Password=secret
+      - RUN_MIGRATIONS=true
+    ports:
+      -"8080:8080"
+    depends_on:
+      - prod_postgres
+      - rabbitmq
+    networks:
+      - barber-net
+
+networks:
+  barber-net:
+    driver: bridge
+
+volumes:
+  dev_postgres_data:
+  prod_postgres_data:
