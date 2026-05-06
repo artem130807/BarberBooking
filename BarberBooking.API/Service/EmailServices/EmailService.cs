@@ -36,11 +36,11 @@ namespace BarberBooking.API.Service.EmailServices
                 Text = $"Ваш код подтверждения: {code}. Действует 15 минут."
             };
             _logger.LogInformation($"Ваш код подтверждения: {code}. Действует 15 минут.");
-            // using var client = new MailKit.Net.Smtp.SmtpClient();
-            // await client.ConnectAsync(smtpHost, smtpPort, SecureSocketOptions.SslOnConnect);
-            // await client.AuthenticateAsync(username, password);
-            // await client.SendAsync(message);
-            // await client.DisconnectAsync(true);
+            using var client = new MailKit.Net.Smtp.SmtpClient();
+            await client.ConnectAsync(smtpHost, smtpPort, SecureSocketOptions.SslOnConnect);
+            await client.AuthenticateAsync(username, password);
+            await client.SendAsync(message);
+            await client.DisconnectAsync(true);
         }
     }
 }

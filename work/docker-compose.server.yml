@@ -23,10 +23,9 @@ services:
       - ConnectionStrings__DefaultConnection=Host=prod_postgres;Port=5432;Database=barberdb;Username=admin;Password=secret
       - RUN_MIGRATIONS=true
     ports:
-      -"8080:8080"
+      - "8080:8080"
     depends_on:
       - prod_postgres
-      - rabbitmq
     networks:
       - barber-net
 
