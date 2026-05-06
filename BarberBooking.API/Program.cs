@@ -101,14 +101,16 @@ app.UseForwardedHeaders();
 app.InitializingCache();
 
 // Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
+var enableSwagger = app.Environment.IsDevelopment()
+    || string.Equals(configuration["EnableSwagger"], "true", StringComparison.OrdinalIgnoreCase);
+
+if (enableSwagger)
 {
     app.MapOpenApi();
-
     app.UseSwaggerUI(options =>
     {
         options.SwaggerEndpoint("/openapi/v1.json", "BarberBooking API v1");
-        options.RoutePrefix = "swagger"; 
+        options.RoutePrefix = "swagger";
     });
 }
 app.MapHub<ChatHub>("/chatHub");
