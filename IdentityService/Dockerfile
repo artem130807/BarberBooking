@@ -5,13 +5,13 @@ ENV ASPNETCORE_URLS=http://+:8080
 
 FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
 WORKDIR /src
-COPY ["IdentityService/IdentityService.csproj", "IdentityService/"]
-RUN dotnet restore "IdentityService/IdentityService.csproj"
+COPY ["IdentityService/IdentityService.API.csproj", "IdentityService/"]
+RUN dotnet restore "IdentityService/IdentityService.API.csproj"
 COPY . .
 WORKDIR "/src/IdentityService"
-RUN dotnet publish "IdentityService.csproj" -c Release -o /app/publish
+RUN dotnet publish "IdentityService.API.csproj" -c Release -o /app/publish
 
 FROM base AS final
 WORKDIR /app
 COPY --from=build /app/publish .
-ENTRYPOINT ["dotnet", "IdentityService.dll"] 
+ENTRYPOINT ["dotnet", "IdentityService.API.dll"] 

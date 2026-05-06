@@ -5,13 +5,13 @@ ENV ASPNETCORE_URLS=http://+:8080
 
 FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
 WORKDIR /src
-COPY ["NotifyService/NotifyService.csproj", "NotifyService/"]
+COPY ["NotifyService/NotifyService.API.csproj", "NotifyService/"]
 RUN dotnet restore "NotifyService/NotifyService.csproj"
 COPY . .
 WORKDIR "/src/NotifyService"
-RUN dotnet publish "NotifyService.csproj" -c Release -o /app/publish
+RUN dotnet publish "NotifyService.API.csproj" -c Release -o /app/publish
 
 FROM base AS final
 WORKDIR /app
 COPY --from=build /app/publish .
-ENTRYPOINT ["dotnet", "NotifyService.dll"] 
+ENTRYPOINT ["dotnet", "NotifyService.API.dll"] 
