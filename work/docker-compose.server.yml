@@ -7,7 +7,7 @@ services:
       POSTGRES_USER: admin
       POSTGRES_PASSWORD: secret
       POSTGRES_DB: barberdb
-    ports:s
+    ports:
       - "5433:5432"
     volumes:
       - prod_postgres_data:/var/lib/postgresql/data
