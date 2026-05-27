@@ -1,0 +1,2 @@
+obj\Debug\net9.0\Proto/VerifyCode.cs \
+obj\Debug\net9.0\Proto/VerifyCodeGrpc.cs: Proto/verify_code.proto

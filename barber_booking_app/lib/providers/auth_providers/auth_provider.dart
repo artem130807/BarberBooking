@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:barber_booking_app/models/user_models/requests/update_password_request.dart';
 import 'package:barber_booking_app/models/user_models/responses/update_password_response.dart';
 import 'package:barber_booking_app/services/storages/token_storage.dart';
@@ -7,6 +9,7 @@ import 'package:barber_booking_app/services/auth_services/auth_session_binding.d
 import 'package:barber_booking_app/services/auth_services/refresh_access_token_service.dart';
 import 'package:barber_booking_app/services/push/notification_service.dart';
 import 'package:barber_booking_app/utils/jwt_expiry.dart';
+import 'package:barber_booking_app/utils/jwt_role_infer.dart';
 import 'package:barber_booking_app/models/user_models/requests/login_user_request.dart';
 import 'package:barber_booking_app/models/user_models/requests/register_user_request.dart';
 import 'package:barber_booking_app/models/user_models/responses/auth_response.dart';
@@ -44,13 +47,23 @@ class AuthProvider extends BaseProvider {
       return;
     }
     final refresh = await _tokenStorage.getRefreshToken();
-    final role = await _tokenStorage.getRoleInterface();
+    final storedRole = await _tokenStorage.getRoleInterface();
+    final role = storedRole ?? JwtRoleInfer.inferRoleInterface(access);
     _currentUser = AuthResponse(
       accessToken: access,
       refreshToken: refresh,
       roleInterface: role,
     );
     _isAuthenticated = true;
+    if (role != null && role != storedRole) {
+      unawaited(
+        _tokenStorage.saveAuthSession(
+          accessToken: access,
+          refreshToken: refresh,
+          roleInterface: role,
+        ),
+      );
+    }
     notifyListeners();
   }
 
@@ -83,11 +96,13 @@ class AuthProvider extends BaseProvider {
                 response.refreshToken!.isNotEmpty)
             ? response.refreshToken
             : storedRefresh;
+        final inferred = response.roleInterface ??
+            JwtRoleInfer.inferRoleInterface(response.accessToken!);
         final merged = AuthResponse(
           accessToken: response.accessToken,
           refreshToken: effectiveRefresh,
           message: response.message,
-          roleInterface: response.roleInterface,
+          roleInterface: inferred,
         );
         _currentUser = merged;
         _isAuthenticated = true;
@@ -175,8 +190,9 @@ class AuthProvider extends BaseProvider {
     if (newToken.isEmpty) return;
     final refresh =
         _currentUser?.refreshToken ?? await _tokenStorage.getRefreshToken();
-    final role =
-        _currentUser?.roleInterface ?? await _tokenStorage.getRoleInterface();
+    final role = _currentUser?.roleInterface ??
+        await _tokenStorage.getRoleInterface() ??
+        JwtRoleInfer.inferRoleInterface(newToken);
     _currentUser = AuthResponse(
       accessToken: newToken,
       refreshToken: refresh,
@@ -240,7 +256,10 @@ class AuthProvider extends BaseProvider {
     }
     final role = response.roleInterface ??
         _currentUser?.roleInterface ??
-        await _tokenStorage.getRoleInterface();
+        await _tokenStorage.getRoleInterface() ??
+        (response.accessToken != null
+            ? JwtRoleInfer.inferRoleInterface(response.accessToken!)
+            : null);
     final merged = AuthResponse(
       accessToken: response.accessToken,
       refreshToken: refresh,

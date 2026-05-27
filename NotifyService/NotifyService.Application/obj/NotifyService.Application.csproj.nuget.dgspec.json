@@ -57,6 +57,10 @@
             "CSharpFunctionalExtensions": {
               "target": "Package",
               "version": "[3.6.0, )"
+            },
+            "Grpc.AspNetCore": {
+              "target": "Package",
+              "version": "[2.80.0, )"
             }
           },
           "imports": [

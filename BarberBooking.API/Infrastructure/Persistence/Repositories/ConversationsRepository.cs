@@ -43,7 +43,7 @@ namespace BarberBooking.API.Infrastructure.Persistence.Repositories
 
         public async Task<Conversations> GetConversation(Guid Id)
         {
-           return await _context.Conversations.FirstOrDefaultAsync(x => x.Id == Id);
+           return await _context.Conversations.Include(x => x.ConversationMessages).FirstOrDefaultAsync(x => x.Id == Id);
         }
         public async Task<PagedResult<Conversations>> GetPagedResultAsync(Guid userId, PageParams pageParams)
         {

@@ -33,6 +33,15 @@ namespace BarberBooking.API.Models
             Messages = new List<Messages>();
         }
 
+        /// <summary>Npgsql: <c>timestamp with time zone</c> требует <see cref="DateTimeKind.Utc"/>.</summary>
+        private static DateTime EnsureUtcForPostgres(DateTime value) =>
+            value.Kind switch
+            {
+                DateTimeKind.Utc => value,
+                DateTimeKind.Local => value.ToUniversalTime(),
+                _ => DateTime.SpecifyKind(value, DateTimeKind.Utc),
+            };
+
         public static Appointments Create(Guid salonId, Guid masterId, Guid clientId , Guid serviceId, Guid timeSlotId,  TimeOnly startTime, string clientNotes, TimeOnly endTime, DateTime appointmentDate)
         {
             var appointment = new Appointments
@@ -47,7 +56,7 @@ namespace BarberBooking.API.Models
                 Status = AppointmentStatusEnum.Confirmed,
                 StartTime = startTime,
                 EndTime = endTime,
-                AppointmentDate = appointmentDate,
+                AppointmentDate = EnsureUtcForPostgres(appointmentDate),
                 CreatedAt = DateTime.UtcNow,
                 UpdatedAt = DateTime.UtcNow,
             };
@@ -66,7 +75,7 @@ namespace BarberBooking.API.Models
                 Status = AppointmentStatusEnum.Confirmed,
                 StartTime = startTime,
                 EndTime = endTime,
-                AppointmentDate = appointmentDate,
+                AppointmentDate = EnsureUtcForPostgres(appointmentDate),
                 CreatedAt = DateTime.UtcNow,
                 UpdatedAt = DateTime.UtcNow,
             };
@@ -86,7 +95,7 @@ namespace BarberBooking.API.Models
                 ClientNotes = appointmentEntity.ClientNotes,
                 StartTime = appointmentEntity.StartTime,
                 EndTime = appointmentEntity.EndTime,
-                AppointmentDate = appointmentEntity.AppointmentDate,
+                AppointmentDate = EnsureUtcForPostgres(appointmentEntity.AppointmentDate),
                 CreatedAt = DateTime.UtcNow,
                 UpdatedAt = DateTime.UtcNow,
             };

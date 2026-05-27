@@ -24,7 +24,7 @@ public class GetUserByTokenIdHandler : IRequestHandler<GetUserByTokenIdQuery, Re
         var userId = _userContext.UserId;
         var userProfile = await _userRepository.GetUserById(userId);
         if (userProfile == null)
-            return Result.Failure<UserInfoDto>("РџСЂРѕС„РёР»СЊ РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ РЅРµ РЅР°Р№РґРµРЅ");
+            return Result.Failure<UserInfoDto>("Профиль пользователя не найден");
 
         return Result.Success(_mapper.Map<UserInfoDto>(userProfile));
     }

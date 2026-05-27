@@ -19,30 +19,30 @@ public class UserValidatorService : IUserValidatorService
     {
         var userByEmail = await _userRepository.GetUserByEmail(dtoCreateUser.Email);
         if (userByEmail != null)
-            return Result.Failure("РџРѕР»СЊР·РѕРІР°С‚РµР»СЊ СЃ С‚Р°РєРёРј email СѓР¶Рµ СЃСѓС‰РµСЃС‚РІСѓРµС‚");
+            return Result.Failure("Пользователь с таким адресом почты уже зарегистрирован");
 
         var userByPhone = await _userRepository.GetUserByPhone(dtoCreateUser.Phone.Number);
         if (userByPhone != null)
-            return Result.Failure("РџРѕР»СЊР·РѕРІР°С‚РµР»СЊ СЃ С‚Р°РєРёРј РЅРѕРјРµСЂРѕРј С‚РµР»РµС„РѕРЅР° СѓР¶Рµ СЃСѓС‰РµСЃС‚РІСѓРµС‚");
+            return Result.Failure("Пользователь с таким номером телефона уже зарегистрирован");
 
         if (!_cityService.IsCityValid(dtoCreateUser.City))
-            return Result.Failure("Р’С‹ СѓРєР°Р·Р°Р»Рё РЅРµРІРµСЂРЅС‹Р№ РіРѕСЂРѕРґ");
+            return Result.Failure("Вы указали неверный город");
 
         if (string.IsNullOrWhiteSpace(dtoCreateUser.Name))
-            return Result.Failure("Р’С‹ РЅРµ СѓРєР°Р·Р°Р»Рё РёРјСЏ");
+            return Result.Failure("Укажите имя");
 
         if (string.IsNullOrWhiteSpace(dtoCreateUser.Phone.Number))
-            return Result.Failure("Р’С‹ РЅРµ СѓРєР°Р·Р°Р»Рё РЅРѕРјРµСЂ");
+            return Result.Failure("Укажите номер телефона");
 
         if (string.IsNullOrWhiteSpace(dtoCreateUser.Email))
-            return Result.Failure("Р’С‹ РЅРµ СѓРєР°Р·Р°Р»Рё РїРѕС‡С‚Сѓ");
+            return Result.Failure("Укажите адрес электронной почты");
 
         if (string.IsNullOrWhiteSpace(dtoCreateUser.PasswordHash))
-            return Result.Failure("Р’С‹ РЅРµ СѓРєР°Р·Р°Р»Рё РїР°СЂРѕР»СЊ");
+            return Result.Failure("Укажите пароль");
 
         if (string.IsNullOrWhiteSpace(dtoCreateUser.City))
-            return Result.Failure("Р’С‹ РЅРµ СѓРєР°Р·Р°Р»Рё РіРѕСЂРѕРґ");
+            return Result.Failure("Укажите город");
 
-        return Result.Success("Р’Р°Р»РёРґРЅС‹Рµ РґР°РЅРЅС‹Рµ");
+        return Result.Success();
     }
 }

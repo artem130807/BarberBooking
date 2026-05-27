@@ -9,6 +9,7 @@
 
   <ItemGroup>
     <PackageReference Include="CSharpFunctionalExtensions" Version="3.6.0" />
+    <PackageReference Include="Grpc.AspNetCore" Version="2.80.0" />
   </ItemGroup>
 
   <ItemGroup>

@@ -1,10 +1,11 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:barber_booking_app/providers/auth_providers/auth_provider.dart';
 import 'package:barber_booking_app/providers/master_subscription_providers/get_subscriptions_provider.dart';
 import 'package:barber_booking_app/providers/master_subscription_providers/delete_subscription_provider.dart';
 import 'package:barber_booking_app/widgets/loading_indicator.dart';
 import 'package:barber_booking_app/widgets/error_widget.dart';
+import 'package:barber_booking_app/widgets/navigation/user_bottom_navigation_bar.dart';
 import 'package:barber_booking_app/models/master_models/response/get_masterProfile_subscription_Info_response.dart';
 import 'package:barber_booking_app/utils/api_media_url.dart';
 
@@ -16,7 +17,7 @@ class FavoritesScreen extends StatefulWidget {
 }
 
 class _FavoritesScreenState extends State<FavoritesScreen> {
-  int _selectedNavIndex = 3;
+  int _selectedNavIndex = 4;
   final Set<String> _markedForDeletionIds = {};
 
   GetSubscriptionsProvider? _subscriptionsForApiErrors;
@@ -55,7 +56,6 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
   Future<void> _applyDeletions() async {
     if (_markedForDeletionIds.isEmpty) return;
     final deleteProvider = Provider.of<DeleteSubscriptionProvider>(context, listen: false);
-    final token = Provider.of<AuthProvider>(context, listen: false).token;
     for (final id in _markedForDeletionIds) {
       await deleteProvider.deleteSubscription(id);
     }
@@ -64,26 +64,14 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
   }
 
   void _onNavItemTapped(int index) async {
+    final previousIndex = _selectedNavIndex;
     await _applyDeletions();
+    if (!mounted) return;
     setState(() {
       _selectedNavIndex = index;
     });
-    switch (index) {
-      case 0:
-        Navigator.pushReplacementNamed(context, '/home');
-        break;
-      case 1:
-        Navigator.pushReplacementNamed(context, '/search');
-        break;
-      case 2:
-        Navigator.pushReplacementNamed(context, '/appointments_screen');
-        break;
-      case 3:
-        break;
-      case 4:
-        Navigator.pushReplacementNamed(context, '/profile');
-        break;
-    }
+    if (index == previousIndex) return;
+    UserBottomNavigationBar.navigateByIndex(context, index);
   }
 
   @override
@@ -105,18 +93,9 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
             ],
           ),
           body: _buildBody(provider),
-          bottomNavigationBar: BottomNavigationBar(
-            type: BottomNavigationBarType.fixed,
-            currentIndex: _selectedNavIndex,
+          bottomNavigationBar: UserBottomNavigationBar(
+            selectedIndex: _selectedNavIndex,
             onTap: _onNavItemTapped,
-            unselectedItemColor: Colors.grey,
-            items: const [
-              BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Главная'),
-              BottomNavigationBarItem(icon: Icon(Icons.search), label: 'Поиск'),
-              BottomNavigationBarItem(icon: Icon(Icons.calendar_today), label: 'Записи'),
-              BottomNavigationBarItem(icon: Icon(Icons.favorite), label: 'Избранное'),
-              BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Профиль'),
-            ],
           ),
         );
       },
@@ -141,10 +120,10 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
         ),
       );
     } else if (provider.list == null || provider.list!.isEmpty) {
-      body = const Center(
+      body = Center(
         child: Text(
           'У вас пока нет избранных мастеров',
-          style: TextStyle(fontSize: 16, color: Colors.grey),
+          style: TextStyle(fontSize: 16, color: Theme.of(context).colorScheme.onSurfaceVariant),
         ),
       );
     } else {
@@ -222,7 +201,7 @@ class FavoriteMasterCard extends StatelessWidget {
                   ? NetworkImage(avatarUrl)
                   : null,
               child: avatarUrl == null
-                  ? const Icon(Icons.person, size: 30, color: Colors.grey)
+                  ? Icon(Icons.person, size: 30, color: Theme.of(context).colorScheme.onSurfaceVariant)
                   : null,
             ),
             const SizedBox(width: 12),
@@ -254,7 +233,7 @@ class FavoriteMasterCard extends StatelessWidget {
                   const SizedBox(height: 4),
                   Row(
                     children: [
-                      const Icon(Icons.star, color: Colors.amber, size: 16),
+                      Icon(Icons.star, color: Theme.of(context).colorScheme.primary, size: 16),
                       const SizedBox(width: 4),
                       Text(
                         (master.Rating ?? 0).toStringAsFixed(1),
@@ -277,9 +256,9 @@ class FavoriteMasterCard extends StatelessWidget {
                         padding: const EdgeInsets.symmetric(vertical: 2),
                         child: Text(
                           master.SalonNavigation!.SalonName ?? 'Салон',
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 14,
-                            color: Colors.grey,
+                            color: Theme.of(context).colorScheme.onSurfaceVariant,
                           ),
                         ),
                       ),
@@ -290,7 +269,7 @@ class FavoriteMasterCard extends StatelessWidget {
             IconButton(
               icon: Icon(
                 isMarkedForDeletion ? Icons.favorite_border : Icons.favorite,
-                color: isMarkedForDeletion ? Colors.grey : Colors.red,
+                color: isMarkedForDeletion ? Theme.of(context).colorScheme.onSurfaceVariant : Theme.of(context).colorScheme.error,
               ),
               onPressed: () => onToggleMarked(!isMarkedForDeletion),
             ),
@@ -300,3 +279,5 @@ class FavoriteMasterCard extends StatelessWidget {
     );
   }
 }
+
+

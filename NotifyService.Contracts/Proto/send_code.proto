@@ -1,0 +1,15 @@
+syntax = "proto3";
+
+option csharp_namespace = "NotifyServiceGrpc";
+
+service SendCodeService {
+  rpc RegisterUser(SendCodeRequest) returns (SendCodeResponse);
+}
+
+message SendCodeRequest {
+  string email = 1;
+}
+message SendCodeResponse {
+    string message = 1;
+    bool isSuccess = 2;
+}

@@ -28,15 +28,15 @@ public class UpdateCityUserCommandHandler : IRequestHandler<UpdateCityCommand, R
     {
         var userId = _userContext.UserId;
         if (!_cityService.IsCityValid(command.City))
-            return Result.Failure<DtoUpdateCityResponse>("Р’С‹ СѓРєР°Р·Р°Р»Рё РЅРµРІРµСЂРЅС‹Р№ РіРѕСЂРѕРґ");
+            return Result.Failure<DtoUpdateCityResponse>("Вы указали неверный город");
 
         var updatedCity = await _usersRepository.UpdateCity(userId, command.City);
         if (string.IsNullOrWhiteSpace(updatedCity))
-            return Result.Failure<DtoUpdateCityResponse>("РћС€РёР±РєР° РѕР±РЅРѕРІР»РµРЅРёСЏ РіРѕСЂРѕРґР°");
+            return Result.Failure<DtoUpdateCityResponse>("Не удалось обновить город");
 
         var user = await _usersRepository.GetUserById(userId);
         if (user == null)
-            return Result.Failure<DtoUpdateCityResponse>("РџРѕР»СЊР·РѕРІР°С‚РµР»СЊ РЅРµ РЅР°Р№РґРµРЅ");
+            return Result.Failure<DtoUpdateCityResponse>("Пользователь не найден");
 
         var token = await _jwtProvider.GenerateToken(user, command.devices);
         return Result.Success(new DtoUpdateCityResponse { City = updatedCity, Token = token });

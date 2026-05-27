@@ -14,6 +14,7 @@ namespace BarberBooking.API.Infrastructure.Persistence.Configurations
             builder.Property(x => x.IsRead).IsRequired();
             builder.Property(x => x.ReadAt);
             builder.Property(x => x.CreatedAt).IsRequired();
+            builder.Property(x => x.UpdateAt).IsRequired();
             builder.HasOne(x => x.Conversation)
                 .WithMany(x => x.ConversationMessages)
                 .HasForeignKey(x => x.ConversationsId)

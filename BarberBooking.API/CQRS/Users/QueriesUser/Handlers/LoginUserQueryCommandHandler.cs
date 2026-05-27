@@ -56,7 +56,7 @@ namespace BarberBooking.API.CQRS.Queries.Handlers
                 var newToken = await _refreshTokenService.CreateToken(user.Id, query.devices);
                 return Result.Success(new AuthDto { AccessToken = token, RefreshToken = newToken, Message = "Вы успешно зашли в аккаунт", RoleInterface = roleInterface});
             }
-            return Result.Success(new AuthDto { AccessToken = token, Message = "Вы успешно зашли в аккаунт", RoleInterface = roleInterface});
+            return Result.Success(new AuthDto { AccessToken = token, RefreshToken = Convert.FromBase64String(refreshToken.TokenHash), Message = "Вы успешно зашли в аккаунт", RoleInterface = roleInterface});
         }
     }
 }

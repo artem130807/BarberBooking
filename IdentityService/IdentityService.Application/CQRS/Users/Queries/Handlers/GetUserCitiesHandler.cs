@@ -17,7 +17,7 @@ public class GetUserCitiesHandler : IRequestHandler<GetUserCitiesQuery, Result<L
     public Task<Result<List<string>>> Handle(GetUserCitiesQuery query, CancellationToken cancellationToken)
     {
         if (!_memoryCache.TryGetValue<HashSet<string>>(CityNamesCacheKey, out var cityNames) || cityNames is null)
-            return Task.FromResult(Result.Failure<List<string>>("РќРµ СѓРґР°Р»РѕСЃСЊ РїРѕР»СѓС‡РёС‚СЊ Р·РЅР°С‡РµРЅРёРµ"));
+            return Task.FromResult(Result.Failure<List<string>>("Не удалось получить список городов"));
 
         var grouped = cityNames
             .GroupBy(city => char.ToUpper(city[0]))

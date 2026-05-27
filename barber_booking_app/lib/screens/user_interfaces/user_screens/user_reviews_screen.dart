@@ -8,11 +8,11 @@ import 'package:barber_booking_app/providers/appointment_providers/get_appointme
 import 'package:barber_booking_app/providers/auth_providers/auth_provider.dart';
 import 'package:barber_booking_app/providers/review_providers/delete_review_user_provider.dart';
 import 'package:barber_booking_app/providers/review_providers/get_reviews_user_provider.dart';
-import 'package:barber_booking_app/providers/review_providers/update_review_user_provider.dart';
 import 'package:barber_booking_app/screens/user_interfaces/user_screens/create_review_screen.dart';
 import 'package:barber_booking_app/screens/user_interfaces/user_screens/edit_review_screen.dart';
 import 'package:barber_booking_app/widgets/loading_indicator.dart';
 import 'package:barber_booking_app/widgets/error_widget.dart';
+import 'package:barber_booking_app/widgets/navigation/user_bottom_navigation_bar.dart';
 import 'package:barber_booking_app/widgets/review_widgets/awaiting_review_card.dart';
 
 class UserReviewsScreen extends StatefulWidget {
@@ -23,7 +23,7 @@ class UserReviewsScreen extends StatefulWidget {
 }
 
 class _UserReviewsScreenState extends State<UserReviewsScreen> with SingleTickerProviderStateMixin {
-  int _selectedNavIndex = 4;
+  int _selectedNavIndex = 5;
   final PageParams _pageParams = PageParams(Page: 1, PageSize: 20);
   final PageParams _awaitingPageParams = PageParams(Page: 1, PageSize: 20);
   late TabController _tabController;
@@ -94,24 +94,10 @@ class _UserReviewsScreenState extends State<UserReviewsScreen> with SingleTicker
   }
 
   void _onNavItemTapped(int index) {
+    final previousIndex = _selectedNavIndex;
     setState(() => _selectedNavIndex = index);
-    switch (index) {
-      case 0:
-        Navigator.pushReplacementNamed(context, '/home');
-        break;
-      case 1:
-        Navigator.pushReplacementNamed(context, '/search_screen');
-        break;
-      case 2:
-        Navigator.pushReplacementNamed(context, '/appointments_screen');
-        break;
-      case 3:
-        Navigator.pushReplacementNamed(context, '/favorites_screen');
-        break;
-      case 4:
-        Navigator.pushReplacementNamed(context, '/profile');
-        break;
-    }
+    if (index == previousIndex) return;
+    UserBottomNavigationBar.navigateByIndex(context, index);
   }
 
   @override
@@ -148,17 +134,9 @@ class _UserReviewsScreenState extends State<UserReviewsScreen> with SingleTicker
                     ),
             ),
           ),
-          bottomNavigationBar: BottomNavigationBar(
-            type: BottomNavigationBarType.fixed,
-            currentIndex: _selectedNavIndex,
+          bottomNavigationBar: UserBottomNavigationBar(
+            selectedIndex: _selectedNavIndex,
             onTap: _onNavItemTapped,
-            items: const [
-              BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Главная'),
-              BottomNavigationBarItem(icon: Icon(Icons.search), label: 'Поиск'),
-              BottomNavigationBarItem(icon: Icon(Icons.calendar_today), label: 'Записи'),
-              BottomNavigationBarItem(icon: Icon(Icons.favorite), label: 'Избранное'),
-              BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Профиль'),
-            ],
           ),
         );
       },

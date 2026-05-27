@@ -1,3 +1,4 @@
+﻿import 'package:barber_booking_app/widgets/navigation/chat_badge_icon.dart';
 import 'package:flutter/material.dart';
 
 class MasterShellArgs {
@@ -10,11 +11,11 @@ abstract final class MasterNav {
   static const int today = 0;
   static const int appointments = 1;
   static const int slots = 2;
-  static const int profile = 3;
+  static const int messages = 3;
+  static const int profile = 4;
 
-  /// Переход на вкладку shell мастера (сбрасывает стек до `/master_home`).
   static void goToTab(BuildContext context, int index) {
-    final i = index.clamp(0, 3);
+    final i = index.clamp(0, 4);
     Navigator.of(context).pushNamedAndRemoveUntil(
       '/master_home',
       (route) => false,
@@ -23,7 +24,6 @@ abstract final class MasterNav {
   }
 }
 
-/// Нижняя навигация мастера для экранов поверх [MasterShellScreen] (не для вкладок внутри shell).
 class MasterScreenScaffold extends StatelessWidget {
   const MasterScreenScaffold({
     super.key,
@@ -51,7 +51,7 @@ class MasterScreenScaffold extends StatelessWidget {
       floatingActionButton: floatingActionButton,
       resizeToAvoidBottomInset: resizeToAvoidBottomInset,
       bottomNavigationBar: MasterBottomNavigationBar(
-        selectedIndex: selectedTabIndex.clamp(0, 3),
+        selectedIndex: selectedTabIndex.clamp(0, 4),
         onDestinationSelected: (i) => MasterNav.goToTab(context, i),
       ),
     );
@@ -71,7 +71,7 @@ class MasterBottomNavigationBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return NavigationBar(
-      selectedIndex: selectedIndex.clamp(0, 3),
+      selectedIndex: selectedIndex.clamp(0, 4),
       onDestinationSelected: onDestinationSelected,
       destinations: const [
         NavigationDestination(
@@ -90,6 +90,15 @@ class MasterBottomNavigationBar extends StatelessWidget {
           label: 'Слоты',
         ),
         NavigationDestination(
+          icon: ChatBadgeIcon(icon: Icons.chat_bubble_outline),
+          selectedIcon: ChatBadgeIcon(
+            icon: Icons.chat_bubble_outline,
+            selectedIcon: Icons.chat_bubble,
+            useSelected: true,
+          ),
+          label: 'Сообщения',
+        ),
+        NavigationDestination(
           icon: Icon(Icons.person_outline),
           selectedIcon: Icon(Icons.person),
           label: 'Профиль',
@@ -98,3 +107,4 @@ class MasterBottomNavigationBar extends StatelessWidget {
     );
   }
 }
+

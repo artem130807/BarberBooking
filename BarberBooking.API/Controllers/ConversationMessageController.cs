@@ -7,12 +7,14 @@ using BarberBooking.API.CQRS.ConversationMessages.Queries;
 using BarberBooking.API.Dto.DtoConversationMessages;
 using BarberBooking.API.Filters;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BarberBooking.API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [Authorize]
     public class ConversationMessageController : ControllerBase
     {
         private readonly IMediator _mediator;
@@ -20,7 +22,7 @@ namespace BarberBooking.API.Controllers
         {
             _mediator = mediator;
         }
-        [HttpGet("Create-message")]
+        [HttpPost("Create-message")]
         public async Task<IActionResult> Create(DtoCreateConversationMessage dtoCreateConversationMessage)
         {
             var command = new CreateConversationMessageCommand(dtoCreateConversationMessage);

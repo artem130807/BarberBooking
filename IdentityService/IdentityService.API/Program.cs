@@ -10,8 +10,7 @@ builder.Services.AddInfrastructure(configuration);
 builder.Services.AddApiAuthentication(configuration);
 
 builder.Services.AddControllers();
-builder.Services.AddOpenApi();
-
+builder.Services.AddSwaggerGen();
 var app = builder.Build();
 
 using (var scope = app.Services.CreateScope())
@@ -19,10 +18,11 @@ using (var scope = app.Services.CreateScope())
     var loader = scope.ServiceProvider.GetRequiredService<ILoadingCityService>();
     loader.CreateCityNames();
 }
-
 if (app.Environment.IsDevelopment())
-    app.MapOpenApi();
-
+{
+    app.UseSwagger();
+    app.UseSwaggerUI();
+}
 app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();

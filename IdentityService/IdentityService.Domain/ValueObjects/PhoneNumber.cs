@@ -19,9 +19,9 @@ public sealed class PhoneNumber : ValueObject
     public static Result<PhoneNumber> Create(string number)
     {
         if (string.IsNullOrWhiteSpace(number))
-            return Result.Failure<PhoneNumber>("Р СњР С•Р СР ВµРЎР‚ Р Р…Р Вµ Р СР С•Р В¶Р ВµРЎвЂљ Р В±РЎвЂ№РЎвЂљРЎРЉ Р С—РЎС“РЎРѓРЎвЂљРЎвЂ№Р С");
+            return Result.Failure<PhoneNumber>("Укажите номер телефона");
         if (!Regex.IsMatch(number, Pattern))
-            return Result.Failure<PhoneNumber>("Р СњР С•Р СР ВµРЎР‚ Р Р…Р Вµ РЎРѓР С•Р С•РЎвЂљР Р†Р ВµРЎвЂљРЎРѓРЎвЂљР Р†РЎС“Р ВµРЎвЂљ РЎРѓРЎвЂљР В°Р Р…Р Т‘Р В°РЎР‚РЎвЂљРЎС“");
+            return Result.Failure<PhoneNumber>("Неверный формат номера телефона");
         return new PhoneNumber(number);
     }
 

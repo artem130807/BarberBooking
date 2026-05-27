@@ -9,12 +9,14 @@ using BarberBooking.API.Dto.DtoConversation;
 using BarberBooking.API.Filters;
 using BarberBooking.API.Filters.ConversationFilter;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BarberBooking.API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [Authorize]
     public class ConversationController:ControllerBase
     {
         private readonly IMediator _mediator;

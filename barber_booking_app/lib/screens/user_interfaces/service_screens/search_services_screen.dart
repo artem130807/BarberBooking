@@ -5,6 +5,7 @@ import 'package:barber_booking_app/providers/service_providers/get_service_searc
 import 'package:barber_booking_app/models/service_models/response/get_service_search_response.dart';
 import 'package:barber_booking_app/widgets/loading_indicator.dart';
 import 'package:barber_booking_app/widgets/error_widget.dart';
+import 'package:barber_booking_app/widgets/navigation/user_bottom_navigation_bar.dart';
 
 class SearchServicesScreen extends StatefulWidget {
   const SearchServicesScreen({super.key});
@@ -85,25 +86,12 @@ class _SearchServicesScreenState extends State<SearchServicesScreen> {
   }
 
   void _onNavItemTapped(int index) {
+    final previousIndex = _selectedNavIndex;
     setState(() {
       _selectedNavIndex = index;
     });
-    switch (index) {
-      case 0:
-        Navigator.pushReplacementNamed(context, '/home');
-        break;
-      case 1:
-        break;
-      case 2:
-        Navigator.pushReplacementNamed(context, '/appointments_screen');
-        break;
-      case 3:
-        Navigator.pushReplacementNamed(context, '/favorites_screen');
-        break;
-      case 4:
-        Navigator.pushReplacementNamed(context, '/profile');
-        break;
-    }
+    if (index == previousIndex) return;
+    UserBottomNavigationBar.navigateByIndex(context, index);
   }
 
   @override
@@ -173,18 +161,9 @@ class _SearchServicesScreenState extends State<SearchServicesScreen> {
           ),
         ],
       ),
-      bottomNavigationBar: BottomNavigationBar(
-        type: BottomNavigationBarType.fixed,
-        currentIndex: _selectedNavIndex,
+      bottomNavigationBar: UserBottomNavigationBar(
+        selectedIndex: _selectedNavIndex,
         onTap: _onNavItemTapped,
-        unselectedItemColor: Colors.grey,
-        items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Главная'),
-          BottomNavigationBarItem(icon: Icon(Icons.search), label: 'Поиск'),
-          BottomNavigationBarItem(icon: Icon(Icons.calendar_today), label: 'Записи'),
-          BottomNavigationBarItem(icon: Icon(Icons.favorite), label: 'Избранное'),
-          BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Профиль'),
-        ],
       ),
     );
   }
@@ -277,10 +256,10 @@ class ServiceSearchCard extends StatelessWidget {
                       },
                       child: Text(
                         salon.SalonName ?? 'Салон',
-                        style: TextStyle(
+                        style: const TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.w500,
-                          color: Theme.of(context).colorScheme.onSurface,
+                          color: Colors.black87,
                         ),
                       ),
                     ),

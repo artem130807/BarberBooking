@@ -1,11 +1,12 @@
 import 'package:barber_booking_app/models/params/review_params/review_sort_params.dart';
-import 'package:barber_booking_app/screens/user_interfaces/master_screens/master_detail_screen.dart';
+import 'package:barber_booking_app/models/review_models/response/get_reviews_master_response.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:barber_booking_app/models/params/page_params.dart';
 import 'package:barber_booking_app/providers/review_providers/get_reviews_master_provider.dart';
 import 'package:barber_booking_app/widgets/loading_indicator.dart';
 import 'package:barber_booking_app/widgets/error_widget.dart';
+import 'package:barber_booking_app/widgets/navigation/user_bottom_navigation_bar.dart';
 
 
 enum ReviewSortType { newest, highest, lowest }
@@ -28,24 +29,10 @@ class _ReviewsByMasterScreenState extends State<ReviewsByMasterScreen> {
   int _selectedNavIndex = 0;
 
   void _onNavItemTapped(int index) {
+    final previousIndex = _selectedNavIndex;
     setState(() => _selectedNavIndex = index);
-    switch (index) {
-      case 0:
-        Navigator.pushReplacementNamed(context, '/home');
-        break;
-      case 1:
-        Navigator.pushReplacementNamed(context, '/search_screen');
-        break;
-      case 2:
-        Navigator.pushReplacementNamed(context, '/appointments_screen');
-        break;
-      case 3:
-        Navigator.pushReplacementNamed(context, '/favorites_screen');
-        break;
-      case 4:
-        Navigator.pushReplacementNamed(context, '/profile');
-        break;
-    }
+    if (index == previousIndex) return;
+    UserBottomNavigationBar.navigateByIndex(context, index);
   }
 
   @override
@@ -161,18 +148,9 @@ class _ReviewsByMasterScreenState extends State<ReviewsByMasterScreen> {
             ],
           ),
           body: _buildBody(provider),
-          bottomNavigationBar: BottomNavigationBar(
-            type: BottomNavigationBarType.fixed,
-            currentIndex: _selectedNavIndex,
+          bottomNavigationBar: UserBottomNavigationBar(
+            selectedIndex: _selectedNavIndex,
             onTap: _onNavItemTapped,
-            unselectedItemColor: Colors.grey,
-            items: const [
-              BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Главная'),
-              BottomNavigationBarItem(icon: Icon(Icons.search), label: 'Поиск'),
-              BottomNavigationBarItem(icon: Icon(Icons.calendar_today), label: 'Записи'),
-              BottomNavigationBarItem(icon: Icon(Icons.favorite), label: 'Избранное'),
-              BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Профиль'),
-            ],
           ),
         );
       },
@@ -222,6 +200,46 @@ class _ReviewsByMasterScreenState extends State<ReviewsByMasterScreen> {
           final review = reviews[index];
           return ReviewTitle(review: review);
         },
+      ),
+    );
+  }
+}
+
+class ReviewTitle extends StatelessWidget {
+  const ReviewTitle({super.key, required this.review});
+
+  final GetReviewsMasterResponse review;
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      margin: const EdgeInsets.only(bottom: 12),
+      child: Padding(
+        padding: const EdgeInsets.all(12),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    review.UserName ?? 'Аноним',
+                    style: const TextStyle(fontWeight: FontWeight.w600),
+                  ),
+                ),
+                Row(
+                  children: [
+                    const Icon(Icons.star, size: 14, color: Colors.amber),
+                    const SizedBox(width: 4),
+                    Text('${review.MasterRating ?? 0}'),
+                  ],
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            Text(review.Comment ?? ''),
+          ],
+        ),
       ),
     );
   }

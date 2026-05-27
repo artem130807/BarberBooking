@@ -124,6 +124,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IConversationsRepository, ConversationsRepository>();
         services.AddScoped<IUpdateUreadMessagesService, UpdateUreadMessagesService>();
         services.AddScoped<IRabbitMqService, RabbitMqService>(); 
+        services.AddScoped<ICleanerRevokedTokenHandler, CleanerRevokedTokenHandler>();
         return services;
     }
 }

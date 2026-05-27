@@ -26,9 +26,9 @@ namespace BarberBooking.API.CQRS.MasterProfiles.Queries.Handlers
         {
             var userCity = _userContext.UserCity;
             var masters = await _masterProfileRepository.GetTheBestMasters(userCity, query.take);
-            if(masters.Count == 0)
-                return Result.Failure<List<DtoMasterPhotoAndName>>("Список мастеров пуст");
-            
+            if (masters.Count == 0)
+                return Result.Success(new List<DtoMasterPhotoAndName>());
+
             var result = _mapper.Map<List<DtoMasterPhotoAndName>>(masters);
             return Result.Success(result);
         }

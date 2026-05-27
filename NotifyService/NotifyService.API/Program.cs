@@ -1,6 +1,7 @@
 using FirebaseAdmin;
 using Google.Apis.Auth.OAuth2;
 using NotifyService.Infrastructure.DependencyInjection;
+using NotifyService.Infrastructure.Service.GrpcService;
 using NotifyService.Infrastructure.SignalR;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -8,9 +9,9 @@ var configuration = builder.Configuration;
 
 builder.Services.AddInfrastructure(configuration);
 builder.Services.AddNotifyAuthentication(configuration);
-
+builder.Services.AddGrpc();
 builder.Services.AddControllers();
-builder.Services.AddOpenApi();
+builder.Services.AddSwaggerGen();
 
 var credentialPath = configuration["Firebase:CredentialPath"];
 if (!string.IsNullOrWhiteSpace(credentialPath))
@@ -26,10 +27,13 @@ if (!string.IsNullOrWhiteSpace(credentialPath))
 }
 
 var app = builder.Build();
-
 if (app.Environment.IsDevelopment())
-    app.MapOpenApi();
+{
+    app.UseSwagger();
+    app.UseSwaggerUI();
+}
 
+app.MapGrpcService<NotifyGrpcService>();
 app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();

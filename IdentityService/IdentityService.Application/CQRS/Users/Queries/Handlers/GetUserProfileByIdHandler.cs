@@ -21,7 +21,7 @@ public class GetUserProfileByIdHandler : IRequestHandler<GetUserProfileByIdQuery
     {
         var user = await _userRepository.GetUserById(query.Id);
         if (user == null)
-            return Result.Failure<DtoUserProfile>("РџСЂРѕС„РёР»СЊ РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ РЅРµ РЅР°Р№РґРµРЅ");
+            return Result.Failure<DtoUserProfile>("Профиль пользователя не найден");
 
         return Result.Success(_mapper.Map<DtoUserProfile>(user));
     }

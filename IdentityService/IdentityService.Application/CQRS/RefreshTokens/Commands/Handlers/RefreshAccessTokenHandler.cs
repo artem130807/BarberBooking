@@ -27,21 +27,21 @@ public class RefreshAccessTokenHandler : IRequestHandler<RefreshAccessTokenComma
     public async Task<Result<AuthDto>> Handle(RefreshAccessTokenCommand command, CancellationToken cancellationToken)
     {
         if (string.IsNullOrWhiteSpace(command.RefreshTokenBase64) || string.IsNullOrWhiteSpace(command.Devices))
-            return Result.Failure<AuthDto>("РќРµРґРѕРїСѓСЃС‚РёРјС‹Рµ РґР°РЅРЅС‹Рµ");
+            return Result.Failure<AuthDto>("Недопустимые данные");
 
         var refreshToken = await _refreshTokenRepository.GetRefreshTokenByToken(command.RefreshTokenBase64.Trim());
         if (refreshToken == null)
-            return Result.Failure<AuthDto>("РўРѕРєРµРЅ РЅРµРґРµР№СЃС‚РІРёС‚РµР»СЊРЅС‹Р№");
+            return Result.Failure<AuthDto>("Токен недействителен");
         if (refreshToken.IsRevoked)
-            return Result.Failure<AuthDto>("РўРѕРєРµРЅ РѕС‚РѕР·РІР°РЅ");
+            return Result.Failure<AuthDto>("Токен отозван");
         if (refreshToken.ExpiresAt < DateTime.UtcNow)
-            return Result.Failure<AuthDto>("РўРѕРєРµРЅ РёСЃС‚С‘Рє");
+            return Result.Failure<AuthDto>("Срок действия токена истёк");
         if (!string.Equals(refreshToken.Devices, command.Devices, StringComparison.Ordinal))
-            return Result.Failure<AuthDto>("РќРµСЃРѕРѕС‚РІРµС‚СЃС‚РІРёРµ СѓСЃС‚СЂРѕР№СЃС‚РІР°");
+            return Result.Failure<AuthDto>("Несоответствие устройства");
 
         var user = await _userRepository.GetUserById(refreshToken.UserId);
         if (user == null)
-            return Result.Failure<AuthDto>("РџРѕР»СЊР·РѕРІР°С‚РµР»СЊ РЅРµ РЅР°Р№РґРµРЅ");
+            return Result.Failure<AuthDto>("Пользователь не найден");
 
         var accessToken = await _jwtProvider.GenerateToken(user, command.Devices);
         var roleInterface = await _userRolesRepository.GetMaxRole(user.Id);
@@ -49,7 +49,7 @@ public class RefreshAccessTokenHandler : IRequestHandler<RefreshAccessTokenComma
         return Result.Success(new AuthDto
         {
             AccessToken = accessToken,
-            Message = "РўРѕРєРµРЅ РѕР±РЅРѕРІР»С‘РЅ",
+            Message = "Токен обновлён",
             RoleInterface = roleInterface
         });
     }

@@ -11,6 +11,9 @@ namespace BarberBooking.API.Contracts
     {
         Task<List<UserRoles>> GetRolesIdByUserId(Guid userId);
         Task<List<Roles>> GetUserRolesAsync(int roleId);
+        
+        /// <summary>Все роли пользователя одним запросом (без N+1 при выдаче JWT).</summary>
+        Task<List<Roles>> GetAllRolesForUserAsync(Guid userId);
         Task AddUserRoleAsync(Guid userId, int roleId);
         Task RemoveUserRoleAsync(Guid userId, int roleId);
         Task<int> GetMaxRole(Guid userId);

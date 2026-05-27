@@ -1,0 +1,89 @@
+﻿import 'dart:convert';
+
+import 'package:barber_booking_app/config/api_config.dart';
+import 'package:barber_booking_app/models/chat_models/chat_conversation_summary.dart';
+import 'package:barber_booking_app/services/auth_services/auth_http_headers.dart';
+import 'package:http/http.dart' as http;
+
+class ChatConversationService {
+  Future<List<ChatConversationSummary>> getConversations({
+    int page = 1,
+    int pageSize = 50,
+  }) async {
+    final headers = await AuthHttpHeaders.bearerJson();
+    if (headers == null) return const [];
+
+    final uri = Uri.parse('$kApiBaseUrl/api/Conversation/Get-Conversations')
+        .replace(queryParameters: {
+      'Page': '$page',
+      'PageSize': '$pageSize',
+    });
+
+    try {
+      final response = await http.get(uri, headers: headers);
+      if (response.statusCode != 200) return const [];
+      return ChatConversationSummary.listFromBody(response.body);
+    } catch (_) {
+      return const [];
+    }
+  }
+
+  Future<List<ChatConversationSummary>> searchConversationsByName(
+    String name,
+  ) async {
+    final headers = await AuthHttpHeaders.bearerJson();
+    if (headers == null) return const [];
+
+    final uri = Uri.parse(
+      '$kApiBaseUrl/api/Conversation/Get-Conversations-By-Search',
+    ).replace(queryParameters: {
+      'Name': name,
+      'Page': '1',
+      'PageSize': '50',
+    });
+
+    try {
+      final response = await http.get(uri, headers: headers);
+      if (response.statusCode != 200) return const [];
+      return ChatConversationSummary.listFromBody(response.body);
+    } catch (_) {
+      return const [];
+    }
+  }
+
+  Future<bool> createConversation(String participantId) async {
+    final headers = await AuthHttpHeaders.bearerJson();
+    if (headers == null) return false;
+
+    final uri = Uri.parse(
+      '$kApiBaseUrl/api/Conversation/CreateConversation/$participantId',
+    );
+
+    try {
+      final response = await http.post(uri, headers: headers);
+      return response.statusCode == 200;
+    } catch (_) {
+      return false;
+    }
+  }
+
+  Future<int> getTotalUnreadMessages() async {
+    final headers = await AuthHttpHeaders.bearerJson();
+    if (headers == null) return 0;
+
+    final uri = Uri.parse(
+      '$kApiBaseUrl/api/ConversationMessage/Get-UnreadMessages',
+    );
+
+    try {
+      final response = await http.get(uri, headers: headers);
+      if (response.statusCode != 200) return 0;
+      final decoded = jsonDecode(response.body);
+      if (decoded is int) return decoded;
+      return int.tryParse(decoded.toString()) ?? 0;
+    } catch (_) {
+      return 0;
+    }
+  }
+}
+

@@ -1,5 +1,5 @@
-import 'package:barber_booking_app/models/master_interface_models/response/get_master_appointment_info_response.dart';
-import 'package:barber_booking_app/providers/auth_providers/auth_provider.dart';
+﻿import 'package:barber_booking_app/models/master_interface_models/response/get_master_appointment_info_response.dart';
+import 'package:barber_booking_app/navigation/chat_navigation.dart';
 import 'package:barber_booking_app/screens/master/master_navigation.dart';
 import 'package:barber_booking_app/services/master_services/master_appointment_detail_service.dart';
 import 'package:barber_booking_app/utils/appointment_status_normalize.dart';
@@ -8,7 +8,6 @@ import 'package:barber_booking_app/widgets/loading_indicator.dart';
 import 'package:barber_booking_app/widgets/phone_tap_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:provider/provider.dart';
 
 class MasterAppointmentDetailScreen extends StatefulWidget {
   const MasterAppointmentDetailScreen({
@@ -18,7 +17,6 @@ class MasterAppointmentDetailScreen extends StatefulWidget {
   });
 
   final String appointmentId;
-  /// Вкладка shell, с которой логично вернуться (подсветка нижней панели).
   final int masterNavTab;
 
   @override
@@ -42,7 +40,6 @@ class _MasterAppointmentDetailScreenState
   }
 
   Future<void> _load() async {
-    final token = context.read<AuthProvider>().token;
     setState(() => _loading = true);
     final r = await _service.fetchById(
       appointmentId: widget.appointmentId,
@@ -69,6 +66,26 @@ class _MasterAppointmentDetailScreenState
 
   bool _canCancelOrComplete(String? status) => status == 'Confirmed';
 
+  Future<void> _openChatWithClient() async {
+    final user = _data?.dtoUsersNavigation;
+    final userId = user?.Id?.trim();
+    final userName = user?.Name?.trim();
+
+    if (userId == null || userId.isEmpty || userName == null || userName.isEmpty) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Чат для этого клиента недоступен')),
+      );
+      return;
+    }
+
+    await ChatNavigation.openOrCreateConversationWithParticipant(
+      context,
+      participantId: userId,
+      participantName: userName,
+    );
+  }
+
   Future<void> _complete() async {
     final ok = await showDialog<bool>(
       context: context,
@@ -90,7 +107,6 @@ class _MasterAppointmentDetailScreenState
       ),
     );
     if (ok != true || !mounted) return;
-    final token = context.read<AuthProvider>().token;
     setState(() => _completing = true);
     final result = await _service.completeAppointment(
       appointmentId: widget.appointmentId,
@@ -98,7 +114,6 @@ class _MasterAppointmentDetailScreenState
     if (!mounted) return;
     setState(() => _completing = false);
     if (result.ok) {
-      // Один канал обратной связи: push приходит по SignalR (см. CompletedStatusAppointmentHandler).
       Navigator.of(context).pop(true);
       return;
     }
@@ -132,7 +147,6 @@ class _MasterAppointmentDetailScreenState
       ),
     );
     if (ok != true || !mounted) return;
-    final token = context.read<AuthProvider>().token;
     setState(() => _cancelling = true);
     final success = await _service.cancelAppointment(
       appointmentId: widget.appointmentId,
@@ -270,6 +284,20 @@ class _MasterAppointmentDetailScreenState
                                     ),
                                   ),
                                 ],
+                              ),
+                            ),
+                          ],
+                          if (_data!.CreatedWithoutApp != true &&
+                              _data!.dtoUsersNavigation?.Id != null &&
+                              _data!.dtoUsersNavigation!.Id!.isNotEmpty &&
+                              (_data!.dtoUsersNavigation?.Name ?? '').trim().isNotEmpty) ...[
+                            const SizedBox(height: 12),
+                            Padding(
+                              padding: const EdgeInsets.only(left: 36),
+                              child: OutlinedButton.icon(
+                                onPressed: _openChatWithClient,
+                                icon: const Icon(Icons.chat_bubble_outline),
+                                label: const Text('Написать клиенту'),
                               ),
                             ),
                           ],

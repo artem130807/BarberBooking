@@ -60,7 +60,7 @@ namespace BarberBooking.API.Controllers
             var comamnd = new RegisterUserCommand(dtoCreateUser);
             var result = await _mediator.Send(comamnd);
             if (result.IsFailure)
-                return BadRequest(new { error = result.Error });
+                return BadRequest(result.Error);
             _cookieService.SetAuthCookie(Response, result.Value.AccessToken);
             await _verificationService.DeleteEmailVerificate(comamnd.dtoCreateUser.Email);         
             return Ok(result.Value);
@@ -71,7 +71,7 @@ namespace BarberBooking.API.Controllers
             var query = new LoginUserQuery(login.Email, login.PasswordHash, login.Devices);
             var result = await _mediator.Send(query);
             if (result.IsFailure)
-                return BadRequest(new { error = result.Error });
+                return BadRequest(result.Error);
             _cookieService.SetAuthCookie(Response, result.Value.AccessToken);
             return Ok(result.Value);
         }

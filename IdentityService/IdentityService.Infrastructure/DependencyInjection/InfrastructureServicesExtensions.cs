@@ -14,6 +14,10 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
+using IdentityService.Infrastructure.Services;
+using IdentityService.Application.Contracts.Interfaces;
+using Grpc.Net.Client;
+using NotifyServiceGrpc;
 
 namespace IdentityService.Infrastructure.DependencyInjection;
 
@@ -51,7 +55,19 @@ public static class InfrastructureServicesExtensions
         services.AddScoped<IUserContext, UserContext>();
         services.AddScoped<IPermissionService, PermissionsService>();
         services.AddSingleton<IAuthorizationHandler, PermissionHandler>();
+        services.AddScoped<IRabbitMqService, RabbitMqService>();
+        services.AddScoped<IUnitOfWork, UnitOfWork>();
 
+        services.AddSingleton(_ =>
+        {
+            var url = configuration["NotifyService:GrpcUrl"] ?? "http://localhost:5122";
+            return GrpcChannel.ForAddress(url);
+        });
+
+        services.AddSingleton(sp =>
+            new NotificationService.NotificationServiceClient(sp.GetRequiredService<GrpcChannel>()));
+
+        services.AddScoped<IVerifyEmailGrpcAdapter, VerifyEmailGrpcAdapter>();
         return services;
     }
 
@@ -105,8 +121,7 @@ public static class InfrastructureServicesExtensions
         {
             options.AddPolicy("Admin", policy => policy.RequireRole("Admin"));
             options.AddPolicy("AdminOrMaster", policy => policy.RequireRole("Admin", "Master"));
-        });
-
+                });
         return services;
     }
 }

@@ -238,3 +238,10 @@ E:\AAAAA1111222C#\BarberBookingApp\BarberBooking.Tests\obj\Debug\net9.0\refint\B
 E:\AAAAA1111222C#\BarberBookingApp\BarberBooking.Tests\obj\Debug\net9.0\BarberBooking.Tests.pdb
 E:\AAAAA1111222C#\BarberBookingApp\BarberBooking.Tests\obj\Debug\net9.0\BarberBooking.Tests.genruntimeconfig.cache
 E:\AAAAA1111222C#\BarberBookingApp\BarberBooking.Tests\obj\Debug\net9.0\ref\BarberBooking.Tests.dll
+E:\AAAAA1111222C#\BarberBookingApp\BarberBooking.Tests\bin\Debug\net9.0\Google.Protobuf.dll
+E:\AAAAA1111222C#\BarberBookingApp\BarberBooking.Tests\bin\Debug\net9.0\Grpc.AspNetCore.Server.dll
+E:\AAAAA1111222C#\BarberBookingApp\BarberBooking.Tests\bin\Debug\net9.0\Grpc.AspNetCore.Server.ClientFactory.dll
+E:\AAAAA1111222C#\BarberBookingApp\BarberBooking.Tests\bin\Debug\net9.0\Grpc.Core.Api.dll
+E:\AAAAA1111222C#\BarberBookingApp\BarberBooking.Tests\bin\Debug\net9.0\Grpc.Net.Client.dll
+E:\AAAAA1111222C#\BarberBookingApp\BarberBooking.Tests\bin\Debug\net9.0\Grpc.Net.ClientFactory.dll
+E:\AAAAA1111222C#\BarberBookingApp\BarberBooking.Tests\bin\Debug\net9.0\Grpc.Net.Common.dll

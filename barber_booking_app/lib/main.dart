@@ -1,4 +1,4 @@
-import 'dart:async';
+﻿import 'dart:async';
 
 import 'package:barber_booking_app/providers/appointment_providers/%D1%81reate_appointment_provider.dart';
 import 'package:barber_booking_app/providers/appointment_providers/delete_appointment_provider.dart';
@@ -15,6 +15,7 @@ import 'package:barber_booking_app/providers/master_subscription_providers/delet
 import 'package:barber_booking_app/providers/master_subscription_providers/get_subscriptions_provider.dart';
 import 'package:barber_booking_app/providers/message_providers/get_count_messages_provider.dart';
 import 'package:barber_booking_app/providers/message_providers/get_message_user_provider.dart';
+import 'package:barber_booking_app/providers/chat_providers/chat_conversations_provider.dart';
 import 'package:barber_booking_app/providers/review_providers/create_review_user_provider.dart';
 import 'package:barber_booking_app/providers/review_providers/delete_review_user_provider.dart';
 import 'package:barber_booking_app/providers/review_providers/get_reviews_master_provider.dart';
@@ -46,7 +47,7 @@ import 'package:barber_booking_app/screens/user_interfaces/appointment_screens/a
 import 'package:barber_booking_app/screens/user_interfaces/review_screens/reviews_by_master_screen.dart';
 import 'package:barber_booking_app/screens/user_interfaces/review_screens/reviews_by_salon_screen.dart';
 import 'package:barber_booking_app/screens/user_interfaces/salon_screens/salon_screen.dart';
-import 'package:barber_booking_app/screens/user_interfaces/master_screens/master_detail_screen.dart';
+import 'package:barber_booking_app/screens/master_screens/master_detail_screen.dart';
 import 'package:barber_booking_app/screens/user_interfaces/salon_screens/salon_masters_screen.dart';
 import 'package:barber_booking_app/screens/user_interfaces/salon_screens/salons_by_service_screen.dart';
 import 'package:barber_booking_app/screens/user_interfaces/salon_screens/salons_screen.dart';
@@ -68,6 +69,7 @@ import 'package:barber_booking_app/screens/user_interfaces/auth_screens/verify_c
 import 'package:barber_booking_app/screens/user_interfaces/auth_screens/veify_code_updatepassword_screen.dart';
 import 'package:barber_booking_app/screens/user_interfaces/auth_screens/update_password_screen.dart';
 import 'package:barber_booking_app/screens/user_interfaces/message_screens/messages_screen.dart';
+import 'package:barber_booking_app/screens/user_interfaces/chat_screens/user_chat_tab_screen.dart';
 import 'package:barber_booking_app/screens/user_interfaces/appointment_screens/appointment_detail_screen.dart';
 import 'package:barber_booking_app/screens/admin/admin_navigation.dart';
 import 'package:barber_booking_app/screens/admin/admin_shell_layout.dart';
@@ -109,7 +111,6 @@ Future<void> main() async {
   _schedulePostFrameBootstrap();
 }
 
-/// Минимальная синхронная часть Firebase: не блокировать первый кадр тяжёлым FCM/HTTP.
 Future<void> _bootstrapFirebaseCore() async {
   try {
     await Firebase.initializeApp(
@@ -195,6 +196,7 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => CreateReviewUserProvider()),
         ChangeNotifierProvider(create: (_) => GetCountMessagesProvider()),
         ChangeNotifierProvider(create: (_) => GetMessageUserProvider()),
+        ChangeNotifierProvider(create: (_) => ChatConversationsProvider()),
         ChangeNotifierProvider(create: (_) => GetAppointmentClientProvider()),
         ChangeNotifierProvider(create: (_) => DeleteAppointmentProvider()),
         ChangeNotifierProvider(create: (_) => GetSalonAppointmentsAdminProvider()),
@@ -359,6 +361,7 @@ class MyApp extends StatelessWidget {
               const VerifyCodeUpdatePassScreen(),
           '/update-password': (context) => const UpdatePasswordScreen(),
           '/messages': (context) => const MessagesScreen(),
+          '/chat_conversations': (context) => const UserChatTabScreen(),
           '/search-results': (context) => const SearchResultsScreen(query: ''),
           '/salons_screen': (context) => const SalonsScreen(),
           '/appointments_screen': (context) => const AppointmentsScreen(),
@@ -411,7 +414,6 @@ class MyApp extends StatelessWidget {
   }
 }
 
-/// Если у [MaterialApp.builder] временно нет `child`, без этого остаётся только фон — на тёмной теме это выглядит как «чёрный экран».
 class _NavigatorMissingFallback extends StatelessWidget {
   const _NavigatorMissingFallback();
 
@@ -462,3 +464,6 @@ class _SessionStartGateState extends State<SessionStartGate> {
     );
   }
 }
+
+
+

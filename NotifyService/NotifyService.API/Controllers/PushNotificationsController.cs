@@ -24,7 +24,7 @@ public sealed class PushNotificationsController : ControllerBase
         CancellationToken cancellationToken)
     {
         if (string.IsNullOrWhiteSpace(request?.Token))
-            return BadRequest("РќРµ СѓРєР°Р·Р°РЅ С‚РѕРєРµРЅ");
+            return BadRequest("Не указан токен устройства");
 
         await _fcmTokens.UpsertTokenAsync(_userContext.UserId, request.Token, cancellationToken);
         return Ok();
@@ -35,7 +35,7 @@ public sealed class PushNotificationsController : ControllerBase
         CancellationToken cancellationToken)
     {
         if (string.IsNullOrWhiteSpace(request?.Token))
-            return BadRequest("РќРµ СѓРєР°Р·Р°РЅ С‚РѕРєРµРЅ");
+            return BadRequest("Не указан токен устройства");
 
         await _fcmTokens.RemoveTokenAsync(_userContext.UserId, request.Token, cancellationToken);
         return Ok();

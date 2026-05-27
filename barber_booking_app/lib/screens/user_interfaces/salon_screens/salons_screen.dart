@@ -1,10 +1,10 @@
 import 'package:barber_booking_app/models/params/page_params.dart';
 import 'package:barber_booking_app/models/params/salon_params/salon_filter.dart';
-import 'package:barber_booking_app/providers/auth_providers/auth_provider.dart';
 import 'package:barber_booking_app/providers/salon_providers/get_salons_provider.dart';
 import 'package:barber_booking_app/widgets/salon_widgets/salon_card.dart';
 import 'package:barber_booking_app/widgets/loading_indicator.dart';
 import 'package:barber_booking_app/widgets/error_widget.dart';
+import 'package:barber_booking_app/widgets/navigation/user_bottom_navigation_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -50,24 +50,10 @@ class _SalonsScreenState extends State<SalonsScreen> {
   }
 
   void _onNavItemTapped(int index) {
+    final previousIndex = _selectedNavIndex;
     setState(() => _selectedNavIndex = index);
-    switch (index) {
-      case 0:
-        Navigator.pushReplacementNamed(context, '/home');
-        break;
-      case 1:
-        Navigator.pushReplacementNamed(context, '/search_screen');
-        break;
-      case 2:
-        Navigator.pushReplacementNamed(context, '/appointments_screen');
-        break;
-      case 3:
-        Navigator.pushReplacementNamed(context, '/favorites_screen');
-        break;
-      case 4:
-        Navigator.pushReplacementNamed(context, '/profile');
-        break;
-    }
+    if (index == previousIndex) return;
+    UserBottomNavigationBar.navigateByIndex(context, index);
   }
 
   void _applyFilter() {
@@ -81,7 +67,6 @@ class _SalonsScreenState extends State<SalonsScreen> {
   }
 
   void _performSearch({SalonFilter? filter}) {
-    final token = Provider.of<AuthProvider>(context, listen: false).token;
     final effectiveFilter = filter ?? SalonFilter();
     Provider.of<GetSalonsProvider>(context, listen: false)
         .getSalons(_pageParams, effectiveFilter);
@@ -164,18 +149,9 @@ class _SalonsScreenState extends State<SalonsScreen> {
               ),
             ],
           ),
-          bottomNavigationBar: BottomNavigationBar(
-            type: BottomNavigationBarType.fixed,
-            currentIndex: _selectedNavIndex,
+          bottomNavigationBar: UserBottomNavigationBar(
+            selectedIndex: _selectedNavIndex,
             onTap: _onNavItemTapped,
-            unselectedItemColor: Colors.grey,
-            items: const [
-              BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Главная'),
-              BottomNavigationBarItem(icon: Icon(Icons.search), label: 'Поиск'),
-              BottomNavigationBarItem(icon: Icon(Icons.calendar_today), label: 'Записи'),
-              BottomNavigationBarItem(icon: Icon(Icons.favorite), label: 'Избранное'),
-              BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Профиль'),
-            ],
           ),
         );
       },

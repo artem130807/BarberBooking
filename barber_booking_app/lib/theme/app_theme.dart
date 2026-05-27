@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 
 
 class AppTheme {
@@ -114,6 +114,21 @@ class AppTheme {
         selectedItemColor: _primary,
         unselectedItemColor: _onSurfaceVariant,
         type: BottomNavigationBarType.fixed,
+        showSelectedLabels: false,
+        showUnselectedLabels: false,
+        selectedIconTheme: IconThemeData(size: 30),
+        unselectedIconTheme: IconThemeData(size: 28),
+      ),
+      navigationBarTheme: NavigationBarThemeData(
+        backgroundColor: _surface,
+        labelBehavior: NavigationDestinationLabelBehavior.alwaysHide,
+        iconTheme: MaterialStateProperty.resolveWith((states) {
+          if (states.contains(MaterialState.selected)) {
+            return const IconThemeData(size: 30, color: _primary);
+          }
+          return const IconThemeData(size: 28, color: _onSurfaceVariant);
+        }),
+        indicatorColor: _primary.withOpacity(0.2),
       ),
       tabBarTheme: const TabBarThemeData(
         labelColor: _primary,
@@ -158,3 +173,5 @@ class AppTheme {
   static const Color success = _success;
   static const Color error = _error;
 }
+
+

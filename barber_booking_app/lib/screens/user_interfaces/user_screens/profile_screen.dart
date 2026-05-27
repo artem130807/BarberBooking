@@ -2,6 +2,7 @@ import 'package:barber_booking_app/providers/auth_providers/auth_provider.dart';
 import 'package:barber_booking_app/providers/user_providers/get_user_provider.dart';
 import 'package:barber_booking_app/widgets/error_widget.dart';
 import 'package:barber_booking_app/widgets/loading_indicator.dart';
+import 'package:barber_booking_app/widgets/navigation/user_bottom_navigation_bar.dart';
 import 'package:barber_booking_app/widgets/profile_shell_widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -14,7 +15,7 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
-  int _selectedNavIndex = 4;
+  int _selectedNavIndex = 5;
 
   GetUserProvider? _userForApiErrors;
 
@@ -59,25 +60,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   void _onNavItemTapped(int index) {
+    final previousIndex = _selectedNavIndex;
     setState(() {
       _selectedNavIndex = index;
     });
-    switch (index) {
-      case 0:
-        Navigator.pushReplacementNamed(context, '/home');
-        break;
-      case 1:
-        Navigator.pushReplacementNamed(context, '/search_screen');
-        break;
-      case 2:
-        Navigator.pushReplacementNamed(context, '/appointments_screen');
-        break;
-      case 3:
-        Navigator.pushReplacementNamed(context, '/favorites_screen');
-        break;
-      case 4:
-        break;
-    }
+    if (index == previousIndex) return;
+    UserBottomNavigationBar.navigateByIndex(context, index);
   }
 
   @override
@@ -90,19 +78,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
             title: const Text('Профиль'),
           ),
           body: _buildBody(provider),
-          bottomNavigationBar: BottomNavigationBar(
-            type: BottomNavigationBarType.fixed,
-            currentIndex: _selectedNavIndex,
+          bottomNavigationBar: UserBottomNavigationBar(
+            selectedIndex: _selectedNavIndex,
             onTap: _onNavItemTapped,
-            items: const [
-              BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Главная'),
-              BottomNavigationBarItem(icon: Icon(Icons.search), label: 'Поиск'),
-              BottomNavigationBarItem(
-                  icon: Icon(Icons.calendar_today), label: 'Записи'),
-              BottomNavigationBarItem(
-                  icon: Icon(Icons.favorite), label: 'Избранное'),
-              BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Профиль'),
-            ],
           ),
         );
       },

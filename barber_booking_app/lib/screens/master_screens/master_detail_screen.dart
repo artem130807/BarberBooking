@@ -1,18 +1,21 @@
+import 'dart:async';
+import 'package:barber_booking_app/navigation/chat_navigation.dart';
+
 import 'package:barber_booking_app/models/master_models/response/get_master_response.dart';
-import 'package:barber_booking_app/models/master_subscription_models/request/create_subscription_request.dart';
 import 'package:barber_booking_app/models/params/page_params.dart';
 import 'package:barber_booking_app/models/params/review_params/review_sort_params.dart';
 import 'package:barber_booking_app/models/review_models/response/get_reviews_master_response.dart';
 import 'package:barber_booking_app/providers/auth_providers/auth_provider.dart';
 import 'package:barber_booking_app/providers/master_providers/get_master_provider.dart';
-import 'package:barber_booking_app/providers/master_subscription_providers/create_subscription_provider.dart';
-import 'package:barber_booking_app/providers/master_subscription_providers/delete_subscription_provider.dart';
+import 'package:barber_booking_app/providers/master_subscription_providers/get_subscriptions_provider.dart';
 import 'package:barber_booking_app/providers/review_providers/get_reviews_master_provider.dart';
+import 'package:barber_booking_app/services/master_subscription_service/master_subscription_sync_service.dart';
 import 'package:barber_booking_app/screens/user_interfaces/service_screens/service_selection_screen.dart';
 import 'package:barber_booking_app/utils/api_media_url.dart';
 import 'package:barber_booking_app/utils/date_formatter.dart';
 import 'package:barber_booking_app/widgets/loading_indicator.dart';
 import 'package:barber_booking_app/widgets/error_widget.dart';
+import 'package:barber_booking_app/widgets/navigation/user_bottom_navigation_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -28,8 +31,15 @@ class MasterDetailScreen extends StatefulWidget {
 class _MasterDetailScreenState extends State<MasterDetailScreen> {
   final PageParams _reviewsPageParams = PageParams(Page: 1, PageSize: 5);
   final ReviewSortParams _reviewSortParams = ReviewSortParams();
-  bool _isSubscribed = false;
-  String? _subscriptionId;
+  final MasterSubscriptionSyncService _subscriptionSync = MasterSubscriptionSyncService();
+
+  bool? _initialSubscribed;
+
+  bool _draftSubscribed = false;
+  bool _favoriteStateInitialized = false;
+  bool _favoriteInitScheduled = false;
+  bool _subscriptionSyncCompleted = false;
+  String? _authToken;
   int _selectedNavIndex = 0;
 
   GetMasterProvider? _masterForApiErrors;
@@ -49,51 +59,17 @@ class _MasterDetailScreenState extends State<MasterDetailScreen> {
     }
   }
 
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    if (_masterForApiErrors != null) return;
-    final master = context.read<GetMasterProvider>();
-    final reviews = context.read<GetReviewsMasterProvider>();
-    _masterForApiErrors = master;
-    _reviewsForApiErrors = reviews;
-    master.addListener(_onMasterReviewsApiError);
-    reviews.addListener(_onMasterReviewsApiError);
-  }
-
-  @override
-  void dispose() {
-    _masterForApiErrors?.removeListener(_onMasterReviewsApiError);
-    _reviewsForApiErrors?.removeListener(_onMasterReviewsApiError);
-    super.dispose();
-  }
-
   void _onNavItemTapped(int index) {
+    final previousIndex = _selectedNavIndex;
     setState(() => _selectedNavIndex = index);
-    switch (index) {
-      case 0:
-        Navigator.pushReplacementNamed(context, '/home');
-        break;
-      case 1:
-        Navigator.pushReplacementNamed(context, '/search_screen');
-        break;
-      case 2:
-        Navigator.pushReplacementNamed(context, '/appointments_screen');
-        break;
-      case 3:
-        Navigator.pushReplacementNamed(context, '/favorites_screen');
-        break;
-      case 4:
-        Navigator.pushReplacementNamed(context, '/profile');
-        break;
-    }
+    if (index == previousIndex) return;
+    UserBottomNavigationBar.navigateByIndex(context, index);
   }
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      final auth = Provider.of<AuthProvider>(context, listen: false);
       final masterProvider = Provider.of<GetMasterProvider>(context, listen: false);
       masterProvider.getMaster(widget.masterId);
       final reviewsProvider = Provider.of<GetReviewsMasterProvider>(context, listen: false);
@@ -101,46 +77,65 @@ class _MasterDetailScreenState extends State<MasterDetailScreen> {
     });
   }
 
-  Future<void> _toggleSubscription(
-    BuildContext context,
-    bool currentState,
-    String masterId,
-  ) async {
-    if (currentState) {
-      if (_subscriptionId == null) return;
-      final deleteProvider = Provider.of<DeleteSubscriptionProvider>(context, listen: false);
-      final success = await deleteProvider.deleteSubscription(_subscriptionId!);
-      if (success && mounted) {
-        setState(() {
-          _isSubscribed = false;
-          _subscriptionId = null;
-        });
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Мастер удалён из избранного'), duration: Duration(seconds: 1)),
-        );
-      } else if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(deleteProvider.errorMessage ?? 'Ошибка при удалении')),
-        );
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final token = Provider.of<AuthProvider>(context, listen: false).token;
+    if (token != _authToken) {
+      _authToken = token;
+    }
+    if (_masterForApiErrors == null) {
+      final master = context.read<GetMasterProvider>();
+      final reviews = context.read<GetReviewsMasterProvider>();
+      _masterForApiErrors = master;
+      _reviewsForApiErrors = reviews;
+      master.addListener(_onMasterReviewsApiError);
+      reviews.addListener(_onMasterReviewsApiError);
+    }
+  }
+
+  void _toggleFavoriteDraft() {
+    final m = Provider.of<GetMasterProvider>(context, listen: false).getMasterResponse;
+    if (m == null) return;
+    setState(() {
+      if (!_favoriteStateInitialized) {
+        _initialSubscribed = m.isSubscripe ?? false;
+        _draftSubscribed = _initialSubscribed!;
+        _favoriteStateInitialized = true;
       }
-    } else {
-      final createProvider = Provider.of<CreateSubscriptionProvider>(context, listen: false);
-      final request = CreateSubscriptionRequest(MasterId: masterId);
-      final success = await createProvider.createSubscription(request);
-      if (success && mounted) {
-        setState(() {
-          _isSubscribed = true;
-          _subscriptionId = createProvider.id;
-        });
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Мастер добавлен в избранное'), duration: Duration(seconds: 1)),
-        );
-      } else if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(createProvider.errorMessage ?? 'Ошибка при добавлении')),
-        );
+      _draftSubscribed = !_draftSubscribed;
+    });
+  }
+
+  Future<void> _persistSubscriptionExit({BuildContext? contextForRefresh}) async {
+    if (!_favoriteStateInitialized) return;
+    final initial = _initialSubscribed;
+    if (initial == null) return;
+    if (_draftSubscribed == initial) return;
+
+    final ok = await _subscriptionSync.persistIfChanged(
+      initialSubscribed: initial,
+      draftSubscribed: _draftSubscribed,
+      masterId: widget.masterId,
+    );
+    if (ok && contextForRefresh != null && contextForRefresh.mounted) {
+      await contextForRefresh.read<GetSubscriptionsProvider>().getSubscriptions();
+    }
+  }
+
+  @override
+  void dispose() {
+    _masterForApiErrors?.removeListener(_onMasterReviewsApiError);
+    _reviewsForApiErrors?.removeListener(_onMasterReviewsApiError);
+    if (!_subscriptionSyncCompleted && _favoriteStateInitialized && _authToken != null) {
+      final token = _authToken;
+      if (token != null &&
+          _initialSubscribed != null &&
+          _draftSubscribed != _initialSubscribed) {
+        unawaited(_persistSubscriptionExit());
       }
     }
+    super.dispose();
   }
 
   @override
@@ -175,18 +170,41 @@ class _MasterDetailScreenState extends State<MasterDetailScreen> {
           );
         }
 
-        return Scaffold(
+        if (!_favoriteInitScheduled) {
+          _favoriteInitScheduled = true;
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (!mounted || _favoriteStateInitialized) return;
+            setState(() {
+              _initialSubscribed = master.isSubscripe ?? false;
+              _draftSubscribed = _initialSubscribed!;
+              _favoriteStateInitialized = true;
+            });
+          });
+        }
+
+        final bool favoriteIcon = _favoriteStateInitialized
+            ? _draftSubscribed
+            : (master.isSubscripe ?? false);
+
+        return PopScope(
+          canPop: false,
+          onPopInvokedWithResult: (bool didPop, Object? result) async {
+            if (didPop) return;
+            await _persistSubscriptionExit(contextForRefresh: context);
+            if (!context.mounted) return;
+            _subscriptionSyncCompleted = true;
+            Navigator.of(context).pop();
+          },
+          child: Scaffold(
           appBar: AppBar(
             title: Text(master.UserName ?? 'Мастер'),
             actions: [
               IconButton(
                 icon: Icon(
-                  _isSubscribed ? Icons.favorite : Icons.favorite_border,
-                  color: _isSubscribed ? Colors.red : null,
+                  favoriteIcon ? Icons.favorite : Icons.favorite_border,
+                  color: favoriteIcon ? Colors.red : null,
                 ),
-                onPressed: token == null
-                    ? null
-                    : () => _toggleSubscription(context, _isSubscribed, widget.masterId),
+                onPressed: token == null ? null : _toggleFavoriteDraft,
               ),
             ],
           ),
@@ -202,18 +220,11 @@ class _MasterDetailScreenState extends State<MasterDetailScreen> {
               ],
             ),
           ),
-          bottomNavigationBar: BottomNavigationBar(
-            type: BottomNavigationBarType.fixed,
-            currentIndex: _selectedNavIndex,
+          bottomNavigationBar: UserBottomNavigationBar(
+            selectedIndex: _selectedNavIndex,
             onTap: _onNavItemTapped,
-            items: const [
-              BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Главная'),
-              BottomNavigationBarItem(icon: Icon(Icons.search), label: 'Поиск'),
-              BottomNavigationBarItem(icon: Icon(Icons.calendar_today), label: 'Записи'),
-              BottomNavigationBarItem(icon: Icon(Icons.favorite), label: 'Избранное'),
-              BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Профиль'),
-            ],
           ),
+        ),
         );
       },
     );
@@ -271,7 +282,7 @@ class _MasterDetailScreenState extends State<MasterDetailScreen> {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  master.Specialization ?? 'Мастер',
+                  master.Specialization ?? 'Специализация не указана',
                   style: const TextStyle(
                     color: Colors.white70,
                     fontSize: 14,
@@ -323,10 +334,10 @@ class _MasterDetailScreenState extends State<MasterDetailScreen> {
           ),
           const SizedBox(height: 8),
           Text(
-            master.Bio?.isNotEmpty == true ? master.Bio! : 'Описание мастера пока не добавлено.',
-            style: const TextStyle(
+            master.Bio?.isNotEmpty == true ? master.Bio! : 'Мастер ещё не добавил описание. Вы можете записаться на услугу или написать в чат.',
+            style: TextStyle(
               fontSize: 14,
-              color: Colors.black87,
+              color: Theme.of(context).colorScheme.onSurface,
             ),
           ),
           if (master.SalonNavigation != null) ...[
@@ -461,7 +472,7 @@ class _MasterDetailScreenState extends State<MasterDetailScreen> {
       return const Padding(
         padding: EdgeInsets.symmetric(vertical: 8),
         child: Text(
-          'У мастера пока нет отзывов',
+          'У этого мастера пока нет отзывов',
           style: TextStyle(color: Colors.grey),
         ),
       );
@@ -505,7 +516,7 @@ class _MasterDetailScreenState extends State<MasterDetailScreen> {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           const Text(
-            'Записаться к мастеру',
+            'Запись на услугу',
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
@@ -517,7 +528,7 @@ class _MasterDetailScreenState extends State<MasterDetailScreen> {
               final salonId = master.SalonNavigation?.Id;
               if (salonId == null || salonId.isEmpty) {
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Мастер не привязан к салону')),
+                  const SnackBar(content: Text('Салон для записи не найден')),
                 );
                 return;
               }
@@ -533,7 +544,7 @@ class _MasterDetailScreenState extends State<MasterDetailScreen> {
               );
             },
             style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.black,
+              backgroundColor: Theme.of(context).colorScheme.primary,
               foregroundColor: Colors.white,
               padding: const EdgeInsets.symmetric(vertical: 14),
               shape: RoundedRectangleBorder(
@@ -541,9 +552,28 @@ class _MasterDetailScreenState extends State<MasterDetailScreen> {
               ),
             ),
             child: const Text(
-              'Выбрать время',
+              'Записаться к мастеру',
               style: TextStyle(fontSize: 16),
             ),
+          ),
+          const SizedBox(height: 10),
+          OutlinedButton.icon(
+            onPressed: () async {
+              final participantName = (master.UserName ?? '').trim();
+              if (participantName.isEmpty) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Нужно имя мастера для чата')),
+                );
+                return;
+              }
+              await ChatNavigation.openOrCreateConversationWithParticipant(
+                context,
+                participantId: widget.masterId,
+                participantName: participantName,
+              );
+            },
+            icon: const Icon(Icons.chat_bubble_outline),
+            label: const Text('Написать мастеру'),
           ),
         ],
       ),
@@ -578,7 +608,7 @@ class ReviewTitle extends StatelessWidget {
                   children: [
                     Expanded(
                       child: Text(
-                        review.UserName ?? 'Аноним',
+                        review.UserName ?? 'Клиент',
                         style: const TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 14,
@@ -600,11 +630,11 @@ class ReviewTitle extends StatelessWidget {
                 const SizedBox(height: 4),
                 Text(
                   review.Comment ?? '',
-                  style: const TextStyle(fontSize: 13, color: Colors.black87),
+                  style: TextStyle(fontSize: 13, color: Theme.of(context).colorScheme.onSurface),
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  DateFormatter.formatDateOnly(review.CreatedAt ?? "Неизвестная дата"),
+                  DateFormatter.formatDateOnly(review.CreatedAt ?? '—'),
                   style: const TextStyle(fontSize: 11, color: Colors.grey),
                 ),
               ],

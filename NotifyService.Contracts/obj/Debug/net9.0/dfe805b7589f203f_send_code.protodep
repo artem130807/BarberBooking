@@ -1,0 +1,2 @@
+obj\Debug\net9.0\Proto/SendCode.cs \
+obj\Debug\net9.0\Proto/SendCodeGrpc.cs: Proto/send_code.proto

@@ -1,0 +1,13 @@
+E:\AAAAA1111222C#\BarberBookingApp\NotifyService.Contracts\bin\Debug\net9.0\NotifyService.Contracts.deps.json
+E:\AAAAA1111222C#\BarberBookingApp\NotifyService.Contracts\bin\Debug\net9.0\NotifyService.Contracts.dll
+E:\AAAAA1111222C#\BarberBookingApp\NotifyService.Contracts\bin\Debug\net9.0\NotifyService.Contracts.pdb
+E:\AAAAA1111222C#\BarberBookingApp\NotifyService.Contracts\obj\Debug\net9.0\NotifyService.Contracts.csproj.AssemblyReference.cache
+E:\AAAAA1111222C#\BarberBookingApp\NotifyService.Contracts\obj\Debug\net9.0\NotifyService.Contracts.GeneratedMSBuildEditorConfig.editorconfig
+E:\AAAAA1111222C#\BarberBookingApp\NotifyService.Contracts\obj\Debug\net9.0\NotifyService.Contracts.AssemblyInfoInputs.cache
+E:\AAAAA1111222C#\BarberBookingApp\NotifyService.Contracts\obj\Debug\net9.0\NotifyService.Contracts.AssemblyInfo.cs
+E:\AAAAA1111222C#\BarberBookingApp\NotifyService.Contracts\obj\Debug\net9.0\NotifyService.Contracts.csproj.CoreCompileInputs.cache
+E:\AAAAA1111222C#\BarberBookingApp\NotifyService.Contracts\obj\Debug\net9.0\NotifyService.Contracts.sourcelink.json
+E:\AAAAA1111222C#\BarberBookingApp\NotifyService.Contracts\obj\Debug\net9.0\NotifyService.Contracts.dll
+E:\AAAAA1111222C#\BarberBookingApp\NotifyService.Contracts\obj\Debug\net9.0\refint\NotifyService.Contracts.dll
+E:\AAAAA1111222C#\BarberBookingApp\NotifyService.Contracts\obj\Debug\net9.0\NotifyService.Contracts.pdb
+E:\AAAAA1111222C#\BarberBookingApp\NotifyService.Contracts\obj\Debug\net9.0\ref\NotifyService.Contracts.dll

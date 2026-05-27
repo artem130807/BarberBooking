@@ -1,5 +1,7 @@
 using CSharpFunctionalExtensions;
 using IdentityService.Application.Contracts;
+using IdentityService.Application.Contracts.Events;
+using IdentityService.Application.Contracts.Interfaces;
 using IdentityService.Application.Dto;
 using IdentityService.Domain.Enums;
 using IdentityService.Domain.Models;
@@ -18,7 +20,8 @@ public class RegisterUserCommandHandler : IRequestHandler<RegisterUserCommand, R
     private readonly IDnsEmailValidator _emailValidator;
     private readonly IUserValidatorService _userValidator;
     private readonly IRefreshTokenService _refreshTokenService;
-
+    private readonly IUnitOfWork _unitOfWork;
+    private readonly IVerifyEmailGrpcAdapter _verifyEmailGrpcAdapter;
     public RegisterUserCommandHandler(
         IUserRepository usersRepository,
         IPasswordHasher passwordHasher,
@@ -27,7 +30,10 @@ public class RegisterUserCommandHandler : IRequestHandler<RegisterUserCommand, R
         IPasswordValidatorService passwordValidatorService,
         IDnsEmailValidator emailValidator,
         IUserValidatorService userValidator,
-        IRefreshTokenService refreshTokenService)
+        IRefreshTokenService refreshTokenService,
+        IUnitOfWork unitOfWork,
+        IVerifyEmailGrpcAdapter verifyEmailGrpcAdapter
+        )
     {
         _usersRepository = usersRepository;
         _passwordHasher = passwordHasher;
@@ -37,6 +43,8 @@ public class RegisterUserCommandHandler : IRequestHandler<RegisterUserCommand, R
         _emailValidator = emailValidator;
         _userValidator = userValidator;
         _refreshTokenService = refreshTokenService;
+        _unitOfWork = unitOfWork;
+        _verifyEmailGrpcAdapter = verifyEmailGrpcAdapter;
     }
 
     public async Task<Result<AuthDto>> Handle(RegisterUserCommand command, CancellationToken cancellationToken)
@@ -56,12 +64,16 @@ public class RegisterUserCommandHandler : IRequestHandler<RegisterUserCommand, R
         var password = _passwordHasher.Generate(command.dtoCreateUser.PasswordHash);
         var role = await _userRolesRepository.GetUserRolesAsync((int)RolesEnum.User);
         if (role.Count == 0)
-            return Result.Failure<AuthDto>("Р СњР ВµРЎвЂљРЎС“ РЎР‚Р С•Р В»Р С‘");
+            return Result.Failure<AuthDto>("Роль для регистрации не найдена");
 
         var phoneResult = PhoneNumber.Create(command.dtoCreateUser.Phone.Number);
         if (phoneResult.IsFailure)
             return Result.Failure<AuthDto>(phoneResult.Error);
-
+        var IsVerifyEmail = await _verifyEmailGrpcAdapter.IsVerifyEmail(command.dtoCreateUser.Email, cancellationToken);
+        if(IsVerifyEmail == false)
+        {
+            return Result.Failure<AuthDto>("Вы не подтвердили email");
+        }
         var newUser = new IdentityService.Domain.Models.Users
         {
             Id = Guid.NewGuid(),
@@ -72,18 +84,24 @@ public class RegisterUserCommandHandler : IRequestHandler<RegisterUserCommand, R
             City = command.dtoCreateUser.City,
             Roles = role
         };
-
-        await _usersRepository.Register(newUser);
-
+        try
+        {
+            _unitOfWork.BeginTransaction();
+            await _usersRepository.Register(newUser);
+            _unitOfWork.Commit();
+        }catch(Exception ex)
+        {
+            _unitOfWork.RollBack();
+            return Result.Failure<AuthDto>($"Ошибка регистрации: {ex.Message}");
+        }
         var refreshToken = await _refreshTokenService.CreateToken(newUser.Id, command.dtoCreateUser.Devices);
         var token = await _jwtProvider.GenerateToken(newUser, command.dtoCreateUser.Devices);
         var roleInterface = await _userRolesRepository.GetMaxRole(newUser.Id);
-
         return Result.Success(new AuthDto
         {
             AccessToken = token,
             RefreshToken = refreshToken,
-            Message = "Р вЂ™РЎвЂ№ РЎС“РЎРѓР С—Р ВµРЎв‚¬Р Р…Р С• Р В·Р В°РЎР‚Р ВµР С–Р С‘РЎРѓРЎвЂљРЎР‚Р С‘РЎР‚Р С•Р Р†Р В°Р В»Р С‘РЎРѓРЎРЉ",
+            Message = "Регистрация выполнена успешно",
             RoleInterface = roleInterface
         });
     }

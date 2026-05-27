@@ -10,7 +10,6 @@ namespace BarberBooking.API.Infrastructure.Persistence.Configurations
         {
             builder.ToTable("Conversations");
             builder.HasKey(x => x.Id);
-            builder.Property(x => x.LastMessageAt).IsRequired();
             builder.Property(x => x.CreatedAt).IsRequired();
             builder.HasOne(x => x.Participant1)
                 .WithMany(x => x.ConversationsAsParticipant1)

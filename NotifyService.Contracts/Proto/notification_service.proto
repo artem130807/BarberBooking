@@ -1,0 +1,37 @@
+syntax = "proto3";
+
+option csharp_namespace = "NotifyServiceGrpc";
+
+service NotificationService {
+  rpc SendVerification (SendVerificationRequest) returns (SendVerificationResponse);
+  rpc Verificate (VerificateRequest) returns (VerificateResponse);
+  rpc IsVerifedEmail (IsVerifedEmailRequest) returns (IsVerifedEmailResponse);
+}
+
+message SendVerificationRequest {
+  string email = 1;
+}
+
+message SendVerificationResponse {
+  string message = 1;
+  bool is_success = 2;
+}
+
+message VerificateRequest {
+  string code = 1;
+  string email = 2;
+}
+
+message VerificateResponse {
+  string message = 1;
+  bool is_success = 2;
+}
+
+message IsVerifedEmailRequest {
+  string email = 1;
+}
+
+message IsVerifedEmailResponse {
+  string message = 1;
+  bool is_success = 2;
+}

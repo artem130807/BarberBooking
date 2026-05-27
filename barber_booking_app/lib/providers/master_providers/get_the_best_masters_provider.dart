@@ -12,17 +12,16 @@ class GetTheBestMastersProvider extends BaseProvider {
     startLoading();
     try {
       final response = await _getTheBestMastersService.getMasters(take);
-      if(response != null && response.isNotEmpty){
+      if (response != null) {
           _getMasterResponse = response;
           finishLoading();  
           notifyListeners();
           return true;
-      }else{
-        _getMasterResponse = [];
-        setError('Список мастеров пуст');  
-        finishLoading();
-        return false;
       }
+      _getMasterResponse = [];
+      finishLoading();
+      notifyListeners();
+      return false;
     }catch(e){
       print(e);
       setError(e.toString());

@@ -1,4 +1,4 @@
-﻿
+
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.5.2.0
@@ -28,6 +28,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NotifyService.Infrastructure", "NotifyService\NotifyService.Infrastructure\NotifyService.Infrastructure.csproj", "{8A74A651-6C51-4EF9-A74D-A4458C846B84}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NotifyService.API", "NotifyService\NotifyService.API\NotifyService.API.csproj", "{31AF3946-85C1-48F5-AE06-8D1407F7262A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NotifyService.Contracts", "NotifyService.Contracts\NotifyService.Contracts.csproj", "{6838F965-AF69-43C9-890C-E0BD9D49A301}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -171,6 +173,18 @@ Global
 		{31AF3946-85C1-48F5-AE06-8D1407F7262A}.Release|x64.Build.0 = Release|Any CPU
 		{31AF3946-85C1-48F5-AE06-8D1407F7262A}.Release|x86.ActiveCfg = Release|Any CPU
 		{31AF3946-85C1-48F5-AE06-8D1407F7262A}.Release|x86.Build.0 = Release|Any CPU
+		{6838F965-AF69-43C9-890C-E0BD9D49A301}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6838F965-AF69-43C9-890C-E0BD9D49A301}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6838F965-AF69-43C9-890C-E0BD9D49A301}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{6838F965-AF69-43C9-890C-E0BD9D49A301}.Debug|x64.Build.0 = Debug|Any CPU
+		{6838F965-AF69-43C9-890C-E0BD9D49A301}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{6838F965-AF69-43C9-890C-E0BD9D49A301}.Debug|x86.Build.0 = Debug|Any CPU
+		{6838F965-AF69-43C9-890C-E0BD9D49A301}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6838F965-AF69-43C9-890C-E0BD9D49A301}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6838F965-AF69-43C9-890C-E0BD9D49A301}.Release|x64.ActiveCfg = Release|Any CPU
+		{6838F965-AF69-43C9-890C-E0BD9D49A301}.Release|x64.Build.0 = Release|Any CPU
+		{6838F965-AF69-43C9-890C-E0BD9D49A301}.Release|x86.ActiveCfg = Release|Any CPU
+		{6838F965-AF69-43C9-890C-E0BD9D49A301}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -184,6 +198,7 @@ Global
 		{5D6DE852-247A-4EE6-9F3B-73C4A16C34E4} = {9521FED5-FB1F-70C0-D179-25387F03D91D}
 		{8A74A651-6C51-4EF9-A74D-A4458C846B84} = {9521FED5-FB1F-70C0-D179-25387F03D91D}
 		{31AF3946-85C1-48F5-AE06-8D1407F7262A} = {9521FED5-FB1F-70C0-D179-25387F03D91D}
+		{6838F965-AF69-43C9-890C-E0BD9D49A301} = {9521FED5-FB1F-70C0-D179-25387F03D91D}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {EED5B466-4438-4160-A3F6-AAFEFDC94BD3}

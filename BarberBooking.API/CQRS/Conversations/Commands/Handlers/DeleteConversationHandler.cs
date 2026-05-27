@@ -1,6 +1,4 @@
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using BarberBooking.API.Contracts;
 using BarberBooking.API.Contracts.ConversationsContracts;
@@ -13,27 +11,42 @@ namespace BarberBooking.API.CQRS.Conversations.Commands.Handlers
     {
         private readonly IConversationsRepository _conversationsRepository;
         private readonly IUnitOfWork _unitOfWork;
-        public DeleteConversationHandler(IConversationsRepository conversationsRepository, IUnitOfWork unitOfWork)
+        private readonly IUserContext _userContext;
+
+        public DeleteConversationHandler(
+            IConversationsRepository conversationsRepository,
+            IUnitOfWork unitOfWork,
+            IUserContext userContext)
         {
             _conversationsRepository = conversationsRepository;
             _unitOfWork = unitOfWork;
+            _userContext = userContext;
         }
+
         public async Task<Result<bool>> Handle(DeleteConversationCommand command, CancellationToken cancellationToken)
         {
+            var userId = _userContext.UserId;
             var conversation = await _conversationsRepository.GetConversation(command.Id);
-            if(conversation == null)
-                return false;
+
+            if (conversation == null)
+                return Result.Failure<bool>("Диалог не найден");
+
+            if (!conversation.HasParticipant(userId))
+                return Result.Failure<bool>("Доступ запрещён");
+
             try
             {
-                _unitOfWork.Commit();
-                await _unitOfWork.conversationsRepository.Delete(command.Id);
                 _unitOfWork.BeginTransaction();
-            }catch(Exception)
+                await _unitOfWork.conversationsRepository.Delete(command.Id);
+                _unitOfWork.Commit();
+            }
+            catch (Exception)
             {
                 _unitOfWork.RollBack();
-                return false;
+                return Result.Failure<bool>("Не удалось удалить диалог");
             }
-            return true;
+
+            return Result.Success(true);
         }
     }
 }

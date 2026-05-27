@@ -34,24 +34,32 @@ namespace BarberBooking.API.Infrastructure.Persistence.Repositories
 
         public async Task<ConversationMessages> GetMessage(Guid Id)
         {
-            return await _context.ConversationMessages.FirstOrDefaultAsync(x => x.Id == Id);
+            return await _context.ConversationMessages
+                .Include(x => x.Sender)
+                .FirstOrDefaultAsync(x => x.Id == Id);
         }
         public async Task<ConversationMessages> GetMessageByNotId(Guid Id, Guid conversationId)
         {
-            return await _context.ConversationMessages.FirstOrDefaultAsync(x => x.Id != Id && x.ConversationsId == conversationId);
+            return await _context.ConversationMessages
+                .Where(x => x.Id != Id && x.ConversationsId == conversationId)
+                .OrderByDescending(x => x.CreatedAt)
+                .FirstOrDefaultAsync();
         }
         public async Task<PagedResult<ConversationMessages>> GetMessages(Guid conversationId, PageParams pageParams)
         {
-            return await _context.ConversationMessages.Where(x => x.ConversationsId == conversationId).ToPagedAsync(pageParams);
+            return await _context.ConversationMessages
+                .Include(x => x.Sender)
+                .Where(x => x.ConversationsId == conversationId)
+                .ToPagedAsync(pageParams);
         }
 
         public async Task<List<ConversationMessages>> GetUnreadMessagesByConversation(Guid receiverId, Guid conversationId)
         {
-            return await _context.ConversationMessages.Where(x => x.ReceiverId == receiverId && x.ConversationsId == conversationId).ToListAsync();
+            return await _context.ConversationMessages.Where(x => x.ReceiverId == receiverId && x.ConversationsId == conversationId && !x.IsRead).ToListAsync();
         }
         public async Task<int> GetUnreadMessagesByUser(Guid receiverId)
         {
-            return await _context.ConversationMessages.Where(x => x.ReceiverId == receiverId).CountAsync();
+            return await _context.ConversationMessages.Where(x => x.ReceiverId == receiverId && !x.IsRead).CountAsync();
         }
 
         public async Task SaveChangesAsync()

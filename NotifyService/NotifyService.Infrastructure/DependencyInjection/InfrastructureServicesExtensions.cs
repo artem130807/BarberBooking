@@ -36,7 +36,7 @@ public static class InfrastructureServicesExtensions
         services.AddScoped<IEmailVerficationService, EmailVerificationService>();
         services.AddScoped<IFcmPushService, FcmPushService>();
         services.AddScoped<INotificationService, NotificationService>();
-
+        
         services.AddSingleton<IUserIdProvider, SignalRUserIdProvider>();
         services.AddSignalR();
 

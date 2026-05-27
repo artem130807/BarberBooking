@@ -1,8 +1,8 @@
-import 'package:barber_booking_app/models/master_models/response/get_master_response.dart';
-import 'package:barber_booking_app/providers/auth_providers/auth_provider.dart';
+﻿import 'package:barber_booking_app/models/master_models/response/get_master_response.dart';
 import 'package:barber_booking_app/providers/master_providers/master_session_provider.dart';
-import 'package:barber_booking_app/providers/message_providers/get_count_messages_provider.dart';
+import 'package:barber_booking_app/providers/chat_providers/chat_conversations_provider.dart';
 import 'package:barber_booking_app/screens/master/master_appointments_list_screen.dart';
+import 'package:barber_booking_app/screens/master/master_chat_tab_screen.dart';
 import 'package:barber_booking_app/screens/master/master_navigation.dart';
 import 'package:barber_booking_app/screens/master/master_profile_tab_screen.dart';
 import 'package:barber_booking_app/screens/master/master_slots_screen.dart';
@@ -29,7 +29,7 @@ class _MasterShellScreenState extends State<MasterShellScreen> {
     _readRouteArgs = true;
     final args = ModalRoute.of(context)?.settings.arguments;
     if (args is MasterShellArgs) {
-      _index = args.initialTab.clamp(0, 3);
+      _index = args.initialTab.clamp(0, 4);
     }
   }
 
@@ -38,7 +38,7 @@ class _MasterShellScreenState extends State<MasterShellScreen> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<MasterSessionProvider>().load();
-      context.read<GetCountMessagesProvider>().loadCount();
+      context.read<ChatConversationsProvider>().refreshUnreadCount();
     });
   }
 
@@ -126,7 +126,7 @@ class _MasterTabBody extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    switch (index.clamp(0, 3)) {
+    switch (index.clamp(0, 4)) {
       case 0:
         return MasterTodayScreen(profile: profile);
       case 1:
@@ -134,9 +134,12 @@ class _MasterTabBody extends StatelessWidget {
       case 2:
         return MasterSlotsScreen(masterId: profile.Id ?? '');
       case 3:
+        return const MasterChatTabScreen();
+      case 4:
         return MasterProfileTabScreen(profile: profile);
       default:
         return MasterProfileTabScreen(profile: profile);
     }
   }
 }
+

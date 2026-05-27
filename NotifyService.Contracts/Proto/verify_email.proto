@@ -1,0 +1,15 @@
+syntax = "proto3";
+
+option csharp_namespace = "NotifyServiceGrpc";
+
+service VerifyEmailService {
+  rpc RegisterUser(VerifyEmailRequest) returns (VerifyEmailResponse);
+}
+
+message VerifyEmailRequest {
+  string email = 1;
+}
+message VerifyEmailResponse {
+    string message = 1;
+    bool IsSuccess = 2;
+}

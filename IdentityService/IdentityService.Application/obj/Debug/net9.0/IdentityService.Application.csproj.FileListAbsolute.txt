@@ -14,3 +14,5 @@ E:\AAAAA1111222C#\BarberBookingApp\IdentityService\IdentityService.Application\o
 E:\AAAAA1111222C#\BarberBookingApp\IdentityService\IdentityService.Application\obj\Debug\net9.0\refint\IdentityService.Application.dll
 E:\AAAAA1111222C#\BarberBookingApp\IdentityService\IdentityService.Application\obj\Debug\net9.0\IdentityService.Application.pdb
 E:\AAAAA1111222C#\BarberBookingApp\IdentityService\IdentityService.Application\obj\Debug\net9.0\ref\IdentityService.Application.dll
+E:\AAAAA1111222C#\BarberBookingApp\IdentityService\IdentityService.Application\bin\Debug\net9.0\NotifyService.Contracts.dll
+E:\AAAAA1111222C#\BarberBookingApp\IdentityService\IdentityService.Application\bin\Debug\net9.0\NotifyService.Contracts.pdb

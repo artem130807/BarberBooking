@@ -34,10 +34,10 @@ public class LoginUserQueryCommandHandler : IRequestHandler<LoginUserQuery, Resu
     {
         var user = await _usersRepository.GetUserByEmail(query.Email);
         if (user == null)
-            return Result.Failure<AuthDto>("РџРѕР»СЊР·РѕРІР°С‚РµР»СЏ РЅРµ СЃСѓС‰РµСЃС‚РІСѓРµС‚");
+            return Result.Failure<AuthDto>("Пользователь не найден");
 
         if (!_passwordHasher.Verify(query.PasswordHash, user.PasswordHash))
-            return Result.Failure<AuthDto>("РќРµРїСЂР°РІРёР»СЊРЅС‹Р№ РїР°СЂРѕР»СЊ");
+            return Result.Failure<AuthDto>("Неверный пароль");
 
         var refreshToken = await _refreshTokenRepository.GetRefreshTokenByDevices(user.Id, query.devices);
         var token = await _jwtProvider.GenerateToken(user, query.devices);
@@ -50,7 +50,7 @@ public class LoginUserQueryCommandHandler : IRequestHandler<LoginUserQuery, Resu
             {
                 AccessToken = token,
                 RefreshToken = newToken,
-                Message = "Р’С‹ СѓСЃРїРµС€РЅРѕ Р·Р°С€Р»Рё РІ Р°РєРєР°СѓРЅС‚",
+                Message = "Вход выполнен успешно",
                 RoleInterface = roleInterface
             });
         }
@@ -58,8 +58,8 @@ public class LoginUserQueryCommandHandler : IRequestHandler<LoginUserQuery, Resu
         return Result.Success(new AuthDto
         {
             AccessToken = token,
-            Message = "Р’С‹ СѓСЃРїРµС€РЅРѕ Р·Р°С€Р»Рё РІ Р°РєРєР°СѓРЅС‚",
-            RoleInterface = roleInterface
+            Message = "Вход выполнен успешно",
+                RoleInterface = roleInterface
         });
     }
 }

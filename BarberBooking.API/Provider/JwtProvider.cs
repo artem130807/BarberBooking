@@ -31,17 +31,10 @@ namespace BarberBooking.API.Provider
                 new Claim("devices", devices.ToString()),
                 new Claim(ClaimTypes.NameIdentifier, users.Id.ToString())
             };
-            
-            var rolesId = await _userRolesRepository.GetRolesIdByUserId(users.Id);
-            foreach(var roleId in rolesId)
-            {
-                var roles = await _userRolesRepository.GetUserRolesAsync(roleId.RoleId);
-                foreach(var role in roles)
-                {
-                    claims.Add(new Claim(ClaimTypes.Role, role.Name));
-                }
-            }
-             
+            var roles = await _userRolesRepository.GetAllRolesForUserAsync(users.Id);
+            foreach (var role in roles)
+                claims.Add(new Claim(ClaimTypes.Role, role.Name));
+
             var signingCredentials = new SigningCredentials(new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtOptions.SecretKey)), SecurityAlgorithms.HmacSha256);
             var token = new JwtSecurityToken(
                 claims: claims,

@@ -16,6 +16,7 @@ namespace BarberBooking.API.Models
         public bool IsRead { get; private set; }
         public DateTime? ReadAt { get; private set; }
         public DateTime CreatedAt { get; private set; }
+        public DateTime UpdateAt {get; private set;}
 
         public static Result<ConversationMessages> Create(
             Guid conversationId,
@@ -37,10 +38,15 @@ namespace BarberBooking.API.Models
                 IsRead = isRead,
                 ReadAt = readAt,
                 CreatedAt = DateTime.UtcNow,
+                UpdateAt = DateTime.UtcNow
             };
             return Result.Success(message);
         }
-        public void UpdateContent(string content) => Content = content;
+        public void UpdateContent(string content)
+        {
+            Content = content;
+            UpdateAt = DateTime.UtcNow;
+        }
         public void UpdateIsRead() => IsRead = true;
     }
 }

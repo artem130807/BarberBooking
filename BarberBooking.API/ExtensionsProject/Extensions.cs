@@ -38,6 +38,8 @@ namespace BarberBooking.API
             var jwtoptions = configuration.GetSection(nameof(JwtOptions)).Get<JwtOptions>();
             var secretKey = jwtoptions?.SecretKey
                 ?? throw new InvalidOperationException("JwtOptions:SecretKey is missing (check appsettings or environment variables on the server).");
+            if (string.IsNullOrWhiteSpace(secretKey))
+                throw new InvalidOperationException("JwtOptions:SecretKey is empty. Set a strong secret (e.g. user-secrets or env JwtOptions__SecretKey).");
             services.AddAuthentication(options =>
                 {
                     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -61,7 +63,8 @@ namespace BarberBooking.API
                         var accessToken = context.Request.Query["access_token"];
                         var path = context.HttpContext.Request.Path;
                         
-                        if (!string.IsNullOrEmpty(accessToken) && path.StartsWithSegments("/notificationHub"))
+                        if (!string.IsNullOrEmpty(accessToken) &&
+                            (path.StartsWithSegments("/notificationHub") || path.StartsWithSegments("/chatHub")))
                         {
                             context.Token = accessToken;
                             return Task.CompletedTask;
@@ -117,6 +120,7 @@ namespace BarberBooking.API
             services.AddHostedService<MasterStatisticBackgroundService>();
             services.AddHostedService<MessageAppointmentBackgroundService>();
             services.AddHostedService<AutoAppointmentsCancelledBackgroundService>();
+            services.AddHostedService<CleanerRevokedTokenService>();
             return services;
         }
         public static void InitializingCache(this IApplicationBuilder app)

@@ -7,5 +7,6 @@ public interface IEmailVerficationService
 {
     Task<Result<DtoVerificateResponse>> Verificate(string Code, string Email);
     Task<Result<DtoSendEmailResponse>> SendVerificationAsync(string Email);
+    Task<Result<DtoVerificateResultResponse>> IsVerifiedEmail(string Email);
     Task DeleteEmailVerificate(string Email);
 }

@@ -1,9 +1,10 @@
-import 'package:barber_booking_app/models/params/page_params.dart';
+﻿import 'package:barber_booking_app/models/params/page_params.dart';
 import 'package:barber_booking_app/models/params/salon_params/salon_filter.dart';
 import 'package:barber_booking_app/providers/auth_providers/auth_provider.dart';
 import 'package:barber_booking_app/providers/user_providers/get_user_provider.dart';
 import 'package:barber_booking_app/providers/message_providers/get_count_messages_provider.dart';
 import 'package:barber_booking_app/providers/master_providers/get_the_best_masters_provider.dart';
+import 'package:barber_booking_app/providers/chat_providers/chat_conversations_provider.dart';
 import 'package:barber_booking_app/providers/salon_providers/get_salons_provider.dart';
 import 'package:barber_booking_app/widgets/categors_widgets/category_item.dart';
 import 'package:barber_booking_app/widgets/master_widgets/master_card.dart';
@@ -15,6 +16,7 @@ import 'package:barber_booking_app/widgets/loading_indicator.dart';
 import 'package:barber_booking_app/widgets/error_widget.dart';
 import 'package:barber_booking_app/widgets/section_header.dart';
 import 'package:barber_booking_app/utils/api_media_url.dart';
+import 'package:barber_booking_app/widgets/navigation/user_bottom_navigation_bar.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -67,6 +69,8 @@ class _HomeScreenState extends State<HomeScreen> {
           .getMasters(4);
       Provider.of<GetCountMessagesProvider>(context, listen: false)
           .loadCount();
+      Provider.of<ChatConversationsProvider>(context, listen: false)
+          .refreshUnreadCount();
       if (token != null) {
         Provider.of<GetUserProvider>(context, listen: false).getUser();
       }
@@ -98,6 +102,8 @@ class _HomeScreenState extends State<HomeScreen> {
           .getMasters(4),
       Provider.of<GetCountMessagesProvider>(context, listen: false)
           .loadCount(),
+      Provider.of<ChatConversationsProvider>(context, listen: false)
+          .refreshUnreadCount(),
     ];
     if (token != null) {
       futures.add(Provider.of<GetUserProvider>(context, listen: false).getUser());
@@ -140,9 +146,12 @@ class _HomeScreenState extends State<HomeScreen> {
         Navigator.pushNamed(context, '/appointments_screen');
         break;
       case 3:
-        Navigator.pushNamed(context, '/favorites_screen');
+        Navigator.pushNamed(context, '/chat_conversations');
         break;
       case 4:
+        Navigator.pushNamed(context, '/favorites_screen');
+        break;
+      case 5:
         Navigator.pushNamed(context, '/profile');
         break;
     }
@@ -283,7 +292,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         focusNode: _searchFocusNode,
                         textInputAction: TextInputAction.search,
                         decoration: const InputDecoration(
-                          hintText: 'Поиск салона....',
+                          hintText: 'Поиск салона...',
                           prefixIcon: Icon(Icons.search),
                           border: InputBorder.none,
                           contentPadding: EdgeInsets.symmetric(vertical: 12),
@@ -329,9 +338,9 @@ class _HomeScreenState extends State<HomeScreen> {
                                     ),
                                     CategoryItem(
                                       icon: Icons.face,
-                                      label: 'Бритье',
+                                      label: 'Бритьё',
                                       onTap: () => _navigateToSalonsByService(
-                                          context, 'Бритье'),
+                                          context, 'Бритьё'),
                                     ),
                                     CategoryItem(
                                       icon: Icons.style,
@@ -363,7 +372,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               const SizedBox(height: 24),
                               SectionHeader(
                                 title: 'Салоны в вашем городе',
-                                actionText: 'Все',
+                                actionText: 'Ещё',
                                 onActionTap: () {
                                   Navigator.pushNamed(context, '/salons_screen');
                                 },
@@ -405,20 +414,9 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
           ),
-          bottomNavigationBar: BottomNavigationBar(
-            type: BottomNavigationBarType.fixed,
-            currentIndex: _selectedNavIndex,
+          bottomNavigationBar: UserBottomNavigationBar(
+            selectedIndex: _selectedNavIndex,
             onTap: _onNavItemTapped,
-            items: const [
-              BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Главная'),
-              BottomNavigationBarItem(icon: Icon(Icons.search), label: 'Поиск'),
-              BottomNavigationBarItem(
-                  icon: Icon(Icons.calendar_today), label: 'Записи'),
-              BottomNavigationBarItem(
-                  icon: Icon(Icons.favorite), label: 'Избранное'),
-              BottomNavigationBarItem(
-                  icon: Icon(Icons.person), label: 'Профиль'),
-            ],
           ),
         );
       },
@@ -447,7 +445,6 @@ class _HomeScreenState extends State<HomeScreen> {
       );
     }
 
-    // Превью на главной: не больше _homeSalonPageSize (на случай устаревших данных в общем провайдере).
     final salonsForHome =
         provider.getSalonsResponse!.take(_homeSalonPageSize).toList(growable: false);
 
@@ -526,3 +523,6 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 }
+
+
+

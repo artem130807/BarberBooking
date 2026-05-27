@@ -34,6 +34,16 @@ namespace BarberBooking.API.Models
             };
             return Result.Success(conversation);
         }
-        public void UpdateLastMessage(DateTime messageDate) => LastMessageAt = messageDate;
+
+        public bool HasParticipant(Guid userId)
+        {
+            return userId != Guid.Empty &&
+                   (Participant1Id == userId || Participant2Id == userId);
+        }
+
+        public void UpdateLastMessage(DateTime? messageDateUtc)
+        {
+            LastMessageAt = messageDateUtc;
+        }
     }
 }

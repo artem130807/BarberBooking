@@ -1,0 +1,650 @@
+Ôªøimport 'dart:async';
+import 'package:barber_booking_app/navigation/chat_navigation.dart';
+
+import 'package:barber_booking_app/models/master_models/response/get_master_response.dart';
+import 'package:barber_booking_app/models/params/page_params.dart';
+import 'package:barber_booking_app/models/params/review_params/review_sort_params.dart';
+import 'package:barber_booking_app/models/review_models/response/get_reviews_master_response.dart';
+import 'package:barber_booking_app/providers/auth_providers/auth_provider.dart';
+import 'package:barber_booking_app/providers/master_providers/get_master_provider.dart';
+import 'package:barber_booking_app/providers/master_subscription_providers/get_subscriptions_provider.dart';
+import 'package:barber_booking_app/providers/review_providers/get_reviews_master_provider.dart';
+import 'package:barber_booking_app/services/master_subscription_service/master_subscription_sync_service.dart';
+import 'package:barber_booking_app/screens/user_interfaces/service_screens/service_selection_screen.dart';
+import 'package:barber_booking_app/utils/api_media_url.dart';
+import 'package:barber_booking_app/utils/date_formatter.dart';
+import 'package:barber_booking_app/widgets/loading_indicator.dart';
+import 'package:barber_booking_app/widgets/error_widget.dart';
+import 'package:barber_booking_app/widgets/navigation/user_bottom_navigation_bar.dart';
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+
+class MasterDetailScreen extends StatefulWidget {
+  final String masterId;
+
+  const MasterDetailScreen({super.key, required this.masterId});
+
+  @override
+  State<MasterDetailScreen> createState() => _MasterDetailScreenState();
+}
+
+class _MasterDetailScreenState extends State<MasterDetailScreen> {
+  final PageParams _reviewsPageParams = PageParams(Page: 1, PageSize: 5);
+  final ReviewSortParams _reviewSortParams = ReviewSortParams();
+  final MasterSubscriptionSyncService _subscriptionSync = MasterSubscriptionSyncService();
+
+  /// ‚?®–±‚?®‚??‚?§–?‚?§–?‚?®‚??‚?§–?‚?®‚??‚?®‚??‚?®‚?° ‚?®‚??‚?®‚?? ‚?§–?‚?®‚?°‚?§–ê‚?®‚??‚?®‚?°‚?§–ê‚?®‚?° ‚?®‚?ê‚?§–ê‚?®‚?? ‚?®‚??‚?®‚??‚?®‚??‚?§–ê‚?§–?‚?®‚??‚?®‚??‚?®‚?° ‚?®‚?ê‚?§–ê‚?®‚??‚?§–?‚?®‚??‚?®‚??‚?§–?.
+  bool? _initialSubscribed;
+
+  /// ‚?®–´‚?®‚??‚?®‚??‚?®‚??‚?®‚??‚?§–?‚?®‚??‚?®‚??‚?®‚?° ‚?¨–ª‚?®‚??‚?®‚??‚?®‚??‚?§–ê‚?®‚??‚?®‚??‚?®‚??‚?®‚??‚?®‚?°‚?¨‚?? ‚?®‚?§‚?®‚?? ‚?®‚??‚?§–?‚?§–?‚?®‚??‚?®‚?§‚?®‚?? ‚?§–? ‚?§–ù‚?®‚??‚?§–ê‚?®‚??‚?®‚??‚?®‚??.
+  bool _draftSubscribed = false;
+  bool _favoriteStateInitialized = false;
+  bool _favoriteInitScheduled = false;
+  bool _subscriptionSyncCompleted = false;
+  String? _authToken;
+  int _selectedNavIndex = 0;
+
+  GetMasterProvider? _masterForApiErrors;
+  GetReviewsMasterProvider? _reviewsForApiErrors;
+
+  void _onMasterReviewsApiError() {
+    if (!mounted) return;
+    final m = _masterForApiErrors;
+    final r = _reviewsForApiErrors;
+    if (m != null) {
+      final msg = m.errorMessage;
+      if (msg != null && msg.isNotEmpty) m.showApiError(context, msg);
+    }
+    if (r != null) {
+      final msg = r.errorMessage;
+      if (msg != null && msg.isNotEmpty) r.showApiError(context, msg);
+    }
+  }
+
+  void _onNavItemTapped(int index) {
+    final previousIndex = _selectedNavIndex;
+    setState(() => _selectedNavIndex = index);
+    if (index == previousIndex) return;
+    UserBottomNavigationBar.navigateByIndex(context, index);
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final auth = Provider.of<AuthProvider>(context, listen: false);
+      final masterProvider = Provider.of<GetMasterProvider>(context, listen: false);
+      masterProvider.getMaster(widget.masterId);
+      final reviewsProvider = Provider.of<GetReviewsMasterProvider>(context, listen: false);
+      reviewsProvider.getReviewsMaster(widget.masterId, _reviewsPageParams, _reviewSortParams);
+    });
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final token = Provider.of<AuthProvider>(context, listen: false).token;
+    if (token != _authToken) {
+      _authToken = token;
+    }
+    if (_masterForApiErrors == null) {
+      final master = context.read<GetMasterProvider>();
+      final reviews = context.read<GetReviewsMasterProvider>();
+      _masterForApiErrors = master;
+      _reviewsForApiErrors = reviews;
+      master.addListener(_onMasterReviewsApiError);
+      reviews.addListener(_onMasterReviewsApiError);
+    }
+  }
+
+  void _toggleFavoriteDraft() {
+    final m = Provider.of<GetMasterProvider>(context, listen: false).getMasterResponse;
+    if (m == null) return;
+    setState(() {
+      if (!_favoriteStateInitialized) {
+        _initialSubscribed = m.isSubscripe ?? false;
+        _draftSubscribed = _initialSubscribed!;
+        _favoriteStateInitialized = true;
+      }
+      _draftSubscribed = !_draftSubscribed;
+    });
+  }
+
+  Future<void> _persistSubscriptionExit({BuildContext? contextForRefresh}) async {
+    if (!_favoriteStateInitialized) return;
+    final initial = _initialSubscribed;
+    if (initial == null) return;
+    if (_draftSubscribed == initial) return;
+
+    final ok = await _subscriptionSync.persistIfChanged(
+      initialSubscribed: initial,
+      draftSubscribed: _draftSubscribed,
+      masterId: widget.masterId,
+    );
+    if (ok && contextForRefresh != null && contextForRefresh.mounted) {
+      await contextForRefresh.read<GetSubscriptionsProvider>().getSubscriptions();
+    }
+  }
+
+  @override
+  void dispose() {
+    _masterForApiErrors?.removeListener(_onMasterReviewsApiError);
+    _reviewsForApiErrors?.removeListener(_onMasterReviewsApiError);
+    if (!_subscriptionSyncCompleted && _favoriteStateInitialized && _authToken != null) {
+      final token = _authToken;
+      if (token != null &&
+          _initialSubscribed != null &&
+          _draftSubscribed != _initialSubscribed) {
+        unawaited(_persistSubscriptionExit());
+      }
+    }
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final authProvider = Provider.of<AuthProvider>(context);
+    final token = authProvider.token;
+
+    return Consumer2<GetMasterProvider, GetReviewsMasterProvider>(
+      builder: (context, masterProvider, reviewsProvider, child) {
+        final master = masterProvider.getMasterResponse;
+
+        if (masterProvider.isLoading && master == null) {
+          return const Scaffold(
+            body: LoadingIndicator(message: '‚?®–ß‚?®‚??‚?®‚??‚?§–ê‚?§–?‚?®‚??‚?®‚??‚?®‚?? ‚?®‚?ù‚?®‚??‚?§–?‚?§–?‚?®‚?°‚?§–ê‚?®‚??...'),
+          );
+        }
+
+        if (masterProvider.errorMessage != null && master == null) {
+          return Scaffold(
+            body: ErrorWidgetCustom(
+              message: masterProvider.errorMessage!,
+              onRetry: () => masterProvider.getMaster(widget.masterId),
+            ),
+          );
+        }
+
+        if (master == null) {
+          return const Scaffold(
+            body: Center(
+              child: Text('‚?®–¨‚?®‚??‚?§–?‚?§–?‚?®‚?°‚?§–ê ‚?®‚??‚?®‚?° ‚?®‚??‚?®‚??‚?®‚?£‚?®‚?§‚?®‚?°‚?®‚??'),
+            ),
+          );
+        }
+
+        if (!_favoriteInitScheduled) {
+          _favoriteInitScheduled = true;
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (!mounted || _favoriteStateInitialized) return;
+            setState(() {
+              _initialSubscribed = master.isSubscripe ?? false;
+              _draftSubscribed = _initialSubscribed!;
+              _favoriteStateInitialized = true;
+            });
+          });
+        }
+
+        final bool favoriteIcon = _favoriteStateInitialized
+            ? _draftSubscribed
+            : (master.isSubscripe ?? false);
+
+        return PopScope(
+          canPop: false,
+          onPopInvokedWithResult: (bool didPop, Object? result) async {
+            if (didPop) return;
+            await _persistSubscriptionExit(contextForRefresh: context);
+            if (!context.mounted) return;
+            _subscriptionSyncCompleted = true;
+            Navigator.of(context).pop();
+          },
+          child: Scaffold(
+          appBar: AppBar(
+            title: Text(master.UserName ?? '‚?®–¨‚?®‚??‚?§–?‚?§–?‚?®‚?°‚?§–ê'),
+            actions: [
+              IconButton(
+                icon: Icon(
+                  favoriteIcon ? Icons.favorite : Icons.favorite_border,
+                  color: favoriteIcon ? Colors.red : null,
+                ),
+                onPressed: token == null ? null : _toggleFavoriteDraft,
+              ),
+            ],
+          ),
+          body: SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _buildHeader(master),
+                const SizedBox(height: 24),
+                _buildInfoSection(master, context, reviewsProvider),
+                const SizedBox(height: 24),
+                _buildActionSection(context, master),
+              ],
+            ),
+          ),
+          bottomNavigationBar: UserBottomNavigationBar(
+            selectedIndex: _selectedNavIndex,
+            onTap: _onNavItemTapped,
+          ),
+        ),
+        );
+      },
+    );
+  }
+
+  Widget _buildHeader(GetMasterResponse master) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: const BoxDecoration(
+        gradient: LinearGradient(
+          colors: [Color(0xFF1E88E5), Color(0xFF42A5F5)],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.only(
+          bottomLeft: Radius.circular(24),
+          bottomRight: Radius.circular(24),
+        ),
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 80,
+            height: 80,
+            decoration: BoxDecoration(
+              color: Colors.white,
+              shape: BoxShape.circle,
+              image: master.AvatarUrl != null
+                  ? DecorationImage(
+                      image: NetworkImage(master.AvatarUrl!),
+                      fit: BoxFit.cover,
+                    )
+                  : null,
+            ),
+            child: master.AvatarUrl == null
+                ? const Icon(
+                    Icons.person,
+                    size: 40,
+                    color: Colors.grey,
+                  )
+                : null,
+          ),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  master.UserName ?? '‚?®–°‚?®‚?°‚?®‚?? ‚?®‚??‚?®‚?ù‚?®‚?°‚?®‚??‚?®‚??',
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  master.Specialization ?? '‚?®–¨‚?®‚??‚?§–?‚?§–?‚?®‚?°‚?§–ê',
+                  style: const TextStyle(
+                    color: Colors.white70,
+                    fontSize: 14,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Row(
+                  children: [
+                    const Icon(Icons.star, color: Colors.amber, size: 18),
+                    const SizedBox(width: 4),
+                    Text(
+                      (master.Rating ?? 0).toStringAsFixed(1),
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(width: 4),
+                    Text(
+                      '(${master.RatingCount ?? 0} ‚?®‚??‚?§–?‚?®‚??‚?§–?‚?®‚??‚?®‚??‚?®‚??)',
+                      style: const TextStyle(color: Colors.white70, fontSize: 12),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildInfoSection(
+      GetMasterResponse master,
+      BuildContext context,
+      GetReviewsMasterProvider reviewsProvider,
+      ) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            '‚?®–Æ ‚?®‚?ù‚?®‚??‚?§–?‚?§–?‚?®‚?°‚?§–ê‚?®‚?°',
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            master.Bio?.isNotEmpty == true ? master.Bio! : '‚?®–Æ‚?®‚?ê‚?®‚??‚?§–?‚?®‚??‚?®‚??‚?®‚??‚?®‚?° ‚?®‚?ù‚?®‚??‚?§–?‚?§–?‚?®‚?°‚?§–ê‚?®‚?? ‚?®‚?ê‚?®‚??‚?®‚??‚?®‚?? ‚?®‚??‚?®‚?° ‚?®‚?§‚?®‚??‚?®‚??‚?®‚??‚?®‚??‚?®‚??‚?®‚?°‚?®‚??‚?®‚??.',
+            style: TextStyle(
+              fontSize: 14,
+              color: Theme.of(context).colorScheme.onSurface,
+            ),
+          ),
+          if (master.SalonNavigation != null) ...[
+            const SizedBox(height: 24),
+            const Text(
+              '‚?®–±‚?®‚??‚?®‚??‚?®‚??‚?®‚??',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Builder(
+              builder: (context) {
+                final salonNav = master.SalonNavigation!;
+                final salonPhotoResolved = resolveApiMediaUrl(salonNav.MainPhotoUrl);
+                return Card(
+              elevation: 2,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: InkWell(
+                onTap: () {
+                  Navigator.pushNamed(
+                    context,
+                    '/salon_screen',
+                    arguments: salonNav.Id,
+                  );
+                },
+                borderRadius: BorderRadius.circular(12),
+                child: Padding(
+                  padding: const EdgeInsets.all(12),
+                  child: Row(
+                    children: [
+                      Container(
+                        width: 60,
+                        height: 60,
+                        decoration: BoxDecoration(
+                          color: Colors.grey[300],
+                          borderRadius: BorderRadius.circular(8),
+                          image: salonPhotoResolved != null
+                              ? DecorationImage(
+                            image: NetworkImage(salonPhotoResolved),
+                            fit: BoxFit.cover,
+                          )
+                              : null,
+                        ),
+                        child: salonPhotoResolved == null
+                            ? const Icon(Icons.business, color: Colors.grey)
+                            : null,
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              master.SalonNavigation!.SalonName ?? '‚?®–±‚?®‚??‚?®‚??‚?®‚??‚?®‚??',
+                              style: const TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            const SizedBox(height: 4),
+                            if (master.SalonNavigation!.Address != null) ...[
+                              Text(
+                                '${master.SalonNavigation!.Address!.Street ?? ""}, ‚?®‚?§. ${master.SalonNavigation!.Address!.HouseNumber ?? ""}',
+                                style: const TextStyle(
+                                  fontSize: 14,
+                                  color: Colors.grey,
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                              const SizedBox(height: 4),
+                            ],
+                            Row(
+                              children: [
+                                const Icon(Icons.star, size: 14, color: Colors.amber),
+                                const SizedBox(width: 2),
+                                Text(
+                                  (master.SalonNavigation!.Rating ?? 0).toStringAsFixed(1),
+                                  style: const TextStyle(fontSize: 12),
+                                ),
+                                const SizedBox(width: 4),
+                                Text(
+                                  '(${master.SalonNavigation!.RatingCount ?? 0})',
+                                  style: const TextStyle(fontSize: 12, color: Colors.grey),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                      const Icon(Icons.chevron_right, color: Colors.grey),
+                    ],
+                  ),
+                ),
+              ),
+            );
+              },
+            ),
+          ],
+          const SizedBox(height: 24),
+          const Text(
+            '‚?®–Æ‚?§–?‚?®‚??‚?§–?‚?®‚??‚?§–?',
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          const SizedBox(height: 8),
+          _buildReviewsSection(reviewsProvider),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildReviewsSection(GetReviewsMasterProvider provider) {
+    if (provider.isLoading && provider.reviewsList == null) {
+      return const LoadingIndicator(message: '‚?®–ß‚?®‚??‚?®‚??‚?§–ê‚?§–?‚?®‚??‚?®‚??‚?®‚?? ‚?®‚??‚?§–?‚?®‚??‚?§–?‚?®‚??‚?®‚??‚?®‚??...');
+    }
+
+    if (provider.errorMessage != null && provider.reviewsList == null) {
+      return ErrorWidgetCustom(
+        message: provider.errorMessage!,
+        onRetry: () => provider.getReviewsMaster(widget.masterId, _reviewsPageParams, _reviewSortParams),
+      );
+    }
+
+    if (provider.reviewsList == null || provider.reviewsList!.isEmpty) {
+      return const Padding(
+        padding: EdgeInsets.symmetric(vertical: 8),
+        child: Text(
+          '‚?®–≥ ‚?®‚?ù‚?®‚??‚?§–?‚?§–?‚?®‚?°‚?§–ê‚?®‚?? ‚?®‚?ê‚?®‚??‚?®‚??‚?®‚?? ‚?®‚??‚?®‚?°‚?§–? ‚?®‚??‚?§–?‚?®‚??‚?§–?‚?®‚??‚?®‚??‚?®‚??',
+          style: TextStyle(color: Colors.grey),
+        ),
+      );
+    }
+
+    final reviews = provider.reviewsList!;
+    return Column(
+      children: [
+        ListView.separated(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          itemCount: reviews.length,
+          separatorBuilder: (_, __) => const Divider(),
+          itemBuilder: (context, index) {
+            final review = reviews[index];
+            return ReviewTitle(review: review);
+          },
+        ),
+        const SizedBox(height: 12),
+        Align(
+          alignment: Alignment.centerRight,
+          child: TextButton(
+            onPressed: () {
+              Navigator.pushNamed(
+                context,
+                '/master_reviews',
+                arguments: widget.masterId,
+              );
+            },
+            child: const Text('‚?®–¢‚?§–?‚?®‚?° ‚?®‚??‚?§–?‚?®‚??‚?§–?‚?®‚??‚?§–?'),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildActionSection(BuildContext context, GetMasterResponse master) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          const Text(
+            '‚?®–ß‚?®‚??‚?®‚?ê‚?®‚??‚?§–?‚?®‚??‚?§–?‚?§–?‚?§–?‚?§–? ‚?®‚?? ‚?®‚?ù‚?®‚??‚?§–?‚?§–?‚?®‚?°‚?§–ê‚?§–?',
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          const SizedBox(height: 12),
+          ElevatedButton(
+            onPressed: () {
+              final salonId = master.SalonNavigation?.Id;
+              if (salonId == null || salonId.isEmpty) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('‚?®–¨‚?®‚??‚?§–?‚?§–?‚?®‚?°‚?§–ê ‚?®‚??‚?®‚?° ‚?®‚?ê‚?§–ê‚?®‚??‚?®‚??‚?§–?‚?®‚??‚?®‚??‚?®‚?? ‚?®‚?? ‚?§–?‚?®‚??‚?®‚??‚?®‚??‚?®‚??‚?§–?')),
+                );
+                return;
+              }
+              Navigator.push(
+                context,
+                MaterialPageRoute<void>(
+                  builder: (_) => ServiceSelectionScreen(
+                    masterName: master.UserName ?? '‚?®–¨‚?®‚??‚?§–?‚?§–?‚?®‚?°‚?§–ê',
+                    masterId: widget.masterId,
+                    salonId: salonId,
+                  ),
+                ),
+              );
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Theme.of(context).colorScheme.primary,
+              foregroundColor: Colors.white,
+              padding: const EdgeInsets.symmetric(vertical: 14),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+            ),
+            child: const Text(
+              '‚?®–¢‚?§–?‚?®‚??‚?§–ê‚?®‚??‚?§–?‚?§–? ‚?®‚??‚?§–ê‚?®‚?°‚?®‚?ù‚?§–?',
+              style: TextStyle(fontSize: 16),
+            ),
+          ),
+          const SizedBox(height: 10),
+          OutlinedButton.icon(
+            onPressed: () async {
+              final participantName = (master.UserName ?? '').trim();
+              if (participantName.isEmpty) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('–ù–µ —?–¥–∞–ª–æ—Å—? –æ—?–∫—?—?—?—? –¥–∏–∞–ª–æ–≥')),
+                );
+                return;
+              }
+              await ChatNavigation.openOrCreateConversationWithParticipant(
+                context,
+                participantId: widget.masterId,
+                participantName: participantName,
+              );
+            },
+            icon: const Icon(Icons.chat_bubble_outline),
+            label: const Text('–ù–∞–ø–∏—Å–∞—?—? –º–∞—Å—?–µ—?—?'),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class ReviewTitle extends StatelessWidget {
+  final GetReviewsMasterResponse review;
+
+  const ReviewTitle({super.key, required this.review});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          CircleAvatar(
+            radius: 20,
+            backgroundColor: Colors.grey[300],
+            child: const Icon(Icons.person, size: 20, color: Colors.grey),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Expanded(
+                      child: Text(
+                        review.UserName ?? '‚?®–†‚?®‚??‚?®‚??‚?®‚??‚?®‚??‚?®‚?ù',
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 14,
+                        ),
+                      ),
+                    ),
+                    Row(
+                      children: [
+                        const Icon(Icons.star, color: Colors.amber, size: 14),
+                        const SizedBox(width: 2),
+                        Text(
+                          review.MasterRating?.toString() ?? '0',
+                          style: const TextStyle(fontSize: 12),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  review.Comment ?? '',
+                  style: TextStyle(fontSize: 13, color: Theme.of(context).colorScheme.onSurface),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  DateFormatter.formatDateOnly(review.CreatedAt ?? "‚?®–≠‚?®‚?°‚?®‚??‚?®‚??‚?®‚??‚?®‚?°‚?§–?‚?§–?‚?®‚??‚?®‚??‚?§–? ‚?®‚?§‚?®‚??‚?§–?‚?®‚??"),
+                  style: const TextStyle(fontSize: 11, color: Colors.grey),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}

@@ -113,7 +113,7 @@ if (enableSwagger)
         options.RoutePrefix = "swagger";
     });
 }
-app.MapHub<ChatHub>("/chatHub");
+app.MapHub<ChatHub>("/chatHub").RequireAuthorization();
 app.UseHttpsRedirection();
 app.UseCookiePolicy(new CookiePolicyOptions
 {
@@ -140,7 +140,6 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
-
 app.MapHub<NotificationHub>("/notificationHub").RequireAuthorization();
 
 app.Run();

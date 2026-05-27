@@ -59,5 +59,15 @@ namespace BarberBooking.API.Infrastructure.Persistence.Repositories
         {
             return await _context.RefreshTokens.FirstOrDefaultAsync(x => x.TokenHash == token);
         }
+
+        public async Task<List<RefreshToken>> GetRevokedTokens()
+        {
+            return await _context.RefreshTokens.Where(x => x.IsRevoked == true).ToListAsync();
+        }
+
+        public async Task RemoveRange(List<RefreshToken> refreshToken)
+        {
+            _context.RefreshTokens.RemoveRange(refreshToken);
+        }
     }
 }

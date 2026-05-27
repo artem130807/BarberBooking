@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
 using NotifyService.Application.Contracts;
 using NotifyService.Application.Dto.DtoAuthorization;
+using NotifyService.Application.Dto.DtoEmail;
 
 namespace NotifyService.API.Controllers;
 
@@ -17,6 +18,14 @@ public sealed class UsersEmailController : ControllerBase
         _verificationService = verificationService;
         _cache = cache;
     }
+    [HttpPost("verify-email")]
+    public async Task<IActionResult> VerificationEmail([FromBody] DtoVerificateResultRequest request)
+    {
+        var result = await _verificationService.IsVerifiedEmail(request.Email);
+        if (result.IsFailure)
+            return BadRequest(result.Error);
+        return Ok(result.Value);
+    }
 
     [HttpPost("send-verification")]
     public async Task<IActionResult> SendVerificationCode([FromBody] SendVerificationRequest verificationRequest)
@@ -27,12 +36,12 @@ public sealed class UsersEmailController : ControllerBase
         return Ok(result.Value);
     }
 
-    [HttpPost("verify-email")]
+    [HttpPost("verify-code")]
     public async Task<IActionResult> VerifyCode([FromBody] VerifyCodeRequest request)
     {
         var cacheKey = $"verification_{request.Code}";
         if (!_cache.TryGetValue(cacheKey, out string? email) || string.IsNullOrEmpty(email))
-            return BadRequest("РљРѕРґ РЅРµ РЅР°Р№РґРµРЅ РёР»Рё СѓСЃС‚Р°СЂРµР»");
+            return BadRequest("Код не найден или устарел");
 
         var result = await _verificationService.Verificate(request.Code, email);
         if (result.IsFailure)

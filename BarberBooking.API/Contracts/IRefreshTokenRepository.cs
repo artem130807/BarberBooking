@@ -10,11 +10,13 @@ namespace BarberBooking.API.Contracts
     {
         Task Add(RefreshToken refreshToken);
         Task Delete(Guid Id);
+        Task RemoveRange(List<RefreshToken> refreshToken);
         Task<RefreshToken> GetRefreshTokenByDevices(Guid userId, string devices);
         Task<RefreshToken> GetRefreshTokenByToken(string token);
         Task<RefreshToken> GetRefreshToken(Guid Id);
         Task<List<RefreshToken>> GetRefreshTokens(Guid userId);
         Task<List<RefreshToken>> GetRefreshRevokedTokens(Guid userId);
+        Task<List<RefreshToken>> GetRevokedTokens();
         Task SaveChangesAsync();
     }
 }

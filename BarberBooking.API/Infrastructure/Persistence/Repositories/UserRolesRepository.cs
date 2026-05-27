@@ -28,6 +28,15 @@ namespace BarberBooking.API.Repositories
            return await _context.Roles.Where(x => x.Id == roleId).ToListAsync();
         }
 
+        public async Task<List<Roles>> GetAllRolesForUserAsync(Guid userId)
+        {
+            return await _context.UserRoles
+                .AsNoTracking()
+                .Where(ur => ur.UserId == userId)
+                .Join(_context.Set<Roles>(), ur => ur.RoleId, r => r.Id, (_, role) => role)
+                .ToListAsync();
+        }
+
         public async Task AddUserRoleAsync(Guid userId, int roleId)
         {
             await _context.UserRoles.AddAsync(new UserRoles { UserId = userId, RoleId = roleId });

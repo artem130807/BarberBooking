@@ -896,3 +896,10 @@ E:\AAAAA1111222C#\BarberBookingApp\BarberBooking.API\obj\Debug\net9.0\ref\Barber
 E:\AAAAA1111222C#\BarberBookingApp\BarberBooking.API\bin\Debug\net9.0\Npgsql.dll
 E:\AAAAA1111222C#\BarberBookingApp\BarberBooking.API\bin\Debug\net9.0\Npgsql.EntityFrameworkCore.PostgreSQL.dll
 E:\AAAAA1111222C#\BarberBookingApp\BarberBooking.API\bin\Debug\net9.0\RabbitMQ.Client.dll
+E:\AAAAA1111222C#\BarberBookingApp\BarberBooking.API\bin\Debug\net9.0\Google.Protobuf.dll
+E:\AAAAA1111222C#\BarberBookingApp\BarberBooking.API\bin\Debug\net9.0\Grpc.AspNetCore.Server.dll
+E:\AAAAA1111222C#\BarberBookingApp\BarberBooking.API\bin\Debug\net9.0\Grpc.AspNetCore.Server.ClientFactory.dll
+E:\AAAAA1111222C#\BarberBookingApp\BarberBooking.API\bin\Debug\net9.0\Grpc.Core.Api.dll
+E:\AAAAA1111222C#\BarberBookingApp\BarberBooking.API\bin\Debug\net9.0\Grpc.Net.Client.dll
+E:\AAAAA1111222C#\BarberBookingApp\BarberBooking.API\bin\Debug\net9.0\Grpc.Net.ClientFactory.dll
+E:\AAAAA1111222C#\BarberBookingApp\BarberBooking.API\bin\Debug\net9.0\Grpc.Net.Common.dll

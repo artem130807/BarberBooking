@@ -29,6 +29,8 @@ class GetTheBestMastersService {
             .map((json) => GetTheBestMastersResponse.fromJson(json))
             .toList();
       }
+      print('❌ GetTheBestMasters: ${response.statusCode} ${response.body}');
+      return [];
     } catch (e) {
       print(e);
       return null;
