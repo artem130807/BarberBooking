@@ -1,5 +1,6 @@
-import 'dart:async';
+﻿import 'dart:async';
 
+import 'package:barber_booking_app/config/app_branding.dart';
 import 'package:barber_booking_app/services/push/fcm_token_registration_service.dart';
 import 'package:barber_booking_app/services/storages/token_storage.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
@@ -12,7 +13,7 @@ class NotificationService {
   static final NotificationService instance = NotificationService._();
 
   static const String _channelId = 'barber_booking_default';
-  static const String _channelName = 'BarberBooking';
+  static const String _channelName = AppBranding.appName;
   static const String _channelDescription =
       'Напоминания о записях и сообщения от салонов и мастеров';
 
@@ -239,3 +240,4 @@ class NotificationService {
     _initialized = false;
   }
 }
+

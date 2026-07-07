@@ -1,6 +1,6 @@
-{
-    "name": "barber_booking_app",
-    "short_name": "barber_booking_app",
+﻿{
+    "name": "Время Красоты",
+    "short_name": "Время Красоты",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",
@@ -33,3 +33,4 @@
         }
     ]
 }
+

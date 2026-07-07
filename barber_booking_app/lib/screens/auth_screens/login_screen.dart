@@ -1,3 +1,4 @@
+﻿import 'package:barber_booking_app/config/app_branding.dart';
 import 'package:flutter/material.dart';
 import 'package:barber_booking_app/navigation/role_routes.dart';
 import 'package:barber_booking_app/providers/auth_providers/auth_provider.dart';
@@ -50,7 +51,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   const SizedBox(height: 20),
                   Center(
                     child: Text(
-                      'BarberBooking',
+                      AppBranding.appName,
                       style: Theme.of(context).textTheme.headlineMedium?.copyWith(
                         fontWeight: FontWeight.bold,
                         letterSpacing: 1.5,

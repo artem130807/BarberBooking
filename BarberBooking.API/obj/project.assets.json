@@ -7415,7 +7415,7 @@
       "code": "NU1608",
       "level": "Warning",
       "warningLevel": 1,
-      "message": "Версия обнаруженного пакета нарушает ограничение зависимости: MediatR.Extensions.Microsoft.DependencyInjection 11.1.0 требуется MediatR (>= 11.0.0 && < 12.0.0), но в результате разрешения получена версия MediatR 14.0.0.",
+      "message": "Detected package version outside of dependency constraint: MediatR.Extensions.Microsoft.DependencyInjection 11.1.0 requires MediatR (>= 11.0.0 && < 12.0.0) but version MediatR 14.0.0 was resolved.",
       "libraryId": "MediatR",
       "targetGraphs": [
         "net9.0"
@@ -7425,7 +7425,7 @@
       "code": "NU1902",
       "level": "Warning",
       "warningLevel": 1,
-      "message": "У пакета \"MailKit\" 4.15.1 есть известная уязвимость https://github.com/advisories/GHSA-9j88-vvj5-vhgr (уровень серьезности: средний)",
+      "message": "Package 'MailKit' 4.15.1 has a known moderate severity vulnerability, https://github.com/advisories/GHSA-9j88-vvj5-vhgr",
       "libraryId": "MailKit",
       "targetGraphs": [
         "net9.0"

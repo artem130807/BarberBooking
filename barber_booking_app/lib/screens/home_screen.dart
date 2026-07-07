@@ -16,6 +16,7 @@ import 'package:barber_booking_app/widgets/loading_indicator.dart';
 import 'package:barber_booking_app/widgets/error_widget.dart';
 import 'package:barber_booking_app/widgets/section_header.dart';
 import 'package:barber_booking_app/utils/api_media_url.dart';
+import 'package:barber_booking_app/config/app_branding.dart';
 import 'package:barber_booking_app/widgets/navigation/user_bottom_navigation_bar.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -175,7 +176,7 @@ class _HomeScreenState extends State<HomeScreen> {
           appBar: AppBar(
             automaticallyImplyLeading: false,
             title: const Text(
-              'BarberBooking',
+              AppBranding.appName,
               style: TextStyle(fontWeight: FontWeight.bold),
             ),
             centerTitle: false,
@@ -523,6 +524,7 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 }
+
 
 
 

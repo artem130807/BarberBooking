@@ -59,6 +59,7 @@ import 'package:barber_booking_app/screens/common/sessions_screen.dart';
 import 'package:barber_booking_app/screens/user_interfaces/user_screens/profile_settings_screen.dart';
 import 'package:barber_booking_app/screens/user_interfaces/user_screens/user_reviews_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:barber_booking_app/config/app_branding.dart';
 import 'package:barber_booking_app/theme/app_theme.dart';
 import 'package:barber_booking_app/screens/user_interfaces/auth_screens/login_screen.dart';
 import 'package:barber_booking_app/screens/user_interfaces/auth_screens/register_screen.dart';
@@ -210,7 +211,7 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => AdminTopServicesProvider()),
       ],
       child: MaterialApp(
-        title: 'BarberBooking',
+        title: AppBranding.appName,
         theme: AppTheme.darkTheme,
         home: const SessionStartGate(),
         builder: (context, child) {
@@ -464,6 +465,7 @@ class _SessionStartGateState extends State<SessionStartGate> {
     );
   }
 }
+
 
 
 
